@@ -1,3 +1,50 @@
+---
+title: "PROJECT OVERVIEW - Agentic Infra Docs"
+category: "Contexto"
+priority: "Siempre"
+version: "1.0.3"
+last_updated: "2026-03-30"
+language: "es"
+repository: "agentic-infra-docs"
+owner: "Mantis-AgenticDev"
+type: "overview"
+ia_parser_version: "2.0"
+auto_validate: false
+compliance_check: "on-demand"
+total_sections: 11
+estimated_tokens: 4500
+tags:
+  - overview
+  - context
+  - business-model
+  - architecture
+  - multi-tenant
+  - scalability
+related_files:
+  - "00-CONTEXT/00-INDEX.md"
+  - "00-CONTEXT/facundo-core-context.md"
+  - "00-CONTEXT/facundo-infrastructure.md"
+  - "00-CONTEXT/facundo-business-model.md"
+  - "01-RULES/00-INDEX.md"
+---
+<!-- IA-NAVIGATION
+priority_files:
+  - "00-CONTEXT/facundo-core-context.md"
+  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
+  - "01-RULES/03-SECURITY-RULES.md"
+always_keep_in_context:
+  - "PROJECT_OVERVIEW.md"
+  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
+load_strategy: "full"
+max_tokens_per_session: 8000
+critical_sections:
+  - "business-model"
+  - "infrastructure-architecture"
+  - "multi-tenancy"
+  - "scalability-plan"
+-->
+---
+
 # Project Overview / Visão Geral do Projeto
 
 **Repository / Repositório:** agentic-infra-docs  
@@ -12,16 +59,16 @@
 
 ## 📋 TABLE OF CONTENTS / ÍNDICE
 
-1. [Project Purpose / Propósito del Proyecto](#project-purpose--propósito-del-proyecto)
-2. [Business Model / Modelo de Negócio](#business-model--modelo-de-negócio)
+1. [Project Purpose             / Propósito del Proyecto](#project-purpose--propósito-del-proyecto)
+2. [Business Model              / Modelo de Negócio](#business-model--modelo-de-negócio)
 3. [Infrastructure Architecture / Arquitetura de Infraestrutura](#infrastructure-architecture--arquitetura-de-infraestrutura)
-4. [VPS Configuration / Configuração dos VPS](#vps-configuration--configuração-dos-vps)
-5. [Security Measures / Medidas de Segurança](#security-measures--medidas-de-segurança)
-6. [Monitoring & Alerts / Monitoramento e Alertas](#monitoring--alerts--monitoramento-e-alertas)
-7. [Backup Strategy / Estratégia de Backup](#backup-strategy--estratégia-de-backup)
-8. [Multi-Tenancy / Multi-Tenência](#multi-tenancy--multi-tenência)
-9. [Client Capacity / Capacidade de Clientes](#client-capacity--capacidade-de-clientes)
-10. [Scalability Plan / Plano de Escalabilidade](#scalability-plan--plano-de-escalabilidade)
+4. [VPS Configuration           / Configuração dos VPS](#vps-configuration--configuração-dos-vps)
+5. [Security Measures           / Medidas de Segurança](#security-measures--medidas-de-segurança)
+6. [Monitoring & Alerts         / Monitoramento e Alertas](#monitoring--alerts--monitoramento-e-alertas)
+7. [Backup Strategy             / Estratégia de Backup](#backup-strategy--estratégia-de-backup)
+8. [Multi-Tenancy               / Multi-Tenência](#multi-tenancy--multi-tenência)
+9. [Client Capacity             / Capacidade de Clientes](#client-capacity--capacidade-de-clientes)
+10. [Scalability Plan           / Plano de Escalabilidade](#scalability-plan--plano-de-escalabilidade)
 
 ---
 
@@ -75,22 +122,22 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 
 ### 🇪🇸 Español
 
-| Plan / Plano | Precio / Preço | Incluye / Inclui |
-|--------------|---------------|------------------|
-| **Full** | R$ 550/mes | WhatsApp automation, RAG, Acceso a EspoCRM, Reportes y dashboards, Soporte prioritario |
-| **Light** | R$ 400/mes | WhatsApp automation, RAG, Sin acceso a CRM, Solo almacenamiento de datos |
+| Plan / Plano | Precio / Preço | Incluye / Inclui                                                                       |
+|--------------|----------------|----------------------------------------------------------------------------------------|
+| **Full**     | R$ 550/mes     | WhatsApp automation, RAG, Acceso a EspoCRM, Reportes y dashboards, Soporte prioritario |
+| **Light**    | R$ 400/mes     | WhatsApp automation, RAG, Sin acceso a CRM, Solo almacenamiento de datos               |
 
 **Términos del contrato:**
 - Duración: 12 meses auto-renovable
-- SLA: Backup diario 2 AM, restauración < 1 hora
+- SLA: Backup diario 4 AM, restauración < 1 hora
 - Respuesta a alertas: < 10 minutos
 
 ### 🇧🇷 Português
 
-| Plan / Plano | Preço / Precio | Inclui / Incluye |
-|--------------|---------------|------------------|
-| **Full** | R$ 550/mês | Automação WhatsApp, RAG, Acesso ao EspoCRM, Relatórios e dashboards, Suporte prioritário |
-| **Light** | R$ 400/mês | Automação WhatsApp, RAG, Sem acesso ao CRM, Apenas armazenamento de dados |
+| Plan / Plano | Preço / Precio | Inclui / Incluye                                                                         |
+|--------------|----------------|------------------------------------------------------------------------------------------|
+| **Full**     | R$ 550/mês     | Automação WhatsApp, RAG, Acesso ao EspoCRM, Relatórios e dashboards, Suporte prioritário |
+| **Light**    | R$ 400/mês     | Automação WhatsApp, RAG, Sem acesso ao CRM, Apenas armazenamento de dados                |
 
 **Termos do contrato:**
 - Duração: 12 meses auto-renovável
@@ -107,20 +154,20 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 │                         ARQUITECTURA DE 3 VPS                           │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐   │
-│  │   VPS 1         │     │   VPS 2         │     │   VPS 3         │   │
-│  │   n8n + uazapi  │────▶│   CRM + DB      │◀────│   n8n + uazapi  │   │
-│  │   (3 clientes)  │ SSH │   (6 clientes)  │ SSH │   (3 clientes)  │   │
-│  │   São Paulo     │     │   São Paulo     │     │   São Paulo     │   │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘   │
-│          │                       │                       │             │
-│          └───────────────────────┼───────────────────────┘             │
-│                                  │                                     │
-│                          ┌───────────────┐                             │
-│                          │   PC Local    │                             │
-│                          │   Backups     │                             │
-│                          │   (4:00 AM)   │                             │
-│                          └───────────────┘                             │
+│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐    │
+│  │   VPS 1         │     │   VPS 2         │     │   VPS 3         │    │
+│  │   n8n + uazapi  │────▶│   CRM + DB      │◀────│   n8n + uazapi  │    │
+│  │   (3 clientes)  │ SSH │   (6 clientes)  │ SSH │   (3 clientes)  │    │
+│  │   São Paulo     │     │   São Paulo     │     │   São Paulo     │    │
+│  └─────────────────┘     └─────────────────┘     └─────────────────┘    │
+│          │                       │                       │              │
+│          └───────────────────────┼───────────────────────┘              │
+│                                  │                                      │
+│                          ┌───────────────┐                              │
+│                          │   PC Local    │                              │
+│                          │   Backups     │                              │
+│                          │   (4:00 AM)   │                              │
+│                          └───────────────┘                              │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 
@@ -139,20 +186,20 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 │                         ARQUITETURA DE 3 VPS                            │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐   │
-│  │   VPS 1         │     │   VPS 2         │     │   VPS 3         │   │
-│  │   n8n + uazapi  │────▶│   CRM + DB      │◀────│   n8n + uazapi  │   │
-│  │   (3 clientes)  │ SSH │   (6 clientes)  │ SSH │   (3 clientes)  │   │
-│  │   São Paulo     │     │   São Paulo     │     │   São Paulo     │   │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘   │
-│          │                       │                       │             │
-│          └───────────────────────┼───────────────────────┘             │
-│                                  │                                     │
-│                          ┌───────────────┐                             │
-│                          │   PC Local    │                             │
-│                          │   Backups     │                             │
-│                          │   (4:00 AM)   │                             │
-│                          └───────────────┘                             │
+│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐    │
+│  │   VPS 1         │     │   VPS 2         │     │   VPS 3         │    │
+│  │   n8n + uazapi  │────▶│   CRM + DB      │◀────│   n8n + uazapi  │    │
+│  │   (3 clientes)  │ SSH │   (6 clientes)  │ SSH │   (3 clientes)  │    │
+│  │   São Paulo     │     │   São Paulo     │     │   São Paulo     │    │
+│  └─────────────────┘     └─────────────────┘     └─────────────────┘    │
+│          │                       │                       │              │
+│          └───────────────────────┼───────────────────────┘              │
+│                                  │                                      │
+│                          ┌───────────────┐                              │
+│                          │   PC Local    │                              │
+│                          │   Backups     │                              │
+│                          │   (4:00 AM)   │                              │
+│                          └───────────────┘                              │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 
@@ -171,35 +218,35 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 
 ### 🇪🇸 Español
 
-| Especificación | VPS 1 | VPS 2 | VPS 3 |
-|---------------|-------|-------|-------|
-| **Proveedor** | Hostinger | Hostinger | Hostinger |
-| **Plan** | KVM1 | KVM1 | KVM1 |
-| **vCPU** | 1 núcleo | 1 núcleo | 1 núcleo |
-| **RAM** | 4 GB | 4 GB | 4 GB |
-| **Disco** | 50 GB NVMe | 50 GB NVMe | 50 GB NVMe |
-| **Ancho de banda** | 4 TB | 4 TB | 4 TB |
-| **Ubicación** | São Paulo, BR | São Paulo, BR | São Paulo, BR |
-| **Acceso** | Root SSH | Root SSH | Root SSH |
-| **Servicios** | n8n, uazapi, Redis | EspoCRM, MySQL, Qdrant | n8n, uazapi |
-| **Capacidad** | 3 clientes | 6 clientes (central) | 3 clientes |
-| **Contenedores Docker** | 3 | 3 | 2 |
+| Especificación          | VPS 1              | VPS 2                  | VPS 3         |
+|-------------------------|--------------------|------------------------|---------------|
+| **Proveedor**           | Hostinger          | Hostinger              | Hostinger     |
+| **Plan**                | KVM1               | KVM1                   | KVM1          |
+| **vCPU**                | 1 núcleo           | 1 núcleo               | 1 núcleo      |
+| **RAM**                 | 4 GB               | 4 GB                   | 4 GB          |
+| **Disco**               | 50 GB NVMe         | 50 GB NVMe             | 50 GB NVMe    |
+| **Ancho de banda**      | 4 TB               | 4 TB                   | 4 TB          |
+| **Ubicación**           | São Paulo, BR      | São Paulo, BR          | São Paulo, BR |
+| **Acceso**              | Root SSH           | Root SSH               | Root SSH      |
+| **Servicios**           | n8n, uazapi, Redis | EspoCRM, MySQL, Qdrant | n8n, uazapi   |
+| **Capacidad**           | 3 clientes         | 6 clientes (central)   | 3 clientes    |
+| **Contenedores Docker** | 3                  | 3                      | 2             |
 
 ### 🇧🇷 Português
 
-| Especificação | VPS 1 | VPS 2 | VPS 3 |
-|---------------|-------|-------|-------|
-| **Fornecedor** | Hostinger | Hostinger | Hostinger |
-| **Plano** | KVM1 | KVM1 | KVM1 |
-| **vCPU** | 1 núcleo | 1 núcleo | 1 núcleo |
-| **RAM** | 4 GB | 4 GB | 4 GB |
-| **Disco** | 50 GB NVMe | 50 GB NVMe | 50 GB NVMe |
-| **Largura de banda** | 4 TB | 4 TB | 4 TB |
-| **Localização** | São Paulo, BR | São Paulo, BR | São Paulo, BR |
-| **Acesso** | Root SSH | Root SSH | Root SSH |
-| **Serviços** | n8n, uazapi, Redis | EspoCRM, MySQL, Qdrant | n8n, uazapi |
-| **Capacidade** | 3 clientes | 6 clientes (central) | 3 clientes |
-| **Contêineres Docker** | 3 | 3 | 2 |
+| Especificação           | VPS 1               | VPS 2                 | VPS 3         |
+|-------------------------|---------------------|-----------------------|---------------|
+| **Fornecedor**          | Hostinger           | Hostinger             | Hostinger     |
+| **Plano**               | KVM1                | KVM1                  | KVM1          |
+| **vCPU**                | 1 núcleo            | 1 núcleo              | 1 núcleo      |
+| **RAM**                 | 4 GB                | 4 GB                  | 4 GB          |
+| **Disco**               | 50 GB NVMe          | 50 GB NVMe            | 50 GB NVMe    |
+| **Largura de banda**    | 4 TB                | 4 TB                  | 4 TB          |
+| **Localização**         | São Paulo, BR       | São Paulo, BR         | São Paulo, BR |
+| **Acesso**              | Root SSH            | Root SSH              | Root SSH      |
+| **Serviços**            | n8n, uazapi, Redis  | EspoCRM, MySQL, Qdrant| n8n, uazapi   |
+| **Capacidade**          | 3 clientes          | 6 clientes (central)  | 3 clientes    |
+| **Contêineres Docker**  | 3                   | 3                     | 2             |
 
 ---
 
@@ -208,16 +255,16 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 ### 🇪🇸 Español
 
 **Firewall (UFW):**
-- SSH: Solo IPs conocidas
-- MySQL (3306): Solo desde IP VPS 1 y VPS 3
-- Qdrant (6333): Solo desde IP VPS 1 y VPS 3
+- SSH:                     Solo IPs conocidas
+- MySQL (3306):            Solo desde IP VPS 1 y VPS 3
+- Qdrant (6333):           Solo desde IP VPS 1 y VPS 3
 - HTTP (80) / HTTPS (443): Público
-- Default: Denegar todo lo demás
+- Default:                 Denegar todo lo demás
 
 **SSH:**
 - Autenticación: Solo claves SSH (no password)
-- Root login: Deshabilitado si es posible
-- Keepalive: ClientAliveInterval 60, ClientAliveCountMax 3
+- Root login:    Deshabilitado si es posible
+- Keepalive:     ClientAliveInterval 60, ClientAliveCountMax 3
 
 **Protección adicional:**
 - fail2ban instalado en todos los VPS
@@ -228,16 +275,16 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 ### 🇧🇷 Português
 
 **Firewall (UFW):**
-- SSH: Apenas IPs conhecidas
-- MySQL (3306): Apenas desde IP VPS 1 e VPS 3
-- Qdrant (6333): Apenas desde IP VPS 1 e VPS 3
+- SSH:                     Apenas IPs conhecidas
+- MySQL (3306):            Apenas desde IP VPS 1 e VPS 3
+- Qdrant (6333):           Apenas desde IP VPS 1 e VPS 3
 - HTTP (80) / HTTPS (443): Público
-- Default: Negar todo o demais
+- Default:                 Negar todo o demais
 
 **SSH:**
 - Autenticação: Apenas chaves SSH (sem senha)
-- Root login: Desabilitado se possível
-- Keepalive: ClientAliveInterval 60, ClientAliveCountMax 3
+- Root login:   Desabilitado se possível
+- Keepalive:    ClientAliveInterval 60, ClientAliveCountMax 3
 
 **Proteção adicional:**
 - fail2ban instalado em todos os VPS
@@ -257,19 +304,19 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 - **alert-dispatcher-agent:** Envía alertas a múltiples canales
 
 **Canales de alerta:**
-| Canal | Propósito | Tiempo de entrega |
-|-------|-----------|-------------------|
-| Telegram Bot | Alertas críticas | < 10 segundos |
-| Gmail SMTP | Registro formal | < 1 minuto |
-| Google Calendar | Agenda de incidentes | < 1 minuto |
-| Log local | Auditoría | Inmediato |
+| Canal           | Propósito            | Tiempo de entrega |
+|-----------------|----------------------|-------------------|
+| Telegram Bot    | Alertas críticas     | < 10 segundos     |
+| Gmail SMTP      | Registro formal      | < 1 minuto        |
+| Google Calendar | Agenda de incidentes | < 1 minuto        |
+| Log local       | Auditoría            | Inmediato         |
 
 **Umbrales de alerta:**
-| Recurso | Advertencia | Crítico |
-|---------|-------------|---------|
-| RAM | > 85% por 5 min | > 90% por 5 min |
-| CPU | > 80% sostenido | > 90% sostenido |
-| Disco | > 80% | > 90% |
+| Recurso | Advertencia     | Crítico         |
+|---------|-----------------|-----------------|
+| RAM     | > 85% por 5 min | > 90% por 5 min |
+| CPU     | > 80% sostenido | > 90% sostenido |
+| Disco   | > 80%           | > 90%           |
 
 ### 🇧🇷 Português
 
@@ -279,19 +326,19 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
 - **alert-dispatcher-agent:** Envia alertas para múltiplos canais
 
 **Canais de alerta:**
-| Canal | Propósito | Tempo de entrega |
-|-------|-----------|------------------|
-| Telegram Bot | Alertas críticas | < 10 segundos |
-| Gmail SMTP | Registro formal | < 1 minuto |
-| Google Calendar | Agenda de incidentes | < 1 minuto |
-| Log local | Auditoria | Imediato |
+| Canal           | Propósito            | Tempo de entrega |
+|-----------------|----------------------|------------------|
+| Telegram Bot    | Alertas críticas     | < 10 segundos    |
+| Gmail SMTP      | Registro formal      | < 1 minuto       |
+| Google Calendar | Agenda de incidentes | < 1 minuto       |
+| Log local       | Auditoria            | Imediato         |
 
 **Limiares de alerta:**
-| Recurso | Advertência | Crítico |
-|---------|-------------|---------|
-| RAM | > 85% por 5 min | > 90% por 5 min |
-| CPU | > 80% sustentado | > 90% sustentado |
-| Disco | > 80% | > 90% |
+| Recurso | Advertência      | Crítico          |
+|---------|------------------|------------------|
+| RAM     | > 85% por 5 min  | > 90% por 5 min  |
+| CPU     | > 80% sustentado | > 90% sustentado |
+| Disco   | > 80%            | > 90%            |
 
 ---
 
@@ -357,32 +404,31 @@ Este projeto tem como objetivo construir uma **infraestrutura agêntica de autom
     ]
   }
 }
+```
 
+**Índices de base de datos:**
 
-Índices de base de datos:
-
-sql
-
+```sql
 CREATE INDEX idx_mensajes_tenant_fecha ON mensajes(tenant_id, fecha);
 CREATE INDEX idx_clientes_telefono ON clientes(telefono);
+```
 
-
-Validación:
+**Validación:**
 
     Cada consulta debe incluir WHERE tenant_id = ?
     Log de acceso por tenant para auditoría
     Nunca exponer datos de un cliente a otro
 
-🇧🇷 Português
-Método de separação:
+### 🇧🇷 Português
+**Método de separação:**
 
     Campo tenant_id em todas as tabelas do MySQL
     Coleções separadas no Qdrant: rag_cliente_{tenant_id}
     Filtros obrigatórios em todas as consultas
 
-Exemplo de filtro Qdrant:
+**Exemplo de filtro Qdrant:**
 
-json
+```json
 
 {
   "filter": {
@@ -391,39 +437,43 @@ json
     ]
   }
 }
+```
 
+**Índices de banco de dados:**
 
-Índices de banco de dados:
-
-sql
+```sql
 
 CREATE INDEX idx_mensajes_tenant_fecha ON mensajes(tenant_id, fecha);
 CREATE INDEX idx_clientes_telefono ON clientes(telefone);
+```
 
-
-Validação:
+**Validação:**
 
     Cada consulta deve incluir WHERE tenant_id = ?
     Log de acesso por tenant para auditoria
     Nunca expor dados de um cliente a outro
 
-CLIENT CAPACITY / CAPACIDADE DE CLIENTES
-🇪🇸 Español
-Configuración inicial (conservadora):
+---
+
+## CLIENT CAPACITY / CAPACIDADE DE CLIENTES
+
+### 🇪🇸 Español
+
+**Configuración inicial (conservadora):**
 
     VPS 1: 3 clientes (n8n + uazapi)
     VPS 2: 6 clientes (EspoCRM + MySQL + Qdrant)
     VPS 3: 3 clientes (n8n + uazapi)
     Total inicial: 6 clientes (3 Full + 3 Light, o 6 Full)
 
-Configuración máxima (si todo funciona perfectamente):
+**Configuración máxima (si todo funciona perfectamente):**
 
     VPS 1: 4 clientes
     VPS 2: 8 clientes
     VPS 3: 4 clientes
     Total máximo: 8 clientes
 
-Criterios para escalar de 3 a 4 clientes por VPS:
+**Criterios para escalar de 3 a 4 clientes por VPS:**
 
     RAM promedio < 70% sostenido (30 días)
     CPU pico < 80% en horas pico (30 días)
@@ -432,22 +482,23 @@ Criterios para escalar de 3 a 4 clientes por VPS:
     100% backup exitoso en 30 días
     0 quejas de clientes
 
-🇧🇷 Português
-Configuração inicial (conservadora):
+### 🇧🇷 Português
+
+**Configuração inicial (conservadora):**
 
     VPS 1: 3 clientes (n8n + uazapi)
     VPS 2: 6 clientes (EspoCRM + MySQL + Qdrant)
     VPS 3: 3 clientes (n8n + uazapi)
     Total inicial: 6 clientes (3 Full + 3 Light, ou 6 Full)
 
-Configuração máxima (se tudo funcionar perfeitamente):
+**Configuração máxima (se tudo funcionar perfeitamente):**
 
     VPS 1: 4 clientes
     VPS 2: 8 clientes
     VPS 3: 4 clientes
     Total máximo: 8 clientes
 
-Critérios para escalar de 3 para 4 clientes por VPS:
+**Critérios para escalar de 3 para 4 clientes por VPS:**
 
     RAM média < 70% sustentado (30 dias)
     CPU pico < 80% em horas de pico (30 dias)
@@ -456,86 +507,97 @@ Critérios para escalar de 3 para 4 clientes por VPS:
     100% backup exitoso em 30 dias
     0 reclamações de clientes
 
-SCALABILITY PLAN / PLANO DE ESCALABILIDADE
-🇪🇸 Español
-Fase 1 (Mes 1-4): 6 clientes estables
+---
+
+## SCALABILITY PLAN / PLANO DE ESCALABILIDADE
+
+### 🇪🇸 Español
+
+**Fase 1 (Mes 1-4): 6 clientes estables**
 
     Validar infraestructura base
     Pasar TEST DE INCENDIO (todos los escenarios de fallo)
     Establecer reputación en la ciudad
 
-Fase 2 (Mes 5-8): 8 clientes (máximo con KVM1)
+**Fase 2 (Mes 5-8): 8 clientes (máximo con KVM1)**
 
     Escalar solo si todos los criterios se cumplen
     Ingreso neto objetivo: R$ 2.860/mes
 
-Fase 3 (Mes 9+): Upgrade a KVM2 o más VPS
+**Fase 3 (Mes 9+): Upgrade a KVM2 o más VPS**
 
     Solo si hay lista de espera de clientes
     Ingreso neto confirmado > R$ 3.000/mes por 60 días
     RAM consistentemente > 75% en KVM1
 
-Principio fundamental:
+**Principio fundamental:**
 
     "Mejor 6 meses completado que 4 meses abandonado por burnout.
     La estabilidad vende más que la velocidad.
     Tu laboratorio merece cimientos sólidos, tanto en el campo como en la nube."
 
-🇧🇷 Português
-Fase 1 (Mês 1-4): 6 clientes estáveis
+### 🇧🇷 Português
+
+**Fase 1 (Mês 1-4): 6 clientes estáveis**
 
     Validar infraestrutura base
     Passar TESTE DE INCÊNDIO (todos os cenários de falha)
     Estabelecer reputação na cidade
 
-Fase 2 (Mês 5-8): 8 clientes (máximo com KVM1)
+**Fase 2 (Mês 5-8): 8 clientes (máximo com KVM1)**
 
     Escalar apenas se todos os critérios forem cumpridos
     Receita líquida objetivo: R$ 2.860/mês
 
-Fase 3 (Mês 9+): Upgrade para KVM2 ou mais VPS
+**Fase 3 (Mês 9+): Upgrade para KVM2 ou mais VPS**
 
     Apenas se houver lista de espera de clientes
     Receita líquida confirmada > R$ 3.000/mês por 60 dias
     RAM consistentemente > 75% em KVM1
 
-Princípio fundamental:
+**Princípio fundamental:**
 
     "Melhor 6 meses completado que 4 meses abandonado por burnout.
     A estabilidade vende mais que a velocidade.
     Seu laboratório merece fundamentos sólidos, tanto no campo quanto na nuvem."
 
-CONTACT & HANDOVER / CONTATO E TRANSFERÊNCIA
-🇪🇸 Español
-Para ingenieros que continúen este proyecto:
+---
+
+## CONTACT & HANDOVER / CONTATO E TRANSFERÊNCIA
+
+### 🇪🇸 Español
+
+**Para ingenieros que continúen este proyecto:**
 
     Leer primero: 00-CONTEXT/README.md (reglas de Cursor)
-    Revisar: 01-RULES/ (todas las reglas de desarrollo)
-    Estudiar: 02-SKILLS/ (patrones reutilizables)
-    Entender: 03-AGENTS/ (agentes de infraestructura y clientes)
-    Ejecutar: 04-WORKFLOWS/ (workflows de n8n)
-    Configurar: 05-CONFIGURATIONS/ (docker-compose, scripts, .env)
-    Programar: 06-PROGRAMMING/ (patrones de código)
-    Seguir: 07-PROCEDURES/ (procedimientos operativos)
+    Revisar:      01-RULES/ (todas las reglas de desarrollo)
+    Estudiar:     02-SKILLS/ (patrones reutilizables)
+    Entender:     03-AGENTS/ (agentes de infraestructura y clientes)
+    Ejecutar:     04-WORKFLOWS/ (workflows de n8n)
+    Configurar:   05-CONFIGURATIONS/ (docker-compose, scripts, .env)
+    Programar:    06-PROGRAMMING/ (patrones de código)
+    Seguir:       07-PROCEDURES/ (procedimientos operativos)
 
-Contacto: Mantis-AgenticDev (Facundo) - Rio Grande do Sul, Brasil
-🇧🇷 Português
-Para engenheiros que continuarem este projeto:
+**Contacto:** Mantis-AgenticDev (Facundo) - Rio Grande do Sul, Brasil
+
+### 🇧🇷 Português
+
+**Para engenheiros que continuarem este projeto:**
 
     Ler primeiro: 00-CONTEXT/README.md (regras do Cursor)
-    Revisar: 01-RULES/ (todas as regras de desenvolvimento)
-    Estudar: 02-SKILLS/ (padrões reutilizáveis)
-    Entender: 03-AGENTS/ (agentes de infraestrutura e clientes)
-    Executar: 04-WORKFLOWS/ (workflows de n8n)
-    Configurar: 05-CONFIGURATIONS/ (docker-compose, scripts, .env)
-    Programar: 06-PROGRAMMING/ (padrões de código)
-    Seguir: 07-PROCEDURES/ (procedimentos operacionais)
+    Revisar:      01-RULES/ (todas as regras de desenvolvimento)
+    Estudar:      02-SKILLS/ (padrões reutilizáveis)
+    Entender:     03-AGENTS/ (agentes de infraestrutura e clientes)
+    Executar:     04-WORKFLOWS/ (workflows de n8n)
+    Configurar:   05-CONFIGURATIONS/ (docker-compose, scripts, .env)
+    Programar:    06-PROGRAMMING/ (padrões de código)
+    Seguir:       07-PROCEDURES/ (procedimentos operacionais)
 
-Contato: Mantis-AgenticDev (Facundo) - Rio Grande do Sul, Brasil
+**Contato:** Mantis-AgenticDev (Facundo) - Rio Grande do Sul, Brasil
 
-Versão 1.0.0
-Fecha / Data 30 marzo 2026
+Versão 1.0.3
+Fecha   / Data 30 marzo 2026
 Cambios / Mudanças Documneto Inicial
-Autor / Autor Facundo
+Autor   / Autor Facundo
 
 Este documento está bajo licencia Creative Commons para uso interno del proyecto. / Este documento está sob licença Creative Commons para uso interno do projeto.
