@@ -1,0 +1,57 @@
+# ===========================================
+# SEGURIDAD - NUNCA SUBIR A GITHUB
+# ===========================================
+
+# Variables de entorno (contraseñas, API keys)
+*.env
+*.env.local
+*.env.production
+*.env.*.local
+
+# Credenciales y claves privadas
+credentials/
+keys/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# JSON (excepto package.json)
+*.json
+!package.json
+
+# Datos sensibles
+data/
+backups/
+*.sql
+*.sql.gz
+*.tar.gz
+*.snapshot
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+/var/log/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs y editores
+.idea/
+.vscode/settings.json
+*.sublime-*
+
+# Docker
+docker-compose.override.yml
+
+# n8n
+.n8n/
+
+# Cursor
+.cursor/
