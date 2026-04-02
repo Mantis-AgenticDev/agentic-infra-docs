@@ -194,5 +194,5 @@ Hola, por favor lee este archivo primero para tener todas las URLs raw del proye
 ```
 
 Última actualización: 1 de Abril 2026
-Versión: 1.0.0
+Versión: 1.2.0
 Próxima revisión: Al completar Fase 1 (Cimientos)
