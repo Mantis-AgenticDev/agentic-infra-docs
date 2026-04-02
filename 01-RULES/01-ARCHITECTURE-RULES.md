@@ -223,6 +223,11 @@ Checklist de validación antes de deploy:
 - [ ] Redes Docker aisladas
 
 ---
+## 📌 Documentación Específica del Proyecto
+
+Para implementación específica de este proyecto, consultar:
+- `00-CONTEXT/facundo-infrastructure.md` (detalles de infraestructura)
+- `00-CONTEXT/facundo-core-context.md` (contexto del usuario)
 
 *Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*

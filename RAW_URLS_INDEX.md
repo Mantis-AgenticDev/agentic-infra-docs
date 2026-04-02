@@ -71,7 +71,7 @@ Este repositorio alterna entre **público y privado** durante el desarrollo.
 | README.md | Presentación del repositorio | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md | ✅ Creado |
 | .gitignore | Reglas para no subir archivos sensibles |  |
 | PROJECT_TREE.md | Mapa completo del proyecto con estados | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md | ✅ Creado |
-| RAW_URLS_INDEX.md | Este archivo - índice de todas las URLs raw |  |
+| RAW_URLS_INDEX.md | Este archivo - índice de todas las URLs raw | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md | ✅ Creado |
 
 ---
 
@@ -80,10 +80,10 @@ Este repositorio alterna entre **público y privado** durante el desarrollo.
 | Archivo | Descripción | URL Raw | Estado |
 |---------|-------------|---------|--------|
 | PROJECT_OVERVIEW.md | Visión general bilingüe (ES+PT-BR) del proyecto | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/PROJECT_OVERVIEW.md | ✅ Creado |
-| README.md | Reglas del repositorio para IAs |  | 🆕 Pendiente |
-| facundo-core-context.md | Contexto base del usuario: dominio, stack, forma de trabajo |  | 🆕 Pendiente |
-| facundo-infrastructure.md | Detalle técnico de infraestructura (3 VPS, specs, red) |  | 🆕 Pendiente |
-| facundo-business-model.md | Modelo de negocio, pricing, SLA, proyecciones financieras |  | 🆕 Pendiente |
+| README.md | Reglas del repositorio para IAs |  |  ✅ Creado |
+| facundo-core-context.md | Contexto base del usuario: dominio, stack, forma de trabajo | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-core-context.md |  ✅ Creado |
+| facundo-infrastructure.md | Detalle técnico de infraestructura (3 VPS, specs, red) | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-infrastructure.md |  ✅ Creado |
+| facundo-business-model.md | Modelo de negocio, pricing, SLA, proyecciones financieras | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-business-model.md |  ✅ Creado |
 
 ---
 

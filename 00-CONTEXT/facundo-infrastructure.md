@@ -72,6 +72,24 @@ ai_navigation:
 | Logs críticos  | Rotación diaria      | 14 días local, envío a SIEM      |
 +----------------+----------------------+----------------------------------+
 
+### Encriptación de Backups (SEG-005)
+
+**Comando obligatorio para backup MySQL:**
+
+```bash
+mysqldump -u root --all-databases | \
+  gzip | \
+  openssl enc -aes-256-cbc -salt -pbkdf2 -out backup-$(date +%F).tar.gz.enc
+ ```
+ 
+**Requisitos:**
+
+    Contraseña: 32 caracteres mínimo
+    Almacenamiento: Gestor de passwords (NUNCA en VPS)
+    Verificación: Checksum SHA256 obligatorio
+
+**Violación crítica:** Backups sin encriptar en VPS.
+
 ### Proceso de Restauración Crítica (< 60 minutos)
 
 [DETECCIÓN DE FALLA]
@@ -128,6 +146,39 @@ ai_navigation:
 - `docker stats` con logging a archivo rotativo
 - Script personalizado `health-check.sh` ejecutado cada 5 min vía cron
 - Webhook a Telegram para alertas críticas (sin dependencia externa)
+
+---
+
+## ⚙️ CONFIGURACIÓN DE N8N PARA 4GB RAM (RES-009)
+
+### Variables de Entorno Obligatorias (.env)
+
++-------------------------------+------------------+--------------------------+
+| Variable                      | Valor            | Justificación            |
++-------------------------------+------------------+--------------------------+
+| EXECUTIONS_PROCESS            | main             | Evita overhead de queue  |
+| EXECUTIONS_MAX_CONCURRENT     | 5                | Máximo para 4GB RAM      |
+| WEBHOOK_TIMEOUT               | 30000            | 30 segundos máximo       |
+| MEMORY_LIMIT                  | 1536             | 1.5GB para n8n           |
++-------------------------------+------------------+--------------------------+
+
+### Ejemplo de docker-compose.yml para n8n
+
+```yaml
+services:
+  n8n:
+    image: n8n-io/n8n
+    environment:
+      - EXECUTIONS_PROCESS=main
+      - EXECUTIONS_MAX_CONCURRENT=5
+      - WEBHOOK_TIMEOUT=30000
+      - MEMORY_LIMIT=1536
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+```
+**Violación crítica:** n8n en modo "queue" con 4GB RAM.
 
 ---
 
@@ -235,6 +286,34 @@ Frecuencia	Cada 6 horas
 
 ---
 
+## 🔌 TIMEOUTS Y FALLBACKS PARA APIs EXTERNAS (API-001, API-010)
+
+### Configuración Obligatoria por API
+
++------------------+------------------+---------------------------+
+| API              | Timeout          | Fallback                  |
++------------------+------------------+---------------------------+
+| OpenRouter       | 10 segundos      | Mensaje "IA no disponible"|
+| Telegram Bot     | 5 segundos       | Reintentar 3 veces        |
+| Gmail SMTP       | 10 segundos      | Queue para próximo envío  |
+| Google Calendar  | 5 segundos       | Solo log local si falla   |
++------------------+------------------+---------------------------+
+
+### Reintentos con Backoff Exponencial (API-007)
+
+| Intento | Delay  | Máximo Intentos |
+|---------|--------|-----------------|
+| 1       | 0 seg  | -               |
+| 2       | 5 seg  | -               |
+| 3       | 15 seg | -               |
+| 4       | 45 seg | Máximo alcanzado|
+
+**Fórmula:** delay = 5 * (2 ^ (intento - 1))
+
+**Violación crítica:** Llamadas API sin timeout definido.
+
+---
+
 ## 🔄 INTEGRACIÓN CON AGENTES
 
 **Los workflows de n8n (04-WORKFLOWS/n8n/) son la implementación ejecutable de estos agentes.**
@@ -277,6 +356,22 @@ Cada workflow debe ser probado en entorno de staging antes de pasar a producció
 | Redis (6379)   | localhost only   | Externo          | Cache interno n8n      |
 +----------------+------------------+------------------+------------------------+
 
+### Keepalive SSH (SEG-008)
+
+**Configuración en /etc/ssh/sshd_config:**
+ClientAliveInterval 60
+ClientAliveCountMax 3
+
+
+**Justificación:** Cierra conexiones inactivas después de 3 minutos, previene conexiones huérfanas que consumen recursos.
+
+**Comando de verificación:**
+
+```bash
+grep -E "ClientAlive" /etc/ssh/sshd_config
+```
+
+
 ### Validación de tenant_id en Consultas
 
 ```sql
@@ -289,6 +384,82 @@ ORDER BY created_at DESC LIMIT 50;
 if not query.contains("tenant_id"):
     raise SecurityError("Query missing tenant_id filter")
 ```
+
+### Índices de Base de Datos Obligatorios (SEG-007, MT-001)
+
+```sql
+CREATE INDEX idx_mensajes_tenant_fecha ON mensajes(tenant_id, fecha);
+CREATE INDEX idx_clientes_telefono ON clientes(telefono);
+CREATE INDEX idx_clientes_tenant ON clientes(tenant_id);
+```
+**Verificación:**
+
+```sql
+SHOW INDEX FROM mensajes;
+SHOW INDEX FROM clientes;
+```
+**Violación crítica:** Tablas grandes sin índices en campos de WHERE.
+
+
+---
+
+## 📏 LÍMITES POR TENANT (MT-008)
+
+### Configuración Obligatoria por Cliente
+
++------------------+------------------+--------------------------+
+| Recurso          | Límite           | Acción si excede         |
++------------------+------------------+--------------------------+
+| Mensajes/día     | 1000             | Queue hasta próximo día  |
+| Vectores Qdrant  | 10000            | Alertar + limpiar antiguos|
+| Almacenamiento   | 500 MB           | Alertar + archivar       |
+| Requests API/min | 30               | Rate limiting            |
++------------------+------------------+--------------------------+
+
+### Naming de Colecciones Qdrant (MT-002)
+
+**Formato obligatorio:** `rag_{tenant_id}_{fecha}`
+
+Ejemplos:
+- rag_cliente001_20260401
+- rag_cliente002_20260401
+
+**Violación crítica:** Colección única sin separación por tenant.
+
+---
+
+## 🌐 REDES DOCKER AISLADAS (ARQ-009)
+
+### Configuración Obligatoria por VPS
+
++-------+---------------------------+------------------------+
+| VPS   | Red Docker                | Servicios              |
++-------+---------------------------+------------------------+
+| VPS-1 | n8n-uazapi-network        | n8n, uazapi, Redis     |
+| VPS-2 | crm-db-network            | EspoCRM, MySQL, Qdrant |
+| VPS-3 | n8n-uazapi-network        | n8n, uazapi            |
++-------+---------------------------+------------------------+
+
+### Comandos de Creación (Ejecutar en cada VPS)
+
+```bash
+# VPS-1 y VPS-3
+docker network create --driver bridge n8n-uazapi-network
+
+# VPS-2
+docker network create --driver bridge crm-db-network
+```
+
+**Verificación**
+```Bash
+# Listar redes
+docker network ls
+
+# Verificar contenedores en red
+docker network inspect n8n-uazapi-network
+```
+
+**Violación crítica:** Todos los contenedores en red bridge por defecto.
 
 ---
 
@@ -360,5 +531,30 @@ Acción tomada: Reducción de concurrencia n8n
 Timestamp: 2026-04-01T14:30:00-03:00
 Checksum: a3f5c8e2...
 
+---
+
+
+## 🧪 TEST DE AISLAMIENTO MENSUAL (MT-010)
+
+### Checklist Obligatorio (Primer Sábado de Cada Mes)
+
+- [ ] Crear tenant de test A y B
+- [ ] Insertar 10 mensajes en tenant A
+- [ ] Intentar consultar desde contexto de tenant B
+- [ ] Verificar que retorna 0 resultados
+- [ ] Loguear resultado en auditoría
+- [ ] Eliminar tenants de test
+
+### Registro de Tests
+
+| Mes       | Ejecutado | Resultado | Firmado por |
+|-----------|-----------|-----------|-------------|
+| 2026-04   | ⬜        | ⬜        |             |
+| 2026-05   | ⬜        | ⬜        |             |
+| 2026-06   | ⬜        | ⬜        |             |
+
+**Violación crítica:** No ejecutar test mensual.
+
+---
 
 FIN DEL ARCHIVO - facundo-infrastructure.md

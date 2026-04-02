@@ -224,6 +224,12 @@ Log de resultado del test
 
 ---
 
+## 📌 Implementación Específica
+
+Para límites específicos por tenant en este proyecto:
+- Consultar `00-CONTEXT/facundo-infrastructure.md` sección "LÍMITES POR TENANT"
+
+---
 
 ## Checklist de Validación de Multi-Tenencia
 
