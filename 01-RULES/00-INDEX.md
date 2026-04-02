@@ -148,23 +148,45 @@ Paso 3: 07-SCALABILITY-RULES.md
 ## URLs Raw para IAs
 
 Base URL:
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/
+https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/
 
 
 Ejemplos de URLs completas:
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/02-RESOURCE-GUARDRAILS.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/06-MULTITENANCY-RULES.md
-
-
+https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/00-INDEX.md
+https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/02-RESOURCE-GUARDRAILS.md
+https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md
 
 ---
+
+## 🤖 SECCIÓN ESPECIAL PARA IAs GENERADORAS DE CÓDIGO
+
+### Cuando una IA va a generar código, workflow o agente:
+
+| Paso | Archivo a Cargar               | Por Qué                         |
+|------|--------------------------------|---------------------------------|
+| 1    | `02-RESOURCE-GUARDRAILS.md`    | Límites de hardware (4GB RAM)   |
+| 2    | `05-CODE-PATTERNS-RULES.md`    | Patrones de código obligatorios |
+| 3    | `01-ARCHITECTURE-RULES.md`     | Dónde va cada servicio          |
+| 4    | `06-MULTITENANCY-RULES.md`     | tenant_id en todo               |
+| 5    | `04-API-RELIABILITY-RULES.md`  | Timeouts y errores              |
+
+### Templates Disponibles para Copiar:
+
+| Template           | Ubicación                           | Caso de Uso                 |
+|--------------------|-------------------------------------|-----------------------------|
+| docker-compose.yml | `05-CONFIGURATIONS/docker-compose/` | Deploy de servicios         |
+| n8n workflow JSON  | `04-WORKFLOWS/n8n/`                 | Workflows de automatización |
+| Agent spec MD      | `03-AGENTS/`                        | Especificación de agentes   |
+| SQL schema         | `06-PROGRAMMING/sql/`               | Creación de tablas          |
+
+---
+
 
 ## Historial de Versiones
 
 | Versión | Fecha   | Cambios           | Autor |
 |---------|---------|-------------------|-------|
-| 1.0.0   | 2026-03 | Documento inicial |Facundo|
+| 1.1.1   | 2026-03 | Documento inicial |Facundo|
 
 ---
 

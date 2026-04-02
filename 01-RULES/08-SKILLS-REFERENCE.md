@@ -63,6 +63,19 @@ Las skills están ubicadas en: `02-SKILLS/`
 | Multi-Tenant Data Isolation  | multi-tenant-data-isolation.md | Aislamiento de datos por tenant |
 | EspoCRM API Analytics        | espocrm-api-analytics.md       | Reportes y analytics de EspoCRM |
 
+#### Skills de Integración (Estado Actual)
+
+| Skill                     | Archivo                                     | Caso de Uso      | Estado       |
+|---------------------------|---------------------------------------------|------------------|--------------|
+| n8n Workflow Patterns     | `02-SKILLS/n8n-workflow-patterns.md`        | Crear workflows  | 🆕 Pendiente |
+| WhatsApp RAG Agents       | `02-SKILLS/whatsapp-rag-agents.md`          | Agentes WhatsApp | 🆕 Pendiente |
+| Qdrant RAG Ingestion      | `02-SKILLS/qdrant-rag-ingestion.md`         | Ingesta Qdrant   | 🆕 Pendiente |
+| Docker Compose Networking | `05-CONFIGURATIONS/docker-compose/`         | Redes Docker     | ✅ Existe    |
+| SSH Tunnels               | `07-PROCEDURES/ssh-tunnel-setup.md`         | Túneles SSH      | 🆕 Pendiente |
+| Multi-Tenant Isolation    | `06-PROGRAMMING/sql/multi-tenant-schema.md` | Aislamiento      | 🆕 Pendiente |
+
+**Nota:** Las skills marcadas como 🆕 deben ser creadas antes de que la IA las use.
+
 ### Skills de Integración Externa
 
 | Skill                           | Archivo                            | Caso de Uso            |

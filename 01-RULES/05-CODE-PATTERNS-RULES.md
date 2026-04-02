@@ -264,6 +264,117 @@ try {
 
 ---
 
+## 📦 TEMPLATE COMPLETO: Workflow n8n JSON
+
+### Estructura Base para Cualquier Workflow
+
+```json
+{
+  "name": "INFRA-XXX-Nombre-Descriptivo",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.OPENROUTER_API_URL }}",
+        "sendHeaders": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.OPENROUTER_API_KEY }}"
+                          }
+          ]
+        },
+        "sendBody": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "anthropic/claude-3.5-sonnet"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  const inputData = items[0].json;\n  const result = processData(inputData);\n  return [{ json: { success: true, result } }];\n} catch (error) {\n  return [{ json: { success: false, error: error.message } }];\n}"
+      },
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [650, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+  "meta": {
+    "instanceId": "XXXXXXXXXXXXXXXX"
+  },
+  "tags": [
+    {
+      "name": "infraestructura"
+    },
+    {
+      "name": "tenant_id"
+    }
+  ]
+}
+```
+
+### Reglas para Generar Workflows:
+
+|Elemento	       |Regla	                   |Ejemplo                          |
+|------------------|---------------------------|---------------------------------|
+|Nombre	           |INFRA-XXX o CLIENTE-XXX	   |INFRA-001-Monitor-Salud-VPS      |
+|HTTP Request	   |Timeout obligatorio	       |timeout: 10000                   |
+|Function Node	   |Try/catch siempre	       |Ver plantilla arriba             |
+|Credentials	   |Usar variables de entorno  |{{ $env.API_KEY }}               |
+|Tags	           |Incluir tenant_id	       |["infraestructura", "tenant_id"] |
+
+**Violación crítica:** Workflow sin timeout en HTTP Request nodes.
+
+
 ## Checklist de Validación de Código
 
 - [ ] JavaScript usa async/await con try/catch
@@ -275,6 +386,6 @@ try {
 - [ ] Bash tiene set -euo pipefail
 - [ ] n8n Function nodes retornan estructura consistente
 
-Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev
+Versión 1.1.0 - Marzo 2026 - Mantis-AgenticDev
 Licencia: Creative Commons para uso interno del proyecto
 

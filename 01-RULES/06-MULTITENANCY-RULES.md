@@ -64,6 +64,79 @@ CREATE TABLE mensajes (
 ```
 **Violación crítica:** Tabla sin tenant_id.
 
+
+### Schema SQL Completo para Multi-Tenencia
+
+```sql
+-- Tabla de clientes (tenants)
+CREATE TABLE tenants (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  tenant_id VARCHAR(50) UNIQUE NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  telefono VARCHAR(20),
+  email VARCHAR(100),
+  plan ENUM('basico', 'full', 'enterprise') DEFAULT 'basico',
+  activo BOOLEAN DEFAULT TRUE,
+  fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_tenant_id (tenant_id)
+);
+
+-- Tabla de mensajes (con tenant_id)
+CREATE TABLE mensajes (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  tenant_id VARCHAR(50) NOT NULL,
+  telefono VARCHAR(20) NOT NULL,
+  mensaje TEXT,
+  direccion ENUM('entrada', 'salida') NOT NULL,
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  procesado BOOLEAN DEFAULT FALSE,
+  INDEX idx_tenant_fecha (tenant_id, fecha),
+  INDEX idx_tenant_telefono (tenant_id, telefono),
+  FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id)
+);
+
+-- Tabla de interacciones (con tenant_id)
+CREATE TABLE interacciones (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  tenant_id VARCHAR(50) NOT NULL,
+  mensaje_id INT,
+  respuesta_ia TEXT,
+  modelo_ia VARCHAR(50),
+  tokens_usados INT,
+  costo DECIMAL(10,4),
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_tenant_fecha (tenant_id, fecha),
+  FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id),
+  FOREIGN KEY (mensaje_id) REFERENCES mensajes(id)
+);
+
+-- Tabla de logs de auditoría (con tenant_id)
+CREATE TABLE auditoria (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  tenant_id VARCHAR(50) NOT NULL,
+  accion VARCHAR(100) NOT NULL,
+  usuario VARCHAR(50),
+  ip_origen VARCHAR(45),
+  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+  detalles JSON,
+  INDEX idx_tenant_fecha (tenant_id, fecha),
+  FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id)
+);
+```
+### Query Template con tenant_id (OBLIGATORIO)
+
+```sql
+-- CORRECTO ✅
+SELECT * FROM mensajes 
+WHERE tenant_id = ? AND fecha > ? 
+ORDER BY fecha DESC 
+LIMIT 50;
+
+-- INCORRECTO ❌ (NUNCA USAR)
+SELECT * FROM mensajes WHERE fecha > ?;
+```
+**Violación crítica:** Cualquier consulta SQL sin WHERE tenant_id = ?.
+
 ---
 
 ## Regla MT-002: Colecciones Separadas en Qdrant

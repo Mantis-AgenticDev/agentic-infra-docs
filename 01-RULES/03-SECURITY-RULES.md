@@ -110,6 +110,51 @@ Logs nunca imprimen tokens o API keys
 
 **Violación crítica:** API key hardcodeada en archivo .js o .py.
 
+
+### Template de Archivo .env (NUNCA COMMITEAR A GIT)
+
+```bash
+# .env para VPS-1 (n8n, uazapi)
+
+# n8n
+N8N_BASIC_AUTH_ACTIVE=true
+N8N_BASIC_AUTH_USER=admin
+N8N_BASIC_AUTH_PASSWORD=${GENERAR_PASSWORD}
+EXECUTIONS_PROCESS=main
+EXECUTIONS_MAX_CONCURRENT=5
+WEBHOOK_TIMEOUT=30000
+
+# OpenRouter
+OPENROUTER_API_KEY=sk-or-v1-XXXXXXXXXXXXXXXXXXXXXXXX
+
+# Qdrant Cloud
+QDRANT_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
+QDRANT_URL=https://XXXXXXXX.XXX-XXXX.XXX.qdrant.io
+
+# MySQL (VPS-2)
+MYSQL_ROOT_PASSWORD=${GENERAR_PASSWORD}
+MYSQL_DATABASE=espocrm
+MYSQL_USER=espocrm
+MYSQL_PASSWORD=${GENERAR_PASSWORD}
+
+# Telegram Bot (alertas)
+TELEGRAM_BOT_TOKEN=XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXX
+TELEGRAM_CHAT_ID=-XXXXXXXXXX
+
+# UAZAPI
+UAZAPI_URL=http://localhost:8080
+UAZAPI_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXX
+```
+**Comandos útiles:**
+```bash
+# Generar password seguro
+openssl rand -base64 32
+
+# Verificar que .env no está en git
+git check-ignore .env
+```
+**Violación crítica:** Archivo .env commiteado a Git.
+
 ---
 
 ## Regla SEG-005: Backups Encriptados

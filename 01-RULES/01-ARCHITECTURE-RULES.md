@@ -209,6 +209,111 @@ docker network create --driver bridge n8n-uazapi-network
 
 ---
 
+---
+
+## 📦 TEMPLATE COMPLETO: docker-compose.yml POR VPS
+
+### VPS-1 (n8n, uazapi, Redis)
+
+```yaml
+version: '3.8'
+services:
+  n8n:
+    image: n8n-io/n8n
+    container_name: n8n
+    environment:
+      - EXECUTIONS_PROCESS=main
+      - EXECUTIONS_MAX_CONCURRENT=5
+      - WEBHOOK_TIMEOUT=30000
+      - MEMORY_LIMIT=1536
+    ports:
+      - "5678:5678"
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+    networks:
+      - n8n-uazapi-network
+    restart: unless-stopped
+
+  uazapi:
+    image: uazapi/uazapi
+    container_name: uazapi
+    ports:
+      - "8080:8080"
+    networks:
+      - n8n-uazapi-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - n8n-uazapi-network
+    restart: unless-stopped
+
+networks:
+  n8n-uazapi-network:
+    driver: bridge
+```
+
+### VPS-2 (EspoCRM, MySQL, Qdrant)
+
+version: '3.8'
+services:
+  espocrm:
+    image: espocrm/espocrm
+    container_name: espocrm
+    ports:
+      - "80:80"
+    networks:
+      - crm-db-network
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - crm-db-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - crm-db-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+volumes:
+  mysql-data:
+  qdrant-data:
+
+networks:
+  crm-db-network:
+    driver: bridge
+    
+### VPS-3 (n8n, uazapi - failover)
+
+Mismo que VPS-1 sin Redis
+
+**Violación crítica:** Usar red bridge por defecto sin crear red específica.
+
 ## Validación de Arquitectura
 
 Checklist de validación antes de deploy:
