@@ -181,6 +181,17 @@ n8n registra interacción -> EspoCRM (VPS 2, solo clientes Full)
 
 **Violación crítica:** Todos los contenedores en red bridge default.
 
++-------+---------------------------+------------------------+
+| VPS   | Red Docker                | Servicios              |
++-------+---------------------------+------------------------+
+| VPS-1 | n8n-uazapi-network        | n8n, uazapi, Redis     |
+| VPS-2 | crm-db-network            | EspoCRM, MySQL, Qdrant |
+| VPS-3 | n8n-uazapi-network        | n8n, uazapi            |
++-------+---------------------------+------------------------+
+
+**Comando de creación:**
+docker network create --driver bridge n8n-uazapi-network
+
 ---
 
 ## Regla ARQ-010: Health Check Obligatorio

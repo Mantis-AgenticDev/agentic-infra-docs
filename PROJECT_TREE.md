@@ -77,7 +77,7 @@ agentic-infra-docs/
 │   ├── README.md                             🆕 PENDIENTE
 │   │   └── Reglas del repositorio, accesible para todas las IAs
 │   │
-│   ├── facundo-core-context.md               🆕 PENDIENTE
+│   ├── facundo-core-context.md               ✅ COMPLETADO 
 │   │   └── Contexto base del usuario: dominio, stack, forma de trabajo
 │   │
 │   ├── facundo-infrastructure.md             🆕 PENDIENTE
@@ -224,6 +224,9 @@ agentic-infra-docs/
 │   │   │
 │   │   ├── INFRA-003-Alert-Dispatcher.json   🆕 PENDIENTE
 │   │   │   └── Workflow de despacho de alertas
+|   |   |
+|   |   ├── INFRA-004-Security-Hardening.json   🆕 PENDIENTE
+│   │   │   └── Workflow verifica, aplica configuraciones de seguridad en los VPS (cada 6 horas) 
 │   │   │
 │   │   └── CLIENT-001-WhatsApp-RAG.json      🆕 PENDIENTE
 │   │       └── Workflow de atención WhatsApp con RAG

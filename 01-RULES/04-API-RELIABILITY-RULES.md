@@ -164,6 +164,19 @@ Intento	    Delay	      Máximo de Intentos
 
 **Fórmula:** delay = base_delay * (2 ^ (intent_number - 1))
 
+### Reintentos con Backoff Exponencial (API-007)
+
+**Configuración en workflows n8n:**
+
+| Intento | Delay  | Máximo Intentos |
+|---------|--------|-----------------|
+| 1       | 0 seg  | -               |
+| 2       | 5 seg  | -               |
+| 3       | 15 seg | -               |
+| 4       | 45 seg | Máximo alcanzado|
+
+**Fórmula:** delay = 5 * (2 ^ (intento - 1))
+
 ---
 
 ## Regla API-008: Circuit Breaker para APIs Críticas

@@ -126,6 +126,16 @@ Verificación:   Checksum SHA256 de cada backup
 
 tar czf - backup/ | openssl enc -aes-256-cbc -salt -out backup.tar.gz.enc
 
+
+### Encriptación de Backups (SEG-005)
+
+**Comando obligatorio para backup MySQL:**
+```bash
+mysqldump -u root --all-databases | \
+  gzip | \
+  openssl enc -aes-256-cbc -salt -pbkdf2 -out backup-$(date +%F).tar.gz.enc
+  ```
+
 ---
 
 ## Regla SEG-006: tenant_id Validado en Cada Consulta

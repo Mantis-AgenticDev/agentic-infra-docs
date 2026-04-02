@@ -178,6 +178,19 @@ WEBHOOK_TIMEOUT=30000
 
 **Justificación:** 5 ejecuciones concurrentes máximo para 4 GB RAM.
 
+### Configuración de n8n para 4GB RAM (RES-009)
+
+**Variables de entorno obligatorias en .env:**
+
++-------------------------------+------------------+--------------------------+
+| Variable                      | Valor            | Justificación            |
++-------------------------------+------------------+--------------------------+
+| EXECUTIONS_PROCESS            | main             | Evita overhead de queue  |
+| EXECUTIONS_MAX_CONCURRENT     | 5                | Máximo para 4GB RAM      |
+| WEBHOOK_TIMEOUT               | 30000            | 30 segundos máximo       |
+| MEMORY_LIMIT                  | 1536             | 1.5GB para n8n           |
++-------------------------------+------------------+--------------------------+
+
 ---
 
 ## Regla RES-010: Monitoreo de Recursos Obligatorio

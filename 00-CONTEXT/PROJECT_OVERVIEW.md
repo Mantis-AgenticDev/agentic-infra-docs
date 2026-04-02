@@ -569,7 +569,7 @@ CREATE INDEX idx_clientes_telefono ON clientes(telefone);
 
 **Para ingenieros que continúen este proyecto:**
 
-    Leer primero: 00-CONTEXT/README.md (reglas de Cursor)
+    Leer primero: 00-CONTEXT/README.md (reglas para IA)
     Revisar:      01-RULES/ (todas las reglas de desarrollo)
     Estudiar:     02-SKILLS/ (patrones reutilizables)
     Entender:     03-AGENTS/ (agentes de infraestructura y clientes)
@@ -584,7 +584,7 @@ CREATE INDEX idx_clientes_telefono ON clientes(telefone);
 
 **Para engenheiros que continuarem este projeto:**
 
-    Ler primeiro: 00-CONTEXT/README.md (regras do Cursor)
+    Ler primeiro: 00-CONTEXT/README.md (regras pra IA)
     Revisar:      01-RULES/ (todas as regras de desenvolvimento)
     Estudar:      02-SKILLS/ (padrões reutilizáveis)
     Entender:     03-AGENTS/ (agentes de infraestrutura e clientes)
