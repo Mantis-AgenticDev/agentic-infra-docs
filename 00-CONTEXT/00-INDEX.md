@@ -43,6 +43,8 @@ related_files:
 |Humano descrevendo cliente	        |1. README.md → 2. facundo-core-context.md → 3. 04-PROMPTS-OPENROUTER/workflow-generator-pt-BR.md	                |Entende o propósito, as restrições e como formatar a descrição do cliente       |
 |Validador SDD	                    |validate-against-specs.sh + 01-RULES/00-INDEX.md	                                                                |Verifica se cada arquivo gerado passa pelos checks automáticos                  |
 
+---
+
 ## 🤖 FLUXO DE GERAÇÃO AUTOMATIZADA VIA OPENROUTER
 
 ```mermaid
@@ -63,14 +65,19 @@ graph LR
     H --> I[🚀 Deploy Automatizado]
     ```
     
+---  
     
 ## ⚙️ PRINCÍPIOS ABSOLUTOS PARA GERAÇÃO VIA API (System Prompt Base)
 
 Estes princípios DEVEM estar no system_prompt de qualquer chamada à OpenRouter:
 
+---
+
 ## SYSTEM PROMPT BASE - GERAÇÃO SDD VIA OPENROUTER
 
 Você é um engenheiro de automação especializado em Specification-Driven Development (SDD) para pequenos negócios no Brasil.
+
+---
 
 ## REGRAS ABSOLUTAS (NUNCA VIOLAR):
 
@@ -137,6 +144,8 @@ Necessidades:
 - Alertas Telegram se cair
 ```
 
+---
+
 ## Prompt para OpenRouter (montado automaticamente):
 
 [SYSTEM PROMPT BASE acima] + 
@@ -196,6 +205,8 @@ RETORNE no formato JSON especificado no system prompt.
 }
 ```
 
+---
+
 ## 📁 ESTRUTURA ESPERADA APÓS GERAÇÃO
 
 02-SKILLS/
@@ -222,6 +233,7 @@ RETORNE no formato JSON especificado no system prompt.
     │   └── rollback.sh
     └── validation-log.json            ← Registro da validação SDD
     
+---
     
 ## ✅ CHECKLIST DE VALIDAÇÃO PRÉ-COMMIT (Para Humanos e IAs)
 Antes de qualquer commit, verifique:
@@ -237,6 +249,7 @@ Antes de qualquer commit, verifique:
 
     💡 Dica amiga: Se falhar em qualquer item acima, NÃO force o commit. Corrija na spec ou ajuste o prompt de geração. A paciência inicial economiza 80% do tempo de debug futuro.
 
+---
 
 ## 🔗 URLS RAW PARA IAs (Quando o repo for público)
 
@@ -255,6 +268,7 @@ Prompts para OpenRouter:
 Templates de Skills:
 → https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/02-SKILLS/whatsapp-agent/AGENT-RESTAURANTE-BASE/spec.md
 
+---
 
 ## 🔄 ATUALIZAÇÃO E MANUTENÇÃO
 
@@ -269,5 +283,5 @@ Commit com mensagem clara: docs: atualizar 00-INDEX.md para fluxo OpenRouter v2
   Invista tempo em descrever bem — o resto a IA faz.
 
 Última atualização: $(date +%Y-%m-%d) • Próxima revisão: +90 dias • Versão: 2.0.0-SDD
-last_updated: "{{DATE}}"  # Substituir via script pre-commit ou manualmente
+
   
