@@ -61,7 +61,7 @@ graph LR
     E -->|❌ Rejeitado| G[🔄 IA reescreve<br/>máx 2 retries]
     F --> H[👁️ Verificação Humana Leve]
     H --> I[🚀 Deploy Automatizado]
-    ``
+    ```
     
     
 ## ⚙️ PRINCÍPIOS ABSOLUTOS PARA GERAÇÃO VIA API (System Prompt Base)
