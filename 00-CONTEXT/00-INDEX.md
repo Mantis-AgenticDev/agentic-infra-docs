@@ -47,23 +47,166 @@ related_files:
 
 ## 🤖 FLUXO DE GERAÇÃO AUTOMATIZADA VIA OPENROUTER
 
-```mermaid
-graph LR
-    A[📝 Você descreve o cliente<br/>em pt-BR] --> B[🔌 OpenRouter API]
-    B --> C[🧠 System Prompt SDD<br/>+ Specs de referência]
-    C --> D[✨ Geração Automática de:]
-    D --> D1[📄 workflow.json n8n]
-    D --> D2[🗄️ sql-migration-tenant.sql]
-    D --> D3[🐳 docker-compose.yml]
-    D --> D4[🔍 qdrant-collection.yaml]
-    D --> D5[📚 onboarding-pt-BR.md]
-    D --> D6[🔧 validation-report.json]
-    D1 & D2 & D3 & D4 & D5 & D6 --> E[✅ validate-against-specs.sh]
-    E -->|✅ Aprovado| F[📁 03-CLIENT-INSTANCES/cliente-XXX/]
-    E -->|❌ Rejeitado| G[🔄 IA reescreve<br/>máx 2 retries]
-    F --> H[👁️ Verificação Humana Leve]
-    H --> I[🚀 Deploy Automatizado]
-    ```
+================================================================================
+FLUXO SDD: DE DESCRIÇÃO A CÓDIGO (OpenRouter + validate-against-specs.sh)
+================================================================================
+
+[ENTRADA]
+   |
+   v
++----------------------------------+
+| 📝 Você descreve o cliente       |
+|    em pt-BR (linguagem natural)  |
++----------------------------------+
+   |
+   v
++----------------------------------+
+| 🔌 OpenRouter API                |
+|    - Endpoint: chat/completions  |
+|    - Model: especificado em spec |
+|    - Temperature: 0.2-0.4        |
++----------------------------------+
+   |
+   v
++----------------------------------+
+| 🧠 System Prompt SDD + Specs     |
+|    + 01-RULES/00-INDEX.md        |
+|    + 04-PROMPTS-OPENROUTER/      |
+|    + Contexto do cliente (JSON)  |
++----------------------------------+
+   |
+   v
++----------------------------------+
+| ✨ GERAÇÃO AUTOMÁTICA (PARALELO) |
++----------------------------------+
+   |
+   +---> [D1] 📄 workflow.json n8n
+   |        - Webhook → Router → LLM → Response
+   |        - tenant_id em cada nodo de dados
+   |        - timeout: 30000 em HTTP Request
+   |
+   +---> [D2] 🗄️ sql-migration-tenant.sql
+   |        - CREATE TABLE com tenant_id NOT NULL
+   |        - INDEX idx_tenant_{table}(tenant_id)
+   |        - FOREIGN KEY com ON DELETE CASCADE
+   |
+   +---> [D3] 🐳 docker-compose.yml
+   |        - services.n8n.deploy.resources.limits
+   |        - memory: "1500M", cpus: "0.8"
+   |        - networks internas para MySQL/Qdrant
+   |
+   +---> [D4] 🔍 qdrant-collection.yaml
+   |        - collection_name: "rag_{tenant_id}"
+   |        - on_disk_payload: true
+   |        - shard_key: tenant_id (se enterprise)
+   |
+   +---> [D5] 📚 onboarding-pt-BR.md
+   |        - Passo a passo para funcionário
+   |        - Exemplos de mensagens em pt-BR
+   |        - Tom caloroso, não robótico
+   |
+   +---> [D6] 🔧 validation-report.json
+            {
+              "spec_referenced": "01-RULES/...",
+              "files_generated": [...],
+              "validation_checks": [...],
+              "sha256": "..."
+            }
+
+   |
+   v
++----------------------------------+
+| ✅ validate-against-specs.sh     |
++----------------------------------+
+   |
+   |  [CHECKS AUTOMÁTICOS]
+   |  ✓ tenant_id em SQL/Qdrant?
+   |  ✓ memory/cpus em docker-compose?
+   |  ✓ timeout em HTTP nodes?
+   |  ✓ sem credenciais hardcoded?
+   |  ✓ spec_referenced presente?
+   |
+   v
+   +---------------------------+
+   |                           |
+   v                           v
+[✅ APROVADO]            [❌ REJEITADO]
+   |                           |
+   v                           v
++----------------+    +---------------------------+
+| 📁 03-CLIENT-  |    | 🔄 IA REESCREVE           |
+| INSTANCES/     |    |    - Máximo 2 retries     |
+| cliente-XXX/   |    |    - Log de erro detalhado|
+|                |    |    - Ajusta prompt + retry|
+| generated/     |    +---------------------------+
+| overrides/     |                 |
+| deploy/        |                 |
+| validation-    |                 +---(se falhar 2x)---+
+| log.json       |                 |                    |
++----------------+                 v                    v
+   |                    [📝 Log para humano]  [⚠️ Aborta geração]
+   |                    [🔔 Alerta Telegram]
+   v
++---------------------------+
+| 👁️ Verificação Humana Leve |
++---------------------------+
+   |
+   |  [CHECKS MANUAIS]
+   |  ✓ Copy em pt-BR com tom natural?
+   |  ✓ Lógica de negócio correta?
+   |  ✓ Exemplos relevantes para segmento?
+   |
+   v
++---------------------------+
+| 🚀 Deploy Automatizado    |
++---------------------------+
+   |
+   |  [EXECUTA]
+   |  ✓ ssh cliente@vps "bash deploy.sh"
+   |  ✓ Rollback automático se health check falhar
+   |  ✓ Registro em MySQL: deploy_log(tenant_id, timestamp, status)
+   |
+   v
+[✅ CLIENTE ATIVO • SLA 99% • MONITORAMENTO 24/7]
+
+================================================================================
+LEGENDA DE SÍMBOLOS
+================================================================================
+[ ]  = Bloco de processo
++--+ = Borda de bloco
+|    = Fluxo vertical
++--> = Ramificação paralela
+v    = Direção do fluxo
+✅   = Condição aprovada
+❌   = Condição rejeitada
+🔄   = Retry/loop
+👁️   = Intervenção humana
+🚀   = Deploy/produção
+
+================================================================================
+METADADOS PARA IA (PARSER-FRIENDLY)
+================================================================================
+flow_id: SDD-GENERATION-V2
+version: 2.0.0
+language: pt-BR
+validation_script: validate-against-specs.sh
+max_retries: 2
+timeout_per_step: 300
+output_format: 
+  - n8n_workflow_json
+  - sql_migration
+  - docker_compose_yaml
+  - qdrant_collection_yaml
+  - markdown_onboarding
+  - validation_report_json
+constraints:
+  - C1: ram_limit_4gb_per_vps
+  - C2: cpu_limit_1vcpu
+  - C3: no_public_db_exposure
+  - C4: tenant_id_mandatory
+  - C5: backup_daily_encrypted
+  - C6: cloud_api_only
+================================================================================
     
 ---  
     
