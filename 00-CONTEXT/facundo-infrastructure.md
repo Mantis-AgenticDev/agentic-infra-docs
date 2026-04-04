@@ -10,7 +10,7 @@ category: INFRASTRUCTURE
 priority: CRITICAL
 tokens_estimate: 3200  # ← Ajustado post-SDD
 ia_parser_compatible: true
-sdd_compliance: 10%  # ← Se actualizará post-validación
+sdd_compliance: 93%  # ← Se actualizará post-validación
 output_schema:
   required_generations:
     - docker_compose_per_vps: "snippet con memory_limit, cpus, networks"
@@ -59,13 +59,13 @@ ai_navigation:
 
 ## 🏗️ ARQUITECTURA FÍSICA - TOPOLOGÍA DE 3 VPS
 
-+-------+---------------------------+------------------+------------+
+
 | VPS   | Servicios                 | Capacidad        | Ubicación  |
-+-------+---------------------------+------------------+------------+
+|-------|---------------------------|------------------|------------|
 | VPS-1 | n8n, uazapi, Redis        | 3 clientes Full  | São Paulo  |
 | VPS-2 | EspoCRM, MySQL, Qdrant    | 6 clientes (BD)  | São Paulo  |
 | VPS-3 | n8n, uazapi (failover)    | 3 clientes Full  | São Paulo  |
-+-------+---------------------------+------------------+------------+
+
 
 
 ### 🤖 Snippets Generables por IA (SDD Mode)
