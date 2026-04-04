@@ -537,6 +537,7 @@ ClientAliveCountMax 3
 ```bash
 grep -E "ClientAlive" /etc/ssh/sshd_config
 ```
+<!-- VALIDACIÓN: grep -q "ClientAliveInterval 60" /etc/ssh/sshd_config && echo "✅ SSH keepalive configurado" -->
 
 
 ### Validación de tenant_id en Consultas
@@ -796,7 +797,7 @@ Instrucción para IA: Al generar código basado en este archivo, incluir este ch
 
 ---
 
-> **Estado SDD:** 🟡 En transición (10% → 80% objetivo)  
+> **Estado SDD:** 🟡 En transición (93% → 100% objetivo)  
 > **Última validación automática:** Pendiente (ejecutar scripts/validate-infra-specs.sh)  
 > **Próxima revisión humana:** Facundo - [fecha]  
 > **Compatibilidad IA:** ✅ Frontmatter enriquecido + snippets ejecutables + registry JSON  
