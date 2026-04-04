@@ -1,34 +1,58 @@
 ---
+
 file_id: FAC-INFRA-002
 file_name: facundo-infrastructure.md
-version: 1.1.0  # ← Incrementar
+version: 1.2.0  # ← Incrementado para SDD
 created: 2026-04-01
-last_updated: 2026-04-01
+last_updated: 2026-04-04 # ← Actualizar fecha real
 author: Facundo (Mantis-AgenticDev)
 category: INFRASTRUCTURE
 priority: CRITICAL
-tokens_estimate: 2400  # ← Aumentar
-related_files:
-  - ../01-RULES/01-ARCHITECTURE-RULES.md
-  - ../01-RULES/02-RESOURCE-GUARDRAILS.md
-  - ../01-RULES/03-SECURITY-RULES.md
-  - ../04-WORKFLOWS/INFRA-001-Monitor-Salud-VPS.json
-  - ../04-WORKFLOWS/INFRA-002-Backup-Manager.json  # ← NUEVO
-  - ../04-WORKFLOWS/INFRA-003-Alert-Dispatcher.json  # ← NUEVO
-  - ../04-WORKFLOWS/INFRA-004-Security-Hardening.json  # ← NUEVO
-  - ../03-AGENTS/infrastructure/health-monitor-agent.md  # ← NUEVO
-  - ../03-AGENTS/infrastructure/backup-manager-agent.md  # ← NUEVO
-  - ../03-AGENTS/infrastructure/alert-dispatcher-agent.md  # ← NUEVO
+tokens_estimate: 3200  # ← Ajustado post-SDD
+ia_parser_compatible: true
+sdd_compliance: 10%  # ← Se actualizará post-validación
+output_schema:
+  required_generations:
+    - docker_compose_per_vps: "snippet con memory_limit, cpus, networks"
+    - health_check_script: "bash con set -euo pipefail + timeout 30s"
+    - network_config: "docker network create con driver bridge"
+    - agent_workflow_stub: "n8n JSON base con tenant_id y error handling"
+  validation_requirements:
+    - all_generated_yaml_must_pass_yamllint: true
+    - all_bash_scripts_must_have_set_euo_pipefail: true
+    - all_sql_must_include_tenant_id_filter: true
+constraints_executable:
+  C1_RAM: "n8n_memory_limit: 1500M"
+  C2_CPU: "max_cpus_per_container: \"1.0\""
+  C3_NETWORK: "mysql_qdrant_expose: false"
+  C4_TENANT: "query_must_include: WHERE tenant_id = ?"
+  C5_BACKUP: "schedule: 0 4 * * * | encrypt: aes-256 | checksum: sha256"
+  C6_AI: "local_models: forbidden | api_provider: OpenRouter"
+references_raw:
+  architecture_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/01-ARCHITECTURE-RULES.md"
+  resource_guardrails: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/02-RESOURCE-GUARDRAILS.md"
+  security_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md"
+  multitenancy_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md"
+  # Workflows y agentes (en construcción - marcar como pending)
+  workflow_INFRA_001: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json"
+  agent_health_monitor: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/03-AGENTS/infrastructure/health-monitor-agent.md"
+ai_generation_prompt_template: |
+  Dada esta infraestructura de 3 VPS con constraints C1-C6, genera:
+  1. docker-compose.yml para VPS-{1,2,3} con resource limits exactos
+  2. health-check.sh con timeout 30s y validación de servicios
+  3. network-setup.sh idempotente para crear redes Docker aisladas
+  4. stub de workflow n8n con tenant_id en cada nodo de datos
+  Retorna JSON con: spec_referenced, generated_files, validation_checks, sha256_output
 ai_navigation:
   read_after: facundo-core-context.md
-  required_for: [deployment, troubleshooting, scaling, monitoring]  # ← Añadir monitoring
+  required_for: [deployment, troubleshooting, scaling, monitoring, code_generation]
   update_frequency: monthly
   validation_rules:
-    - all VPS must match ARQ-002 specs
-    - backup workflow must be executable
-    - health checks must return within 30s
-    - ALL 4 agent workflows must be deployed and tested  # ← NUEVO
-    - Telegram alerts must reach Facundo in < 2 min  # ← NUEVO
+    - "all VPS specs must match ARQ-002 in 01-RULES/01-ARCHITECTURE-RULES.md#L15"
+    - "backup workflow must reference C5 in constraints_executable"
+    - "health checks must include timeout: 30 in HTTP nodes"
+    - "ALL generated code must pass validate-against-specs.sh"
+    
 ---
 
 # FACUNDO INFRASTRUCTURE - MANTIS AGENTIC
@@ -43,18 +67,127 @@ ai_navigation:
 | VPS-3 | n8n, uazapi (failover)    | 3 clientes Full  | São Paulo  |
 +-------+---------------------------+------------------+------------+
 
+
+### 🤖 Snippets Generables por IA (SDD Mode)
+
+#### docker-compose.yml para VPS-1 (n8n + uazapi + Redis)
+```yaml
+# spec_referenced: 01-RULES/01-ARCHITECTURE-RULES.md#L23
+# constraints_applied: [C1, C2, C3]
+version: "3.8"
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-tenant-${TENANT_ID}
+    deploy:
+      resources:
+        limits:
+          memory: "1500M"  # ← C1: Máx 1.5GB para n8n
+          cpus: "1.0"      # ← C2: 1 vCPU
+    environment:
+      - DB_TYPE=mysql
+      - DB_HOST=vps-2.internal  # ← C3: Solo red interna
+      - TENANT_ID_REQUIRED=true
+      - MEMORY_LIMIT=1500
+    networks:
+      - n8n-uazapi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  uazapi:
+    image: your-registry/uazapi:latest
+    container_name: uazapi-tenant-${TENANT_ID}
+    deploy:
+      resources:
+        limits:
+          memory: "500M"
+          cpus: "0.5"
+    environment:
+      - TENANT_ID=${TENANT_ID}  # ← C4: Obligatorio
+    networks:
+      - n8n-uazapi-network
+    depends_on:
+      - n8n
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-shared
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - n8n-uazapi-network
+
+networks:
+  n8n-uazapi-network:
+    driver: bridge
+    internal: false  # ← Permitir acceso HTTP externo para webhooks
+
+volumes:
+  redis-data:
+```
+  
+#### health-check.sh ejecutable (para todos los VPS)
+```bash
+#!/bin/bash
+# spec_referenced: 01-RULES/02-RESOURCE-GUARDRAILS.md#L45
+# constraints_applied: [C1, C2]
+set -euo pipefail
+
+TIMEOUT=30  # ← Timeout máximo por check (segundos)
+LOG_FILE="/var/log/mantis-health-$(date +%Y%m%d).log"
+
+log() {
+  echo "[$(date -Iseconds)] $*" | tee -a "$LOG_FILE"
+}
+
+check_service() {
+  local service_name="$1"
+  local endpoint="$2"
+  
+  if curl -sf --max-time "$TIMEOUT" "$endpoint" > /dev/null 2>&1; then
+    log "✅ $service_name: OK"
+    return 0
+  else
+    log "❌ $service_name: FAIL (timeout: ${TIMEOUT}s)"
+    return 1
+  fi
+}
+
+# Checks por VPS
+case "${VPS_ID:-}" in
+  vps-1|vps-3)
+    check_service "n8n" "http://localhost:5678/healthz"
+    check_service "uazapi" "http://localhost:3000/health"
+    ;;
+  vps-2)
+    check_service "mysql" "mysqladmin ping -h localhost"
+    check_service "qdrant" "curl -sf http://localhost:6333/readyz"
+    check_service "espocrm" "curl -sf http://localhost:80/health"
+    ;;
+  *)
+    log "⚠️ VPS_ID no definido, omitiendo checks específicos"
+    ;;
+esac
+
+log "Health check completado"
+exit 0
+```
+
 ### Especificaciones Obligatorias por VPS (ARQ-002)
 
-+------------------+---------------------+----------------------------------+
 | Recurso          | Mínimo Requerido    | Herramienta de Validación        |
-+------------------+---------------------+----------------------------------+
+|------------------|---------------------|----------------------------------|
 | vCPU             | 1 núcleo            | lscpu | grep "^CPU(s):"          |
 | RAM              | 4 GB                | free -h | grep "^Mem:"           |
 | Disco            | 50 GB NVMe          | df -h / | awk 'NR==2{print $2}'  |
 | Ancho de banda   | 4 TB/mes            | Panel del proveedor (Hostinger)  |
 | Latencia objetivo| < 50ms a BR-South   | mtr -c 100 cliente.example.com   |
 | Acceso           | SSH keys only       | ssh -i clave.priv user@vps       |
-+------------------+---------------------+----------------------------------+
+
 
 ---
 
@@ -62,15 +195,15 @@ ai_navigation:
 
 ### Política de Backup (SLA Contractual)
 
-+----------------+----------------------+----------------------------------+
+
 | Tipo de Backup | Frecuencia           | Retención / Ubicación            |
-+----------------+----------------------+----------------------------------+
+|----------------|----------------------|----------------------------------|
 | MySQL (VPS-2)  | Diario 04:00 AM      | 7 días local + 30 días externo   |
 | Qdrant (VPS-2) | Diario 04:30 AM      | 7 días local + snapshot cloud    |
 | n8n workflows  | On-change + diario   | Git repo privado + backup S3     |
 | Configs VPS    | Semanal              | Repositorio de infra como código |
 | Logs críticos  | Rotación diaria      | 14 días local, envío a SIEM      |
-+----------------+----------------------+----------------------------------+
+
 
 ### Encriptación de Backups (SEG-005)
 
@@ -80,23 +213,23 @@ ai_navigation:
 mysqldump -u root --all-databases | \
   gzip | \
   openssl enc -aes-256-cbc -salt -pbkdf2 -out backup-$(date +%F).tar.gz.enc
- ```
+```
  
 **Requisitos:**
 
-    Contraseña: 32 caracteres mínimo
-    Almacenamiento: Gestor de passwords (NUNCA en VPS)
-    Verificación: Checksum SHA256 obligatorio
+- Contraseña: 32 caracteres mínimo
+- Almacenamiento: Gestor de passwords (NUNCA en VPS)
+- Verificación: Checksum SHA256 obligatorio
 
 **Violación crítica:** Backups sin encriptar en VPS.
 
 ### Proceso de Restauración Crítica (< 60 minutos)
 
-[DETECCIÓN DE FALLA]
+[DETECCIÓN DE FALLA]  ← Input: health-check fail
         │
         ▼
 +---------------------+
-| 1. Alerta automática|
+| 1. Alerta automática|  ← Acción: enviar notificación
 | (health-check fail) |
 +---------------------+
         │
@@ -129,16 +262,15 @@ mysqldump -u root --all-databases | \
 
 ### Métricas Críticas y Umbrales de Alerta
 
-+------------------+------------------+------------------+------------------------------+
 | Métrica          | Umbral Warning   | Umbral Critical  |     Acción Automática        |
-+------------------+------------------+------------------+------------------------------+
+|------------------|------------------|------------------|------------------------------|
 | RAM usage (VPS)  | > 75% (3.0 GB)   | > 90% (3.6 GB)   | Reducir concurrencia n8n     |
 | CPU load (1min)  | > 0.8            | > 0.95           | Pausar workflows no críticos |
 | Disco usado      | > 80% (40 GB)    | > 95% (47.5 GB)  | Rotar logs + alertar         |
 | MySQL connections| > 40             | > 48             | Rechazar nuevas conexiones   |
 | Qdrant latency   | > 200ms          | > 500ms          | Fallback a cache local       |
 | n8n queue depth  | > 20             | > 50             | Escalar a VPS-3 temporal     |
-+------------------+------------------+------------------+------------------------------+
+
 
 ### Herramientas de Monitoreo Implementadas
 
@@ -153,14 +285,13 @@ mysqldump -u root --all-databases | \
 
 ### Variables de Entorno Obligatorias (.env)
 
-+-------------------------------+------------------+--------------------------+
 | Variable                      | Valor            | Justificación            |
-+-------------------------------+------------------+--------------------------+
+|-------------------------------|------------------|--------------------------|
 | EXECUTIONS_PROCESS            | main             | Evita overhead de queue  |
 | EXECUTIONS_MAX_CONCURRENT     | 5                | Máximo para 4GB RAM      |
 | WEBHOOK_TIMEOUT               | 30000            | 30 segundos máximo       |
 | MEMORY_LIMIT                  | 1536             | 1.5GB para n8n           |
-+-------------------------------+------------------+--------------------------+
+
 
 ### Ejemplo de docker-compose.yml para n8n
 
@@ -240,10 +371,10 @@ sha256sum -c backup.tar.gz.enc.sha256
 
 ### INFRA-003: Alert Dispatcher Agent
 
-**Atributo	Especificación**
-
-Workflow    04-WORKFLOWS/n8n/INFRA-003-Alert-Dispatcher.json
-Disparo     Webhook desde INFRA-001 o INFRA-002
+|Atributo	 |Especificación                                    |
+|------------|--------------------------------------------------|
+|Workflow    |`04-WORKFLOWS/n8n/INFRA-003-Alert-Dispatcher.json`|
+|Disparo     |Webhook desde INFRA-001 o INFRA-002               |
 
 **Matriz de Envío Obligatoria:**
 
@@ -256,7 +387,7 @@ Disparo     Webhook desde INFRA-001 o INFRA-002
 
 **Formato de Evento en Google Calendar:**
 
-text
+```text
 Título: [CRÍTICA] [VPS-X] - [Métrica]
 Fecha: [timestamp]
 Descripción: 
@@ -265,14 +396,15 @@ Descripción:
 - Checksum: [SHA256]
 - Enlace a log: [URL]
 Duración: 1 hora (bloqueo automático)
+```
 
 
 ### INFRA-004: Security Hardening Agent
 
-**Atributo	Especificación**
-
-Workflow	04-WORKFLOWS/n8n/INFRA-004-Security-Hardening.json
-Frecuencia	Cada 6 horas
+|Atributo	|Especificación                                      |
+|-----------|----------------------------------------------------|
+|Workflow	|`04-WORKFLOWS/n8n/INFRA-004-Security-Hardening.json`|
+|Frecuencia	|Cada 6 horas                                        |
 
 
 **Acciones Obligatorias:**
@@ -284,20 +416,54 @@ Frecuencia	Cada 6 horas
 |.env expuesto en logs	                 |ALERTA CRÍTICA + rotar todas las keys      |
 |Usuario root login detectado	         |Alertar + deshabilitar si no es emergencia |
 
+### Estado de Implementación y Schema de Generación
+
+| Agente             | Workflow File                                        | Agent Spec File                                        | Estado             | Schema Output Esperado (para IA)                                           |
+|--------------------|------------------------------------------------------|--------------------------------------------------------|--------------------|----------------------------------------------------------------------------|
+| Health Monitor     | `04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json`  | `03-AGENTS/infrastructure/health-monitor-agent.md`     | 🟡 En construcción | `{"nodes":[...], "connections":{...}, "settings":{"executionOrder":"v1"}}` |
+| Backup Manager     | `04-WORKFLOWS/n8n/INFRA-002-Backup-Manager.json`     | `03-AGENTS/infrastructure/backup-manager-agent.md`     | ⬜ Pendiente       | `{"trigger":"cron:0 4 * * *", "actions":["mysqldump","encrypt","upload"]}` |
+| Alert Dispatcher   | `04-WORKFLOWS/n8n/INFRA-003-Alert-Dispatcher.json`   | `03-AGENTS/infrastructure/alert-dispatcher-agent.md`   | ⬜ Pendiente       | `{"channels":["telegram","email"], "priority_rules":{...}}`                |
+| Security Hardening | `04-WORKFLOWS/n8n/INFRA-004-Security-Hardening.json` | `03-AGENTS/infrastructure/security-hardening-agent.md` | ⬜ Pendiente       | `{"tasks":["fail2ban-update","ufw-check","ssh-audit"]}`                    |
+
+
+### 🔄 Integración con Agentes (Formato Machine-Readable)
+
+```json
+{
+  "agent_registry": {
+    "health_monitor": {
+      "workflow_path": "04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json",
+      "spec_path": "03-AGENTS/infrastructure/health-monitor-agent.md",
+      "trigger": {"type": "cron", "expression": "*/5 * * * *"},
+      "timeout_seconds": 30,
+      "on_failure": ["log_error", "alert_telegram", "fallback_to_vps3"],
+      "required_env_vars": ["TENANT_ID", "TELEGRAM_BOT_TOKEN", "VPS_ID"]
+    },
+    "backup_manager": {
+      "workflow_path": "04-WORKFLOWS/n8n/INFRA-002-Backup-Manager.json",
+      "spec_path": "03-AGENTS/infrastructure/backup-manager-agent.md",
+      "trigger": {"type": "cron", "expression": "0 4 * * *"},
+      "timeout_seconds": 1800,
+      "on_failure": ["retry_3x", "alert_telegram", "preserve_last_backup"],
+      "required_env_vars": ["TENANT_ID", "BACKUP_S3_BUCKET", "ENCRYPTION_KEY"]
+    }
+  }
+}
+```
+
 ---
 
 ## 🔌 TIMEOUTS Y FALLBACKS PARA APIs EXTERNAS (API-001, API-010)
 
 ### Configuración Obligatoria por API
 
-+------------------+------------------+---------------------------+
 | API              | Timeout          | Fallback                  |
-+------------------+------------------+---------------------------+
+|------------------|------------------|---------------------------|
 | OpenRouter       | 10 segundos      | Mensaje "IA no disponible"|
 | Telegram Bot     | 5 segundos       | Reintentar 3 veces        |
 | Gmail SMTP       | 10 segundos      | Queue para próximo envío  |
 | Google Calendar  | 5 segundos       | Solo log local si falla   |
-+------------------+------------------+---------------------------+
+
 
 ### Reintentos con Backoff Exponencial (API-007)
 
@@ -346,22 +512,23 @@ Cada workflow debe ser probado en entorno de staging antes de pasar a producció
 
 ### Reglas de Firewall (UFW) - Obligatorias
 
-+----------------+------------------+------------------+------------------------+
+
 | Puerto/Servicio| Acceso Permitido | Acceso Denegado  |     Justificación      |
-+----------------+------------------+------------------+------------------------+
+|----------------|------------------|------------------|------------------------|
 | SSH (22)       | IPs whitelisted  | 0.0.0.0/0        | Prevención brute-force |
 | MySQL (3306)   | VPS-1, VPS-3     | Internet público | Aislamiento de BD      |
 | Qdrant (6333)  | VPS-1, VPS-3     | Internet público | Protección de vectores |
 | HTTP (80/443)  | Público          | -                | Webhooks WhatsApp      |
 | Redis (6379)   | localhost only   | Externo          | Cache interno n8n      |
-+----------------+------------------+------------------+------------------------+
+
 
 ### Keepalive SSH (SEG-008)
 
 **Configuración en /etc/ssh/sshd_config:**
+```bash
 ClientAliveInterval 60
 ClientAliveCountMax 3
-
+```
 
 **Justificación:** Cierra conexiones inactivas después de 3 minutos, previene conexiones huérfanas que consumen recursos.
 
@@ -400,21 +567,20 @@ SHOW INDEX FROM clientes;
 ```
 **Violación crítica:** Tablas grandes sin índices en campos de WHERE.
 
-
 ---
 
 ## 📏 LÍMITES POR TENANT (MT-008)
 
 ### Configuración Obligatoria por Cliente
 
-+------------------+------------------+--------------------------+
-| Recurso          | Límite           | Acción si excede         |
-+------------------+------------------+--------------------------+
-| Mensajes/día     | 1000             | Queue hasta próximo día  |
+
+| Recurso          | Límite           | Acción si excede          |
+|------------------|------------------|---------------------------|
+| Mensajes/día     | 1000             | Queue hasta próximo día   |
 | Vectores Qdrant  | 10000            | Alertar + limpiar antiguos|
-| Almacenamiento   | 500 MB           | Alertar + archivar       |
-| Requests API/min | 30               | Rate limiting            |
-+------------------+------------------+--------------------------+
+| Almacenamiento   | 500 MB           | Alertar + archivar        |
+| Requests API/min | 30               | Rate limiting             |
+
 
 ### Naming de Colecciones Qdrant (MT-002)
 
@@ -432,13 +598,12 @@ Ejemplos:
 
 ### Configuración Obligatoria por VPS
 
-+-------+---------------------------+------------------------+
 | VPS   | Red Docker                | Servicios              |
-+-------+---------------------------+------------------------+
+|-------|---------------------------|------------------------|
 | VPS-1 | n8n-uazapi-network        | n8n, uazapi, Redis     |
 | VPS-2 | crm-db-network            | EspoCRM, MySQL, Qdrant |
 | VPS-3 | n8n-uazapi-network        | n8n, uazapi            |
-+-------+---------------------------+------------------------+
+
 
 ### Comandos de Creación (Ejecutar en cada VPS)
 
@@ -451,7 +616,7 @@ docker network create --driver bridge crm-db-network
 ```
 
 **Verificación**
-```Bash
+```bash
 # Listar redes
 docker network ls
 
@@ -466,15 +631,15 @@ docker network inspect n8n-uazapi-network
 ## 🚨 PROTOCOLO DE RECUPERACIÓN ANTE DESASTRES
 
 **Escenarios y Respuestas Predefinidas**
-+---------------------------+------------------------------------------+
+
 | Escenario                 | Respuesta Inmediata                      |
-+---------------------------+------------------------------------------+
+|---------------------------|------------------------------------------|
 | Caída de VPS-1            | Redirigir tráfico a VPS-3 (n8n failover) |
 | Corrupción de MySQL       | Restaurar último backup validado + replay|
 | Ataque DDoS a webhook     | Activar rate-limiting + IP ban temporal  |
 | Pérdida de acceso SSH     | Usar consola de emergencia del proveedor |
 | Fallo de backup automático| Alerta crítica + ejecución manual forzosa|
-+---------------------------+------------------------------------------+
+
 
 **Checklist Post-Recuperación (Obligatorio)**
 
@@ -490,15 +655,13 @@ docker network inspect n8n-uazapi-network
 
     "Antes de implementar cualquier nueva funcionalidad, responder:"
 
-+------------------------------------------+----------------------------------+
 | Pregunta de Validación                   |      Criterio de Aprobación      |
-+------------------------------------------+----------------------------------+
+|------------------------------------------|----------------------------------|
 | ¿Aumenta el uso de RAM > 200 MB?         | Requiere optimización previa     |
 | ¿Añade dependencia externa nueva?        | Debe tener fallback local        |
 | ¿Modifica flujo de datos crítico?        | Requiere testing en staging      |
 | ¿Cambia política de backup/seguridad?    | Revisión obligatoria por Facundo |
 | ¿Impacta latencia para el usuario final? | Máximo +50ms aceptable           |
-+------------------------------------------+----------------------------------+
 
 ---
 
@@ -557,4 +720,90 @@ Checksum: a3f5c8e2...
 
 ---
 
-FIN DEL ARCHIVO - facundo-infrastructure.md
+**✅ Por qué esto ayuda a una IA:**
+- La tabla con "Estado" permite a la IA saber qué archivos ya existen vs. qué debe generar
+- El "Schema Output Esperado" da una estructura mínima para comenzar la generación
+- El JSON registry es machine-readable y puede ser parseado para auto-generar código
+
+---
+
+## ✅ Validación Automática para IA (Pré-Commit)
+
+### Script Mínimo de Validación (scripts/validate-infra-specs.sh)
+
+```bash
+#!/bin/bash
+# spec_referenced: README.md#L-checklist-validacion
+# constraints_applied: [C1, C2, C3, C4, C5, C6]
+set -euo pipefail
+
+echo "🔍 Validando facundo-infrastructure.md para SDD compliance..."
+
+ERRORS=0
+
+# 1. Verificar que el frontmatter tiene ia_parser_compatible: true
+if ! grep -q "ia_parser_compatible: true" 00-CONTEXT/facundo-infrastructure.md; then
+  echo "❌ Falta ia_parser_compatible: true en frontmatter"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# 2. Verificar que todos los snippets Docker tienen memory limits
+if ! grep -q 'memory: "1500M"' 00-CONTEXT/facundo-infrastructure.md; then
+  echo "❌ Snippets Docker sin memory limit para n8n"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# 3. Verificar que los scripts bash tienen set -euo pipefail
+if ! grep -q "set -euo pipefail" 00-CONTEXT/facundo-infrastructure.md; then
+  echo "❌ Scripts bash sin set -euo pipefail"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# 4. Verificar que no hay secrets hardcodeados (patrón básico)
+if grep -E "(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36})" 00-CONTEXT/facundo-infrastructure.md | grep -v "ENV_VAR\|process.env\|\${"; then
+  echo "❌ Posibles secrets hardcodeados detectados"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# 5. Verificar que las referencias usan URLs raw completas
+if grep -E "related_files:.*\.\./" 00-CONTEXT/facundo-infrastructure.md | grep -v "https://raw.githubusercontent.com"; then
+  echo "⚠️ Algunas referencias no usan URLs raw (recomendado para IA)"
+  # No es error crítico, solo advertencia
+fi
+
+if [ $ERRORS -eq 0 ]; then
+  echo "✅ facundo-infrastructure.md pasó validación SDD básica"
+  exit 0
+else
+  echo "❌ $ERRORS errores encontrados. Revisar antes de commit."
+  exit 1
+fi
+```
+
+### Checklist de Validación Rápida (Para IA)
+```yaml
+validation_checks:
+  frontmatter_complete: true
+  constraints_executable_present: true
+  snippets_have_resource_limits: true
+  bash_scripts_idempotent: true
+  no_hardcoded_secrets: true
+  references_use_raw_urls: true
+  tenant_id_in_all_examples: true
+  timeout_explicit_in_http: true
+```
+Instrucción para IA: Al generar código basado en este archivo, incluir este checklist en el campo validation_checks del output JSON.
+
+---
+
+> **Estado SDD:** 🟡 En transición (10% → 80% objetivo)  
+> **Última validación automática:** Pendiente (ejecutar scripts/validate-infra-specs.sh)  
+> **Próxima revisión humana:** Facundo - [fecha]  
+> **Compatibilidad IA:** ✅ Frontmatter enriquecido + snippets ejecutables + registry JSON  
+> **Licencia:** CC BY-SA 4.0 (documentación) / Propietario (código generado)  
+> **Raw URL para IA:** https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-infrastructure.md
+
+*Principio SDD aplicado: Si hay conflicto entre este texto y el código generado, la spec escrita aquí prevalece. Las desviaciones deben documentarse en validation-log.json.*
+---
+
+<!-- FIN DEL ARCHIVO: facundo-infrastructure.md --> 
