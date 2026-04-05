@@ -19,6 +19,7 @@ keys/
 # JSON (excepto package.json)
 *.json
 !package.json
+!04-WORKFLOWS/*.json
 
 # Datos sensibles
 data/

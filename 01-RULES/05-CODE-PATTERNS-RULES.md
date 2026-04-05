@@ -1,391 +1,288 @@
 ---
-title: "CODE PATTERNS RULES - Agentic Infra Docs"
-category: "Código"
-priority: "Media"
-version: "1.0.0"
-last_updated: "2026-03"
-language: "es"
-repository: "agentic-infra-docs"
-owner: "Mantis-AgenticDev"
-type: "rules"
-ia_parser_version: "2.0"
-auto_validate: false
-compliance_check: "on-demand"
-validation_script: "scripts/lint-code.sh"
-auto_fixable: true
-severity_scope: "warning"
-rules_count: 8
-tags:
-  - code
-  - patterns
-  - javascript
-  - python
-  - sql
-  - templates
-related_files:
-  - "04-API-RELIABILITY-RULES.md"
-  - "06-PROGRAMMING/"
+sdd_version: 1.0
+last_validated: 2026-04-05
+spec_type: code_patterns
+validation_script: 05-CONFIGURATION/SCRIPTS/validate-against-specs.sh
+description: Patrones de código ejecutables para n8n, SQL y configuración. Especificación base para generación IA.
 ---
 
-# CODE PATTERNS RULES
-
-## Metadatos del Documento
-
-- **Categoría:** Código
-- **Prioridad de carga:** Media
-- **Versión:** 1.0.0
-- **Última actualización:** Marzo 2026
-- **Archivos relacionados:** 04-API-RELIABILITY-RULES.md
+## 📌 PRINCIPIOS ABSOLUTOS (No Negociables)
+| ID         | Regla                                             | Implementación                                                                  |
+|------------|---------------------------------------------------|---------------------------------------------------------------------------------|
+| **C1**     | Máx 4GB RAM/VPS → n8n ≤ 1.5GB                     | `memory: "1500M"` en docker-compose. Contextos ≤ 40 mensajes.                   |
+| **C2**     | Máx 1 vCPU                                        | Sin paralelismo pesado. Timeouts ≤ 30s. Backoff exponencial.                    |
+| **C3**     | MySQL/Qdrant NUNCA en `0.0.0.0`                   | Solo red interna Docker. Variables `${DB_HOST}`, `${QDRANT_HOST}`.              |
+| **C4**     | `tenant_id` OBLIGATORIO en TODA consulta/registro | Inyectado en headers, WHERE, claves Redis, logs y payloads.                     |
+| **C5**     | Backup diario 04:00 + AES-256 + SHA256            | Script externo. No se codifica en workflows.                                    |
+| **C6**     | Sin modelos locales                               | Solo `openRouterApi` o `openAiApi` cloud. Validador rechaza `ollama`/`localai`. |
+| **SDD-01** | Spec > Código                                     | Ningún workflow se genera sin referencia a este archivo.                        |
+| **SDD-02** | Validación pre-commit                             | `validate-against-specs.sh` debe retornar `exit 0`.                             |
 
 ---
 
-## Patrón JS-001: Async/Await con Try/Catch
+## 🧩 PATRONES N8N (WORKFLOWS)
 
-**Descripción:** Todo código JavaScript debe usar async/await con try/catch.
+### PAT-001: Estructura Base de Workflow
+Todo workflow debe contener metadatos SDD, nodos de documentación en-canvas y `active: false` por defecto.
+```json
+{
+  "name": "[DOMAIN]-[ACTION]-v1",
+  "meta": { "templateCredsSetupCompleted": false, "sdd_validated": true },
+  "active": false,
+  "settings": { "executionOrder": "v1", "timezone": "America/Sao_Paulo" },
+  "nodes": [
+    {
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": { "content": "# 📋 Spec: 05-CODE-PATTERNS-RULES.md#PAT-001\nObjetivo | Inputs | Outputs" }
+    }
+  ],
+  "connections": {}
+}
+```
 
-**Plantilla obligatoria:**
+**Validación:** validate_markdown_structure + validate_n8n_patterns
 
-```javascript
-async function functionName(params) {
-  try {
-    const result = await someAsyncOperation(params);
-    return { success: true, result };
-  } catch (error) {
-    return { 
-      success: false, 
-      error: error.message,
-      timestamp: new Date().toISOString()
-    };
+
+### PAT-002: Nodo HTTP Request con Timeouts & Backoff
+Obligatorio en toda llamada a API externa (OpenRouter, UazAPI, CRM, etc.)
+```json
+{
+  "type": "n8n-nodes-base.httpRequest",
+  "parameters": {
+    "method": "POST",
+    "url": "={{ $json.api_endpoint }}",
+    "timeout": 30000,
+    "retryOnFail": true,
+    "maxTries": 3,
+    "retryInterval": 5000,
+    "headers": {
+      "tenant-id": "={{ $input.first().json.tenant_id }}",
+      "Authorization": "={{ $env.OPENROUTER_API_KEY }}"
+    },
+    "onError": "continueErrorOutput"
   }
 }
 ```
 
-**Violación:** Callbacks anidados o promesas sin catch.
+**Regla:** timeout debe ser ≤ 30000. Headers deben incluir tenant-id. Credenciales SIEMPRE vía ${ENV_VAR}.
 
----
 
-## Patrón JS-002: Fetch con Timeout
+### PAT-003: Agente IA con Output Parser Estructurado
+Garantiza respuestas JSON consumibles por downstream nodes.
+```json
+{
+  "type": "@n8n/n8n-nodes-langchain.agent",
+  "parameters": {
+    "text": "={{ $json.user_message }}",
+    "options": {
+      "systemMessage": "=# ROL\nEres un agente especializado en [DOMINIO].\n# RESTRICCIONES\n- Responde SOLO en formato JSON válido.\n- Incluye siempre tenant_id en la respuesta.\n# FORMATO\n{ \"tenant_id\": \"string\", \"result\": \"string\", \"status\": \"success|error\" }"
+    },
+    "hasOutputParser": true
+  }
+}
+```
 
-**Descripción:** Todo fetch debe incluir AbortSignal.timeout.
+**Nodo complementario obligatorio:** @n8n/n8n-nodes-langchain.outputParserStructured con schema explícito.
 
-**Plantilla obligatoria:**
 
+### PAT-004: Manejo de Errores en Function Nodes (JS)
 ```javascript
-const response = await fetch(url, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(data),
-  signal: AbortSignal.timeout(5000)
-});
+try {
+  const input = $input.first().json;
+  // Lógica segura
+  const result = processSecurely(input);
+  return [{ json: { ...result, tenant_id: input.tenant_id } }];
+} catch (error) {
+  console.error(`[ERROR][tenant:${$input.first().json.tenant_id}] ${error.message}`);
+  return [{ json: { error: error.message, tenant_id: $input.first().json.tenant_id, status: "failed" } }];
+}
 ```
-**Violación:** Fetch sin timeout definido.
+
+**Regla:** Nunca throw sin capturar. Siempre registrar tenant_id en logs.
+
+
+### PAT-005: Enrutamiento Multi-Modal (Texto/Audio/Imagen/Ubicación)
+Patrón de Switch → Normalización → Agente Único.
+```json
+{
+  "type": "n8n-nodes-base.switch",
+  "parameters": {
+    "rules": {
+      "values": [
+        { "conditions": { "leftValue": "={{ $json.messageType }}", "operator": "equals", "rightValue": "text" } },
+        { "conditions": { "leftValue": "={{ $json.messageType }}", "operator": "equals", "rightValue": "audio" } },
+        { "conditions": { "leftValue": "={{ $json.messageType }}", "operator": "equals", "rightValue": "image" } }
+      ]
+    }
+  }
+}
+```
+
+**Flujo:** Audio → Transcripción (OpenAI Whisper) → Texto. Imagen → Descripción (Vision/Gemini) → Texto. 
+Todo converge a payload estandarizado: `{ tenant_id, text, source: "text|transcribed|vision" }`.
+
+
+### PAT-006: Gestión de Memoria & Sesiones
+```json
+{
+  "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+  "parameters": {
+    "sessionKey": "={{ $json.tenant_id }}:{{ $json.chat_id }}",
+    "sessionIdType": "customKey",
+    "contextWindowLength": 40
+  }
+}
+```
+
+**Constraints:** TTL Redis/Postgres ≤ 3600s. contextWindowLength ≤ 40 para respetar C1 (RAM).
+
+
+### PAT-007: Webhook Response & Procesamiento Asíncrono
+Evita timeouts en VPS de 1 vCPU cuando la IA tarda > 10s.
+```json
+{
+  "type": "n8n-nodes-base.respondToWebhook",
+  "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ status: 'processing', tenant_id: $input.first().json.tenant_id }) }}"
+  }
+}
+```
+
+**Flujo:** Webhook → Responde 200 inmediatamente → Dispara sub-workflow en background → Notifica vía WhatsApp/Telegram al completar.
 
 ---
 
-## Patrón JS-003: Retorno de Objetos Pequeños
+## 🗄️ PATRONES SQL & MULTITENANCY
 
-**Descripción:** Retornar objetos pequeños y serializables.
-
-**Requisitos:**
-
-Evitar buffers grandes en memoria
-Evitar objetos circulares
-Incluir solo campos necesarios
-
-**Ejemplo correcto:**
-
-```javascript
-return { success: true, id: 123, status: 'completed' };
-```
-
-**Ejemplo incorrecto:**
-
-```javascript
-return { success: true, fullResponse: hugeObject, buffer: largeBuffer };
-```
-
----
-
-## Patrón PY-001: Requests con Timeout
-
-**Descripción:** Todo requests en Python debe incluir timeout.
-
-**Plantilla obligatoria:**
-
-```python
-import requests
-
-try:
-    response = requests.post(url, json=data, timeout=5)
-    response.raise_for_status()
-    return {"success": True, "data": response.json()}
-except requests.exceptions.RequestException as e:
-    return {"success": False, "error": str(e)}
-```
-    
-**Violación:** requests sin timeout.
-
----
-
-## Patrón PY-002: Manejo de Excepciones Específico
-
-**Descripción:** Capturar excepciones específicas, no Exception genérico.
-
-**Ejemplo correcto:**
-
-```python
-except requests.exceptions.Timeout:
-    return {"success": False, "error": "Request timeout"}
-except requests.exceptions.ConnectionError:
-    return {"success": False, "error": "Connection failed"}
-```
-    
-**Ejemplo incorrecto:**
-
-```python
-except Exception:
-    return {"success": False, "error": "Something went wrong"}
-```
-
----
-
-## Patrón SQL-001: Índices en Campos de Búsqueda
-
-**Descripción:** Incluir índices en campos de búsqueda frecuente.
-
-**Índices obligatorios:**
-
+### SQL-001: Migration Base con tenant_id
 ```sql
-CREATE INDEX idx_clientes_telefono ON clientes(telefono);
-CREATE INDEX idx_mensajes_tenant_fecha ON mensajes(tenant_id, fecha);
-CREATE INDEX idx_clientes_tenant ON clientes(tenant_id);
+CREATE TABLE IF NOT EXISTS interactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id VARCHAR(50) NOT NULL,
+  chat_id VARCHAR(100) NOT NULL,
+  message_type VARCHAR(20) NOT NULL CHECK (message_type IN ('text','audio','image','location')),
+  content TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_tenant_chat_time ON interactions(tenant_id, chat_id, created_at DESC);
 ```
 
-**Violación:** Tablas grandes sin índices en campos de WHERE.
+**Regla:** tenant_id SIEMPRE NOT NULL. Índices compuestos obligatorios para consultas por tenant.
 
----
 
-## Patrón SQL-002: Consultas con Filtros
-
-**Descripción:** Evitar consultas sin filtros en tablas grandes.
-
-**Ejemplo correcto:**
-
+### SQL-002: Consultas Seguras (Prepared Statements)
 ```sql
-SELECT * FROM mensajes WHERE tenant_id = ? AND fecha > ?;
+-- ✅ VÁLIDO
+SELECT content, created_at FROM interactions WHERE tenant_id = ? AND chat_id = ? ORDER BY created_at DESC LIMIT 40;
+
+-- ❌ RECHAZADO POR VALIDADOR
+SELECT * FROM interactions WHERE chat_id = '{{ $json.chat_id }}';
 ```
 
-**Ejemplo incorrecto:**
+**Regla:**  Nunca interpolación directa de variables en queries. Siempre ? o $N.
 
+
+### SQL-003: Upsert & Soft Deletes
 ```sql
-SELECT * FROM mensajes;
+INSERT INTO interactions (tenant_id, chat_id, message_type, content)
+VALUES (?, ?, ?, ?)
+ON CONFLICT (tenant_id, chat_id, id) DO UPDATE SET content = EXCLUDED.content, updated_at = NOW();
 ```
+
+** Nota:** No se permiten DELETE físicos en producción. Usar status = 'archived' o triggers de auditoría.
 
 ---
 
-## Patrón SQL-003: Prepared Statements Obligatórios
+## ⚙️ PATRONES DE CONFIGURACIÓN & DEPLOY
 
-**Descripción:** Usar prepared statements para evitar SQL injection.
+### ENV-001: Variables de Entorno Seguras (.env.example)
+```env
+# 🔑 APIs
+OPENROUTER_API_KEY=
+UAZAPI_WEBHOOK_SECRET=
+ESPOCRM_API_KEY=
 
-**Ejemplo correcto:**
+# 🗄️ DB
+MYSQL_HOST=db.internal
+MYSQL_PORT=3306
+MYSQL_DATABASE=mantis_db
+MYSQL_USER=mantis_app
+MYSQL_PASSWORD=
 
-```python
-cursor.execute("SELECT * FROM clientes WHERE telefono = ?", (telefono,))
+# 🧠 Vector
+QDRANT_HOST=qdrant.internal
+QDRANT_PORT=6333
+QDRANT_API_KEY=
+
+# ⚙️ Runtime
+NODE_ENV=production
+N8N_ENCRYPTION_KEY=
+N8N_SECURE_COOKIE=true
+TENANT_ID_REGEX=^[a-z0-9_-]{4,32}$
 ```
+**Regla:** Validador rechaza archivos con claves reales. Solo PLACEHOLDER o vacío.
 
-**Ejemplo incorrecto:**
 
-```python
-cursor.execute(f"SELECT * FROM clientes WHERE telefono = '{telefono}'")
-```
-
----
-
-## Patrón DOCKER-001: Límites de Memoria
-
-**Descripción:** Todo contenedor Docker debe tener límites de memoria.
-
-**Ejemplo docker-compose.yml:**
-
+### DOCKER-001: Límites de Recursos (C1/C2)
 ```yaml
 services:
   n8n:
-    image: n8n-io/n8n
+    image: n8nio/n8n:latest
     deploy:
       resources:
         limits:
-          memory: 1.5G
+          cpus: "1.0"
+          memory: 1500M
         reservations:
-          memory: 1G
-```
-         
----
-
-## Patrón BASH-001: Error Handling en Scripts
-
-**Descripción:** Scripts bash deben tener error handling.
-
-**Plantilla obligatoria:**
-
-```bash
-#!/bin/bash
-set -euo pipefail
-
-# Script content
-command || echo "Error: command failed" >&2
+          cpus: "0.25"
+          memory: 256M
+    environment:
+      - N8N_DEFAULT_TIMEZONE=America/Sao_Paulo
+      - N8N_SECURE_COOKIE=true
+    networks:
+      - mantis_internal
 ```
 
-**Directivas obligatorias:**
+**Regla:** memory ≤ 1500M. cpus ≤ 1.0. Red mantis_internal aislada.
 
-set -e (exit on error)
-set -u (error on undefined variable)
-set -o pipefail (pipeline fails if any command fails)
 
----
-
-## Patrón N8N-001: Function Node Estructurado
-
-**Descripción:** Function nodes en n8n deben retornar estructura consistente.
-
-**Plantilla obligatoria:**
-
-```javascript
-try {
-  const inputData = items[0].json;
-  
-  // Process data
-  const result = processData(inputData);
-  
-  return [{ json: { success: true, result } }];
-} catch (error) {
-  return [{ json: { success: false, error: error.message } }];
-}
+### NET-001: Aislamiento de Red (C3)
+```yaml
+networks:
+  mantis_internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  mantis_public:
+    driver: bridge
 ```
+
+**Regla:** mysql, qdrant, redis SOLO en mantis_internal. n8n expuesto en mantis_public solo por puertos 5678/443.
 
 ---
 
-## 📦 TEMPLATE COMPLETO: Workflow n8n JSON
+## ✅ CHECKLIST DE VALIDACIÓN PRE-COMMIT
 
-### Estructura Base para Cualquier Workflow
+|Verificación	                            |Herramienta	                |Estado Requerido
+|-------------------------------------------|-------------------------------|---------------------------------|
+|`tenant_id` en todos los nodos de datos	|`validate_tenant_awareness`	|✅ Presente                      |
+|Timeouts explícitos en HTTP	            |`validate_n8n_patterns`	    |✅ ≤ 30000ms                     |
+|Sin secrets hardcodeados	                |`validate_markdown_structure`	|✅ 0 coincidencias               |
+|Code fences balanceados	                |`validate_markdown_structure`	|✅ Par exacto                    |
+|Límites Docker ≤ 1500M/1CPU	            |`validate_resource_limits`	    |✅ Cumplido                      |
+|Puertos BD no expuestos	                |`validate_security`	        |✅ Solo red interna              |
+|Modelos locales ausentes	                |`validate_security`	        |✅ 0 referencias a ollama/localai|
+|Schema JSON válido en parsers	            |`validate_n8n_patterns`	    |✅ Parseable                     |
 
-```json
-{
-  "name": "INFRA-XXX-Nombre-Descriptivo",
-  "nodes": [
-    {
-      "parameters": {},
-      "name": "Start",
-      "type": "n8n-nodes-base.start",
-      "typeVersion": 1,
-      "position": [250, 300]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $env.OPENROUTER_API_URL }}",
-        "sendHeaders": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer {{ $env.OPENROUTER_API_KEY }}"
-                          }
-          ]
-        },
-        "sendBody": {
-          "parameters": [
-            {
-              "name": "model",
-              "value": "anthropic/claude-3.5-sonnet"
-            }
-          ]
-        },
-        "options": {
-          "timeout": 10000
-        }
-      },
-      "name": "HTTP Request",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [450, 300]
-    },
-    {
-      "parameters": {
-        "jsCode": "try {\n  const inputData = items[0].json;\n  const result = processData(inputData);\n  return [{ json: { success: true, result } }];\n} catch (error) {\n  return [{ json: { success: false, error: error.message } }];\n}"
-      },
-      "name": "Function",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 2,
-      "position": [650, 300]
-    }
-  ],
-  "pinData": {},
-  "connections": {
-    "Start": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Function",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-  "meta": {
-    "instanceId": "XXXXXXXXXXXXXXXX"
-  },
-  "tags": [
-    {
-      "name": "infraestructura"
-    },
-    {
-      "name": "tenant_id"
-    }
-  ]
-}
-```
+**Ejecución:** ./05-CONFIGURATION/SCRIPTS/validate-against-specs.sh ./05-CODE-PATTERNS-RULES.md - 1 0
 
-### Reglas para Generar Workflows:
+---
 
-|Elemento	       |Regla	                   |Ejemplo                          |
-|------------------|---------------------------|---------------------------------|
-|Nombre	           |INFRA-XXX o CLIENTE-XXX	   |INFRA-001-Monitor-Salud-VPS      |
-|HTTP Request	   |Timeout obligatorio	       |timeout: 10000                   |
-|Function Node	   |Try/catch siempre	       |Ver plantilla arriba             |
-|Credentials	   |Usar variables de entorno  |{{ $env.API_KEY }}               |
-|Tags	           |Incluir tenant_id	       |["infraestructura", "tenant_id"] |
+## 📝 NOTAS DE MANTENIMIENTO SDD
 
-**Violación crítica:** Workflow sin timeout en HTTP Request nodes.
-
-
-## Checklist de Validación de Código
-
-- [ ] JavaScript usa async/await con try/catch
-- [ ] Fetch incluye timeout
-- [ ] Python usa requests con timeout
-- [ ] SQL usa prepared statements
-- [ ] Índices creados en campos de búsqueda
-- [ ] Docker tiene límites de memoria
-- [ ] Bash tiene set -euo pipefail
-- [ ] n8n Function nodes retornan estructura consistente
-
-Versión 1.1.0 - Marzo 2026 - Mantis-AgenticDev
-Licencia: Creative Commons para uso interno del proyecto
-
+-Extensión: Para agregar un nuevo patrón, crea PAT-XXX o SQL-XXX, documenta inputs/outputs, y actualiza validate-against-specs.sh si requiere reglas nuevas.
+-Generación IA: El prompt de sistema para generación de workflows debe incluir: "Referencia obligatoria: 05-CODE-PATTERNS-RULES.md. Cumplir C1-C6. Inyectar tenant_id en cada nodo de datos. Validar con validate-against-specs.sh antes de retornar."
+-Versionado: Cada cambio en este archivo debe incrementar sdd_version y registrar changelog en 00-CONTEXT/PROJECT_OVERVIEW.md.
