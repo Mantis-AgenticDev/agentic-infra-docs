@@ -56,3 +56,11 @@ docker-compose.override.yml
 
 # Cursor
 .cursor/
+
+# ==========================================
+# EXCEPCIONES SDD: Workflows y Diagramas
+# ==========================================
+!04-WORKFLOWS/n8n/
+!04-WORKFLOWS/n8n/**
+!04-WORKFLOWS/diagrams/
+!04-WORKFLOWS/diagrams/**
