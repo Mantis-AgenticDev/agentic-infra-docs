@@ -499,7 +499,7 @@ Especificar → Validar spec → Generar código → Validar código → Testear
 ---
 > **Estado SDD:** 🟡 En transición (15% → 80% objetivo)  
 > **Última validación automática:** Pendiente (ejecutar `scripts/validate-against-specs.sh`)  
-> **Última edición humana:** Facundo - 2026-04-XX  
+> **Última edición humana:** Facundo - 2026-04-04  
 > **Próxima revisión programada:** +14 días  
 > **Compatibilidad IA:** ✅ Frontmatter + ASCII diagram + snippets ejecutables  
 > **Licencia:** CC BY-SA 4.0 (documentación) / Propietario (código generado)  
