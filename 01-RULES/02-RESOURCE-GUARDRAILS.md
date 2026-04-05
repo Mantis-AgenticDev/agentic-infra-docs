@@ -1,28 +1,30 @@
 ---
-title: "RESOURCE GUARDRAILS - Agentic Infra Docs"
-category: "Recursos"
-priority: "Siempre"
+title: "Resource Guardrails - Agentic Infra Docs"
+category: "Reglas"
+priority: "Alta"
 version: "1.0.0"
-last_updated: "2026-03"
+last_updated: "2026-04-05"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
-type: "constraints"
+type: "rules"
 ia_parser_version: "2.0"
 auto_validate: true
 compliance_check: "daily"
 validation_script: "scripts/check-resources.sh"
-auto_fixable: false
+auto_fixable: true
 severity_scope: "critical"
 tags:
-  - resources
-  - memory
-  - cpu
-  - guardrails
-  - constraints
+  - resource-limits
+  - docker
+  - monitoring
+  - tenant-id
+  - C1
+  - C2
 related_files:
-  - "01-ARCHITECTURE-RULES.md"
-  - "05-CONFIGURATIONS/docker-compose/"
+  - "01-RULES/01-ARCHITECTURE-RULES.md"
+  - "00-CONTEXT/facundo-infrastructure.md"
+  - "05-CONFIGURATIONS/docker/docker-compose.yml"
 ---
 
 # RESOURCE GUARDRAILS
@@ -206,6 +208,29 @@ Estado de contenedores Docker
 
 **Frecuencia:** Cada 5 minutos mínimo.
 **Alertas:** Ver 09-MONITORING-ALERTS.md
+
+---
+
+## Regla RES-011: tenant_id en métricas de monitoreo
+
+| ID      | Regla                        | Descripción                                                                                              | Validación                                  |
+|---------|------------------------------|----------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| RES-011 | tenant_id en logs y métricas | Toda métrica de recurso (CPU, RAM, disco) debe incluir `tenant_id` como label para aislamiento y billing | `check-resources.sh --verify-tenant-labels` |
+
+**Ejemplo Docker Compose:**
+```yaml
+services:
+  n8n:
+    labels:
+      - "monitoring.tenant_id=${TENANT_ID}"
+    environment:
+      - TENANT_ID=${TENANT_ID}
+```
+
+**Ejemplo Prometheus:**
+```prompkl
+container_cpu_usage_seconds_total{tenant_id="facundo_agro"}
+```
 
 ---
 

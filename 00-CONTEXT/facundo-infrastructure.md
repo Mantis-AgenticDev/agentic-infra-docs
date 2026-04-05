@@ -1,58 +1,30 @@
 ---
-
-file_id: FAC-INFRA-002
-file_name: facundo-infrastructure.md
-version: 1.2.0  # ← Incrementado para SDD
-created: 2026-04-01
-last_updated: 2026-04-04 # ← Actualizar fecha real
-author: Facundo (Mantis-AgenticDev)
-category: INFRASTRUCTURE
-priority: CRITICAL
-tokens_estimate: 3200  # ← Ajustado post-SDD
-ia_parser_compatible: true
-sdd_compliance: 93%  # ← Se actualizará post-validación
-output_schema:
-  required_generations:
-    - docker_compose_per_vps: "snippet con memory_limit, cpus, networks"
-    - health_check_script: "bash con set -euo pipefail + timeout 30s"
-    - network_config: "docker network create con driver bridge"
-    - agent_workflow_stub: "n8n JSON base con tenant_id y error handling"
-  validation_requirements:
-    - all_generated_yaml_must_pass_yamllint: true
-    - all_bash_scripts_must_have_set_euo_pipefail: true
-    - all_sql_must_include_tenant_id_filter: true
-constraints_executable:
-  C1_RAM: "n8n_memory_limit: 1500M"
-  C2_CPU: "max_cpus_per_container: \"1.0\""
-  C3_NETWORK: "mysql_qdrant_expose: false"
-  C4_TENANT: "query_must_include: WHERE tenant_id = ?"
-  C5_BACKUP: "schedule: 0 4 * * * | encrypt: aes-256 | checksum: sha256"
-  C6_AI: "local_models: forbidden | api_provider: OpenRouter"
-references_raw:
-  architecture_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/01-ARCHITECTURE-RULES.md"
-  resource_guardrails: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/02-RESOURCE-GUARDRAILS.md"
-  security_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md"
-  multitenancy_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md"
-  # Workflows y agentes (en construcción - marcar como pending)
-  workflow_INFRA_001: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json"
-  agent_health_monitor: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/03-AGENTS/infrastructure/health-monitor-agent.md"
-ai_generation_prompt_template: |
-  Dada esta infraestructura de 3 VPS con constraints C1-C6, genera:
-  1. docker-compose.yml para VPS-{1,2,3} con resource limits exactos
-  2. health-check.sh con timeout 30s y validación de servicios
-  3. network-setup.sh idempotente para crear redes Docker aisladas
-  4. stub de workflow n8n con tenant_id en cada nodo de datos
-  Retorna JSON con: spec_referenced, generated_files, validation_checks, sha256_output
-ai_navigation:
-  read_after: facundo-core-context.md
-  required_for: [deployment, troubleshooting, scaling, monitoring, code_generation]
-  update_frequency: monthly
-  validation_rules:
-    - "all VPS specs must match ARQ-002 in 01-RULES/01-ARCHITECTURE-RULES.md#L15"
-    - "backup workflow must reference C5 in constraints_executable"
-    - "health checks must include timeout: 30 in HTTP nodes"
-    - "ALL generated code must pass validate-against-specs.sh"
-    
+title: "Facundo Infrastructure Spec - Agentic Infra Docs"
+category: "Contexto"
+priority: "Alta"
+version: "1.0.0"
+last_updated: "2026-04-05"
+language: "es"
+repository: "agentic-infra-docs"
+owner: "Mantis-AgenticDev"
+type: "overview"
+ia_parser_version: "2.0"
+auto_validate: true
+compliance_check: "on-deploy"
+validation_script: "scripts/validate-against-specs.sh"
+auto_fixable: false
+severity_scope: "high"
+tags:
+  - vps
+  - docker
+  - mysql
+  - qdrant
+  - tenant-id
+  - resource-limits
+related_files:
+  - "01-RULES/01-ARCHITECTURE-RULES.md"
+  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
+  - "05-CONFIGURATIONS/docker/docker-compose.yml"
 ---
 
 # FACUNDO INFRASTRUCTURE - MANTIS AGENTIC

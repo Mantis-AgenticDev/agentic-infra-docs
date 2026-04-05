@@ -1,29 +1,28 @@
 ---
-title: "FACUNDO CORE CONTEXT - Agentic Infra Docs"
+title: "Facundo Core Context - Agentic Infra Docs"
 category: "Contexto"
 priority: "Siempre"
 version: "1.0.0"
-last_updated: "2026-04-01"
+last_updated: "2026-04-05"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
-type: "context"
+type: "overview"
 ia_parser_version: "2.0"
-auto_validate: false
-compliance_check: "on-demand"
-constraints_count: 6
+auto_validate: true
+compliance_check: "weekly"
+validation_script: "scripts/validate-against-specs.sh"
+auto_fixable: false
+severity_scope: "critical"
 tags:
-  - context
+  - perfil-usuario
+  - principios
   - constraints
-  - user-profile
-  - facundo
-  - absolute-rules
+  - tenant-id
 related_files:
   - "00-CONTEXT/PROJECT_OVERVIEW.md"
-  - "00-CONTEXT/facundo-infrastructure.md"
   - "00-CONTEXT/facundo-business-model.md"
-  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
-  - "01-RULES/03-SECURITY-RULES.md"
+  - "01-RULES/06-MULTITENANCY-RULES.md"
 ---
 
 <!-- IA-NAVIGATION

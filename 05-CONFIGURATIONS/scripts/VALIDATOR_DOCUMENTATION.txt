@@ -1,3 +1,30 @@
+```bash
+# ---
+# title: "Validator Documentation - Agentic Infra Docs"
+# category: "Configuraciones"
+# priority: "Media"
+# version: "1.0.0"
+# last_updated: "2026-04-XX"
+# language: "es"
+# repository: "agentic-infra-docs"
+# owner: "Mantis-AgenticDev"
+# type: "config"
+# ia_parser_version: "2.0"
+# auto_validate: true
+# compliance_check: "on-demand"
+# validation_script: "scripts/validate-against-specs.sh"
+# auto_fixable: false
+# severity_scope: "medium"
+# tags:
+#   - validator
+#   - ci-cd
+#   - sdd-compliance
+#   - bash
+# related_files:
+#   - "05-CONFIGURATIONS/scripts/validate-against-specs.sh"
+#   - "01-RULES/00-INDEX.md"
+# ---
+
 ================================================================
 VALIDATOR AGAINST SPECS - DOCUMENTACIÓN TÉCNICA (v1.0)
 Proyecto: MANTIS AGENTIC | Metodología: SDD

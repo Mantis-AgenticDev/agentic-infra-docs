@@ -1,26 +1,28 @@
 ---
-title: "INDEX DE RULES - Agentic Infra Docs"
-category: "Navegación"
+title: "Rules Index - Agentic Infra Docs"
+category: "Reglas"
 priority: "Siempre"
 version: "1.0.0"
-last_updated: "2026-03"
+last_updated: "2026-04-05"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
 type: "index"
 ia_parser_version: "2.0"
-auto_validate: false
-compliance_check: "on-demand"
-total_files: 9
-estimated_tokens: 5200
+auto_validate: true
+compliance_check: "weekly"
+validation_script: "scripts/validate-against-specs.sh"
+auto_fixable: true
+severity_scope: "medium"
 tags:
   - index
   - navigation
-  - rules
-  - metadata
+  - rules-reference
+  - sdd-compliance
 related_files:
-  - "00-CONTEXT/00-INDEX.md"
-  - "02-SKILLS/00-INDEX.md"
+  - "01-RULES/01-ARCHITECTURE-RULES.md"
+  - "01-RULES/06-MULTITENANCY-RULES.md"
+  - "00-CONTEXT/PROJECT_OVERVIEW.md"
 ---
 
 # INDEX DE RULES - Agentic Infrastructure
