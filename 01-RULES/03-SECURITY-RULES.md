@@ -83,10 +83,11 @@ PermitRootLogin prohibit-password
 
 **Configuración mínima:**
 
-Parámetro	Valor  	Justificación
-maxretry	5	       Intentos antes de ban
-findtime	600	       Ventana de tiempo (segundos)
-bantime	    3600	   Tiempo de ban (segundos)
+|Parámetro	 | Valor  	| Justificación                 |
+|------------|----------|-------------------------------|
+|maxretry	   | 5	      | Intentos antes de ban         |
+|findtime	   | 600	    | Ventana de tiempo (segundos)  |
+|bantime	   | 3600	    | Tiempo de ban (segundos)      |
 
 **Jails obligatorios:**
 
@@ -103,10 +104,10 @@ nginx-repeat-offender (si aplica)
 
 **Requisitos obligatorios:**
 
-API keys en archivos .env (nunca en código)
-.env nunca commiteado a Git
-Secrets en n8n usando credenciales nativas
-Logs nunca imprimen tokens o API keys
+- API keys en archivos .env (nunca en código)
+- .env nunca commiteado a Git
+- Secrets en n8n usando credenciales nativas
+- Logs nunca imprimen tokens o API keys
 
 **Violación crítica:** API key hardcodeada en archivo .js o .py.
 
@@ -189,10 +190,10 @@ mysqldump -u root --all-databases | \
 
 **Requisitos obligatorios:**
 
-Cada consulta SQL debe incluir WHERE tenant_id = ?
-Cada búsqueda en Qdrant debe incluir filtro por tenant_id
-Log de acceso por tenant para auditoría
-Nunca exponer datos de un cliente a otro
+- Cada consulta SQL debe incluir WHERE tenant_id = ?
+- Cada búsqueda en Qdrant debe incluir filtro por tenant_id
+- Log de acceso por tenant para auditoría
+- Nunca exponer datos de un cliente a otro
 
 **Violación crítica:** Consulta SQL sin filtro tenant_id.
 
@@ -242,10 +243,10 @@ PermitRootLogin no
 
 **Logs obligatorios:**
 
-/var/log/auth.log (accesos SSH)
-/var/log/ufw.log (firewall)
-/var/log/fail2ban.log (bans)
-n8n execution logs (por tenant)
+- /var/log/auth.log (accesos SSH)
+- /var/log/ufw.log (firewall)
+- /var/log/fail2ban.log (bans)
+- n8n execution logs (por tenant)
 
 **Retención:** 90 días mínimo.
 
@@ -268,17 +269,24 @@ n8n execution logs (por tenant)
 
 ## Matriz de Puertos por VPS
 
-Puerto	Servicio	VPS 1	VPS 2	VPS 3	Público
-22	    SSH	        Sí	     Sí	      Sí	No (IPs conocidas)
-80	    HTTP	    Sí	     Sí	      Sí	Sí
-443	    HTTPS	    Sí	     Sí	      Sí	Sí
-3306	MySQL	    No	     Sí	      No	No
-6333	Qdrant	    No	     Sí	      No	No
-5678	n8n	        Sí	     No	      Sí    No
-8080	uazapi	    Sí	     No	      Sí	No
+|Puerto	 | Servicio	 | VPS 1	| VPS 2	    | VPS 3	| Público            |
+|--------|-----------|--------|-----------|-------|--------------------|
+|22	     | SSH	     | Sí	    | Sí	      | Sí	  | No (IPs conocidas) | 
+|80	     | HTTP	     | Sí	    | Sí	      | Sí	  | Sí                 |
+|443	   | HTTPS	   | Sí	    | Sí	      | Sí	  | Sí                 |
+|3306	   | MySQL	   | No	    | Sí	      | No	  | No                 |
+|6333	   | Qdrant	   | No	    | Sí	      | No	  | No                 |
+|5678	   | n8n	     | Sí	    | No	      | Sí    | No                 |
+|8080	   | uazapi	   | Sí	    | No	      |Sí	    | No                 |
 
 Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev
 Licencia: Creative Commons para uso interno del proyecto
 
 
 
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]

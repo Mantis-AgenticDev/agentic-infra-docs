@@ -1,0 +1,33 @@
+{
+  "validator_version": "1.0.0",
+  "timestamp": "2026-04-08T20:27:40Z",
+  "target": "./",
+  "status": "failed",
+  "summary": {
+    "passed": 72,
+    "warnings": 7,
+    "errors": 8
+  },
+  "details": {
+    "errors": [
+  "Code fences desbalanceados (21): ./README.md",
+  "Falta apertura de frontmatter YAML: ./05-CONFIGURATIONS/scripts/validate-against-specs.sh",
+  "Constraint C4 violado: Falta tenant_id en ejemplos/spec: ./01-RULES/08-SKILLS-REFERENCE.md",
+  "Constraint C4 violado: Falta tenant_id en ejemplos/spec: ./01-RULES/01-ARCHITECTURE-RULES.md",
+  "Constraint C3 violado: Puerto de BD/vector expuesto públicamente: ./01-RULES/01-ARCHITECTURE-RULES.md",
+  "Constraint C4 violado: Falta tenant_id en ejemplos/spec: ./01-RULES/07-SCALABILITY-RULES.md",
+  "Falta apertura de frontmatter YAML: ./04-WORKFLOWS/sdd-universal-assistant.json",
+  "Falta apertura de frontmatter YAML: ./opencode.json"
+],
+    "warnings": [
+  "Posible modelo local detectado (C6): ./05-CONFIGURATIONS/scripts/validate-against-specs.sh",
+  "tenant_id encontrado, pero no en query/filtro ejecutable: ./01-RULES/02-RESOURCE-GUARDRAILS.md",
+  "Posible modelo local detectado (C6): ./01-RULES/02-RESOURCE-GUARDRAILS.md",
+  "Posible modelo local detectado (C6): ./01-RULES/05-CODE-PATTERNS-RULES.md",
+  "tenant_id encontrado, pero no en query/filtro ejecutable: ./01-RULES/00-INDEX.md",
+  "tenant_id encontrado, pero no en query/filtro ejecutable: ./01-RULES/04-API-RELIABILITY-RULES.md",
+  "Estructura n8n incompleta (faltan nodes/connections): ./opencode.json"
+],
+    "passed_checks": 72
+  }
+}

@@ -21,6 +21,12 @@ ai_navigation:
     - revenue_target must be >= 2500 BRL/month
     - partner_split must be 45% each after reserve
     - emergency_fund must be 10% of net profit
+# === CAMPOS SDD ADICIONALES (para compatibilidad) ===
+sdd_compliance_note: "Este archivo contiene reglas de negocio. Los constraints técnicos C1-C6 se aplican en la infraestructura que soporta este modelo. Ver: 01-RULES/06-MULTITENANCY-RULES.md para enforcement técnico."
+technical_constraints_reference:
+  - "01-RULES/01-ARCHITECTURE-RULES.md"
+  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
+  - "01-RULES/06-MULTITENANCY-RULES.md"
 ---
 
 # FACUNDO BUSINESS MODEL - MANTIS AGENTIC
@@ -172,3 +178,9 @@ Key Performance Indicators
 ---
 
 FIN DEL ARCHIVO - facundo-business-model.md
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[00-CONTEXT/00-INDEX.md]]
+[[00-CONTEXT/PROJECT_OVERVIEW.md]]
+[[00-CONTEXT/facundo-core-context.md]]

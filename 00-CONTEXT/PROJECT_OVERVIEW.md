@@ -601,3 +601,6 @@ Cambios / Mudanças Documneto Inicial
 Autor   / Autor Facundo
 
 Este documento está bajo licencia Creative Commons para uso interno del proyecto. / Este documento está sob licença Creative Commons para uso interno do projeto.
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]

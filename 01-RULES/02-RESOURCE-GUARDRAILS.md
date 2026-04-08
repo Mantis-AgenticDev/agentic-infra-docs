@@ -67,11 +67,12 @@ docker run --memory="1.5g" --memory-swap="1.5g" n8n
 
 **Límites obligatorios:**
 
-Recurso	     Límite	     Umbral de Alerta
-CPU Total	1 núcleo	80% sostenido por 5 min
-CPU n8n	    0.5 núcleo	70% sostenido por 5 min
-CPU MySQL	0.3 núcleo	60% sostenido por 5 min
-CPU Qdrant	0.2 núcleo	50% sostenido por 5 min
+|Recurso	   |  Límite	     | Umbral de Alerta         |
+|------------|---------------|------ -------------------|
+|CPU Total	 | 1 núcleo	     | 80% sostenido por 5 min  |
+|CPU n8n	   | 0.5 núcleo	   | 70% sostenido por 5 min  |
+|CPU MySQL	 | 0.3 núcleo	   | 60% sostenido por 5 min  |
+|CPU Qdrant	 | 0.2 núcleo	   | 50% sostenido por 5 min  |
 
 **Acción correctiva:** Reducir concurrencia de workflows en n8n.
 
@@ -83,12 +84,13 @@ CPU Qdrant	0.2 núcleo	50% sostenido por 5 min
 
 **Límites obligatorios:**
 
-Recurso	           Límite	       Umbral de Alerta
-Disco Total	       50 GB	       80% usado (40 GB)
-Disco MySQL	       20 GB	       70% usado (14 GB)
-Disco Qdrant       15 GB	       70% usado (10.5 GB)
-Disco Logs	        5 GB	       80% usado (4 GB)
-Disco Backup Temp  10 GB	       50% usado (5 GB)
+|Recurso	           | Límite	       | Umbral de Alerta    |
+|--------------------|---------------|---------------------|
+|Disco Total	       | 50 GB	       | 80% usado (40 GB)   |
+|Disco MySQL	       | 20 GB	       | 70% usado (14 GB)   |
+|Disco Qdrant        | 15 GB	       | 70% usado (10.5 GB) |
+|Disco Logs	         | 5 GB	         | 80% usado (4 GB)    |
+|Disco Backup Temp   | 10 GB	       | 50% usado (5 GB)    |
 
 **Acción correctiva:** Rotar logs y limpiar backups temporales.
 
@@ -100,11 +102,12 @@ Disco Backup Temp  10 GB	       50% usado (5 GB)
 
 **Límites obligatorios:**
 
-Tipo de Polling	     Intervalo Mínimo	Justificación
-Health Check VPS	  5 minutos	        Equilibrio entre detección y carga
-Backup Status	      1 hora	        Backup es proceso largo
-Alertas de Recursos   5 minutos	        Coherente con health check
-WhatsApp Webhooks	  Push (no polling)	uazapi usa webhooks
+|Tipo de Polling	     | Intervalo Mínimo	       |Justificación                       |
+|----------------------|-------------------------|------------------------------------|
+|Health Check VPS	     | 5 minutos	             | Equilibrio entre detección y carga |
+|Backup Status	       | 1 hora	                 | Backup es proceso largo            |
+|Alertas de Recursos   | 5 minutos	             | Coherente con health check         |
+|WhatsApp Webhooks	   | Push (no polling)	     | uazapi usa webhooks                |
 
 **Violación crítica:** Polling cada menos de 30 segundos.
 
@@ -116,10 +119,11 @@ WhatsApp Webhooks	  Push (no polling)	uazapi usa webhooks
 
 **Límites obligatorios:**
 
-VPS	      Servicios	Máximos	   Configuración
-VPS	1	         3	           n8n, uazapi, Redis
-VPS	2	         3	           EspoCRM, MySQL, Qdrant
-VPS	3	         2	           n8n, uazapi
+|VPS	      | Servicios	Máximos	   | Configuración          |
+|-----------|----------------------|------------------------|
+|VPS	1	    |     3	               | n8n, uazapi, Redis     |
+|VPS	2	    |     3	               | EspoCRM, MySQL, Qdrant |
+|VPS	3	    |     2	               | n8n, uazapi            |
 
 **Violación crítica:** Ejecutar más servicios de los especificados.
 
@@ -131,16 +135,16 @@ VPS	3	         2	           n8n, uazapi
 
 **Prohibido explícitamente:**
 
-Modelos de IA locales (Ollama, LM Studio, similares)
-Indexación vectorial local masiva
-Procesamiento de video en tiempo real
-Procesamiento de imagen batch grande
+- Modelos de IA locales (Ollama, LM Studio, similares)
+- Indexación vectorial local masiva
+- Procesamiento de video en tiempo real
+- Procesamiento de imagen batch grande
 
 **Permitido:**
 
-APIs cloud (OpenRouter, Qdrant Cloud)
-Procesamiento por lotes pequeños (menos de 100 items)
-Transcripción de audio vía Deepgram API
+- APIs cloud (OpenRouter, Qdrant Cloud)
+- Procesamiento por lotes pequeños (menos de 100 items)
+- Transcripción de audio vía Deepgram API
 
 ---
     
@@ -160,9 +164,9 @@ Transcripción de audio vía Deepgram API
 
 **Requisitos obligatorios:**
 
-Máximo 100 iteraciones por bucle en workflows
-Timeout máximo de 30 segundos por ejecución
-Reintentos máximo 3 veces con backoff exponencial
+- Máximo 100 iteraciones por bucle en workflows
+- Timeout máximo de 30 segundos por ejecución
+- Reintentos máximo 3 veces con backoff exponencial
 
 **Ejemplo de violación:** Bucle while sin condición de salida.
 
@@ -184,14 +188,14 @@ WEBHOOK_TIMEOUT=30000
 
 **Variables de entorno obligatorias en .env:**
 
-+-------------------------------+------------------+--------------------------+
+
 | Variable                      | Valor            | Justificación            |
-+-------------------------------+------------------+--------------------------+
+|-------------------------------|------------------|--------------------------|
 | EXECUTIONS_PROCESS            | main             | Evita overhead de queue  |
 | EXECUTIONS_MAX_CONCURRENT     | 5                | Máximo para 4GB RAM      |
 | WEBHOOK_TIMEOUT               | 30000            | 30 segundos máximo       |
 | MEMORY_LIMIT                  | 1536             | 1.5GB para n8n           |
-+-------------------------------+------------------+--------------------------+
+
 
 ---
 
@@ -201,10 +205,10 @@ WEBHOOK_TIMEOUT=30000
 
 **Métricas obligatorias:**
 
-RAM usada (porcentaje y MB)
-CPU usada (porcentaje)
-Disco usado (porcentaje y GB)
-Estado de contenedores Docker
+- RAM usada (porcentaje y MB)
+- CPU usada (porcentaje)
+- Disco usado (porcentaje y GB)
+- Estado de contenedores Docker
 
 **Frecuencia:** Cada 5 minutos mínimo.
 **Alertas:** Ver 09-MONITORING-ALERTS.md
@@ -236,10 +240,11 @@ container_cpu_usage_seconds_total{tenant_id="facundo_agro"}
 
 ## Umbrales de Alerta de Recursos
 
-Recurso	     Advertencia	Crítico	          Acción
-RAM	        85% por 5 min	90% por 5 min	Reducir workflows activos
-CPU	        80% sostenido	90% sostenido	Limitar concurrencia
-Disco	    80%	            90%         	Limpiar logs y backups
+|Recurso	    | Advertencia	    | Crítico	         | Acción                    |
+|-------------|-----------------|------------------|---------------------------|
+|RAM	        | 85% por 5 min	  | 90% por 5 min	   | Reducir workflows activos |
+|CPU	        | 80% sostenido	  | 90% sostenido	   | Limitar concurrencia      |
+|Disco	      | 80%	            | 90%         	   | Limpiar logs y backups    |
 
 ---
 
@@ -257,3 +262,8 @@ Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev
 Licencia: Creative Commons para uso interno del proyecto
 
 
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/03-SECURITY-RULES.md]]

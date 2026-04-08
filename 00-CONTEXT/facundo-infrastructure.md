@@ -2,8 +2,8 @@
 title: "Facundo Infrastructure Spec - Agentic Infra Docs"
 category: "Contexto"
 priority: "Alta"
-version: "1.0.0"
-last_updated: "2026-04-05"
+version: "1.4.0"
+last_updated: "2026-04-08"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
@@ -669,7 +669,6 @@ Checksum: a3f5c8e2...
 
 ---
 
-
 ## 🧪 TEST DE AISLAMIENTO MENSUAL (MT-010)
 
 ### Checklist Obligatorio (Primer Sábado de Cada Mes)
@@ -780,3 +779,9 @@ Instrucción para IA: Al generar código basado en este archivo, incluir este ch
 ---
 
 <!-- FIN DEL ARCHIVO: facundo-infrastructure.md --> 
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[00-CONTEXT/00-INDEX.md]]
+[[00-CONTEXT/PROJECT_OVERVIEW.md]]
+[[00-CONTEXT/facundo-business-model.md]]

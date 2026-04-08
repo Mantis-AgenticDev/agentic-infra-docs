@@ -87,19 +87,21 @@ related_files:
 
 **Configuración obligatoria:**
 
-Parámetro	            Valor
-Base URL	            https://openrouter.ai/api/v1
-Header Authorization	Bearer {API_KEY}
-Header HTTP-Referer	    URL del proyecto
-Header X-Title	        agentic-infra-docs
+|Parámetro	            |Valor                        |
+|-----------------------|-----------------------------|
+|Base URL	              |https://openrouter.ai/api/v1 |
+|Header Authorization	  |Bearer {API_KEY}             |
+|Header HTTP-Referer	  |URL del proyecto             |
+|Header X-Title	        |agentic-infra-docs           |
 
 **Modelos preferidos:**
 
-Caso de Uso   	   Caso de Uso	Modelo	          Costo Relativo
-Coding	            anthropic/claude-3.5-sonnet 	Alto
-Rápido	            google/gemini-2.0-flash-lite	Bajo
-Económico	        openai/gpt-4o-mini          	Medio
-RAG	                moonshotai/kimi-k2           	Medio
+|Caso de Uso   	    |	Modelo	                     |Costo Relativo |
+|-------------------|------------------------------|---------------|
+|Coding	            |anthropic/claude-3.5-sonnet 	 |Alto           |
+|Rápido	            |google/gemini-2.0-flash-lite	 |Bajo           |
+|Económico	        |openai/gpt-4o-mini          	 |Medio          |
+|RAG	              |moonshotai/kimi-k2            |Medio          |
 
 ---
 
@@ -109,9 +111,9 @@ RAG	                moonshotai/kimi-k2           	Medio
 
 **Requisitos obligatorios:**
 
-Cachear respuestas cuando sea posible (TTL 5 minutos)
-Validar si dato ya existe antes de llamar API
-Usar idempotencia en operaciones de escritura
+- Cachear respuestas cuando sea posible (TTL 5 minutos)
+- Validar si dato ya existe antes de llamar API
+- Usar idempotencia en operaciones de escritura
 
 **Violación:** Llamar OpenRouter 2 veces para misma pregunta en menos de 1 minuto.
 
@@ -123,10 +125,10 @@ Usar idempotencia en operaciones de escritura
 
 **Validaciones mínimas:**
 
-Strings no vacíos
-Longitud máxima definida (ej: 4000 caracteres para prompts)
-Caracteres especiales escapados
-tenant_id presente en todos los payloads
+- Strings no vacíos
+- Longitud máxima definida (ej: 4000 caracteres para prompts)
+- Caracteres especiales escapados
+- tenant_id presente en todos los payloads
 
 ---
 
@@ -136,17 +138,17 @@ tenant_id presente en todos los payloads
 
 **Prohibido en logs:**
 
-API keys completas (mostrar solo últimos 4 caracteres)
-Tokens de acceso
-Passwords
-Datos sensibles de clientes
+- API keys completas (mostrar solo últimos 4 caracteres)
+- Tokens de acceso
+- Passwords
+- Datos sensibles de clientes
 
 **Permitido en logs:**
 
-Código de error HTTP
-Timestamp
-Endpoint llamado (sin query params sensibles)
-tenant_id (para auditoría)
+- Código de error HTTP
+- Timestamp
+- Endpoint llamado (sin query params sensibles)
+- tenant_id (para auditoría)
 
 ---
 
@@ -156,11 +158,12 @@ tenant_id (para auditoría)
 
 **Configuración recomendada:**
 
-Intento	    Delay	      Máximo de Intentos
-1	         0 segundos	        -
-2	         5 segundos	        -
-3	        15 segundos     	-
-4	        45 segundos	   Máximo alcanzado
+|Intento	  |  Delay	      | Máximo de Intentos |
+|-----------|---------------|--------------------|
+|1	        | 0 segundos	  |       -            |
+|2	        | 5 segundos	  |       -            |
+|3	        |15 segundos    |       -            |
+|4	        |45 segundos	  | Máximo alcanzado   |
 
 **Fórmula:** delay = base_delay * (2 ^ (intent_number - 1))
 
@@ -185,10 +188,11 @@ Intento	    Delay	      Máximo de Intentos
 
 **Configuración recomendada:**
 
-Parámetro	           Valor
-Failure threshold	   5 fallos consecutivos
-Recovery timeout	  60 segundos
-Half-open requests	   1
+|Parámetro	           | Valor                 |
+|----------------------|-----------------------|
+|Failure threshold	   | 5 fallos consecutivos |
+|Recovery timeout	     | 60 segundos           |
+|Half-open requests	   | 1                     |
 
 **APIs críticas:** OpenRouter, Qdrant Cloud, MySQL.
 
@@ -200,11 +204,12 @@ Half-open requests	   1
 
 **Límites conocidos:**
 
-API	             Rate Limit	            Acción si excede
-OpenRouter	     Variable por modelo	Esperar y reintentar
-Qdrant Cloud	 100 req/min	        Queue requests
-Telegram Bot	  30 msg/seg	        Batch messages
-Gmail SMTP	     100 emails/día	        Queue para próximo día
+|API	           |  Rate Limit	            | Acción si excede       |
+|----------------|--------------------------|------------------------|
+|OpenRouter	     | Variable por modelo	    | Esperar y reintentar   |
+|Qdrant Cloud	   | 100 req/min	            | Queue requests         |
+|Telegram Bot	   | 30 msg/seg	              | Batch messages         |
+|Gmail SMTP	     | 100 emails/día	          | Queue para próximo día |
 
 ---
 
@@ -214,10 +219,11 @@ Gmail SMTP	     100 emails/día	        Queue para próximo día
 
 **Fallbacks recomendados:**
 
-API Primaria	       Fallback	           Caso de Uso
-OpenRouter Claude	OpenRouter Gemini	Si Claude unavailable
-Qdrant Cloud	    Error + log	        No hay fallback vector DB
-Telegram Bot	    Gmail SMTP	        Si Telegram down, enviar email
+|API Primaria	       | Fallback	           | Caso de Uso                   |
+|--------------------|---------------------|-------------------------------|
+|OpenRouter Claude	 | OpenRouter Gemini	 | Si Claude unavailable         |
+|Qdrant Cloud	       | Error + log	       | No hay fallback vector DB     |
+|Telegram Bot	       | Gmail SMTP	         | Si Telegram down, enviar email|
 
 ---
 
@@ -270,3 +276,9 @@ try {
 Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev
 Licencia: Creative Commons para uso interno del proyecto
 
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]

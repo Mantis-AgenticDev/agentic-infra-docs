@@ -3,7 +3,7 @@ title: "PROJECT TREE - Agentic Infra Docs"
 category: "Documentación"
 priority: "Siempre"
 version: "2.1.0"
-last_updated: "2026-03"
+last_updated: "2026-04-08"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
@@ -20,6 +20,10 @@ related_files:
   - "README.md"
   - "PROJECT_OVERVIEW.md"
   - "00-CONTEXT/00-INDEX.md"
+validation_script: "scripts/validate-project-tree.sh"
+validation_status: "pending"
+auto_fixable: true
+severity_scope: "low"
 ---
 <!-- IA-NAVIGATION
 priority_files:
@@ -68,22 +72,22 @@ agentic-infra-docs/
 │   └── Este archivo - mapa del proyecto
 │
 ├── 00-CONTEXT/
-│   ├── 00-INDEX.md                           🆕 PENDIENTE
+│   ├── 00-INDEX.md                           ✅ COMPLETADO
 │   │   └── Índice con URLs raw de todos los archivos de contexto
 │   │
 │   ├── PROJECT_OVERVIEW.md                   ✅ COMPLETADO 
 │   │   └── Visión general bilingüe (ES+PT-BR) del proyecto completo
 │   │
-│   ├── README.md                             🆕 PENDIENTE
+│   ├── README.md                             ✅ COMPLETADO
 │   │   └── Reglas del repositorio, accesible para todas las IAs
 │   │
 │   ├── facundo-core-context.md               ✅ COMPLETADO 
 │   │   └── Contexto base del usuario: dominio, stack, forma de trabajo
 │   │
-│   ├── facundo-infrastructure.md             🆕 PENDIENTE
+│   ├── facundo-infrastructure.md             ✅ COMPLETADO
 │   │   └── Detalle técnico de infraestructura (3 VPS, specs, red)
 │   │
-│   └── facundo-business-model.md             🆕 PENDIENTE
+│   └── facundo-business-model.md             ✅ COMPLETADO
 │       └── Modelo de negocio, pricing, SLA, proyecciones financieras
 │
 ├── 01-RULES/
@@ -262,6 +266,11 @@ agentic-infra-docs/
 │   │       └── Docker Compose para VPS 3 (n8n + uazapi)
 │   │
 │   ├── scripts/
+|   |   ├── validate-against-specs.sh         ✅ COMPLETADO
+|   |   |   └── Validar automáticamente que los archivos del repositorio cumplan 
+|   |   |        con los constraints absolutos (C1-C6), estructura SDD, tenant-
+|   |   |        awareness y límites de recursos antes de commit o despliegue. 
+|   |   |      
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
 │   │   │   └── Índice de scripts bash
 │   │   │
@@ -373,18 +382,18 @@ agentic-infra-docs/
 
 ## 📊 RESUMEN DE ESTADO
 
-Carpeta	            Archivos  Completados	Archivos Pendientes	  Total% Completado
-Raíz	            3	      1	            4	                  75%
-00-CONTEXT/	        1	      5	            6                     17%
-01-RULES/	        9	      9	            0	                  100%
-02-SKILLS/	        0	      20	        20	                  0%
-03-AGENTS/	        0	      9         	9	                  0%
-04-WORKFLOWS/	    0	      10        	10	                  0%
-05-CONFIGURATIONS/	0	      12        	12	                  0%
-06-PROGRAMMING/	    0	      9	            9	                  0%
-07-PROCEDURES/	    0	      10        	10                    0%
-08-LOGS/	        1	      1	            2                     50%
-TOTAL	            5	      86        	91                    5.5%
+Carpeta	            Archivos  Completados	   Archivos Pendientes	  Total% Completado
+Raíz	              3	         3	            0 	                  100%
+00-CONTEXT/	        5          5	            0                     100%
+01-RULES/	          9	         9	            0	                    100%
+02-SKILLS/	        20         0	            20	                  0%
+03-AGENTS/	        9	         0         	    9	                    0%
+04-WORKFLOWS/	      10         0        	    10	                  0%
+05-CONFIGURATIONS/	13	       1        	    12	                  0%
+06-PROGRAMMING/	    9	         0	            9	                    0%
+07-PROCEDURES/	    10	       0        	    10                    0%
+08-LOGS/	          1	         1	            2                     50%
+TOTAL	              91	       19        	    72                    20,88%
 
 
 ---
@@ -396,25 +405,25 @@ TOTAL	            5	      86        	91                    5.5%
 Prioridad	Archivo	                    Carpeta                     	Razón
 🔴 CRÍTICA	00-INDEX.md	                00-CONTEXT/	                    Índice de contexto para IAs
 🔴 CRÍTICA	facundo-core-context.md	    00-CONTEXT/	                    Contexto base del usuario
-🔴 CRÍTICA	facundo-infrastructure.md	00-CONTEXT/	                    Detalle técnico de infra
+🔴 CRÍTICA	facundo-infrastructure.md	  00-CONTEXT/	                    Detalle técnico de infra
 🔴 CRÍTICA	00-INDEX.md	                01-RULES/	                    Índice de rules para IAs
-🔴 CRÍTICA	02-RESOURCE-GUARDRAILS.md	01-RULES/	                    Límites de recursos 4GB
-🔴 CRÍTICA	01-ARCHITECTURE-RULES.md	01-RULES/	                    Constraints de infraestructura
-🟠 ALTA	    03-SECURITY-RULES.md	    01-RULES/	                    Seguridad de VPS
-🟠 ALTA	    06-MULTITENANCY-RULES.md	01-RULES/	                    Aislamiento de datos
-🟠 ALTA	    .env.example	            05-CONFIGURATIONS/environment/	Variables de entorno
+🔴 CRÍTICA	02-RESOURCE-GUARDRAILS.md	  01-RULES/	                    Límites de recursos 4GB
+🔴 CRÍTICA	01-ARCHITECTURE-RULES.md	  01-RULES/	                    Constraints de infraestructura
+🟠 ALTA	    03-SECURITY-RULES.md	      01-RULES/	                    Seguridad de VPS
+🟠 ALTA	    06-MULTITENANCY-RULES.md	  01-RULES/	                    Aislamiento de datos
+🟠 ALTA	    .env.example	              05-CONFIGURATIONS/environment/	Variables de entorno
 
 
 ### **Fase 2: Configuraciones Técnicas (Semana 3-4)**
 
-Prioridad	Archivo	                    Carpeta	                            Razón
-🔴 CRÍTICA	vps1-n8n-uazapi.yml	        05-CONFIGURATIONS/docker-compose/	Docker VPS 1
-🔴 CRÍTICA	vps2-crm-qdrant.yml	        05-CONFIGURATIONS/docker-compose/	Docker VPS 2
-🔴 CRÍTICA	vps3-n8n-uazapi.yml	        05-CONFIGURATIONS/docker-compose/	Docker VPS 3
-🔴 CRÍTICA	health-check.sh	            05-CONFIGURATIONS/scripts/	        Health check
-🔴 CRÍTICA	backup-mysql.sh	            05-CONFIGURATIONS/scripts/	        Backup MySQL
-🟠 ALTA	    04-API-RELIABILITY-RULES.md	01-RULES/	                        Fiabilidad de APIs
-🟠 ALTA	    05-CODE-PATTERNS-RULES.md	01-RULES/	                        Patrones de código
+Prioridad	Archivo	                      Carpeta	                            Razón
+🔴 CRÍTICA	vps1-n8n-uazapi.yml	         05-CONFIGURATIONS/docker-compose/	Docker VPS 1
+🔴 CRÍTICA	vps2-crm-qdrant.yml	         05-CONFIGURATIONS/docker-compose/	Docker VPS 2
+🔴 CRÍTICA	vps3-n8n-uazapi.yml	         05-CONFIGURATIONS/docker-compose/	Docker VPS 3
+🔴 CRÍTICA	health-check.sh	             05-CONFIGURATIONS/scripts/	        Health check
+🔴 CRÍTICA	backup-mysql.sh	             05-CONFIGURATIONS/scripts/	        Backup MySQL
+🟠 ALTA	    04-API-RELIABILITY-RULES.md	 01-RULES/	                        Fiabilidad de APIs
+🟠 ALTA	    05-CODE-PATTERNS-RULES.md	   01-RULES/	                        Patrones de código
 
 
 ### **Fase 3: Agentes y Workflows (Semana 5-8)**
@@ -422,20 +431,20 @@ Prioridad	Archivo	                    Carpeta	                            Razón
 Prioridad	Archivo	                           Carpeta	                    Razón
 🟠 ALTA	    health-monitor-agent.md	            03-AGENTS/infrastructure/	Agente de monitoreo
 🟠 ALTA	    backup-manager-agent.md	            03-AGENTS/infrastructure/	Agente de backup
-🟠 ALTA	    alert-dispatcher-agent.md	        03-AGENTS/infrastructure/	Agente de alertas
-🟡 MEDIA	INFRA-001-Monitor-Salud-VPS.json	04-WORKFLOWS/n8n/       	Workflow monitoreo
-🟡 MEDIA	INFRA-002-Backup-Manager.json	    04-WORKFLOWS/n8n/	        Workflow backup
+🟠 ALTA	    alert-dispatcher-agent.md	          03-AGENTS/infrastructure/	Agente de alertas
+🟡 MEDIA	  INFRA-001-Monitor-Salud-VPS.json	  04-WORKFLOWS/n8n/       	Workflow monitoreo
+🟡 MEDIA	  INFRA-002-Backup-Manager.json	      04-WORKFLOWS/n8n/	        Workflow backup
 
 
 ### **Fase 4: Skills y Procedimientos (Semana 9-12)**
 
 Prioridad	Archivo	                        Carpeta	         Razón
 🟡 MEDIA	00-INDEX.md	                    02-SKILLS/	     Índice de skills
-🟡 MEDIA	n8n-workflow-patterns.md	    02-SKILLS/	     Patrones n8n
-🟡 MEDIA	onboarding-client.md	        07-PROCEDURES/	 Onboarding clientes
+🟡 MEDIA	n8n-workflow-patterns.md	      02-SKILLS/	     Patrones n8n
+🟡 MEDIA	onboarding-client.md	          07-PROCEDURES/	 Onboarding clientes
 🟡 MEDIA	incident-response-checklist.md	07-PROCEDURES/	 Respuesta incidentes
-🟡 MEDIA	07-SCALABILITY-RULES.md	        01-RULES/	     Criterios de escalado
-🟡 MEDIA	08-SKILLS-REFERENCE.md	        01-RULES/	     Pointer a skills
+🟡 MEDIA	07-SCALABILITY-RULES.md	        01-RULES/	       Criterios de escalado
+🟡 MEDIA	08-SKILLS-REFERENCE.md	        01-RULES/	       Pointer a skills
 
 
 ---
@@ -475,13 +484,13 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/05-C
 ## 🚀 SIGUIENTES PASOS INMEDIATOS
 
 Orden	Archivo	                    Carpeta	        Estado
-1	    00-INDEX.md	                00-CONTEXT/ 	🆕 PENDIENTE
-2	    facundo-core-context.md	    00-CONTEXT/	    🆕 PENDIENTE
-3	    facundo-infrastructure.md	00-CONTEXT/	    🆕 PENDIENTE
-4	    facundo-business-model.md	00-CONTEXT/  	🆕 PENDIENTE
+1	    00-INDEX.md	                00-CONTEXT/ 	✅ COMPLETADO
+2	    facundo-core-context.md	    00-CONTEXT/	  ✅ COMPLETADO
+3	    facundo-infrastructure.md	  00-CONTEXT/	  ✅ COMPLETADO
+4	    facundo-business-model.md	  00-CONTEXT/  	✅ COMPLETADO
 5	    00-INDEX.md	                01-RULES/	    ✅ COMPLETADO
-6	    02-RESOURCE-GUARDRAILS.md	01-RULES/	    ✅ COMPLETADO
-7	    01-ARCHITECTURE-RULES.md	01-RULES/	    ✅ COMPLETADO
+6	    02-RESOURCE-GUARDRAILS.md	  01-RULES/	    ✅ COMPLETADO
+7	    01-ARCHITECTURE-RULES.md	  01-RULES/	    ✅ COMPLETADO
 
 ---
 ##    VALIDACIÓN DE ESTRUCTURA
@@ -490,29 +499,18 @@ Criterio	                               Estado	         Observación
 Separación RULES vs PROCEDURES	            ✅ Correcta	     Rules = constraints, Procedures = pasos
 Separación RULES vs SKILLS	                ✅ Correcta	     Rules = qué hacer, Skills = cómo hacer
 Separación AGENTS vs WORKFLOWS	            ✅ Correcta	     Agents = especificación, Workflows = implementación
-Separación CONFIGURATIONS vs PROGRAMMING	✅ Correcta	     Configs = archivos ejecutables, Programming = patrones
-INDEX en cada carpeta	                    ✅ Correcta	     Permite navegación autónoma por IA
+Separación CONFIGURATIONS vs PROGRAMMING	  ✅ Correcta	     Configs = archivos ejecutables, Programming = patrones
+INDEX en cada carpeta	                      ✅ Correcta	     Permite navegación autónoma por IA
 Numeración de archivos	                    ✅ Correcta	     Orden de carga/prioridad claro
-Total de archivos	                        ✅ Optimizado	 91 vs 92 originales (sin inflación)
+Total de archivos	                          ✅ Optimizado	 91 vs 92 originales (sin inflación)
 
 
-Última actualización: Marzo 2026
+Última actualización: Abril 08 2026
 Próxima revisión: Al completar Fase 1 (Cimientos)
-Versión del árbol: 2.1.0 (estructura corregida)
+Versión del árbol: 2.4.0 (estructura corregida)
 
 
 
-
----
-
-## 🚀 SIGUIENTES PASOS INMEDIATOS
-
-1. ✅ Guardar este archivo como `PROJECT_TREE.md` en la raíz del repositorio
-2. 🆕 Crear `00-CONTEXT/00-INDEX.md`
-3. 🆕 Crear `00-CONTEXT/facundo-core-context.md`
-4. 🆕 Crear `00-CONTEXT/facundo-infrastructure.md`
-5. 🆕 Crear `00-CONTEXT/facundo-business-model.md`
-6. 🆕 Crear `01-RULES/00-INDEX.md`
 
 ---
 

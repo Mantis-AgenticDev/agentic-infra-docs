@@ -428,3 +428,9 @@ Commit com mensagem clara: docs: atualizar 00-INDEX.md para fluxo OpenRouter v2
 Última atualização: $(date +%Y-%m-%d) • Próxima revisão: +90 dias • Versão: 2.0.0-SDD
 
   
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[00-CONTEXT/PROJECT_OVERVIEW.md]]
+[[00-CONTEXT/facundo-business-model.md]]
+[[00-CONTEXT/facundo-core-context.md]]

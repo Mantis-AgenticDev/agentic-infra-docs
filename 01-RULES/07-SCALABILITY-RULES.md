@@ -220,3 +220,9 @@ related_files:
 
 *Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]

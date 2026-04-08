@@ -2,7 +2,7 @@
 title: "Rules Index - Agentic Infra Docs"
 category: "Reglas"
 priority: "Siempre"
-version: "1.0.0"
+version: "1.2.0"
 last_updated: "2026-04-05"
 language: "es"
 repository: "agentic-infra-docs"
@@ -23,6 +23,12 @@ related_files:
   - "01-RULES/01-ARCHITECTURE-RULES.md"
   - "01-RULES/06-MULTITENANCY-RULES.md"
   - "00-CONTEXT/PROJECT_OVERVIEW.md"
+# Ejemplo de uso para IA:
+# 1. Leer este índice
+# 2. Para cada regla: ejecutar $(validation_script) $(related_files)
+# 3. Reportar status en meta.validation_status
+ia_usage_example: "Para validar una regla: ./scripts/validate-against-specs.sh 01-RULES/06-MULTITENANCY-RULES.md --check C4"
+---
 ---
 
 # INDEX DE RULES - Agentic Infrastructure
@@ -188,9 +194,13 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 
 | Versión | Fecha   | Cambios           | Autor |
 |---------|---------|-------------------|-------|
-| 1.1.1   | 2026-03 | Documento inicial |Facundo|
+| 1.2.0   | 2026-04 | Documento inicial |Facundo|
 
 ---
 
 *Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/03-SECURITY-RULES.md]]

@@ -123,6 +123,7 @@ CREATE TABLE auditoria (
   FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id)
 );
 ```
+
 ### Query Template con tenant_id (OBLIGATORIO)
 
 ```sql
@@ -195,10 +196,10 @@ SELECT * FROM mensajes WHERE tenant_id = ?;
 
 **Requisitos:**
 
-Extraer tenant_id de token o header
-Validar que tenant existe en base de datos
-Rechazar request si tenant_id inválido
-Log de acceso por tenant para auditoría
+- Extraer tenant_id de token o header
+- Validar que tenant existe en base de datos
+- Rechazar request si tenant_id inválido
+- Log de acceso por tenant para auditoría
 
 **Flujo obligatorio:**
 
@@ -216,10 +217,10 @@ Log de acceso por tenant para auditoría
 
 **Prohibido explícitamente:**
 
-Queries sin filtro tenant_id
-Endpoints que retornen datos de múltiples tenants
-Logs que incluyan datos de otros tenants
-Debug mode que exponga datos crudos
+- Queries sin filtro tenant_id
+- Endpoints que retornen datos de múltiples tenants
+- Logs que incluyan datos de otros tenants
+- Debug mode que exponga datos crudos
 
 **Violación crítica:** Cliente A puede ver mensajes de Cliente B.
 
@@ -249,9 +250,9 @@ Debug mode que exponga datos crudos
 
 **Requisitos:**
 
-mysqldump debe incluir tenant_id en nombres de tablas o filtros
-Qdrant snapshots por colección (una por tenant)
-Restauración individual de tenant sin afectar otros
+- mysqldump debe incluir tenant_id en nombres de tablas o filtros
+- Qdrant snapshots por colección (una por tenant)
+- Restauración individual de tenant sin afectar otros
 
 ---
 
@@ -261,11 +262,12 @@ Restauración individual de tenant sin afectar otros
 
 **Límites recomendados:**
 
-Recurso	              Límite por Tenant	   Justificación
-Mensajes/día	         1000	           Evitar abuso
-Vectores Qdrant	         10000	           Limitar uso de RAM
-Almacenamiento MySQL	 500 MB	           Limitar uso de disco
-Requests API/min	     30	               Rate limiting
+|Recurso	                 | Límite por Tenant	   | Justificación        |
+|--------------------------|-----------------------|----------------------|
+|Mensajes/día	             | 1000	                 | Evitar abuso         |
+|Vectores Qdrant	         | 10000	               | Limitar uso de RAM   |
+|Almacenamiento MySQL	     | 500 MB	               | Limitar uso de disco |
+|Requests API/min	         | 30	                   | Rate limiting        |
 
 ---
 
@@ -275,9 +277,9 @@ Requests API/min	     30	               Rate limiting
 
 **Implementación:**
 
-Usar equipos (teams) de EspoCRM por tenant
-Configurar permisos por equipo
-Validar tenant_id en cada consulta a EspoCRM API
+- Usar equipos (teams) de EspoCRM por tenant
+- Configurar permisos por equipo
+- Validar tenant_id en cada consulta a EspoCRM API
 
 ---
 
@@ -287,11 +289,11 @@ Validar tenant_id en cada consulta a EspoCRM API
 
 **Test obligatorio:**
 
-Crear tenant de test A y B
-Insertar datos en tenant A
-Intentar acceder a datos de A desde contexto de B
-Verificar que acceso es denegado
-Log de resultado del test
+- Crear tenant de test A y B
+- Insertar datos en tenant A
+- Intentar acceder a datos de A desde contexto de B
+- Verificar que acceso es denegado
+- Log de resultado del test
 
 **Frecuencia:** Primer sábado de cada mes.
 
@@ -317,3 +319,9 @@ Para límites específicos por tenant en este proyecto:
 
 Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev
 Licencia: Creative Commons para uso interno del proyecto
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]

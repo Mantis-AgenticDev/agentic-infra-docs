@@ -47,9 +47,9 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 
 ## 👤 PERFIL DEL USUARIO PRINCIPAL
 
-+------------------+----------------------------------------------------------+
+
 | Campo            | Valor                                                    |
-+------------------+----------------------------------------------------------+
+|------------------|----------------------------------------------------------|
 | Nombre           | Facundo                                                  |
 | Ubicación Base   | xxxxxxxxxxxxx / Porto Alegre, Rio Grande do Sul, Brasil  |
 | Registro         | xxxxxxxxxxxx (Brasil)                                    |
@@ -57,7 +57,7 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 | Stack Tecnológico| Linux, n8n, Docker, Python, RAG, Qdrant                  |
 | Idiomas          | Español, Portugués, Inglés (técnico)                     |
 | Filosofía        | Ciencia abierta                                          |
-+------------------+----------------------------------------------------------+
+
 
 ## 🧭 PRINCIPIOS RECTORES DEL PROYECTO
 
@@ -111,16 +111,16 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 
 ## ⚠️ CONSTRAINTS ABSOLUTOS (NO NEGOCIABLES)
 
-+----+-------------------------------------------+------------------------------+
+
 | ID | Restricción                               | Consecuencia si se viola     |
-+----+-------------------------------------------+------------------------------+
+|----|-------------------------------------------|------------------------------|
 | C1 | Máximo 4 GB RAM por VPS                   | Caída del servicio           |
 | C2 | Máximo 1 vCPU por VPS                     | Saturación y timeout         |
 | C3 | MySQL y Qdrant NUNCA expuestos a 0.0.0.0  | Brecha de seguridad          |
 | C4 | tenant_id obligatorio en TODAS las queries| Fuga de datos entre clientes |
 | C5 | Backup diario validado                    | Pérdida de datos crítica     |
 | C6 | No modelos de IA locales en VPS           | Colapso por memoria          |
-+----+-------------------------------------------+------------------------------+
+
 
 ## 🔄 ACTUALIZACIÓN Y MANTENIMIENTO
 
@@ -138,3 +138,7 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 
 ---
 FIN DEL ARCHIVO - facundo-core-context.md
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[00-CONTEXT/00-INDEX.md]]

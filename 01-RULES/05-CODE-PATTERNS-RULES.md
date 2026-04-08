@@ -286,3 +286,9 @@ networks:
 -Extensión: Para agregar un nuevo patrón, crea PAT-XXX o SQL-XXX, documenta inputs/outputs, y actualiza validate-against-specs.sh si requiere reglas nuevas.
 -Generación IA: El prompt de sistema para generación de workflows debe incluir: "Referencia obligatoria: 05-CODE-PATTERNS-RULES.md. Cumplir C1-C6. Inyectar tenant_id en cada nodo de datos. Validar con validate-against-specs.sh antes de retornar."
 -Versionado: Cada cambio en este archivo debe incrementar sdd_version y registrar changelog en 00-CONTEXT/PROJECT_OVERVIEW.md.
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]

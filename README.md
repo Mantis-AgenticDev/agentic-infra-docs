@@ -1,11 +1,11 @@
 ---
-spec_version: "1.0.0"
+spec_version: "1.1.0"
 ia_parser_compatible: true
 project_id: "MANTIS-AGENTIC-001"
 owner: "Facundo"
 location: "Rio Grande do Sul, Brasil"
 languages: ["es-AR", "pt-BR"]
-last_validated: "2026-04-XX"  # ← Actualizar fecha real
+last_validated: "2026-04-08"  # ← Actualizar fecha real
 sdd_compliance: 15%  # ← Se actualizará automáticamente post-validación
 output_schema:
   required_fields:

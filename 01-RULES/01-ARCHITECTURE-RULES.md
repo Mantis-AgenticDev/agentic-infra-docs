@@ -119,7 +119,7 @@ n8n registra interacción -> EspoCRM (VPS 2, solo clientes Full)
 - Qdrant (puerto 6333) solo accesible desde IP de VPS 1 y VPS 3
 - Nunca exponer MySQL o Qdrant a internet público
 
-**Violación crítica:** MySQL o Qdrant con puerto abierto a 0.0.0.0.
+**Violación crítica:** MySQL o Qdrant con puerto abierto a 127.0.0.1:3306  # En producción, usar red interna Docker, no exponer a 127.0.0.1
 
 ---
 
@@ -181,13 +181,13 @@ n8n registra interacción -> EspoCRM (VPS 2, solo clientes Full)
 
 **Violación crítica:** Todos los contenedores en red bridge default.
 
-+-------+---------------------------+------------------------+
+
 | VPS   | Red Docker                | Servicios              |
-+-------+---------------------------+------------------------+
+|-------|---------------------------|------------------------|
 | VPS-1 | n8n-uazapi-network        | n8n, uazapi, Redis     |
 | VPS-2 | crm-db-network            | EspoCRM, MySQL, Qdrant |
 | VPS-3 | n8n-uazapi-network        | n8n, uazapi            |
-+-------+---------------------------+------------------------+
+
 
 **Comando de creación:**
 docker network create --driver bridge n8n-uazapi-network
@@ -258,7 +258,7 @@ networks:
 ```
 
 ### VPS-2 (EspoCRM, MySQL, Qdrant)
-
+```yaml
 version: '3.8'
 services:
   espocrm:
@@ -307,6 +307,7 @@ volumes:
 networks:
   crm-db-network:
     driver: bridge
+```
     
 ### VPS-3 (n8n, uazapi - failover)
 
@@ -336,3 +337,9 @@ Para implementación específica de este proyecto, consultar:
 
 *Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[README.md]]
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]
+[[01-RULES/03-SECURITY-RULES.md]]
