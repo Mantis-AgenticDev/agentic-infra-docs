@@ -73,6 +73,14 @@ Financiar un laboratorio de microbiología/agrobiología en Rio Grande do Sul me
 
 ---
 
+## 📚 Documentación de Validación
+- [Checklist de Validación SDD](01-RULES/validation-checklist.md)
+  url: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md
+- [Guía Educativa para Estudiantes/IA](00-CONTEXT/documentation-validation-checklist.md)
+  url: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/documentation-validation-cheklist.md 
+
+---
+
 ## Ejemplos Mínimos Ejecutables (Para Copiar/Pegar en Generación)
 
 ### SQL con tenant_id (OBLIGATORIO en toda query)
@@ -323,14 +331,15 @@ se creará en el próximo archivo prioritario.
 - PROJECT_TREE: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md
 - CONTEXT INDEX: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/00-INDEX.md
 - RULES INDEX: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/00-INDEX.md
-- VALIDATOR SCRIPT: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/scripts/validate-against-specs.sh (próximamente)
+- VALIDATOR SCRIPT: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/validate-against-specs.sh
+- VALIDATOR CHEKLIST: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md
 
 ## Estado de Archivos Referenciados (Para IA)
 
 | Archivo Referenciado | Estado | Acción si No Existe |
 |---------------------|--------|---------------------|
 | `01-RULES/system-prompt-sdd.md` | ⬜ Pendiente | Usar prompt mínimo inline (ver abajo) |
-| `scripts/validate-against-specs.sh` | 🟡 En construcción | Usar script mínimo del README |
+| `scripts/validate-against-specs.sh` | ✅ Completo | Usar script mínimo del README |
 | `04-WORKFLOWS/n8n/INFRA-001-*.json` | ⬜ Pendiente | Generar desde template en `05-CODE-PATTERNS-RULES.md` |
 | `03-AGENTS/infrastructure/health-monitor-agent.md` | ⬜ Pendiente | Usar spec mínima en `08-SKILLS-REFERENCE.md` |
 
@@ -387,33 +396,35 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 ## ESTRUTURA DE DOCUMENTAÇÃO (SDD-COMPLIANT)
 📁 agentic-infra-docs/
-├── 📄 README.md                    ← Você está aqui (pt-BR / es-ES)
-├── 📁 00-CONTEXT/                  ← Contexto base + constraints
-│   ├── facundo-core-context.md     ← Perfil, filosofia, objetivos
-│   ├── facundo-infrastructure.md   ← Infra técnica + 8 seções críticas
-│   ├── facundo-business-model.md   ← Modelo de receita + projeções
-│   └── 00-INDEX.md                 ← Índice de navegação para IAs
-├── 📁 01-RULES/                    ← Especificações obrigatórias
-│   ├── 00-INDEX.md                 ← Navegação + seção code generation
-│   ├── 01-ARCHITECTURE-RULES.md    ← Padrões arquiteturais + templates docker
-│   ├── 02-RESOURCE-GUARDRAILS.md   ← Limites RAM/CPU/disco + config .env
-│   ├── 03-SECURITY-RULES.md        ← Hardening SSH, fail2ban, .env seguro
-│   ├── 04-API-RELIABILITY-RULES.md ← Timeouts, fallbacks, backoff exponencial
-│   ├── 05-CODE-PATTERNS-RULES.md   ← Templates n8n JSON + padrões JS/Python
-│   ├── 06-MULTITENANCY-RULES.md    ← Schema SQL com tenant_id obrigatório
-│   ├── 07-SCALABILITY-RULES.md     ← Fases 0-4 com triggers acionáveis
-│   └── 08-SKILLS-REFERENCE.md      ← Links validados + estado real de skills
-├── 📁 02-SKILLS/                   ← (Em desenvolvimento) Templates executáveis
+├── 📄 README.md                               ← Você está aqui (pt-BR / es-ES)
+├── 📁 00-CONTEXT/                             ← Contexto base + constraints
+|   ├── documentation-validation-checklist.md  ← Documentacao specificações obrigatória SPEC
+│   ├── facundo-core-context.md                ← Perfil, filosofia, objetivos
+│   ├── facundo-infrastructure.md              ← Infra técnica + 8 seções críticas
+│   ├── facundo-business-model.md              ← Modelo de receita + projeções
+│   └── 00-INDEX.md                            ← Índice de navegação para IAs
+├── 📁 01-RULES/                               ← Especificações obrigatórias
+|   ├── validation-checklist.md                ← Especificações obrigatória SPEC
+│   ├── 00-INDEX.md                            ← Navegação + seção code generation
+│   ├── 01-ARCHITECTURE-RULES.md               ← Padrões arquiteturais + templates docker
+│   ├── 02-RESOURCE-GUARDRAILS.md              ← Limites RAM/CPU/disco + config .env
+│   ├── 03-SECURITY-RULES.md                   ← Hardening SSH, fail2ban, .env seguro
+│   ├── 04-API-RELIABILITY-RULES.md            ← Timeouts, fallbacks, backoff exponencial
+│   ├── 05-CODE-PATTERNS-RULES.md              ← Templates n8n JSON + padrões JS/Python
+│   ├── 06-MULTITENANCY-RULES.md               ← Schema SQL com tenant_id obrigatório
+│   ├── 07-SCALABILITY-RULES.md                ← Fases 0-4 com triggers acionáveis
+│   └── 08-SKILLS-REFERENCE.md                 ← Links validados + estado real de skills
+├── 📁 02-SKILLS/                              ← (Em desenvolvimento) Templates executáveis
 │   ├── INFRA-001-Monitor-Salud-VPS.json
 │   ├── HEALTH-001-Alert-Telegram.sh
 │   └── BACKUP-001-MySQL-Qdrant.sh
-├── 📁 03-CLIENT-TEMPLATES/         ← (Futuro) Workflows por segmento
+├── 📁 03-CLIENT-TEMPLATES/                    ← (Futuro) Workflows por segmento
 │   ├── restaurante/
 │   ├── odontologia/
 │   ├── estetica/
 │   └── pousada/
-├── 🔧 validate-against-specs.sh    ← Validador automático de specs (CRÍTICO)
-└── 📄 CONTRIBUTING.md              ← Guia para contribuições SDD
+├── 🔧 validate-against-specs.sh               ← Validador automático de specs (CRÍTICO)
+└── 📄 CONTRIBUTING.md                         ← Guia para contribuições SDD
 
 
 ---
@@ -422,9 +433,9 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 | Se você é uma IA gerando código...       | Comece por                                           |
 |------------------------------------------|------------------------------------------------------|
-| Precisa validar uma spec                 | `01-RULES/00-INDEX.md` → `validate-against-specs.sh` |
-| Precisa de template docker-compose       | `01-RULES/01-ARCHITECTURE-RULES.md`                  |
-| Precisa de padrão SQL multi-tenant       | `01-RULES/06-MULTITENANCY-RULES.md`                  |
+| Precisa validar uma spec                 | `01-RULES/00-INDEX.md` → `validate-against-specs.sh` → `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md` |
+| Precisa de template docker-compose       | `01-RULES/01-ARCHITECTURE-RULES.md` → `validate-against-specs.sh` → `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md` |
+| Precisa de padrão SQL multi-tenant       | `01-RULES/06-MULTITENANCY-RULES.md` → `validate-against-specs.sh` → `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md` |
 | Precisa de workflow n8n base             | `01-RULES/05-CODE-PATTERNS-RULES.md`                 |
 | Precisa entender constraints de recursos | `01-RULES/02-RESOURCE-GUARDRAILS.md`                 |
 | Precisa de contexto do usuário           | `00-CONTEXT/facundo-core-context.md`                 |
@@ -437,7 +448,7 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 - 🔒 Repositório privado • Acesso por SSH key apenas
 - 🔐 Credenciais NUNCA commitadas • Use `.env.example` como template
-- 🛡️ UFW + fail2ban + SSH hardening em produção (ver `03-SECURITY-RULES.md`)
+- 🛡️ UFW + fail2ban + SSH hardening em produção (ver `03-SECURITY-RULES.md`→ `validate-against-specs.sh` → `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md`)
 - 📊 Logging obrigatório: toda execução de workflow gera registro em MySQL com `tenant_id`
 - 🔄 Backup diário 04:00 AM: MySQL + Qdrant + configs • Encriptação AES-256 • Checksum SHA256
 
@@ -450,6 +461,7 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
  
 **Ferramentas de validação**:
 - `validate-against-specs.sh`: Valida YAML/JSON/SQL contra schemas definidos em `01-RULES/`
+- `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md`
 - `docker-compose config`: Valida sintaxe de compose antes de deploy
 - `sqlfluff`: Linter SQL com regra personalizada para `tenant_id` obrigatório
 
@@ -461,7 +473,7 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 | Fase                             | Semanas | Entregáveis                                                                                  | Status          |
 |----------------------------------|---------|----------------------------------------------------------------------------------------------|-----------------|
-| **Fase 0: Fundamentos SDD**      | 1-2     | `validate-against-specs.sh`, README atualizado, specs críticas validadas                     | 🔄 Em andamento |
+| **Fase 0: Fundamentos SDD**      | 1-2     | `validate-against-specs.sh`, README atualizado, specs críticas validadas                     | ✅ Completado   |
 | **Fase 1: MVP Infraestrutura**   | 3-5     | Workflow `INFRA-001-Monitor-Salud-VPS`, Docker Compose com resource limits, backup funcional | ⏸️ Pendente     |
 | **Fase 2: Agente WhatsApp Base** | 6-8     | Template n8n para atendimento restaurante (texto + imagem), integração EspoCRM, RAG leve     | ⏸️ Pendente     |
 | **Fase 3: Cliente Piloto**       | 9-12    | 1-3 clientes reais em Gramado/Canela, SLA 99%, documentação de onboarding                    | ⏸️ Pendente     |
@@ -484,6 +496,7 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 | Si eres una IA generando código... | Comienza por                                         |
 |------------------------------------|------------------------------------------------------|
 | Validar una spec                   | `01-RULES/00-INDEX.md` → `validate-against-specs.sh` |
+| Cheklist Validation                | `01-RULES/validation-checklist.md` →  `00-CONTEXT/documentation-validation-checklist.md`|
 | Template docker-compose            | `01-RULES/01-ARCHITECTURE-RULES.md`                  |
 | Patrón SQL multi-tenant            | `01-RULES/06-MULTITENANCY-RULES.md`                  |
 | Workflow n8n base                  | `01-RULES/05-CODE-PATTERNS-RULES.md`                 |
@@ -497,9 +510,9 @@ Especificar → Validar spec → Generar código → Validar código → Testear
 ---
 
 ```markdown
-> **Estado SDD:** 🟡 En transición (15% → 80% objetivo)  
+> **Estado SDD:** 🟡 En transición ( 98% → 100% objetivo)  
 > **Última validación automática:** Pendiente (ejecutar `scripts/validate-against-specs.sh`)  
-> **Última edición humana:** Facundo - 2026-04-08  
+> **Última edición humana:** Facundo - 2026-04-09  
 > **Próxima revisión programada:** +14 días  
 > **Compatibilidad IA:** ✅ Frontmatter + ASCII diagram + snippets ejecutables  
 > **Licencia:** CC BY-SA 4.0 (documentación) / Propietario (código generado)  
