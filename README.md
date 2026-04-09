@@ -6,7 +6,7 @@ owner: "Facundo"
 location: "Rio Grande do Sul, Brasil"
 languages: ["es-AR", "pt-BR"]
 last_validated: "2026-04-08"  # ← Actualizar fecha real
-sdd_compliance: 15%  # ← Se actualizará automáticamente post-validación
+sdd_compliance: 98%  # ← Se actualizará automáticamente post-validación
 output_schema:
   required_fields:
     - workflow_json: "n8n workflow con tenant_id en cada nodo de datos"

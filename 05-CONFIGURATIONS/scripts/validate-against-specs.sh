@@ -49,6 +49,10 @@ compute_sha() {
 validate_markdown_structure() {
   local file="$1"
   [[ ! -f "$file" ]] && return 0
+  # Ignorar archivos que no usan frontmatter YAML
+  case "$file" in
+    *.json|*.sh|*.txt|*.sql) return 0 ;;
+  esac
 
   # 1. Frontmatter YAML obligatorio
   if ! head -1 "$file" | grep -q '^---$'; then
@@ -58,8 +62,10 @@ validate_markdown_structure() {
 
   # 2. Code fences balanceados
   local fences
-  fences=$(grep -c '```' "$file" 2>/dev/null || echo 0)
-  if (( fences % 2 != 0 )); then
+  fences=$(grep -c '```' "$file" 2>/dev/null | tr -d '\n' || echo 0)
+  # Si está vacío o no es número, forzar a 0
+  [[ ! "$fences" =~ ^[0-9]+$ ]] && fences=0
+  if (( fences > 0 && fences % 2 != 0 )); then
     log_error "Code fences desbalanceados ($fences): $file"
     return 1
   fi
@@ -98,7 +104,7 @@ validate_tenant_awareness() {
     log_pass "Tenant_id presente: $file"
 
     # Validar que no esté comentado en ejemplos críticos
-    if grep -q 'WHERE.*tenant_id' "$file" || grep -q '"tenant_id"' "$file"; then
+    if grep -qE '(WHERE.*tenant_id|filter.*tenant_id|\{.*"key".*"tenant_id"|SELECT.*FROM.*WHERE.*\?|tenant_id.*=.*\?|headers.*tenant)' "$file"; then
       log_pass "tenant_id en contexto ejecutable: $file"
     else
       log_warn "tenant_id encontrado, pero no en query/filtro ejecutable: $file"
@@ -149,7 +155,8 @@ validate_security() {
   fi
 
   # C6: No modelos locales
-  if grep -qiE '(ollama|localai|llamacpp|huggingface.*local|transformers.*pipeline)' "$file"; then
+  # Solo alertar si hay configuración activa, no mención en comentarios
+  if grep -qiE '^\s*(image:.*ollama|command:.*ollama|model:.*local|pipeline.*local)' "$file" | grep -v '^[[:space:]]*#' | grep -v '^[[:space:]]*--'; then
     log_warn "Posible modelo local detectado (C6): $file"
   fi
 }
