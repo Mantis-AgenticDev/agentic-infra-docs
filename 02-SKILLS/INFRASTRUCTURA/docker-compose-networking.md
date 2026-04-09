@@ -1577,3 +1577,7 @@ Este documento debe utilizarse en conjunto con los siguientes archivos del proye
 - Docker Networking Guide: https://docs.docker.com/network/
 - Docker Health Check Documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
 - Resource Constraints in Docker: https://docs.docker.com/config/containers/resource_constraints/
+
+## 🔗 Conexiones Estructurales
+[[README.md]]
+[[01-RULES/01-ARCHITECTURE-RULES.md]]

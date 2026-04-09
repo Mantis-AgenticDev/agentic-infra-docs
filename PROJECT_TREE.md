@@ -139,9 +139,9 @@ agentic-infra-docs/
 |    |   |   └── instalacion espoCRM
 |    │   ├── fail2ban-configuration.md ✅ COMPLETADO
 |    │   │   └── Protección SSH con fail2ban
-|    │   ├── ufw-firewall-configuration.md 🆕 PENDIENTE
+|    │   ├── ufw-firewall-configuration.md ✅ COMPLETADO
 |    │   │   └── Firewall UFW en VPS
-|    │   ├── ssh-key-management.md 🆕 PENDIENTE
+|    │   ├── ssh-key-management.md ✅ COMPLETADO
 |    │   │   └── Gestión de claves SSH
 |    │   ├── n8n-concurrency-limiting.md 🆕 PENDIENTE
 |    │   │   └── Limitación de concurrencia en n8n
@@ -157,11 +157,11 @@ agentic-infra-docs/
 |    │   │   └── Ingesta de documentos en Qdrant con tenant_id
 |    │   ├── multi-tenant-data-isolation.md ✅ COMPLETADO
 |    │   │   └── Aislamiento de datos por tenant
-|    │   ├── postgres-prisma-rag.md 🆕 NUEVO
+|    │   ├── postgres-prisma-rag.md ✅ COMPLETADO
 |    │   │   └── PostgreSQL + Prisma para RAG
-|    │   ├── supabase-rag-integration.md 🆕 NUEVO
+|    │   ├── supabase-rag-integration.md ✅ COMPLETADO
 |    │   │   └── Supabase + RAG patterns
-|    │   ├── pdf-mistralocr-processing.md 🆕 NUEVO
+|    │   ├── pdf-mistralocr-processing.md ✅ COMPLETADO
 |    │   │   └── PDF parsing con Mistral OCR
 |    │   ├── google-drive-qdrant-sync.md 🆕 NUEVO
 |    │   │   └── Sincronización Google Drive → Qdrant
@@ -247,7 +247,7 @@ agentic-infra-docs/
 |    │       └── Recepcionista multi-canal
 |    │
 |    ├── 📧 COMUNICACIÓN (Genérico)
-|    │   ├── telegram-bot-integration.md 🆕 PENDIENTE
+|    │   ├── telegram-bot-integration.md ✅ COMPLETADO
 |    │   │   └── Integración con Telegram Bot
 |    │   ├── gmail-smtp-integration.md 🆕 PENDIENTE
 |    │   │   └── Integración con Gmail SMTP

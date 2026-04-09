@@ -624,3 +624,7 @@ Este documento ha sido validado contra las siguientes especificaciones:
 - **Audiencia**: Equipos de DevOps, Desarrolladores, Administradores de Sistema
 - **Clasificacion**: Interno - Proyecto MANTIS AGENTIC
 - **Próxima Revision**: 2026-04-16
+
+## 🔗 Conexiones Estructurales
+[[README.md]]
+[[00-CONTEXT/facundo-infrastructure.md]]

@@ -538,3 +538,6 @@ grep -r "pattern" .                # Buscar texto en archivos
 **Siguiente paso:** Leer el archivo complementario `documentation-validation-checklist.txt` para entender cómo navegar la documentación del proyecto y aplicar estas validaciones en contexto.
 
 **Nota importante para estudiantes:** Este checklist es extenso porque cubre TODOS los aspectos de un sistema productivo. No es necesario memorizarlo todo. Úsalo como referencia y consulta la sección relevante cuando trabajes en ese componente específico.
+
+## 🔗 Conexiones Estructurales
+[[01-RULES/00-INDEX.md]]

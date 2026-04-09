@@ -101,3 +101,7 @@ Compatible con Ubuntu 20.04+ sin instalación extra.
 Última revisión: 2026-04 | Autor: Equipo Mantis Agentic
 Licencia: Uso interno, proyecto de ciencia abierta
 ================================================================
+
+## 🔗 Conexiones Estructurales
+[[01-RULES/00-INDEX.md]]
+[[01-RULES/05-CODE-PATTERNS-RULES.md]]
