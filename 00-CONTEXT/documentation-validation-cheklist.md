@@ -2136,3 +2136,6 @@ Generado bajo metodología SDD v1.0 para el proyecto MANTIS AGENTIC
 Nivel: AVANZADO (QUÉ + POR QUÉ + ALTERNATIVAS)
 
 ---------
+
+## 🔗 Conexiones Estructurales
+[[00-CONTEXT/00-INDEX.md]]

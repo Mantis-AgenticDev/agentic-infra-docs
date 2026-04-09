@@ -147,7 +147,7 @@ agentic-infra-docs/
 |    │   │   └── Limitación de concurrencia en n8n
 |    │   ├── health-monitoring-vps.md 🆕 NUEVO
 |    │   │   └── Agentes de monitoreo de salud VPS
-|    │   ├── vps-interconnection.md 🆕 NUEVO
+|    │   ├── vps-interconnection.md ✅ COMPLETADO
 |    │   │   └── Conexión entre VPS 1-2-3
 |    │   └── environment-variable-management.md 🆕 PENDIENTE
 |    │       └── Gestión de variables de entorno
@@ -249,7 +249,7 @@ agentic-infra-docs/
 |    ├── 📧 COMUNICACIÓN (Genérico)
 |    │   ├── telegram-bot-integration.md ✅ COMPLETADO
 |    │   │   └── Integración con Telegram Bot
-|    │   ├── gmail-smtp-integration.md 🆕 PENDIENTE
+|    │   ├── gmail-smtp-integration.md ✅ COMPLETADO
 |    │   │   └── Integración con Gmail SMTP
 |    │   ├── google-calendar-api-integration.md 🆕 PENDIENTE
 |    │   │   └── Integración Google Calendar API
