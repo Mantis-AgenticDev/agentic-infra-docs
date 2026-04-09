@@ -87,10 +87,19 @@ agentic-infra-docs/
 │   ├── facundo-infrastructure.md             ✅ COMPLETADO
 │   │   └── Detalle técnico de infraestructura (3 VPS, specs, red)
 │   │
-│   └── facundo-business-model.md             ✅ COMPLETADO
-│       └── Modelo de negocio, pricing, SLA, proyecciones financieras
+│   |── facundo-business-model.md             ✅ COMPLETADO
+│   |   └── Modelo de negocio, pricing, SLA, proyecciones financieras
+|   |
+│   │
+│   └── documentation-validation-cheklist.md ✅ COMPLETADO
+│       └── Es material educativo de contexto; ayuda a entender el "por qué" 
+|           de Reglas, Constraits, Validacion, Referencias
 │
 ├── 01-RULES/
+|   |
+|   ├── validation-cheklist.md                ✅ COMPLETADO
+|   |   └── Está directamente ligado a las reglas de validación; referencia MT-001, API-001, etc.
+|   |
 │   ├── 00-INDEX.md                           ✅ COMPLETADO
 │   │   └── Índice de todas las rules con URLs raw y flujo de lectura
 │   │
