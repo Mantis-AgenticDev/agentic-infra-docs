@@ -2,8 +2,8 @@
 title: "ARCHITECTURE RULES - Agentic Infra Docs"
 category: "Infraestructura"
 priority: "Alta"
-version: "1.0.0"
-last_updated: "2026-03"
+version: "1.1.0"
+last_updated: "2026-04-08"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
@@ -120,6 +120,17 @@ n8n registra interacción -> EspoCRM (VPS 2, solo clientes Full)
 - Nunca exponer MySQL o Qdrant a internet público
 
 **Violación crítica:** MySQL o Qdrant con puerto abierto a 127.0.0.1:3306  # En producción, usar red interna Docker, no exponer a 127.0.0.1
+
+**Ejemplo C4-compliant:** consulta con aislamiento por tenant
+```sql
+-- spec_referenced: 06-MULTITENANCY-RULES.md#MT-003
+-- constraints_applied: [C4]
+SELECT id, data, created_at 
+FROM interactions 
+WHERE tenant_id = ? AND chat_id = ? 
+ORDER BY created_at DESC 
+LIMIT 10;
+```
 
 ---
 
@@ -289,7 +300,7 @@ services:
     image: qdrant/qdrant
     container_name: qdrant
     ports:
-      - "6333:6333"
+      - "127.0.0.1:6333:6333"  # ← ✅ Solo accesible desde localhost
     volumes:
       - qdrant-data:/qdrant/storage
     networks:
@@ -335,7 +346,7 @@ Para implementación específica de este proyecto, consultar:
 - `00-CONTEXT/facundo-infrastructure.md` (detalles de infraestructura)
 - `00-CONTEXT/facundo-core-context.md` (contexto del usuario)
 
-*Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
+*Versión 1.1.0 - Abril 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
 
 ## 🔗 Conexiones Estructurales (Auto-generado)

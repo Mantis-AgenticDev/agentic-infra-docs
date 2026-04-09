@@ -21,7 +21,7 @@ format_preferences:
   diagram_type: "ascii"  # Preferido sobre mermaid para carga rápida
   max_token_budget: 4000  # Límite para prompts de generación
   language_priority: ["pt-BR", "es-AR", "en-US"]
-  code_fences_required: true  # Todos los snippets deben usar ```lenguaje```
+  code_fences_required: true  # Todos los snippets deben usar `lenguaje`
 constraints:
   C1: "max_ram_per_vps: 4GB"
   C2: "max_cpu_per_vps: 1"
@@ -495,20 +495,21 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 Especificar → Validar spec → Generar código → Validar código → Testear → Documentar
 
 ---
+
 ```markdown
----
 > **Estado SDD:** 🟡 En transición (15% → 80% objetivo)  
 > **Última validación automática:** Pendiente (ejecutar `scripts/validate-against-specs.sh`)  
-> **Última edición humana:** Facundo - 2026-04-04  
+> **Última edición humana:** Facundo - 2026-04-08  
 > **Próxima revisión programada:** +14 días  
 > **Compatibilidad IA:** ✅ Frontmatter + ASCII diagram + snippets ejecutables  
 > **Licencia:** CC BY-SA 4.0 (documentación) / Propietario (código generado)  
 > **Raw URL para IA:** https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md  
 > **SHA256 (post-edición):** [CALCULAR CON: sha256sum README.md]
+```
 
 *Principio SDD: Si hay conflicto entre este texto y el código generado, la spec escrita aquí prevalece. Desviaciones deben documentarse en validation-log.json.*
-```
+
+---
+
 FIN DEL ARCHIVO - README.md
 
-
-- prueba de hook

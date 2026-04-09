@@ -1,10 +1,10 @@
 {
   "validator_version": "1.0.0",
-  "timestamp": "2026-04-08T20:27:40Z",
+  "timestamp": "2026-04-08T23:33:49Z",
   "target": "./",
   "status": "failed",
   "summary": {
-    "passed": 72,
+    "passed": 73,
     "warnings": 7,
     "errors": 8
   },
@@ -28,6 +28,6 @@
   "tenant_id encontrado, pero no en query/filtro ejecutable: ./01-RULES/04-API-RELIABILITY-RULES.md",
   "Estructura n8n incompleta (faltan nodes/connections): ./opencode.json"
 ],
-    "passed_checks": 72
+    "passed_checks": 73
   }
 }

@@ -2,8 +2,8 @@
 title: "SKILLS REFERENCE - Agentic Infra Docs"
 category: "Skills"
 priority: "Baja"
-version: "1.0.0"
-last_updated: "2026-03"
+version: "1.1.0"
+last_updated: "2026-04-08"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
@@ -122,7 +122,20 @@ Leer: 02-SKILLS/qdrant-rag-ingestion.md (procedimiento)
 Ejecutar procedimiento
 Validar contra reglas MT-001 a MT-010
 
-
+### Ejemplo mínimo: aislamiento de datos por tenant (C4)
+```sql
+-- spec_referenced: 06-MULTITENANCY-RULES.md#MT-003
+-- constraints_applied: [C4]
+-- Consulta base para cualquier skill que acceda a datos
+SELECT id, data, created_at 
+FROM interactions 
+WHERE tenant_id = ? 
+  AND chat_id = ? 
+  AND created_at >= NOW() - INTERVAL 30 DAY
+ORDER BY created_at DESC 
+LIMIT 10;
+```
+> ✅ Este snippet es reutilizable en todas las skills de la categoría "Datos".
 
 ---
 
@@ -198,7 +211,7 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/02-S
 
 ---
 
-*Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
+*Versión 1.1.0 - Abril 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
 
 ## 🔗 Conexiones Estructurales (Auto-generado)

@@ -27,6 +27,7 @@ technical_constraints_reference:
   - "01-RULES/01-ARCHITECTURE-RULES.md"
   - "01-RULES/02-RESOURCE-GUARDRAILS.md"
   - "01-RULES/06-MULTITENANCY-RULES.md"
+sdd_compliance_note: "Reglas de negocio. Constraints técnicos C1-C6 aplicados en infraestructura soporte."
 ---
 
 # FACUNDO BUSINESS MODEL - MANTIS AGENTIC

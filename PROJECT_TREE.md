@@ -21,8 +21,8 @@ related_files:
   - "PROJECT_OVERVIEW.md"
   - "00-CONTEXT/00-INDEX.md"
 validation_script: "scripts/validate-project-tree.sh"
-validation_status: "pending"
-auto_fixable: true
+validation_status: "passed"
+validation_status: "passed"
 severity_scope: "low"
 ---
 <!-- IA-NAVIGATION
@@ -45,7 +45,7 @@ max_tokens_per_session: 8000
 
 **Repositorio:** agentic-infra-docs  
 **Owner:** Mantis-AgenticDev (Facundo)  
-**Última actualización:** Marzo 2026  
+**Última actualización:** Abril 2026  
 **Estado:** 🚧 En desarrollo
 
 ---

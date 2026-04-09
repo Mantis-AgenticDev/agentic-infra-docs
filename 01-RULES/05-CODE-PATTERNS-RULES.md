@@ -1,5 +1,5 @@
 ---
-sdd_version: 1.0
+version: 1.0.0
 last_validated: 2026-04-05
 spec_type: code_patterns
 validation_script: 05-CONFIGURATION/SCRIPTS/validate-against-specs.sh

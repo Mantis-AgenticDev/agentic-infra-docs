@@ -2,8 +2,8 @@
 title: "SCALABILITY RULES - Agentic Infra Docs"
 category: "Escalabilidad"
 priority: "Baja"
-version: "1.0.0"
-last_updated: "2026-03"
+version: "1.1.0"
+last_updated: "2026-04-08"
 language: "es"
 repository: "agentic-infra-docs"
 owner: "Mantis-AgenticDev"
@@ -151,6 +151,21 @@ related_files:
 
 **Acción:** Si alguna métrica excede umbral, pausar escalado.
 
+### Ejemplo de evaluación de carga por tenant para decisión de escalado (C4)
+```sql
+-- spec_referenced: 06-MULTITENANCY-RULES.md#MT-003
+-- constraints_applied: [C4, ESC-003]
+-- Evaluar métricas por tenant antes de autorizar Fase 2/3
+SELECT 
+    tenant_id,
+    COUNT(id) as monthly_interactions,
+    AVG(CASE WHEN response_time_ms > 5000 THEN 1 ELSE 0 END) as latency_violation_rate
+FROM interaction_logs
+WHERE created_at >= NOW() - INTERVAL 30 DAY
+GROUP BY tenant_id
+HAVING latency_violation_rate > 0.05; -- >5% mensajes lentos = NO escalar
+```
+
 ---
 
 ## Regla ESC-008: Comunicación de Escalado a Clientes
@@ -218,7 +233,7 @@ related_files:
 
 ---
 
-*Versión 1.0.0 - Marzo 2026 - Mantis-AgenticDev*
+*Versión 1.1.0 - Abril 2026 - Mantis-AgenticDev*
 *Licencia: Creative Commons para uso interno del proyecto*
 
 ## 🔗 Conexiones Estructurales (Auto-generado)
