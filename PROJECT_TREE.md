@@ -128,65 +128,149 @@ agentic-infra-docs/
 │       └── Pointer a skills reutilizables en 02-SKILLS/
 │
 ├── 02-SKILLS/
-│   ├── 00-INDEX.md                           🆕 PENDIENTE
-│   │   └── Índice de todas las skills con URLs raw
-│   │
-│   ├── n8n-workflow-patterns.md              🆕 PENDIENTE
-│   │   └── Patrones reutilizables para workflows de n8n
-│   │
-│   ├── whatsapp-rag-agents.md                🆕 PENDIENTE
-│   │   └── Patrones para agentes de WhatsApp con RAG
-│   │
-│   ├── qdrant-rag-ingestion.md               🆕 PENDIENTE
-│   │   └── Ingesta de documentos en Qdrant con tenant_id
-│   │
-│   ├── docker-compose-networking.md          🆕 PENDIENTE
-│   │   └── Configuración de redes Docker entre VPS
-│   │
-│   ├── ssh-tunnels-remote-services.md        🆕 PENDIENTE
-│   │   └── Túneles SSH para servicios remotos (MySQL, Qdrant)
-│   │
-│   ├── multi-tenant-data-isolation.md        🆕 PENDIENTE
-│   │   └── Aislamiento de datos por tenant en MySQL y Qdrant
-│   │
-│   ├── espocrm-api-analytics.md              🆕 PENDIENTE
-│   │   └── Uso de API de EspoCRM para reportes y analytics
-│   │
-│   ├── whatsapp-uazapi-integration.md        🆕 PENDIENTE
-│   │   └── Integración con uazapi para WhatsApp no oficial
-│   │
-│   ├── telegram-bot-integration.md           🆕 PENDIENTE
-│   │   └── Integración con Telegram Bot para alertas
-│   │
-│   ├── gmail-smtp-integration.md             🆕 PENDIENTE
-│   │   └── Integración con Gmail SMTP para envío de emails
-│   │
-│   ├── google-calendar-api-integration.md    🆕 PENDIENTE
-│   │   └── Integración con Google Calendar API para eventos
-│   │
-│   ├── fail2ban-configuration.md             🆕 PENDIENTE
-│   │   └── Configuración de fail2ban para protección SSH
-│   │
-│   ├── ufw-firewall-configuration.md         🆕 PENDIENTE
-│   │   └── Configuración de firewall UFW en VPS
-│   │
-│   ├── ssh-key-management.md                 🆕 PENDIENTE
-│   │   └── Gestión de claves SSH para autenticación
-│   │
-│   ├── mysql-optimization-4gb-ram.md         🆕 PENDIENTE
-│   │   └── Optimización de MySQL para VPS con 4GB RAM
-│   │
-│   ├── n8n-concurrency-limiting.md           🆕 PENDIENTE
-│   │   └── Limitación de concurrencia en n8n para evitar saturación
-│   │
-│   ├── backup-encryption.md                  🆕 PENDIENTE
-│   │   └── Encriptación de backups para seguridad
-│   │
-│   ├── rsync-automation.md                   🆕 PENDIENTE
-│   │   └── Automatización de rsync para pull de backups
-│   │
-│   └── environment-variable-management.md    🆕 PENDIENTE
-│       └── Gestión de variables de entorno (.env)
+|    ├── 00-INDEX.md 🆕 PENDIENTE
+|    │   
+|    ├── 📡 INFRAESTRUCTURA (Servidores)
+|    │   ├── ssh-tunnels-remote-services.md ✅ COMPLETADO
+|    │   │   └── Túneles SSH para MySQL, Qdrant entre VPS
+|    │   ├── docker-compose-networking.md ✅ COMPLETADO
+|    │   │   └── Redes Docker entre VPS
+|    |   ├── espocrm-setup.md ✅ COMPLETADO 
+|    |   |   └── instalacion espoCRM
+|    │   ├── fail2ban-configuration.md ✅ COMPLETADO
+|    │   │   └── Protección SSH con fail2ban
+|    │   ├── ufw-firewall-configuration.md 🆕 PENDIENTE
+|    │   │   └── Firewall UFW en VPS
+|    │   ├── ssh-key-management.md 🆕 PENDIENTE
+|    │   │   └── Gestión de claves SSH
+|    │   ├── n8n-concurrency-limiting.md 🆕 PENDIENTE
+|    │   │   └── Limitación de concurrencia en n8n
+|    │   ├── health-monitoring-vps.md 🆕 NUEVO
+|    │   │   └── Agentes de monitoreo de salud VPS
+|    │   ├── vps-interconnection.md 🆕 NUEVO
+|    │   │   └── Conexión entre VPS 1-2-3
+|    │   └── environment-variable-management.md 🆕 PENDIENTE
+|    │       └── Gestión de variables de entorno
+|    │
+|    ├── 🗄️ BASE DE DATOS-RAG
+|    │   ├── qdrant-rag-ingestion.md ✅ COMPLETADO
+|    │   │   └── Ingesta de documentos en Qdrant con tenant_id
+|    │   ├── multi-tenant-data-isolation.md ✅ COMPLETADO
+|    │   │   └── Aislamiento de datos por tenant
+|    │   ├── postgres-prisma-rag.md 🆕 NUEVO
+|    │   │   └── PostgreSQL + Prisma para RAG
+|    │   ├── supabase-rag-integration.md 🆕 NUEVO
+|    │   │   └── Supabase + RAG patterns
+|    │   ├── pdf-mistralocr-processing.md 🆕 NUEVO
+|    │   │   └── PDF parsing con Mistral OCR
+|    │   ├── google-drive-qdrant-sync.md 🆕 NUEVO
+|    │   │   └── Sincronización Google Drive → Qdrant
+|    │   ├── espocrm-api-analytics.md 🆕 PENDIENTE
+|    │   │   └── Uso de EspoCRM API para reportes
+|    │   └── mysql-optimization-4gb-ram.md 🆕 PENDIENTE
+|    │       └── Optimización MySQL para VPS 4GB
+|    │
+|    ├── 📱 WHATSAPP-RAG AGENTS
+|    │   ├── whatsapp-rag-agents.md 🆕 PENDIENTE
+|    │   │   └── Patrones para agentes WhatsApp con RAG
+|    │   ├── whatsapp-uazapi-integration.md 🆕 PENDIENTE
+|    │   │   └── Integración con uazapi
+|    │   ├── telegram-bot-integration.md 🆕 PENDIENTE
+|    │   │   └── Integración Telegram Bot
+|    │   └── multi-channel-routing.md 🆕 NUEVO
+|    │       └── Routing WhatsApp + Telegram
+|    │
+|    ├── 📸 INSTAGRAM-SOCIAL-MEDIA
+|    │   ├── instagram-api-integration.md 🆕 NUEVO
+|    │   │   └── API de Instagram para automatización
+|    │   ├── cloudinary-media-management.md 🆕 NUEVO
+|    │   │   └── Cloudinary para imágenes/videos
+|    │   ├── ai-image-generation.md 🆕 NUEVO
+|    │   │   └── Generación de imágenes con AI
+|    │   ├── ai-video-creation.md 🆕 NUEVO
+|    │   │   └── Creación de reels con AI
+|    │   ├── multi-platform-posting.md 🆕 NUEVO
+|    │   │   └── Posting a TikTok, Instagram, FB
+|    │   └── social-media-alerts-telegram.md 🆕 NUEVO
+|    │       └── Alertas Telegram para social media
+|    │
+|    ├── 🦷 ODONTOLOGÍA
+|    │   ├── dental-appointment-automation.md 🆕 NUEVO
+|    │   │   └── Automatización de citas dentales
+|    │   ├── voice-agent-dental.md 🆕 NUEVO
+|    │   │   └── Voice agent con Gemini AI
+|    │   ├── google-calendar-dental.md 🆕 NUEVO
+|    │   │   └── Google Calendar para clínicas
+|    │   ├── supabase-dental-patient.md 🆕 NUEVO
+|    │   │   └── Supabase para gestión de pacientes
+|    │   ├── phone-integration-dental.md 🆕 NUEVO
+|    │   │   └── Integración telefónica
+|    │   └── gmail-smtp-integration.md 🆕 PENDIENTE
+|    │       └── Integración Gmail SMTP
+|    │
+|    ├── 🏨 HOTELES-POSADAS
+|    │   ├── hotel-booking-automation.md 🆕 NUEVO
+|    │   │   └── Automatización de reservas hoteleras
+|    │   ├── hotel-receptionist-whatsapp.md 🆕 NUEVO
+|    │   │   └── Recepcionista WhatsApp con Gemini
+|    │   ├── hotel-competitor-monitoring.md 🆕 NUEVO
+|    │   │   └── Monitoreo de competidores
+|    │   ├── hotel-guest-journey.md 🆕 NUEVO
+|    │   │   └── Journey del huésped
+|    │   ├── hotel-pre-arrival-messages.md 🆕 NUEVO
+|    │   │   └── Mensajes pre-llegada
+|    │   ├── redis-session-management.md 🆕 NUEVO
+|    │   │   └── Redis para sesiones
+|    │   └── slack-hotel-integration.md 🆕 NUEVO
+|    │       └── Slack para equipos hoteleros
+|    │
+|    ├── 🍕 RESTAURANTES
+|    │   ├── restaurant-booking-ai.md 🆕 NUEVO
+|    │   │   └── Sistema de reservas con AI
+|    │   ├── restaurant-order-chatbot.md 🆕 NUEVO
+|    │   │   └── Chatbot de pedidos con qwen3.5
+|    │   ├── restaurant-pos-integration.md 🆕 NUEVO
+|    │   │   └── Integración POS
+|    │   ├── restaurant-voice-agents.md 🆕 NUEVO
+|    │   │   └── Voice agents para restaurantes
+|    │   ├── restaurant-menu-management.md 🆕 NUEVO
+|    │   │   └── Gestión de menús
+|    │   ├── restaurant-delivery-tracking.md 🆕 NUEVO
+|    │   │   └── Tracking de delivery
+|    │   ├── restaurant-google-maps-leadgen.md 🆕 NUEVO
+|    │   │   └── Lead generation desde Google Maps
+|    │   ├── apify-web-scraping.md 🆕 NUEVO
+|    │   │   └── Web scraping con Apify
+|    │   ├── airtable-restaurant-db.md 🆕 NUEVO
+|    │   │   └── Patrones Airtable para restaurantes
+|    │   └── restaurant-multi-channel-receptionist.md 🆕 NUEVO
+|    │       └── Recepcionista multi-canal
+|    │
+|    ├── 📧 COMUNICACIÓN (Genérico)
+|    │   ├── telegram-bot-integration.md 🆕 PENDIENTE
+|    │   │   └── Integración con Telegram Bot
+|    │   ├── gmail-smtp-integration.md 🆕 PENDIENTE
+|    │   │   └── Integración con Gmail SMTP
+|    │   ├── google-calendar-api-integration.md 🆕 PENDIENTE
+|    │   │   └── Integración Google Calendar API
+|    │   └── email-notification-patterns.md 🆕 NUEVO
+|    │       └── Patrones de notificaciones email
+|    │
+|    ├── 🔒 SEGURIDAD
+|    │   ├── backup-encryption.md 🆕 PENDIENTE
+|    │   │   └── Encriptación de backups
+|    │   ├── rsync-automation.md 🆕 PENDIENTE
+|    │   │   └── Automatización rsync
+|    │   └── security-hardening-vps.md 🆕 NUEVO
+|    │       └── Hardening de VPS
+|    │
+|    └── 🧠 N8N-PATTERNS
+|        ├── n8n-workflow-patterns.md 🆕 PENDIENTE
+|        │   └── Patrones reutilizables para workflows
+|        ├── n8n-agent-patterns.md 🆕 NUEVO
+|        │   └── Patrones de agentes LangChain
+|        └── n8n-error-handling.md 🆕 NUEVO
+|        └── Manejo de errores en n8n
 │
 ├── 03-AGENTS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
