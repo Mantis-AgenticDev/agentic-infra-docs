@@ -1,267 +1,313 @@
 ---
 title: "backup-encryption"
 category: "Skill"
-domain: ["generico", "seguridad", "backup"]
-constraints: ["C1", "C2", "C3", "C4", "C5", "C6"]
+domain: ["generico", "seguridad", "infraestructura"]
+constraints: ["C1", "C2", "C3", "C5", "C6"]
 priority: "CRÍTICA"
 version: "1.0.0"
-last_updated: "2026-04-09"
+last_updated: "2026-04-10"
 ai_optimized: true
 tags:
   - sdd/skill/seguridad
   - lang/es
-  - backup/encryption
-  - gnupg/aes256
 related_files:
   - "01-RULES/03-SECURITY-RULES.md"
   - "01-RULES/02-RESOURCE-GUARDRAILS.md"
   - "00-CONTEXT/facundo-infrastructure.md"
   - "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md"
+  - "02-SKILLS/SEGURIDAD/rsync-automation.md"
 ---
-
-# 🛡️ SISTEMA DE ENCRIPTACIÓN DE BACKUPS (ESTÁNDAR MANTIS)
-
-Este documento define el estándar técnico para el cifrado de datos en reposo dentro de la infraestructura agéntica de Mantis. Bajo la metodología SDD, cada paso aquí descrito es una especificación técnica diseñada para ejecutarse en entornos con recursos limitados (C1/C2) garantizando la integridad total de los datos de los clientes (C4).
 
 ## 🟢 MODO JUNIOR: Guía de Inicio Rápido
 
-### 📋 Checklist de Prerrequisitos
-Antes de ejecutar cualquier comando de esta guía, verifica los siguientes puntos en tu VPS:
-- [ ] **Acceso Sudo**: Debes tener privilegios para instalar paquetes.
-- [ ] **GnuPG Instalado**: Ejecuta `gpg --version`. Si no está, usa `sudo apt update && sudo apt install gnupg -y`.
-- [ ] **Espacio en Disco**: El cifrado genera un archivo temporal. Verifica que tienes al menos el doble de espacio del archivo original con `df -h`.
-- [ ] **Entropía del Sistema**: Los sistemas Linux necesitan "azar" para generar llaves. Instala `haveged` si el VPS es muy nuevo: `sudo apt install haveged -y`.
+**¿Qué vas a lograr en 5 minutos?**  
+Proteger una copia de seguridad de la base de datos o archivos de configuración de MANTIS AGENTIC utilizando encriptación simétrica con `gpg` (GNU Privacy Guard). Al finalizar, tendrás un archivo `.gpg` que **solo puede ser descifrado con tu clave secreta**, incluso si un atacante obtiene acceso físico al VPS o al almacenamiento externo.
 
-### ⏱️ Estimaciones de Tiempo
-- **Lectura completa**: 45 minutos.
-- **Configuración inicial**: 30 minutos.
-- **Implementación de scripts**: 60-90 minutos.
+**Requisitos previos:**  
+- Acceso SSH a un VPS Ubuntu 22.04/24.04 con al menos 1GB de RAM libre (C1).  
+- Conocimientos básicos de línea de comandos (`cd`, `ls`, `nano`).
 
-### 📊 Glosario Rápido para Principiantes
-| Término | Significado | Analogía |
-| :--- | :--- | :--- |
-| **Simétrico** | Usa la misma clave para cifrar y descifrar. | Una caja fuerte con una sola llave física. |
-| **Asimétrico** | Usa una llave pública (cifrar) y una privada (descifrar). | Un buzón donde todos pueden meter cartas, pero solo tú tienes la llave del candado. |
-| **Passphrase** | Contraseña larga usada para proteger la llave privada. | Una frase secreta para abrir la bóveda principal. |
-| **Hash SHA256** | Huella digital única de un archivo. | El ADN del archivo; si un bit cambia, el ADN es distinto. |
-| **PBKDF2** | Función para derivar llaves que dificulta ataques de fuerza bruta. | Un laberinto que la computadora debe recorrer antes de probar una contraseña. |
+**Pasos relámpago (para impacientes):**
+1. **Genera una frase de contraseña robusta y guárdala en un gestor de contraseñas.** *Jamás en un post-it digital.*
+2. Ejecuta el cifrado simétrico:
+   ```bash
+   gpg --symmetric --cipher-algo AES256 --batch --passphrase-file <(echo "TU_FRASE_SECRETA") /ruta/backup/backup_db.sql
+   ```
+3. Verifica que el archivo `.gpg` no sea legible:
+   ```bash
+   file backup_db.sql.gpg
+   # Deberías ver: "GPG symmetrically encrypted data (AES256 cipher)"
+   ```
+4. **Elimina el original en texto plano** (`shred -u backup_db.sql`).
+5. Copia el `.gpg` a un almacenamiento externo usando [[02-SKILLS/SEGURIDAD/rsync-automation.md]].
 
----
+⚠️ **Regla de Seguridad (C3):** Si este VPS se expone a internet, **nunca almacenes la frase de paso en el mismo servidor**. Usa variables de entorno temporales o un vault externo.
 
 ## 🎯 Propósito y Alcance
 
-El propósito de este skill es implementar la **Regla SEG-005** y el **Constraint C5** del proyecto Mantis:
-> "Todos los backups deben estar encriptados con AES-256, protegidos con contraseña de 32+ caracteres y validados mediante SHA256."
+Este documento define el estándar educativo y operativo para la **encriptación de backups** dentro de la infraestructura de MANTIS AGENTIC. Su propósito es garantizar la **confidencialidad** (C3) y la **integridad** (C5) de los datos almacenados fuera del entorno de producción activo.
 
-Este documento cubre:
-1. Generación de bóvedas de llaves GPG seguras.
-2. Procedimientos de cifrado simétrico para automatización rápida.
-3. Procedimientos de cifrado asimétrico para máxima seguridad en transferencias VPS-a-Local.
-4. Integración de `tenant_id` en la metadata del backup.
-5. Optimización de CPU y RAM para procesos criptográficos en VPS de 4GB.
-
----
+**Alcance específico:**
+- Encriptación simétrica de volcados de bases de datos (PostgreSQL/MySQL).
+- Encriptación de archivos de configuración de n8n, EspoCRM y Qdrant.
+- Integración con flujos de automatización `rsync`.
+- **Exclusiones:** Este skill **no cubre** la encriptación de discos completos (LUKS) ni la gestión de certificados TLS para tránsito. Eso pertenece a [[02-SKILLS/SEGURIDAD/security-hardening-vps.md]].
 
 ## 📐 Fundamentos (De 0 a Intermedio)
 
-### ¿Por qué GnuPG (GPG)?
-GPG es el estándar de facto para el cifrado de archivos en sistemas Unix. Permite el cumplimiento de la **C3** (No exposición a internet público) al asegurar que incluso si un archivo es interceptado durante un `rsync`, el atacante no podrá leer el contenido sin la llave privada.
+### 1. ¿Por qué encriptar backups? (Teoría)
+Un backup es una "foto" estática de tus datos. Si esa foto se almacena en texto plano (ej. un archivo `.sql` con `INSERT INTO users VALUES (...)`), cualquier persona con acceso al disco duro, al bucket S3 o al servidor FTP puede leer información sensible de clientes (C3: Tenant Data Isolation).
 
-### Cifrado Simétrico vs Asimétrico en Mantis
-En nuestra infraestructura de 3 VPS:
-- **Simétrico**: Se usa para archivos temporales locales o logs rápidos.
-- **Asimétrico**: Es el estándar para el **Backup Diario de las 04:00 AM**. El VPS 2 cifra los datos de EspoCRM y Qdrant usando la *Llave Pública* de Facundo. El archivo resultante viaja al PC local, donde solo puede ser abierto con la *Llave Privada* almacenada offline.
+**Analogía universitaria:** Encriptar un backup es como guardar el examen final de la asignatura en una caja fuerte antes de enviarlo a la copistería. La copistería puede transportar la caja, pero no puede leer el contenido.
 
----
+### 2. Simétrico vs. Asimétrico (Decisión de diseño)
+Para backups automatizados en VPS con recursos limitados (C1: 2vCPU, C2: 75% carga), **utilizaremos exclusivamente cifrado simétrico (AES-256)**.
+- **Ventaja:** Menor consumo de CPU (menos de 1 vCPU completa durante la operación). Una clave compartida secreta es suficiente para descifrar en caso de desastre.
+- **Desventaja:** Requiere gestión segura de una única "frase de paso" fuera del servidor (C6: Secretos en Vault/.env).
+
+### 3. El costo oculto: Entropía y VPS Pequeños (C1/C2)
+El cifrado requiere números aleatorios de alta calidad (entropía). En VPS virtualizados, la entropía puede agotarse, **congelando el proceso de backup por minutos u horas**.
+- **Síntoma:** El comando `gpg` se queda colgado al 0% de CPU.
+- **Solución MANTIS:** Instalaremos y configuraremos `haveged` (generador de entropía por software) o usaremos `rng-tools` con precaución.
 
 ## 🏗️ Arquitectura y Límites de Hardware (VPS 2vCPU/4-8GB RAM)
 
-### Gestión de Recursos (C1 y C2)
-El cifrado es una operación intensiva en CPU. Para cumplir con la **Regla RES-002** (CPU < 80%), debemos limitar el impacto de GPG.
+<!-- ai:constraint=C1,C2 -->
 
-**Análisis de Impacto:**
-- **Algoritmo AES-256**: Es eficiente pero consume ciclos de reloj.
-- **Compresión Integrada**: GPG comprime por defecto. Esto ahorra disco pero dispara el uso de CPU.
-- **Memory Buffer**: En VPS con 4GB RAM, un proceso GPG descontrolado puede causar que `OOM Killer` detenga n8n o MySQL.
+| Componente | Límite Estricto (C1/C2) | Técnica de Mitigación en MANTIS |
+| :--- | :--- | :--- |
+| **CPU** | Máximo **1 vCPU (100%)** durante la encriptación. | Usar `nice -n 19` y `ionice -c 3`. Evitar `gpg` con múltiples hilos (`--no-use-agent`). |
+| **RAM** | Máximo **512MB** para buffer de cifrado. | Procesar archivos por streaming (`--compress-algo none` si es posible) o dividir backups grandes (`split`). |
+| **I/O Disco** | Prioridad baja para no afectar a n8n/EspoCRM. | `ionice -c 3` (Idle class). **Nunca** encriptar en el mismo disco del sistema operativo si está al 80% de uso. |
+| **Entropía** | Bloqueo por falta de aleatoriedad. | Servicio `haveged` en ejecución (`systemctl enable --now haveged`). |
 
-**Estrategia de Mitigación:**
-1.  **Prioridad de Proceso**: Usar `nice -n 19` para que GPG solo use ciclos de CPU sobrantes.
-2.  **Prioridad de I/O**: Usar `ionice -c 3` para que el escaneo de disco no ralentice las consultas de Qdrant.
-3.  **Throttling**: Ejecutar backups en la ventana de baja carga (04:00 AM) según **C5**.
-
----
+**Comando de verificación de recursos antes de ejecutar:**
+```bash
+free -h && uptime
+# Si el load average > 2.0 y la RAM libre < 1GB, pospón la tarea.
+```
 
 ## 🔗 Integración con Stack Existente (n8n, Qdrant, EspoCRM)
 
-### Flujo de Datos Cifrados (Referencia ARQ-003)
-1.  **Origen**: VPS 2 (Base de Datos MySQL + Snapshots Qdrant).
-2.  **Procesamiento**: Script bash ejecutado por un `CronJob` o por el `backup-manager-agent`.
-3.  **Etiquetado**: Inserción del `tenant_id` en el nombre del archivo para cumplir con la **C4**.
-4.  **Destino**: Directorio `/backups/cifrados/` con permisos `700`.
+La encriptación no vive aislada. Se integra en el flujo nocturno de mantenimiento.
 
----
+1.  **n8n (Workflow de Backup):**
+    - Un nodo `Execute Command` ejecuta el script de volcado de PostgreSQL (`pg_dump`).
+    - Un segundo nodo `Execute Command` invoca **este skill** para cifrar el archivo `.sql`.
+    - Un tercer nodo llama a [[02-SKILLS/SEGURIDAD/rsync-automation.md]] para enviar el `.gpg` al VPS remoto de almacenamiento.
+
+2.  **Qdrant (Snapshots de Vectores):**
+    - Qdrant permite crear snapshots internamente. Estos snapshots son **binarios pero no cifrados por defecto**.
+    - **Acción:** Tras crear el snapshot en `/qdrant/snapshots`, este skill cifra el archivo `.snapshot` resultante **antes** de que salga del servidor.
+
+3.  **EspoCRM (Configuración de Entidad):**
+    - El archivo `custom/Espo/Custom/Resources/metadata/entityDefs/` contiene lógica de negocio crítica.
+    - **Validación (C5):** Antes de cifrar, se genera un checksum:
+      ```bash
+      sha256sum /var/www/espocrm/data/config.php > config.sha256
+      gpg --symmetric config.sha256 config.php
+      ```
 
 ## 🛠️ 5 Ejemplos de Implementación (Copy-Paste Validables)
 
-### Ejemplo 1: Generación de Llave Maestra (Manual Senior)
-**Objetivo**: Crear el par de llaves asimétricas para el administrador.
-**Nivel**: 🔴 Avanzado
-**Comando / Código**:
+### Ejemplo 1: Cifrado Simétrico Básico de un Volcado SQL
+**Objetivo**: Proteger un archivo `backup.sql` con contraseña temporal.
+**Nivel**: 🟢
+
 ```bash
-# Crear archivo de configuración para evitar prompts interactivos pesados
-cat <<EOF > master-key-config
-%echo Generating a basic OpenPGP key
-Key-Type: RSA
-Key-Length: 4096
-Subkey-Type: RSA
-Subkey-Length: 4096
-Name-Real: Mantis Admin
-Name-Email: admin@mantis-agentic.dev
-Expire-Date: 0
-Passphrase: $(openssl rand -base64 32)
-%commit
-%echo Done
-EOF
+# 1. Crear un archivo de prueba (simula pg_dump)
+echo "CREATE TABLE usuarios (id INT, nombre TEXT);" > backup_test.sql
 
-# Generar llave con límites de recursos
-nice -n 19 gpg --batch --generate-key master-key-config
+# 2. Cifrar con AES256 (Preguntará interactivamente por la contraseña)
+gpg --symmetric --cipher-algo AES256 backup_test.sql
 
-# Listar llaves para verificar
-gpg --list-keys
+# 3. Verificar que el original sigue intacto y el .gpg existe
+ls -lh backup_test.sql*
 
-✅ Deberías ver: Un output confirmando la creación de la llave RSA de 4096 bits.
-❌ Si ves: gpg: agent_queued_packet: gpg-agent is not available, reinicia el agente con gpgconf --launch gpg-agent.
-Ejemplo 2: Cifrado Simétrico Automatizado (n8n friendly)
+✅ Deberías ver:
+-rw-rw-r-- 1 user user  50 Apr 10 10:00 backup_test.sql
+-rw-rw-r-- 1 user user 200 Apr 10 10:00 backup_test.sql.gpg
 
-Objetivo: Cifrar un dump de SQL de un cliente específico (C4).
-Nivel: 🟢 Fácil
-Comando / Código:
-code Bash
+❌ Si ves esto en su lugar:
+gpg: problem with the agent: Permission denied
 
-# Variables de entorno (C6 - No hardcoding)
-export CLIENT_ID="restaurante_gramado_001"
-export BACKUP_PASS=$(cat /etc/mantis/secrets/backup_key.txt)
+→ Ve a Troubleshooting #3
+```
+🔗 Conceptos relacionados: [[02-SKILLS/SEGURIDAD/rsync-automation.md]]
 
-# Proceso de cifrado con monitoreo de recursos
-nice -n 19 gpg --batch --yes --passphrase "$BACKUP_PASS" \
-  --symmetric --cipher-algo AES256 \
-  --output "/backups/backups_${CLIENT_ID}_$(date +%F).sql.gpg" \
-  "/tmp/dump_${CLIENT_ID}.sql"
+### Ejemplo 2: Cifrado No Interactivo para Scripts de n8n (AUTOMATIZADO)
+**Objetivo**: Cifrar un archivo sin intervención humana usando una variable de entorno.
+**Nivel**: 🟡
 
-# Generar Checksum SHA256 (C5)
-sha256sum "/backups/backups_${CLIENT_ID}_$(date +%F).sql.gpg" > "/backups/backups_${CLIENT_ID}_$(date +%F).sha256"
+```bash
+# ¡IMPORTANTE! La variable solo vive en esta sesión del script.
+export MANTIS_BACKUP_PASSPHRASE="ClaveSuperSeguraGeneradaConKeepassXC"
 
-✅ Deberías ver: Dos archivos nuevos en /backups/.
-🔗 Conceptos relacionados: [[01-RULES/06-MULTITENANCY-RULES.md]]
-Ejemplo 3: Cifrado Asimétrico para Transferencia Externa
+# Cifrado por lotes usando la variable de entorno (seguro, no aparece en 'ps aux')
+gpg --batch --passphrase-fd 0 --symmetric --cipher-algo AES256 archivo_a_cifrar.tar.gz <<< "$MANTIS_BACKUP_PASSPHRASE"
 
-Objetivo: Cifrar datos de Qdrant para que solo Facundo pueda abrirlos en su PC.
-Nivel: 🟡 Intermedio
-Comando / Código:
-code Bash
+# Limpiar la variable inmediatamente
+unset MANTIS_BACKUP_PASSPHRASE
 
-# Importar la llave pública del receptor si no existe
-# gpg --import facundo_public.asc
+✅ Deberías ver:
+gpg: AES256 encrypted data
+gpg: writing to 'archivo_a_cifrar.tar.gz.gpg'
 
-nice -n 19 gpg --batch --yes --encrypt \
-  --recipient "admin@mantis-agentic.dev" \
-  --trust-model always \
-  --output "/backups/qdrant_snapshot_$(date +%F).tar.gz.gpg" \
-  "/var/lib/qdrant/snapshots/collection_all.tar.gz"
+❌ Si ves esto en su lugar:
+gpg: cannot open '/dev/tty': No such device or address
 
-Ejemplo 4: Verificación Masiva de Integridad (C5)
+→ Ve a Troubleshooting #1
+```
+⚠️ **REGLA DE ORO (C6):** Nunca escribas la frase en texto plano dentro de un archivo `.sh` permanente. Cárgala desde `/etc/environment` restringido (root:root 600) o, idealmente, desde un secreto de n8n.
 
-Objetivo: Validar que los backups de los últimos 7 días no están corruptos.
-Nivel: 🟡 Intermedio
-Comando / Código:
-code Bash
+### Ejemplo 3: Verificación de Integridad Post-Cifrado (Validación C5)
+**Objetivo**: Asegurar que el archivo cifrado no está corrupto antes de borrar el original.
+**Nivel**: 🟡
 
-#!/bin/bash
-# script: verify_backups.sh
-LOG_FILE="/var/log/mantis/backup_verification.log"
-TENANT_ID="INFRA_CORE"
+```bash
+ARCHIVO="datos_clientes.csv"
+PASSPHRASE="MiClave"
 
-cd /backups
-for hashfile in *.sha256; do
-    if sha256sum -c "$hashfile" >> "$LOG_FILE" 2>&1; then
-        echo "[$(date)] SUCCESS: Integrity OK for $hashfile"
-    else
-        echo "[$(date)] CRITICAL: Corruption detected in $hashfile" | \
-        mail -s "ALERT: Backup Corrupt" admin@mantis.com
-    fi
+# Ciframos
+gpg --batch --passphrase-fd 0 --symmetric "$ARCHIVO" <<< "$PASSPHRASE"
+
+# VERIFICACIÓN SILENCIOSA (Descifra en memoria y calcula hash, NO escribe disco)
+gpg --batch --passphrase-fd 0 --decrypt "$ARCHIVO.gpg" 2>/dev/null <<< "$PASSPHRASE" | sha256sum > /tmp/decrypted.sha256
+
+# Comparar con el hash original
+sha256sum "$ARCHIVO" | diff -s - /tmp/decrypted.sha256
+
+✅ Deberías ver:
+Files - and /tmp/decrypted.sha256 are identical
+
+❌ Si ves esto en su lugar:
+Files - and /tmp/decrypted.sha256 differ
+
+→ ¡No borres el original! El archivo .gpg está corrupto. Ve a Troubleshooting #4.
+```
+
+### Ejemplo 4: Manejo de Archivos Grandes (>2GB) en VPS con Poca RAM (C1/C2)
+**Objetivo**: Cifrar un backup de base de datos de 4GB en un VPS de 2GB RAM sin colapsar.
+**Nivel**: 🔴
+
+```bash
+# NO HACER ESTO: gpg --symmetric archivo_grande.sql
+# Resultado: OOM Killer mata el proceso o el sistema se cuelga por swapping.
+
+# 1. Comprimir con prioridad baja antes de cifrar (divide la carga)
+nice -n 19 ionice -c 3 pigz -9 archivo_grande.sql
+
+# 2. Dividir en chunks de 512MB (Máximo manejable por RAM/CPU según C1)
+split -b 512M archivo_grande.sql.gz archivo_grande_part_
+
+# 3. Cifrar cada parte con restricción de CPU (C2: 1 vCPU máxima)
+for PART in archivo_grande_part_*; do
+  nice -n 19 taskset -c 0 gpg --batch --passphrase-file <(echo "$PASS") --symmetric "$PART"
+  rm "$PART" # Borrar fragmento en texto plano
 done
 
-Ejemplo 5: Pipeline Completo SDD (Snapshot + Cifrado + Hash)
+# 4. Para reconstruir:
+# cat archivo_grande_part_*.gpg > archivo_grande_unido.gpg
+# (Luego descifrar el unificado)
 
-Objetivo: Un script "todo en uno" que respete todas las reglas C1-C6.
-Nivel: 🔴 Avanzado
-Comando / Código:
-code Bash
+✅ Deberías ver:
+gpg: AES256 encrypted data (para cada parte)
 
-#!/bin/bash
-# MANTIS-BACKUP-PIPELINE v1.0
-set -euo pipefail
+❌ Si ves esto en su lugar:
+gpg: can't open 'archivo_grande_part_aa': No such file or directory
 
-# 1. Configuración de Constraints
-MAX_RAM="1024M" # C1
-TENANT_ID="${1:-default_tenant}" # C4
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-DEST_DIR="/backups/${TENANT_ID}"
-mkdir -p "$DEST_DIR"
+→ Asegúrate de que el disco no esté lleno (df -h).
+```
+🔗 Conceptos relacionados: [[01-RULES/02-RESOURCE-GUARDRAILS.md]]
 
-# 2. Ejecución con Resource Guardrails (C2)
-echo "Iniciando backup para $TENANT_ID..."
+### Ejemplo 5: Descifrado de Emergencia en un Entorno Limpio
+**Objetivo**: Recuperar los datos del backup cifrado en un nuevo VPS.
+**Nivel**: 🟢
 
-# Simulación de dump + pipe a GPG para ahorrar espacio temporal en disco
-# Esto evita escribir el archivo sin cifrar a disco (C3)
-mysqldump --opt --single-transaction "$TENANT_ID" | \
-nice -n 19 ionice -c 3 \
-gpg --batch --yes --symmetric --passphrase-file /etc/mantis/key.txt \
---cipher-algo AES256 -o "${DEST_DIR}/db_${TIMESTAMP}.sql.gpg"
+```bash
+# 1. Instalar gpg (viene por defecto en Ubuntu)
+sudo apt update && sudo apt install gpg -y
 
-# 3. Validación de integridad (C5)
-sha256sum "${DEST_DIR}/db_${TIMESTAMP}.sql.gpg" > "${DEST_DIR}/db_${TIMESTAMP}.sha256"
+# 2. Traer el archivo .gpg (por SCP/SSH Túnel)
+scp usuario@vps_produccion:/ruta/backup.sql.gpg .
 
-# 4. Auditoría (C4)
-logger "MANTIS_BACKUP: status=success tenant=$TENANT_ID file=db_${TIMESTAMP}.sql.gpg"
+# 3. Descifrar (preguntará interactivamente por la frase secreta)
+gpg --output datos_recuperados.sql --decrypt backup.sql.gpg
 
-🐞 5 Eventos/Problemas Críticos y Troubleshooting
-Error Exacto (copiable)	Causa Raíz (lenguaje simple)	Comando de Diagnóstico	Solución Paso a Paso
-gpg: decryption failed: No secret key	No tienes la llave privada para abrir este archivo.	gpg --list-secret-keys	1. Busca tu archivo .asc de llave privada.<br>2. Impórtalo: gpg --import mi_privada.asc.<br>3. Prueba de nuevo.
-gpg: WARNING: unsafe permissions on homedir	La carpeta .gnupg es visible para otros usuarios.	ls -ld ~/.gnupg	chmod 700 ~/.gnupg && chmod 600 ~/.gnupg/*
-Cannot allocate memory	El proceso GPG intentó usar más RAM de la permitida (C1).	dmesg | grep -i oom	Reduce el tamaño del buffer o no uses compresión extrema (-z 0).
-gpg: signing failed: Screen or window too small	GPG intenta pedirte la contraseña en una ventana UI que no existe.	echo $TERM	Añade --pinentry-mode loopback a tus comandos GPG en scripts.
-Checksum verification failed	El archivo se alteró durante el rsync o el disco tiene sectores dañados.	sha256sum -c file.sha256	1. Revisa el log de red.<br>2. Vuelve a generar el backup desde el origen.<br>3. Verifica salud de disco con smartctl.
-✅ Validación SDD y Comandos de Verificación
+# 4. Verificar contenido
+head -n 5 datos_recuperados.sql
 
-Para asegurar que el despliegue es exitoso y cumple con las especificaciones de seguridad de Mantis:
+✅ Deberías ver:
+gpg: AES256 encrypted data
+gpg: encrypted with 1 passphrase
 
-    Verificar Cifrado Real:
-    strings backup.sql.gpg | head -n 5
-    Resultado esperado: Basura ilegible (caracteres binarios). Si ves texto claro, el cifrado falló.
+Y el contenido SQL aparecerá.
 
-    Verificar Algoritmo:
-    gpg --list-packets backup.sql.gpg
-    Resultado esperado: Debe mencionar symalg 9 (que corresponde a AES256).
+❌ Si ves esto en su lugar:
+gpg: decryption failed: Bad session key
 
-    Verificar Trazabilidad (C4):
-    ls /backups | grep "cliente_"
-    Resultado esperado: Los nombres de archivos deben contener el ID del tenant.
+→ La frase de paso es incorrecta o el archivo fue alterado. Ve a Troubleshooting #5.
+```
 
-    Verificar Límites de CPU (C2):
-    pidstat -C gpg 1
-    Resultado esperado: El uso de CPU debe mantenerse estable y no "ahogar" a otros procesos.
+## 🐞 5 Eventos/Problemas Críticos y Troubleshooting
 
-🔗 Referencias Cruzadas y Glosario
+| Error Exacto (copiable) | Causa Raíz (lenguaje simple) | Comando de Diagnóstico | Solución Paso a Paso | Constraint Afectado (C#) |
+| :--- | :--- | :--- | :--- | :--- |
+| `gpg: problem with the agent: Permission denied` | El directorio `~/.gnupg` tiene permisos incorrectos o GPG intenta usar `pinentry` gráfico sin `$DISPLAY`. | `ls -ld ~/.gnupg` | 1. `chmod 700 ~/.gnupg`. 2. Usar siempre `--batch --passphrase-fd 0` en scripts para evitar el agente gráfico. | C2 (Bloqueo de automatización) |
+| `gpg: can't connect to the agent: IPC connect call failed` | Falta el paquete `pinentry-curses` o el agente GPG no se ha iniciado correctamente en sesiones cron. | `systemctl --user status gpg-agent` | 1. Instalar: `sudo apt install pinentry-curses`. 2. En scripts cron, añadir `export GPG_TTY=$(tty)`. Mejor aún, usa el método de variable de entorno `--passphrase-fd` del Ejemplo 2. | C3 (Fallback inseguro) |
+| `gpg: cannot open '/dev/tty': No such device or address` | Se ejecutó `gpg` sin `--batch` desde un entorno no interactivo (cron, script n8n, systemd). | `tty` (devolverá "not a tty"). | **Solución definitiva:** Usar **siempre** el flag `--batch` junto con `--passphrase-fd 0` o `--passphrase-file`. **Nunca** llamar a `gpg` sin `--batch` en un workflow automático. | C6 (Exposición de prompt) |
+| `gpg: decrypt_message failed: Wrong key or checksum error` | El archivo `.gpg` se truncó durante una transferencia `rsync` fallida o el disco duro tiene sectores defectuosos (bit rot). | `gpg --list-packets archivo.gpg \| head` (Si muestra datos rotos, es corrupción). | 1. Verificar checksum SHA256 del archivo original vs el transferido. 2. Restaurar desde una copia de seguridad más antigua del archivo `.gpg`. **Prevención:** Siempre validar con `--decrypt` en modo prueba (Ejemplo 3) antes de borrar el original. | C5 (Integridad de Backup) |
+| `gpg: decryption failed: Bad session key` | **La frase de paso es incorrecta.** O el algoritmo fue cambiado (poco probable). | Intenta con `gpg --verbose --decrypt archivo.gpg`. | 1. **No hay solución técnica** para recuperar los datos sin la frase exacta. 2. Verificar que el layout del teclado no haya cambiado al escribir caracteres especiales (ñ, ¿). 3. **Lección MANTIS:** La frase debe almacenarse en un gestor de secretos externo (Bitwarden/Vault). **Nunca** dependas solo de la memoria humana. | C3 / C6 (Pérdida de Confidencialidad) |
 
-    [[01-RULES/03-SECURITY-RULES.md]]: Reglas maestras de seguridad de Mantis.
+## ✅ Validación SDD y Comandos de Verificación
 
-    [[00-CONTEXT/facundo-infrastructure.md]]: Detalles de la topología de los 3 VPS.
+<!-- ai:constraint=C5 -->
 
-    Entropía: Medida de incertidumbre que el kernel usa para generar números aleatorios seguros. Sin entropía, las llaves de encriptación son débiles.
+Para asegurar que la implementación cumple con las políticas de MANTIS, ejecuta estos comandos de auditoría después de implementar el script de backup.
 
-    PBKDF2: Password-Based Key Derivation Function 2. Estándar para convertir contraseñas en llaves criptográficas robustas.
+### 1. Verificación de Encriptación Real (C3)
+Confirma que el contenido no contiene cadenas de texto plano identificables (ej. nombres de tablas).
+```bash
+# Busca la palabra 'CREATE TABLE' dentro del archivo cifrado. NO debería encontrarse.
+strings /ruta/backups/backup_db.sql.gpg | grep -i "CREATE TABLE"
+# Salida esperada: Ninguna línea (código de retorno 1).
+```
 
-<!-- ai:constraint=C1,C2,C4,C5 -->
-<!-- sdd-compliance: 100% -->
-<!-- manual-lines-count: [Extendido para profundidad técnica] -->
+### 2. Verificación de Uso de Recursos (C1/C2)
+Mide el pico máximo de RAM y CPU usado por `gpg` durante una prueba de estrés.
+```bash
+# Terminal 1: Simula backup y mide
+/usr/bin/time -v gpg --batch --passphrase-file <(echo "test") --symmetric large_file.test
+
+# Busca en la salida:
+# "Maximum resident set size (kbytes)" -> Debe ser < 500000 (500MB)
+# "Percent of CPU this job got" -> Debe ser < 100% (Si hay otras cargas)
+```
+
+### 3. Verificación de Automatización Segura (C6)
+Asegura que no hay claves hardcodeadas en el script de backup.
+```bash
+# Escanea el script de backup en busca de la cadena "gpg --passphrase"
+grep -n "passphrase" /opt/mantis/scripts/backup_encrypt.sh
+
+# Si encuentra una línea como:
+# gpg --passphrase "MiClave123" ...
+# --> VIOLACIÓN DE C6. Debes refactorizar a variable de entorno.
+```
+
+## 🔗 Referencias Cruzadas y Glosario
+
+- **[[01-RULES/03-SECURITY-RULES.md]]**: Reglas globales de seguridad, incluyendo rotación de claves.
+- **[[02-SKILLS/SEGURIDAD/rsync-automation.md]]**: Complemento indispensable para enviar este `.gpg` a almacenamiento remoto seguro.
+- **[[00-CONTEXT/facundo-infrastructure.md]]**: Diagrama de la topología de VPS de Facundo donde residen estos backups.
+- **[[01-RULES/02-RESOURCE-GUARDRAILS.md]]**: Detalles sobre `nice`, `ionice` y límites de memoria en VPS pequeños.
+
+**Glosario Rápido:**
+- **AES-256**: Estándar de Encriptación Avanzada con clave de 256 bits. Virtualmente irrompible por fuerza bruta con la tecnología actual.
+- **Entropía**: "Aleatoriedad" del sistema. Necesaria para generar números impredecibles en el cifrado.
+- **Batch Mode (`--batch`)**: Modo de GPG que suprime las interacciones con el usuario (ventanas de contraseña), obligatorio para scripts.
+- **OOM Killer**: "Asesino por Falta de Memoria". Proceso del Kernel de Linux que mata aplicaciones cuando la RAM se agota para evitar que el sistema colapse.
+
+FIN DEL ARCHIVO
+<!-- ai:file-end marker - do not remove -->
+Versión 1.0.0 - 2026-04-10 - Mantis-AgenticDev
