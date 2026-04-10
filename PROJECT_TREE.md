@@ -132,6 +132,20 @@ agentic-infra-docs/
 |    │   
 |    ├── skill-domains-mapping.md ✅ COMPLETADO
 |    |
+|    |
+|    ├── AI/
+|    |   ├── openrouter-api-integration.md           🆕 PENDIENTE
+|    |   ├── mistral-ocr-integration.md              🆕 PENDIENTE
+|    |   ├── qwen-integration.md                    🆕 PENDIENTE
+|    |   ├── llama-integration.md                   🆕 PENDIENTE
+|    |   ├── gemini-integration.md                  🆕 PENDIENTE
+|    |   ├── gpt-integration.md                     🆕 PENDIENTE
+|    |   ├── deepseek-integration.md                🆕 PENDIENTE
+|    |   ├── minimax-integration.md                 🆕 PENDIENTE
+|    |   ├── voice-agent-integration.md             🆕 PENDIENTE
+|    |   ├── image-gen-api.md                       🆕 PENDIENTE
+|    |   └── video-gen-api.md                      🆕 PENDIENTE
+|    |
 |    ├── 📡 INFRAESTRUCTURA (Servidores)
 |    │   ├── ssh-tunnels-remote-services.md ✅ COMPLETADO
 |    │   │   └── Túneles SSH para MySQL, Qdrant entre VPS
@@ -151,12 +165,19 @@ agentic-infra-docs/
 |    │   │   └── Agentes de monitoreo de salud VPS
 |    │   ├── vps-interconnection.md ✅ COMPLETADO
 |    │   │   └── Conexión entre VPS 1-2-3
+|    │   │   └── Agentes de monitoreo de salud VPS
+|    │   ├── redis-session-management.md 🆕 PENDIENTE
+|    │   │   └── Buffer de sesión para contexto de conversación
 |    │   └── environment-variable-management.md 🆕 PENDIENTE
 |    │       └── Gestión de variables de entorno
 |    │
 |    ├── 🗄️ BASE DE DATOS-RAG
 |    │   ├── qdrant-rag-ingestion.md ✅ COMPLETADO
 |    │   │   └── Ingesta de documentos en Qdrant con tenant_id
+|    │   ├── mysql-sql-rag-ingestion.md 🆕 PENDIENTE
+|    │   │   └── MySQL/SQL, RAG Ingestion patterns base de datos
+|    │   ├── rag-system-updates-all-engines.md 🆕 PENDIENTE
+|    │   │   └── Actualizacion reemplazo concatenacion de BD RAG
 |    │   ├── multi-tenant-data-isolation.md ✅ COMPLETADO
 |    │   │   └── Aislamiento de datos por tenant
 |    │   ├── postgres-prisma-rag.md ✅ COMPLETADO
@@ -165,16 +186,18 @@ agentic-infra-docs/
 |    │   │   └── Supabase + RAG patterns
 |    │   ├── pdf-mistralocr-processing.md ✅ COMPLETADO
 |    │   │   └── PDF parsing con Mistral OCR
-|    │   ├── google-drive-qdrant-sync.md 🆕 NUEVO
+|    │   ├── google-drive-qdrant-sync.md ✅ COMPLETADO
 |    │   │   └── Sincronización Google Drive → Qdrant
-|    │   ├── espocrm-api-analytics.md 🆕 PENDIENTE
+|    │   ├── espocrm-api-analytics.md ✅ COMPLETADO
 |    │   │   └── Uso de EspoCRM API para reportes
-|    │   └── mysql-optimization-4gb-ram.md 🆕 PENDIENTE
+|    │   └── mysql-optimization-4gb-ram.md ✅ COMPLETADO
 |    │       └── Optimización MySQL para VPS 4GB
 |    │
 |    ├── 📱 WHATSAPP-RAG AGENTS
-|    │   ├── whatsapp-rag-agents.md 🆕 PENDIENTE
-|    │   │   └── Patrones para agentes WhatsApp con RAG
+|    │   ├── whatsapp-rag-openrouter.md 🆕 PENDIENTE
+|    │   │   └── Patrones para agentes WhatsApp con RAG Qdrant, 
+|    |   |       Prisma,Supabase,GoogleDrive, MySql, Sql, Postgre, ChromeDB
+|    |   |       en Openrouter,Gpt,Claude,Qwen,DeepSeek, Minimax
 |    │   ├── whatsapp-uazapi-integration.md 🆕 PENDIENTE
 |    │   │   └── Integración con uazapi
 |    │   ├── telegram-bot-integration.md 🆕 PENDIENTE
@@ -255,25 +278,36 @@ agentic-infra-docs/
 |    │   │   └── Integración con Gmail SMTP
 |    │   ├── google-calendar-api-integration.md 🆕 PENDIENTE
 |    │   │   └── Integración Google Calendar API
-|    │   └── email-notification-patterns.md 🆕 NUEVO
-|    │       └── Patrones de notificaciones email
-|    │
+|    │   ├── email-notification-patterns.md 🆕 NUEVO
+|    │   |     └── Patrones de notificaciones email
+|    │   ├── whatsApp-rag-openRouter 🆕 NUEVO
+|    │   |     └── Patrones de manejo de Rag
+|    |   └── whatsapp-uazapi-integration.md 🆕 PENDIENTE
+|    │         └── interoperatividad whatsapp y uazapi
+|    │     
 |    ├── 🔒 SEGURIDAD
-|    │   ├── backup-encryption.md 🆕 PENDIENTE reacer
+|    │   ├── backup-encryption.md ✅ COMPLETADO
 |    │   │   └── Encriptación de backups
-|    │   ├── rsync-automation.md 🆕 PENDIENTE reacer
+|    │   ├── rsync-automation.md ✅ COMPLETADO
 |    │   │   └── Automatización rsync
-|    │   └── security-hardening-vps.md 🆕 NUEVO reacer
+|    │   └── security-hardening-vps.md ✅ COMPLETADO
 |    │       └── Hardening de VPS
 |    │
-|    └── 🧠 N8N-PATTERNS
-|        ├── n8n-workflow-patterns.md 🆕 PENDIENTE
-|        │   └── Patrones reutilizables para workflows
-|        ├── n8n-agent-patterns.md 🆕 NUEVO
-|        │   └── Patrones de agentes LangChain
-|        └── n8n-error-handling.md 🆕 NUEVO
-|        └── Manejo de errores en n8n
+|    ├── 🧠 N8N-PATTERNS
+|    |    ├── n8n-workflow-patterns.md 🆕 PENDIENTE
+|    |    │   └── Patrones reutilizables para workflows
+|    |    ├── n8n-agent-patterns.md 🆕 NUEVO
+|    |    │   └── Patrones de agentes LangChain
+|    |    └── n8n-error-handling.md 🆕 NUEVO
+|    |         └── Manejo de errores en n8n
+│    |
+|    |
+|    │
+|    └── 🧠 DEPLOYMENT
+|        └── multi-channel deploymen.md 🆕 PENDIENTE
+|            └── 
 │
+|
 ├── 03-AGENTS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
 │   │   └── Índice de todos los agentes
