@@ -588,39 +588,27 @@ URL del PROJECT_OVERVIEW.md (visión general)
 URL del 00-INDEX.md de la carpeta que vas a trabajar
 URLs de los archivos específicos que necesitas
 
+#### 🧭 Flujo de Carga Óptimo: Grafo → Controlador de Skills → Archivos Específicos
 
-### 🧭 Flujo de Carga Óptimo para IAs (Minimizar Tokens)
+Para minimizar tokens y evitar navegación tentativa, seguir estrictamente:
 
-Al iniciar un chat nuevo, seguir este orden estricto:
+1. **Cargar primero** `knowledge-graph.json`  
+   → Filtrar nodos por `priority: "Siempre"` o `"Alta"`  
+   → Identificar `domain` relevante (ej: `SEGURIDAD`, `INFRAESTRUCTURA`)
 
-1. **Primero**: Cargar `knowledge-graph.json` (URL raw arriba)
-   → Identificar nodos con `priority: "Siempre"` o `"Alta"`
-   → Filtrar por `domain` relevante a la tarea
+2. **Cargar segundo** `02-SKILLS/skill-domains-mapping.md`  
+   → Usar el **Mapa General de Zonas** para ubicar la categoría técnica  
+   → Consultar la **Matriz de Dependencias** para skills transversales requeridos  
+   → Verificar estado: ✅ = listo para usar / ⏳ = pendiente (no cargar salvo desarrollo)
 
-2. **Segundo**: Cargar solo los archivos referenciados por esos nodos
-   → Evitar exploración secuencial de carpetas
+3. **Cargar tercero** solo los archivos de skill específicos referenciados  
+   → Ej: Si la tarea es "monitoreo VPS + Telegram", cargar solo:  
+     - `health-monitoring-vps.md`  
+     - `telegram-bot-integration.md`  
+   → **No explorar** carpetas completas ni archivos con prioridad "Baja"
 
-3. **Tercero**: Usar wikilinks del grafo para navegación profunda
-   → Seguir `edges[]` solo si es necesario para contexto adicional
-
-> 💡 **Regla de oro**: Si el grafo indica que un archivo tiene `priority: "Baja"` y no es target de un edge desde tu nodo inicial, **no cargarlo**. Ahorro estimado: 60-80% de tokens por sesión.
-
-
-### 🧭 Flujo de Carga Óptimo para IAs (Minimizar Tokens)
-
-Al iniciar un chat nuevo, seguir este orden estricto:
-
-1. **Primero**: Cargar `knowledge-graph.json` (URL raw arriba)
-   → Identificar nodos con `priority: "Siempre"` o `"Alta"`
-   → Filtrar por `domain` relevante a la tarea
-
-2. **Segundo**: Cargar solo los archivos referenciados por esos nodos
-   → Evitar exploración secuencial de carpetas
-
-3. **Tercero**: Usar wikilinks del grafo para navegación profunda
-   → Seguir `edges[]` solo si es necesario para contexto adicional
-
-> 💡 **Regla de oro**: Si el grafo indica que un archivo tiene `priority: "Baja"` y no es target de un edge desde tu nodo inicial, **no cargarlo**. Ahorro estimado: 60-80% de tokens por sesión.
+> 🎯 **Resultado esperado**: Navegación dirigida por metadata, sin exploración ciega.  
+> 💰 **Ahorro estimado**: 70-85% menos tokens en fase de contextualización estructural.
 
 ### **Para mantener actualizado:**
 

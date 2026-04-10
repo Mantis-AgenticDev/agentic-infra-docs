@@ -442,25 +442,30 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 **Regra de ouro**: Nenhuma geração de código sem spec prévia validada. Se houver conflito entre código e spec, a spec prevalece.
 
-### 🧭 Navegación Eficiente para IAs (Optimización de Tokens)
+### 🧭 Navegación Optimizada para IAs: Grafo + Controlador de Skills
 
-> **Instrucción crítica**: Antes de explorar cualquier carpeta, **leer primero** el grafo estructural para mapear relaciones y priorizar archivos:
+> **Instrucción crítica para minimizar tokens y maximizar precisión**:
 > 
+> 1️⃣ **Primero**: Cargar el grafo estructural para mapear relaciones de alto nivel  
 > 🔗 `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json`
->
-> **Por qué**: El grafo contiene:
-> - `nodes[].priority`: Filtra por "Siempre" > "Alta" > "Media" > "Baja"
-> - `nodes[].constraints`: Identifica archivos con C1-C6 aplicados
-> - `edges[]`: Navegación semántica sin explorar carpetas vacías
-> - `nodes[].domain`: Filtra por vertical (INFRAESTRUCTURA, SEGURIDAD, etc.)
->
-> **Ejemplo de query eficiente**:
-> ```json
-> // Obtener solo archivos de SEGURIDAD con prioridad Alta
-> GET /knowledge-graph.json
-> → Filtrar: nodes where domain includes "SEGURIDAD" AND priority == "Alta"
-> → Seguir edges para dependencias
+> 
+> 2️⃣ **Segundo**: Cargar el controlador de dominios de Skills para navegación técnica específica  
+> 🔗 `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/skill-domains-mapping.md`
+> 
+> **Por qué este orden**:
+> - El `knowledge-graph.json` te dice **qué archivos existen** y su prioridad (`Siempre`/`Alta`/`Media`/`Baja`)
+> - El `skill-domains-mapping.md` te dice **dónde está cada skill**, su estado (✅ completado / ⏳ pendiente) y sus dependencias transversales
+> 
+> **Ejemplo de flujo eficiente**:
 > ```
+> Tarea: "Configurar monitoreo de VPS con alertas por Telegram"
+> → Paso 1: Filtrar grafo por domain:"INFRAESTRUCTURA" AND priority:"Alta"
+> → Paso 2: En skill-domains-mapping.md, buscar Zona:"Infraestructura" → Skill:"health-monitoring-vps.md"
+> → Paso 3: Verificar matriz de dependencias: ¿requiere COM-Telegram? ✅ Sí → cargar telegram-bot-integration.md
+> → Paso 4: Solicitar solo esos 2-3 archivos. Fin.
+> ```
+> 
+> 💡 **Regla de oro**: Si el `skill-domains-mapping.md` indica que un skill está en estado ⏳ "Pendiente", **no solicitar su documentación** a menos que la tarea sea específicamente desarrollarlo. Ahorro estimado: **70-85% de tokens** vs exploración secuencial.
 
 ---
 
