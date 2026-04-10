@@ -176,7 +176,7 @@ agentic-infra-docs/
 |    │   │   └── Ingesta de documentos en Qdrant con tenant_id
 |    │   ├── mysql-sql-rag-ingestion.md 🆕 PENDIENTE
 |    │   │   └── MySQL/SQL, RAG Ingestion patterns base de datos
-|    │   ├── rag-system-updates-all-engines.md 🆕 PENDIENTE
+|    │   ├── rag-system-updates-all-engines.md ✅ COMPLETADO
 |    │   │   └── Actualizacion reemplazo concatenacion de BD RAG
 |    │   ├── multi-tenant-data-isolation.md ✅ COMPLETADO
 |    │   │   └── Aislamiento de datos por tenant
@@ -588,6 +588,39 @@ URL del PROJECT_OVERVIEW.md (visión general)
 URL del 00-INDEX.md de la carpeta que vas a trabajar
 URLs de los archivos específicos que necesitas
 
+
+### 🧭 Flujo de Carga Óptimo para IAs (Minimizar Tokens)
+
+Al iniciar un chat nuevo, seguir este orden estricto:
+
+1. **Primero**: Cargar `knowledge-graph.json` (URL raw arriba)
+   → Identificar nodos con `priority: "Siempre"` o `"Alta"`
+   → Filtrar por `domain` relevante a la tarea
+
+2. **Segundo**: Cargar solo los archivos referenciados por esos nodos
+   → Evitar exploración secuencial de carpetas
+
+3. **Tercero**: Usar wikilinks del grafo para navegación profunda
+   → Seguir `edges[]` solo si es necesario para contexto adicional
+
+> 💡 **Regla de oro**: Si el grafo indica que un archivo tiene `priority: "Baja"` y no es target de un edge desde tu nodo inicial, **no cargarlo**. Ahorro estimado: 60-80% de tokens por sesión.
+
+
+### 🧭 Flujo de Carga Óptimo para IAs (Minimizar Tokens)
+
+Al iniciar un chat nuevo, seguir este orden estricto:
+
+1. **Primero**: Cargar `knowledge-graph.json` (URL raw arriba)
+   → Identificar nodos con `priority: "Siempre"` o `"Alta"`
+   → Filtrar por `domain` relevante a la tarea
+
+2. **Segundo**: Cargar solo los archivos referenciados por esos nodos
+   → Evitar exploración secuencial de carpetas
+
+3. **Tercero**: Usar wikilinks del grafo para navegación profunda
+   → Seguir `edges[]` solo si es necesario para contexto adicional
+
+> 💡 **Regla de oro**: Si el grafo indica que un archivo tiene `priority: "Baja"` y no es target de un edge desde tu nodo inicial, **no cargarlo**. Ahorro estimado: 60-80% de tokens por sesión.
 
 ### **Para mantener actualizado:**
 

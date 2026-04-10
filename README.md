@@ -442,6 +442,26 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 **Regra de ouro**: Nenhuma geração de código sem spec prévia validada. Se houver conflito entre código e spec, a spec prevalece.
 
+### 🧭 Navegación Eficiente para IAs (Optimización de Tokens)
+
+> **Instrucción crítica**: Antes de explorar cualquier carpeta, **leer primero** el grafo estructural para mapear relaciones y priorizar archivos:
+> 
+> 🔗 `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json`
+>
+> **Por qué**: El grafo contiene:
+> - `nodes[].priority`: Filtra por "Siempre" > "Alta" > "Media" > "Baja"
+> - `nodes[].constraints`: Identifica archivos con C1-C6 aplicados
+> - `edges[]`: Navegación semántica sin explorar carpetas vacías
+> - `nodes[].domain`: Filtra por vertical (INFRAESTRUCTURA, SEGURIDAD, etc.)
+>
+> **Ejemplo de query eficiente**:
+> ```json
+> // Obtener solo archivos de SEGURIDAD con prioridad Alta
+> GET /knowledge-graph.json
+> → Filtrar: nodes where domain includes "SEGURIDAD" AND priority == "Alta"
+> → Seguir edges para dependencias
+> ```
+
 ---
 
 ## SEGURANÇA E CONFORMIDADE
@@ -502,6 +522,28 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 | Workflow n8n base                  | `01-RULES/05-CODE-PATTERNS-RULES.md`                 |
 
 **Regla de oro**: Ningún código sin spec previa validada. Si hay conflicto → spec > código.
+
+
+### 🧭 Navegación Eficiente para IAs (Optimización de Tokens)
+
+> **Instrucción crítica**: Antes de explorar cualquier carpeta, **leer primero** el grafo estructural para mapear relaciones y priorizar archivos:
+> 
+> 🔗 `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json`
+>
+> **Por qué**: El grafo contiene:
+> - `nodes[].priority`: Filtra por "Siempre" > "Alta" > "Media" > "Baja"
+> - `nodes[].constraints`: Identifica archivos con C1-C6 aplicados
+> - `edges[]`: Navegación semántica sin explorar carpetas vacías
+> - `nodes[].domain`: Filtra por vertical (INFRAESTRUCTURA, SEGURIDAD, etc.)
+>
+> **Ejemplo de query eficiente**:
+> ```json
+> // Obtener solo archivos de SEGURIDAD con prioridad Alta
+> GET /knowledge-graph.json
+> → Filtrar: nodes where domain includes "SEGURIDAD" AND priority == "Alta"
+> → Seguir edges para dependencias
+> ```
+
 
 ## 🔄 FLUJO SDD
 
