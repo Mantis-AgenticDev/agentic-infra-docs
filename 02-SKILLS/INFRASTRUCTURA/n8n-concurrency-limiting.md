@@ -1365,3 +1365,9 @@ EXECUTIONS_RETRY_WAIT: 5000  # 5 segundos base
 **Fecha creación:** 2026-04-10
 **Última validación:** Pending SDD Compliance
 **Versión:** 1.0.0
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[01-RULES/02-RESOURCE-GUARDRAILS.md]]
+[[01-RULES/06-MULTITENANCY-RULES.md]]
+[[02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md]]
+[[04-WORKFLOWS/n8n/INFRA-001-Base-Workflow.json]]

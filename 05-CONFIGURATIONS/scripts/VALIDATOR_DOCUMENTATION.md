@@ -105,3 +105,7 @@ Licencia: Uso interno, proyecto de ciencia abierta
 ## 🔗 Conexiones Estructurales
 [[01-RULES/00-INDEX.md]]
 [[01-RULES/05-CODE-PATTERNS-RULES.md]]
+
+## 🔗 Conexiones Estructurales (Auto-generado)
+[[00-CONTEXT/documentation-validation-cheklist.md]]
+[[PROJECT_TREE.md]]
