@@ -130,6 +130,8 @@ agentic-infra-docs/
 ├── 02-SKILLS/
 |    ├── 00-INDEX.md 🆕 PENDIENTE
 |    │   
+|    ├── skill-domains-mapping.md ✅ COMPLETADO
+|    |
 |    ├── 📡 INFRAESTRUCTURA (Servidores)
 |    │   ├── ssh-tunnels-remote-services.md ✅ COMPLETADO
 |    │   │   └── Túneles SSH para MySQL, Qdrant entre VPS
@@ -143,9 +145,9 @@ agentic-infra-docs/
 |    │   │   └── Firewall UFW en VPS
 |    │   ├── ssh-key-management.md ✅ COMPLETADO
 |    │   │   └── Gestión de claves SSH
-|    │   ├── n8n-concurrency-limiting.md 🆕 PENDIENTE
+|    │   ├── n8n-concurrency-limiting.md ✅ COMPLETADO
 |    │   │   └── Limitación de concurrencia en n8n
-|    │   ├── health-monitoring-vps.md 🆕 NUEVO
+|    │   ├── health-monitoring-vps.md ✅ COMPLETADO
 |    │   │   └── Agentes de monitoreo de salud VPS
 |    │   ├── vps-interconnection.md ✅ COMPLETADO
 |    │   │   └── Conexión entre VPS 1-2-3
@@ -257,11 +259,11 @@ agentic-infra-docs/
 |    │       └── Patrones de notificaciones email
 |    │
 |    ├── 🔒 SEGURIDAD
-|    │   ├── backup-encryption.md 🆕 PENDIENTE
+|    │   ├── backup-encryption.md 🆕 PENDIENTE reacer
 |    │   │   └── Encriptación de backups
-|    │   ├── rsync-automation.md 🆕 PENDIENTE
+|    │   ├── rsync-automation.md 🆕 PENDIENTE reacer
 |    │   │   └── Automatización rsync
-|    │   └── security-hardening-vps.md 🆕 NUEVO
+|    │   └── security-hardening-vps.md 🆕 NUEVO reacer
 |    │       └── Hardening de VPS
 |    │
 |    └── 🧠 N8N-PATTERNS
