@@ -388,17 +388,17 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ├── ssh-tunnels-remote-services.md          ✅
 ├── docker-compose-networking.md            ✅
 ├── espocrm-setup.md                        ✅
-├── redis-session-management.md             🆕
-└── environment-variable-management.md      🆕
+├── redis-session-management.md             ✅
+└── environment-variable-management.md      ✅
 
 ### 4.2 Zona: Comunicación
 
 02-SKILLS/COMUNICACIÓN/
 ├── telegram-bot-integration.md            ✅
 ├── gmail-smtp-integration.md              ✅
-├── google-calendar-api-integration.md     🆕
+├── google-calendar-api-integration.md     ✅
 ├── email-notification-patterns.md         🆕
-├── whatsApp-rag-openRouter.md             🆕
+├── whatsApp-rag-openRouter.md             ✅
 └── whatsapp-uazapi-integration.md         🆕
 
 ### 4.3 Zona: Base de Datos + RAG
@@ -411,7 +411,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ├── pdf-mistralocr-processing.md            ✅
 ├── postgres-prisma-rag.md                  ✅
 ├── supabase-rag-integration.md             ✅
-├── mysql-sql-rag-ingestion.md              🆕
+├── mysql-sql-rag-ingestion.md              ✅
 ├── google-drive-qdrant-sync.md             ✅
 └── espocrm-api-analytics.md                ✅
 
