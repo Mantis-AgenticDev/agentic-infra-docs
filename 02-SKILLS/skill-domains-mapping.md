@@ -260,7 +260,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ```
 02-SKILLS/
 └── INFRAESTRUCTURA/
-    ├── ssh-key-management.md                    ✅ Completado
+    ├── ssh-key-management.md                   ✅ Completado
     ├── ufw-firewall-configuration.md           ✅ Completado
     ├── fail2ban-configuration.md               ✅ Completado
     ├── n8n-concurrency-limiting.md             ✅ Completado
@@ -268,9 +268,8 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
     ├── vps-interconnection.md                  ✅ Completado
     ├── ssh-tunnels-remote-services.md          ✅ Completado
     ├── docker-compose-networking.md            ✅ Completado
-    ├── mysql-optimization-4gb-ram.md           ⏳ Pendiente
-    ├── backup-encryption.md                    ⏳ Pendiente
-    ├── rsync-automation.md                     ⏳ Pendiente
+    ├── espocrm-setup.md                        ✅ COMPLETADO
+    ├── redis-session-management.md             🆕 PENDIENTE
     └── environment-variable-management.md      ⏳ Pendiente
 ```
 
@@ -280,28 +279,29 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 02-SKILLS/
 └── COMUNICACION/
     ├── telegram-bot-integration.md            ✅ Completado
-    ├── gmail-smtp-integration.md               ✅ Completado
+    ├── gmail-smtp-integration.md              ✅ Completado
     ├── whatsapp-uazapi-integration.md         ⏳ Pendiente
     ├── google-calendar-api-integration.md     ⏳ Pendiente
-    ├── slack-integration.md                   ⏳ Pendiente
-    ├── sms-integration.md                     ⏳ Pendiente
-    └── phone-integration.md                   ⏳ Pendiente
+    ├── email-notification-patterns.md         ⏳ Pendiente
+    ├── whatsApp-rag-openRouter                ⏳ Pendiente
+    └──                                        ⏳ Pendiente
 ```
 
 ### 4.3 Zona: Datos y RAG
 
 ```
 02-SKILLS/
-└── DATOS/
-    ├── qdrant-rag-ingestion.md                 ⏳ Pendiente
-    ├── multi-tenant-data-isolation.md          ⏳ Pendiente
-    ├── google-drive-integration.md             ⏳ Pendiente
-    ├── google-sheets-integration.md           ⏳ Pendiente
-    ├── mysql-rag-optimization.md              ⏳ Pendiente
-    ├── postgresql-rag-optimization.md          ⏳ Pendiente
-    ├── supabase-rag-integration.md             ⏳ Pendiente
-    ├── airtable-integration.md                ⏳ Pendiente
-    └── espocrm-api-analytics.md              ⏳ Pendiente
+└── BASE DE DATOS-RAG/
+    ├── qdrant-rag-ingestion.md                 ✅ Completado
+    ├── multi-tenant-data-isolation.md          ✅ Completado
+    ├── rag-system-updates-all-engines.md       ✅ Completado
+    ├── mysql-optimization-4gb-ram.md           ✅ Completado
+    ├── pdf-mistralocr-processing.md            ✅ COMPLETADO              
+    ├── postgres-prisma-rag.md                  ✅ Completado
+    ├── supabase-rag-integration.md             ✅ Completado
+    ├── mysql-sql-rag-ingestion.md              🆕 PENDIENTE
+    ├── google-drive-qdrant-sync.md             ✅ COMPLETADO
+    └── espocrm-api-analytics.md                ✅ Completado
 ```
 
 ### 4.4 Zona: AI
@@ -364,6 +364,18 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
     ├── cloudinary-integration.md             ⏳ Pendiente
     ├── video-processing.md                   ⏳ Pendiente
     └── image-optimization.md                 ⏳ Pendiente
+```
+
+### 4.8 Zona: Seguridad
+
+```
+02-SKILLS/
+└── SEGURIDAD/
+    ├── backup-encryption.md                    ✅ COMPLETADO  
+    ├── rsync-automation.md                     ✅ COMPLETADO         
+    ├── security-hardening-vps.md               ✅ COMPLETADO
+    ├── 
+    └── 
 ```
 
 ---

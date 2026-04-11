@@ -164,8 +164,7 @@ agentic-infra-docs/
 |    │   ├── health-monitoring-vps.md ✅ COMPLETADO
 |    │   │   └── Agentes de monitoreo de salud VPS
 |    │   ├── vps-interconnection.md ✅ COMPLETADO
-|    │   │   └── Conexión entre VPS 1-2-3
-|    │   │   └── Agentes de monitoreo de salud VPS
+|    │   │   └── Conexión entre VPS 1-2-3   
 |    │   ├── redis-session-management.md 🆕 PENDIENTE
 |    │   │   └── Buffer de sesión para contexto de conversación
 |    │   └── environment-variable-management.md 🆕 PENDIENTE
