@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-10T19:33:09.352408+00:00",
+  "generated_at": "2026-04-11T03:32:32.112265+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -230,6 +230,32 @@
       "last_updated": "2026-04-09",
       "wikilinks": [
         "01-RULES/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/skill-domains-mapping.md",
+      "title": "skill-domains-mapping",
+      "category": "",
+      "domain": "SKILLS-ROOT",
+      "constraints": [
+        "C2",
+        "C4",
+        "C5"
+      ],
+      "tags": [],
+      "priority": "Siempre",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "PROJECT_TREE.md",
+        "knowledge-graph.json",
+        "01-RULES/08-SKILLS-REFERENCE.md",
+        "PROJECT_TREE.md",
+        "knowledge-graph.json",
+        "01-RULES/08-SKILLS-REFERENCE.md",
+        "knowledge-graph.json",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "skill-domains-mapping.md",
+        "01-RULES/06-MULTITENANCY-RULES.md"
       ]
     },
     {
@@ -685,6 +711,41 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "title": "espocrm-api-analytics",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "crm"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/espocrm",
+        "sdd/skill/analytics",
+        "sdd/skill/reporting",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+        "02-SKILLS/COMUNICACION/telegram-bot-integration.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
       "title": "Sincronización Google Drive → Qdrant para RAG Multi-Tenant",
       "category": "Skill",
@@ -741,6 +802,84 @@
         "validation-checklist.md",
         "qdrant-rag-ingestion.md",
         "mysql-optimization-4gb-ram.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "title": "mysql-optimization-4gb-ram",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/mysql",
+        "sdd/skill/optimization",
+        "sdd/skill/vps",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+        "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "title": "mysql-sql-rag-ingestion",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "rag",
+        "database"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/mysql",
+        "sdd/skill/sql",
+        "sdd/skill/rag",
+        "sdd/skill/ingestion",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/vector",
+        "sdd/skill/qdrant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/05-CODE-PATTERNS-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md"
       ]
     },
     {
@@ -836,6 +975,54 @@
         "multi-tenant-data-isolation.md",
         "whatsapp-rag-agents.md",
         "google-drive-qdrant-sync.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "title": "rag-system-updates-all-engines",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "database",
+        "vector",
+        "multi-tenant"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/rag",
+        "sdd/skill/qdrant",
+        "sdd/skill/mysql",
+        "sdd/skill/postgresql",
+        "sdd/skill/prisma",
+        "sdd/skill/supabase",
+        "sdd/skill/chromadb",
+        "sdd/skill/vector-ingestion",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/chunk-update",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/05-CODE-PATTERNS-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md"
       ]
     },
     {
@@ -1289,6 +1476,56 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/08-SKILLS-REFERENCE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/08-SKILLS-REFERENCE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md",
       "target": "README.md",
       "type": "references"
@@ -1624,6 +1861,36 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
       "target": "01-RULES/06-MULTITENANCY-RULES.md",
       "type": "references"
@@ -1661,6 +1928,86 @@
     {
       "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
       "target": "mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
       "type": "references"
     },
     {
@@ -1731,6 +2078,61 @@
     {
       "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
       "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
       "type": "references"
     },
     {
