@@ -132,17 +132,32 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ## 3. Agentes por Zona de Trabajo (Fuente Autoritativa)
 
 > ⚠️ **Instrucción crítica para IAs**: 
-> - Cada agente referencia skills desde sus **carpetas canónicas** según la tabla de la Sección 2.
-> - **No asumas** rutas por nombre de archivo; verifica siempre en "Mapeo de Zonas".
-> - Para tareas multi-skill, combina archivos cargando cada uno desde su ruta exacta.
+> - Cada agente referencia skills desde sus **rutas físicas canónicas** listadas en las tablas de esta sección.
+> - **Nunca asumas** carpetas por dominio conceptual (ej: `DATA-GSHEETS`, `CACHE-REDIS` son conceptos, NO carpetas).
+> - Para tareas multi-skill, carga cada archivo desde su ruta exacta. Si una ruta devuelve 404, detén y reporta en `validation-log.json`.
 
-> 💡 **Convención de Skill ID**: 
-> - `INFRA-XXX` = Infraestructura
-> - `DATA-XXX` = Base de Datos / RAG
-> - `COM-XXX` = Comunicación
-> - `AI-XXX` = Inteligencia Artificial
-> - `REST/HOTEL/DENTAL/CORP-XXX` = Verticales de negocio
-> *Esta nomenclatura es semántica para agentes IA y scripts de validación.*
+> 🗺️ **Mapeo de Dominios Conceptuales → Rutas Físicas Reales**:
+> | Dominio Conceptual | Ruta Física Canónica | Nota |
+> |-------------------|---------------------|------|
+> | `DATA-GSHEETS` / `DATA-GDRIVE` | `02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md` | Reutilizar patrón de sync Google Workspace |
+> | `CACHE-REDIS` | `02-SKILLS/INFRAESTRUCTURA/redis-session-management.md` | Skill de infraestructura, no vertical |
+> | `COM-WhatsApp` | `02-SKILLS/COMUNICACIÓN/whatsapp-uazapi-integration.md` | 🆕 Pendiente |
+> | `COM-GCalendar` | `02-SKILLS/COMUNICACIÓN/google-calendar-api-integration.md` | 🆕 Pendiente |
+> | `COM-SLACK` | `02-SKILLS/HOTELES-POSADAS/slack-hotel-integration.md` | Skill verticalizado (ajustar genérico si aplica) |
+> | `COM-PHONE` | `02-SKILLS/ODONTOLOGÍA/phone-integration-dental.md` | Skill verticalizado |
+> | `POS-INTEGRATION` | `02-SKILLS/RESTAURANTES/restaurant-pos-integration.md` | 🆕 Pendiente |
+> | `VECTOR-QDRANT` | `02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md` | Cubierto por skill de ingestión |
+
+> ⚙️ **Nota técnica para URLs raw**:
+> - `BASE DE DATOS-RAG` → Codificación: `BASE%20DE%20DATOS-RAG`
+> - `COMUNICACIÓN` → Codificación: `COMUNICACI%C3%93N`
+> - **Regla**: Usa siempre la ruta con espacios/acentos en markdown. Los scripts de sync se encargan de la codificación URL.
+
+> 🏷️ **Convención de Nomenclatura para Agentes**:
+> - Formato: `{zona}-{funcion}-{canal1}-{canal2}` (máx 5 segmentos)
+> - Separador: guión medio `-` exclusivamente
+> - Ejemplo válido: `corp-kb-onboarding-telegram`
+> - Agentes con >5 segmentos se consideran legacy; usar alias corto en specs.
 
 ---
 
@@ -150,27 +165,29 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: INFRA-SERVERS
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `vps-monitor-hostinger-kvm1-telegram-gmail` | INFRA-MONITORING, COM-Telegram, COM-Gmail | Monitoreo de VPS con alertas por Telegram y Gmail |
 | `vps-to-vps-monitor-interconection-hostinger` | INFRA-VPS-INTERCONNECTION, COM-Telegram, COM-Gmail | Monitoreo de interconexión entre VPS |
 | `reac-agent-controlvps-hostinger-ssh-telegram` | INFRA-SSH, INFRA-DOCKER, COM-Telegram | Control de VPS vía SSH con Telegram |
 | `interconexion-servidor1-n8n-uazapi-servidor2-qdrant-espocrm-sql` | INFRA-SSH-TUNNELS, DB-QDRANT, DB-MYSQL, APP-ESPOCRM | Interconexión entre servidores con túneles SSH |
 
-**Skills requeridos (cargar desde rutas canónicas):**
+**Skills requeridos (rutas canónicas verificadas):**
 
-| Skill ID | Nombre | Ruta Canónica (NO BUSCAR EN OTRA CARPETA) |
-|----------|--------|------------------------------------------|
-| INFRA-001 | SSH Key Management | `02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md` |
-| INFRA-002 | n8n Concurrency Limiting | `02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md` |
-| INFRA-003 | Health Monitoring VPS | `02-SKILLS/INFRAESTRUCTURA/health-monitoring-vps.md` |
-| INFRA-004 | VPS Interconnection | `02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md` |
-| INFRA-005 | SSH Tunnels Remote Services | `02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md` |
-| INFRA-006 | Docker Compose Networking | `02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md` |
-| INFRA-007 | UFW Firewall Configuration | `02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md` |
-| INFRA-008 | Fail2Ban Configuration | `02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md` |
-| COM-001 | Telegram Bot Integration | `02-SKILLS/COMUNICACIÓN/telegram-bot-integration.md` |
-| COM-002 | Gmail SMTP Integration | `02-SKILLS/COMUNICACIÓN/gmail-smtp-integration.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| INFRA-001 | SSH Key Management | `02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md` | ✅ | C3 |
+| INFRA-002 | n8n Concurrency Limiting | `02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md` | ✅ | C1, C2 |
+| INFRA-003 | Health Monitoring VPS | `02-SKILLS/INFRAESTRUCTURA/health-monitoring-vps.md` | ✅ | C1 |
+| INFRA-004 | VPS Interconnection | `02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md` | ✅ | C3 |
+| INFRA-005 | SSH Tunnels Remote Services | `02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md` | ✅ | C3 |
+| INFRA-006 | Docker Compose Networking | `02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md` | ✅ | C1, C2 |
+| INFRA-007 | UFW Firewall Configuration | `02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md` | ✅ | C3 |
+| INFRA-008 | Fail2Ban Configuration | `02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md` | ✅ | C3 |
+| COM-001 | Telegram Bot Integration | `02-SKILLS/COMUNICACIÓN/telegram-bot-integration.md` | ✅ | C3 |
+| COM-002 | Gmail SMTP Integration | `02-SKILLS/COMUNICACIÓN/gmail-smtp-integration.md` | ✅ | C3 |
+
+> 💡 **Skills transversales para esta zona**: `COM-001`, `COM-002` (ya listados en tabla). No buscar en otras carpetas.
 
 ---
 
@@ -178,7 +195,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: DATA-RAG
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `pdf-mistralocr-ragqdrant-openrouter` | DATA-RAG-INGESTION, AI-MISTRAL-OCR, VECTOR-QDRANT, AI-OPENROUTER | Ingesta de PDFs con OCR y vectorización |
 | `postgresql-rag-ingestion` | DB-POSTGRESQL, DATA-RAG-INGESTION, VECTOR-QDRANT | RAG desde PostgreSQL |
@@ -190,18 +207,20 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 **Skills requeridos (rutas canónicas verificadas):**
 
-| Skill ID | Nombre | Ruta Canónica |
-|----------|--------|--------------|
-| DATA-001 | Qdrant RAG Ingestion | `02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md` |
-| DATA-002 | Multi-tenant Data Isolation | `02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md` |
-| DATA-003 | Google Drive Qdrant Sync | `02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md` |
-| DATA-004 | MySQL Optimization 4GB RAM | `02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md` |
-| DATA-005 | PostgreSQL Prisma RAG | `02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md` |
-| DATA-006 | Supabase RAG Integration | `02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md` |
-| DATA-007 | PDF MistralOCR Processing | `02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md` |
-| DATA-008 | EspoCRM API Analytics | `02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md` |
-| AI-001 | OpenRouter API Integration | `02-SKILLS/AI/openrouter-api-integration.md` |
-| AI-002 | Mistral OCR Integration | `02-SKILLS/AI/mistral-ocr-integration.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| DATA-001 | Qdrant RAG Ingestion | `02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md` | ✅ | C4 |
+| DATA-002 | Multi-tenant Data Isolation | `02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md` | ✅ | C4 |
+| DATA-003 | Google Drive Qdrant Sync | `02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md` | ✅ | C3 |
+| DATA-004 | MySQL Optimization 4GB RAM | `02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md` | ✅ | C1 |
+| DATA-005 | PostgreSQL Prisma RAG | `02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md` | ✅ | C4 |
+| DATA-006 | Supabase RAG Integration | `02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md` | ✅ | C4 |
+| DATA-007 | PDF MistralOCR Processing | `02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md` | ✅ | C6 |
+| DATA-008 | EspoCRM API Analytics | `02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md` | ✅ | C3 |
+| AI-001 | OpenRouter API Integration | `02-SKILLS/AI/openrouter-api-integration.md` | 🆕 | C6 |
+| AI-002 | Mistral OCR Integration | `02-SKILLS/AI/mistral-ocr-integration.md` | 🆕 | C6 |
+
+> 💡 **Skills transversales para esta zona**: `COM-001` (Telegram), `COM-003` (WhatsApp 🆕). Cargar desde `COMUNICACIÓN/`.
 
 ---
 
@@ -209,7 +228,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: BIZ-RESTAURANT
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `restaurant-openrouter-booking-telegram-calendar-email` | BIZ-RESTAURANT, AI-OPENROUTER, COM-Telegram, COM-Gmail, COM-GCalendar | Reservas con IA |
 | `restaurant-order-chatbot-qwen-pos` | BIZ-RESTAURANT, AI-QWEN, POS-INTEGRATION | Chatbot de pedidos |
@@ -220,22 +239,22 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 | `restaurant-google-maps-apify-airtable-lead` | BIZ-RESTAURANT, DATA-APIFY, DATA-AIRTABLE | Generación de leads |
 | `restaurant-whatsapp-gpt4o-supabase-order` | BIZ-RESTAURANT, COM-WhatsApp, AI-GPT4O, DB-SUPABASE | Pedidos y delivery |
 
-**Skills requeridos (rutas canónicas - carpeta RESTAURANTES):**
+**Skills requeridos (carpeta RESTAURANTES):**
 
-| Skill ID | Nombre | Ruta Canónica |
-|----------|--------|--------------|
-| REST-001 | Restaurant Booking AI | `02-SKILLS/RESTAURANTES/restaurant-booking-ai.md` |
-| REST-002 | Restaurant Order Chatbot | `02-SKILLS/RESTAURANTES/restaurant-order-chatbot.md` |
-| REST-003 | Restaurant POS Integration | `02-SKILLS/RESTAURANTES/restaurant-pos-integration.md` |
-| REST-004 | Restaurant Voice Agents | `02-SKILLS/RESTAURANTES/restaurant-voice-agents.md` |
-| REST-005 | Restaurant Menu Management | `02-SKILLS/RESTAURANTES/restaurant-menu-management.md` |
-| REST-006 | Restaurant Delivery Tracking | `02-SKILLS/RESTAURANTES/restaurant-delivery-tracking.md` |
-| REST-007 | Restaurant Google Maps Leadgen | `02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md` |
-| REST-008 | Apify Web Scraping | `02-SKILLS/RESTAURANTES/apify-web-scraping.md` |
-| REST-009 | Airtable Restaurant DB | `02-SKILLS/RESTAURANTES/airtable-restaurant-db.md` |
-| REST-010 | Restaurant Multi-Channel Receptionist | `02-SKILLS/RESTAURANTES/restaurant-multi-channel-receptionist.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| REST-001 | Restaurant Booking AI | `02-SKILLS/RESTAURANTES/restaurant-booking-ai.md` | 🆕 | C4 |
+| REST-002 | Restaurant Order Chatbot | `02-SKILLS/RESTAURANTES/restaurant-order-chatbot.md` | 🆕 | C4, C6 |
+| REST-003 | Restaurant POS Integration | `02-SKILLS/RESTAURANTES/restaurant-pos-integration.md` | 🆕 | C3 |
+| REST-004 | Restaurant Voice Agents | `02-SKILLS/RESTAURANTES/restaurant-voice-agents.md` | 🆕 | C6 |
+| REST-005 | Restaurant Menu Management | `02-SKILLS/RESTAURANTES/restaurant-menu-management.md` | 🆕 | C4 |
+| REST-006 | Restaurant Delivery Tracking | `02-SKILLS/RESTAURANTES/restaurant-delivery-tracking.md` | 🆕 | C4 |
+| REST-007 | Restaurant Google Maps Leadgen | `02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md` | 🆕 | C3 |
+| REST-008 | Apify Web Scraping | `02-SKILLS/RESTAURANTES/apify-web-scraping.md` | 🆕 | C3 |
+| REST-009 | Airtable Restaurant DB | `02-SKILLS/RESTAURANTES/airtable-restaurant-db.md` | 🆕 | C4 |
+| REST-010 | Restaurant Multi-Channel Receptionist | `02-SKILLS/RESTAURANTES/restaurant-multi-channel-receptionist.md` | 🆕 | C4 |
 
-> 💡 **Nota**: Skills transversales como `AI-QWEN` o `COM-WhatsApp` se cargan desde sus carpetas canónicas (`02-SKILLS/AI/`, `02-SKILLS/COMUNICACIÓN/`), NO desde RESTAURANTES/.
+> 💡 **Skills transversales**: `AI-003` (Qwen 🆕), `AI-004` (Llama 🆕), `AI-001` (OpenRouter 🆕), `DATA-GSHEETS` (reutilizar `BASE DE DATOS-RAG/google-drive-qdrant-sync.md`), `COM-003` (WhatsApp 🆕).
 
 ---
 
@@ -243,7 +262,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: BIZ-HOTEL
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `hotel-gmail-google-sheets-openrouter-booking` | BIZ-HOTEL, COM-Gmail, DATA-GSHEETS, AI-OPENROUTER | Solicitudes de reserva |
 | `hotel-guest-journey-gmail-google-sheets` | BIZ-HOTEL, COM-Gmail, DATA-GSHEETS | Automatización del guest journey |
@@ -251,17 +270,19 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 | `hotel-whatsapp-minimax-competitor-rate-qa` | BIZ-HOTEL, COM-WhatsApp, AI-MINIMAX | Monitoreo de competidores |
 | `hotel-pre-arrival-openai-google-sheets-slack` | BIZ-HOTEL, AI-OPENAI, DATA-GSHEETS, COM-SLACK | Mensajes pre-llegada |
 
-**Skills requeridos (rutas canónicas - carpeta HOTELES-POSADAS):**
+**Skills requeridos (carpeta HOTELES-POSADAS):**
 
-| Skill ID | Nombre | Ruta Canónica |
-|----------|--------|--------------|
-| HOTEL-001 | Hotel Booking Automation | `02-SKILLS/HOTELES-POSADAS/hotel-booking-automation.md` |
-| HOTEL-002 | Hotel Receptionist WhatsApp | `02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md` |
-| HOTEL-003 | Hotel Competitor Monitoring | `02-SKILLS/HOTELES-POSADAS/hotel-competitor-monitoring.md` |
-| HOTEL-004 | Hotel Guest Journey | `02-SKILLS/HOTELES-POSADAS/hotel-guest-journey.md` |
-| HOTEL-005 | Hotel Pre-Arrival Messages | `02-SKILLS/HOTELES-POSADAS/hotel-pre-arrival-messages.md` |
-| HOTEL-006 | Redis Session Management | `02-SKILLS/INFRAESTRUCTURA/redis-session-management.md` |
-| HOTEL-007 | Slack Hotel Integration | `02-SKILLS/HOTELES-POSADAS/slack-hotel-integration.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| HOTEL-001 | Hotel Booking Automation | `02-SKILLS/HOTELES-POSADAS/hotel-booking-automation.md` | 🆕 | C4 |
+| HOTEL-002 | Hotel Receptionist WhatsApp | `02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md` | 🆕 | C4, C6 |
+| HOTEL-003 | Hotel Competitor Monitoring | `02-SKILLS/HOTELES-POSADAS/hotel-competitor-monitoring.md` | 🆕 | C3 |
+| HOTEL-004 | Hotel Guest Journey | `02-SKILLS/HOTELES-POSADAS/hotel-guest-journey.md` | 🆕 | C4 |
+| HOTEL-005 | Hotel Pre-Arrival Messages | `02-SKILLS/HOTELES-POSADAS/hotel-pre-arrival-messages.md` | 🆕 | C3 |
+| HOTEL-006 | Redis Session Management | `02-SKILLS/INFRAESTRUCTURA/redis-session-management.md` | 🆕 | C1, C2 |
+| HOTEL-007 | Slack Hotel Integration | `02-SKILLS/HOTELES-POSADAS/slack-hotel-integration.md` | 🆕 | C3 |
+
+> 💡 **Skills transversales**: `AI-006` (Gemini 🆕), `AI-007` (MiniMax 🆕), `CACHE-REDIS` (ver `INFRAESTRUCTURA/redis-session-management.md`), `DATA-GSHEETS` (reutilizar `BASE DE DATOS-RAG/google-drive-qdrant-sync.md`).
 
 ---
 
@@ -269,7 +290,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: BIZ-DENTAL
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `dental-appointments-google-calendar-email-gpt` | BIZ-DENTAL, COM-Gmail, COM-GCalendar, AI-GPT | Citas con notificaciones |
 | `dental-patient-response-gpt-google-sheets` | BIZ-DENTAL, AI-GPT, DATA-GSHEETS | Respuesta automatizada |
@@ -277,16 +298,18 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 | `dental-supabase-phone-ai-appointment` | BIZ-DENTAL, DB-SUPABASE, COM-PHONE, AI-OPENROUTER | Sistema de administración |
 | `dental-voice-agent-gemini-booking` | BIZ-DENTAL, AI-VOICE, AI-GEMINI | Agenda por voz |
 
-**Skills requeridos (rutas canónicas - carpeta ODONTOLOGÍA):**
+**Skills requeridos (carpeta ODONTOLOGÍA):**
 
-| Skill ID | Nombre | Ruta Canónica |
-|----------|--------|--------------|
-| DENTAL-001 | Dental Appointment Automation | `02-SKILLS/ODONTOLOGÍA/dental-appointment-automation.md` |
-| DENTAL-002 | Voice Agent Dental | `02-SKILLS/ODONTOLOGÍA/voice-agent-dental.md` |
-| DENTAL-003 | Google Calendar Dental | `02-SKILLS/ODONTOLOGÍA/google-calendar-dental.md` |
-| DENTAL-004 | Supabase Dental Patient | `02-SKILLS/ODONTOLOGÍA/supabase-dental-patient.md` |
-| DENTAL-005 | Phone Integration Dental | `02-SKILLS/ODONTOLOGÍA/phone-integration-dental.md` |
-| DENTAL-006 | Gmail SMTP Integration (vertical) | `02-SKILLS/ODONTOLOGÍA/gmail-smtp-integration.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| DENTAL-001 | Dental Appointment Automation | `02-SKILLS/ODONTOLOGÍA/dental-appointment-automation.md` | 🆕 | C4 |
+| DENTAL-002 | Voice Agent Dental | `02-SKILLS/ODONTOLOGÍA/voice-agent-dental.md` | 🆕 | C6 |
+| DENTAL-003 | Google Calendar Dental | `02-SKILLS/ODONTOLOGÍA/google-calendar-dental.md` | 🆕 | C3 |
+| DENTAL-004 | Supabase Dental Patient | `02-SKILLS/ODONTOLOGÍA/supabase-dental-patient.md` | 🆕 | C4 |
+| DENTAL-005 | Phone Integration Dental | `02-SKILLS/ODONTOLOGÍA/phone-integration-dental.md` | 🆕 | C3 |
+| DENTAL-006 | Gmail SMTP Integration (vertical) | `02-SKILLS/ODONTOLOGÍA/gmail-smtp-integration.md` | 🆕 | C3 |
+
+> 💡 **Skills transversales**: `AI-008` (GPT 🆕), `AI-006` (Gemini 🆕), `COM-GCalendar` (ver `COMUNICACIÓN/google-calendar-api-integration.md`), `DATA-GSHEETS` (reutilizar `BASE DE DATOS-RAG/google-drive-qdrant-sync.md`).
 
 ---
 
@@ -294,7 +317,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 
 #### SKILL-DOMAIN: MKT-SOCIAL
 
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `instagram-carousel-gdrive-cloudinary-telegram` | MKT-INSTAGRAM, DATA-GDRIVE, MEDIA-CLOUDINARY, COM-Telegram | Carouseles de Instagram |
 | `instagram-ai-content-google-sheets-publishing` | MKT-INSTAGRAM, AI-OPENROUTER, DATA-GSHEETS | Contenido automatizado |
@@ -302,16 +325,18 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 | `tiktok-instagram-fb-gemini-video-telegram` | MKT-TIKTOK, MKT-FACEBOOK, AI-GEMINI, AI-VIDEO, COM-Telegram | Videos multicanal |
 | `instagram-ai-image-generation-trends` | MKT-INSTAGRAM, AI-IMAGE-GEN | Generación de imágenes |
 
-**Skills requeridos (rutas canónicas - carpeta INSTAGRAM-SOCIAL-MEDIA):**
+**Skills requeridos (carpeta INSTAGRAM-SOCIAL-MEDIA):**
 
-| Skill ID | Nombre | Ruta Canónica |
-|----------|--------|--------------|
-| SOCIAL-001 | Instagram API Integration | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/instagram-api-integration.md` |
-| SOCIAL-002 | Cloudinary Media Management | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/cloudinary-media-management.md` |
-| SOCIAL-003 | AI Image Generation | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/ai-image-generation.md` |
-| SOCIAL-004 | AI Video Creation | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/ai-video-creation.md` |
-| SOCIAL-005 | Multi-Platform Posting | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/multi-platform-posting.md` |
-| SOCIAL-006 | Social Media Alerts Telegram | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/social-media-alerts-telegram.md` |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| SOCIAL-001 | Instagram API Integration | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/instagram-api-integration.md` | 🆕 | C3 |
+| SOCIAL-002 | Cloudinary Media Management | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/cloudinary-media-management.md` | 🆕 | C3 |
+| SOCIAL-003 | AI Image Generation | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/ai-image-generation.md` | 🆕 | C6 |
+| SOCIAL-004 | AI Video Creation | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/ai-video-creation.md` | 🆕 | C6 |
+| SOCIAL-005 | Multi-Platform Posting | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/multi-platform-posting.md` | 🆕 | C3 |
+| SOCIAL-006 | Social Media Alerts Telegram | `02-SKILLS/INSTAGRAM-SOCIAL-MEDIA/social-media-alerts-telegram.md` | 🆕 | C4 |
+
+> 💡 **Skills transversales**: `MEDIA-CLOUDINARY` (ver `INSTAGRAM-SOCIAL-MEDIA/cloudinary-media-management.md`), `AI-006` (Gemini 🆕), `AI-009` (DeepSeek 🆕), `AI-010/011` (Image/Video Gen 🆕).
 
 ---
 
@@ -320,40 +345,31 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 #### SKILL-DOMAIN: CORP-KB
 
 > 🎯 **Propósito**: Permitir a nuevos empleados encontrar respuestas de forma autónoma vía WhatsApp/Telegram, reduciendo tiempo de capacitación.
-> 
 > 📚 **Contenido típico**: Documentación de procesos, descripciones de puestos, FAQs, guías de uso de herramientas, políticas internas.
-> 
 > 🔐 **Constraint crítico**: C4 (aislamiento multi-tenant: cada empresa ve solo su KB).
 
-#### Agentes Disponibles
-
-| Agente | Dominios de Skill | Descripción |
+| Agente | Dominios Conceptuales | Descripción |
 |--------|------------------|-------------|
 | `corp-kb-rag-telegram-onboarding` | CORP-KB, COM-Telegram, DATA-RAG-INGESTION | Onboarding de empleados vía Telegram con RAG corporativo |
 | `corp-kb-rag-whatsapp-faq` | CORP-KB, COM-WhatsApp, DATA-RAG-INGESTION | FAQs corporativas accesibles por WhatsApp |
 | `corp-kb-multi-tenant-isolation` | CORP-KB, MULTI-TENANT, DB-QDRANT | Aislamiento de KB por tenant_id en Qdrant |
 | `corp-kb-ingestion-pdf-docs` | CORP-KB, AI-MISTRAL-OCR, DATA-RAG-INGESTION | Ingesta automatizada de manuales y políticas en PDF |
 
-**Skills requeridos (nueva carpeta: `02-SKILLS/CORPORATE-KB/`):**
+**Skills requeridos (carpeta CORPORATE-KB):**
 
-| Skill ID | Nombre | Ruta Canónica | Estado |
-|----------|--------|--------------|--------|
-| CORP-001 | Corporate KB Ingestion Pipeline | `02-SKILLS/CORPORATE-KB/corp-kb-ingestion-pipeline.md` | 🆕 Pendiente |
-| CORP-002 | Corporate KB RAG Telegram | `02-SKILLS/CORPORATE-KB/corp-kb-rag-telegram.md` | 🆕 Pendiente |
-| CORP-003 | Corporate KB RAG WhatsApp | `02-SKILLS/CORPORATE-KB/corp-kb-rag-whatsapp.md` | 🆕 Pendiente |
-| CORP-004 | Corporate KB Multi-Tenant Isolation | `02-SKILLS/CORPORATE-KB/corp-kb-multi-tenant-isolation.md` | 🆕 Pendiente |
-| CORP-005 | Corporate KB Content Templates | `02-SKILLS/CORPORATE-KB/corp-kb-content-templates.md` | 🆕 Pendiente |
-| DATA-001 | Qdrant RAG Ingestion (reutilizar) | `02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md` | ✅ Completado |
-| COM-001 | Telegram Bot Integration (reutilizar) | `02-SKILLS/COMUNICACIÓN/telegram-bot-integration.md` | ✅ Completado |
-| COM-003 | WhatsApp uazapi Integration (reutilizar) | `02-SKILLS/COMUNICACIÓN/whatsapp-uazapi-integration.md` | 🆕 Pendiente |
+| Skill ID | Nombre | Ruta Canónica | Estado | Constraints |
+|----------|--------|--------------|--------|------------|
+| CORP-001 | Corporate KB Ingestion Pipeline | `02-SKILLS/CORPORATE-KB/corp-kb-ingestion-pipeline.md` | 🆕 | C4, C5 |
+| CORP-002 | Corporate KB RAG Telegram | `02-SKILLS/CORPORATE-KB/corp-kb-rag-telegram.md` | 🆕 | C4 |
+| CORP-003 | Corporate KB RAG WhatsApp | `02-SKILLS/CORPORATE-KB/corp-kb-rag-whatsapp.md` | 🆕 | C4 |
+| CORP-004 | Corporate KB Multi-Tenant Isolation | `02-SKILLS/CORPORATE-KB/corp-kb-multi-tenant-isolation.md` | 🆕 | C4, C5 |
+| CORP-005 | Corporate KB Content Templates | `02-SKILLS/CORPORATE-KB/corp-kb-content-templates.md` | 🆕 | C4 |
 
-> 💡 **Instrucción de implementación**: 
-> 1. Crear carpeta `02-SKILLS/CORPORATE-KB/` con `.gitkeep`
-> 2. Desarrollar skills CORP-001 a CORP-005 siguiendo templates de la Sección 6
-> 3. Reutilizar skills de BASE DE DATOS-RAG y COMUNICACIÓN vía wikilinks, NO copiar archivos
-> 4. Aplicar constraint C4 en todos los ejemplos: `tenant_id` obligatorio en queries a Qdrant
+> 💡 **Skills transversales reutilizables**: `DATA-001` (`BASE DE DATOS-RAG/qdrant-rag-ingestion.md` ✅), `COM-001` (`COMUNICACIÓN/telegram-bot-integration.md` ✅), `COM-003` (`COMUNICACIÓN/whatsapp-uazapi-integration.md` 🆕), `AI-002` (`AI/mistral-ocr-integration.md` 🆕).
+> ⚠️ **Implementación**: Crear carpeta con `.gitkeep`. Aplicar `tenant_id` en TODOS los ejemplos de queries a Qdrant. NO copiar skills transversales; referenciar por ruta canónica.
 
 ---
+
 
 ## 4. Estructura de Skills por Zona (Sin Árboles Mezclados)
 

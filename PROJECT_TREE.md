@@ -173,7 +173,7 @@ agentic-infra-docs/
 |    ├── 🗄️ BASE DE DATOS-RAG
 |    │   ├── qdrant-rag-ingestion.md ✅ COMPLETADO
 |    │   │   └── Ingesta de documentos en Qdrant con tenant_id
-|    │   ├── mysql-sql-rag-ingestion.md 🆕 PENDIENTE
+|    │   ├── mysql-sql-rag-ingestion.md ✅ COMPLETADO
 |    │   │   └── MySQL/SQL, RAG Ingestion patterns base de datos
 |    │   ├── rag-system-updates-all-engines.md ✅ COMPLETADO
 |    │   │   └── Actualizacion reemplazo concatenacion de BD RAG
