@@ -189,6 +189,8 @@ agentic-infra-docs/
 |    │   │   └── Sincronización Google Drive → Qdrant
 |    │   ├── espocrm-api-analytics.md ✅ COMPLETADO
 |    │   │   └── Uso de EspoCRM API para reportes
+|    │   ├── google-sheets-as-database.md ✅ COMPLETADO
+|    │   │   └── Uso de google shets
 |    │   └── mysql-optimization-4gb-ram.md ✅ COMPLETADO
 |    │       └── Optimización MySQL para VPS 4GB
 |    │

@@ -413,6 +413,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ├── supabase-rag-integration.md             ✅
 ├── mysql-sql-rag-ingestion.md              ✅
 ├── google-drive-qdrant-sync.md             ✅
+├── google-sheets-as-database.md            ✅
 └── espocrm-api-analytics.md                ✅
 
 ### 4.4 Zona: AI
