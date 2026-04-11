@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-11T03:32:32.112265+00:00",
+  "generated_at": "2026-04-11T05:27:59.035283+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -711,6 +711,40 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "title": "environment-variable-management",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "infraestructura",
+        "seguridad",
+        "backend"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/env-management",
+        "sdd/security",
+        "sdd/automation",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "01-RULES/03-SECURITY-RULES.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
       "title": "espocrm-api-analytics",
       "category": "Skill",
@@ -1026,6 +1060,39 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "title": "redis-session-management",
+      "category": "Configuración",
+      "domain": [
+        "generico",
+        "infraestructura",
+        "comunicaciones"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/config/redis",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
       "title": "Supabase + RAG: Row Level Security para Multi-Tenancy",
       "category": "Skill",
@@ -1107,6 +1174,40 @@
       ]
     },
     {
+      "id": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "title": "google-calendar-api-integration",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "comunicaciones",
+        "backend"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/google-calendar",
+        "sdd/communication",
+        "sdd/api",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "gmail-smtp-integration.md",
+        "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "05-CONFIGURATIONS/environment-variable-management.md",
+        "01-RULES/06-MULTITENANCY-RULES.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
       "title": "Telegram Bot Integration - RAG & Customer Service",
       "category": "Skill",
@@ -1168,6 +1269,65 @@
         "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
         "04-WORKFLOWS/n8n/RAG-001-Telegram-Customer-Service.json",
         "01-RULES/03-SECURITY-RULES.md#webhooks-seguros"
+      ]
+    },
+    {
+      "id": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "title": "whatsapp-rag-openrouter.md",
+      "category": "Skill",
+      "domain": [
+        "comunicacion",
+        "ai",
+        "base-de-datos-rag"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/comunicacion",
+        "sdd/skill/ai",
+        "sdd/skill/base-de-datos-rag",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "whatsapp-uazapi-integration.md",
+        "qdrant-rag-ingestion.md",
+        "environment-variable-management.md",
+        "vps-interconnection.md",
+        "redis-session-management.md",
+        "gmail-smtp-integration.md",
+        "espocrm-api-analytics.md",
+        "environment-variable-management.md",
+        "qdrant-rag-ingestion.md",
+        "multi-tenant-data-isolation.md",
+        "pdf-mistralocr-processing.md",
+        "rag-system-updates-all-engines.md",
+        "qdrant-rag-ingestion.md",
+        "backup-encryption.md",
+        "postgres-prisma-rag.md",
+        "mysql-optimization-4gb-ram.md",
+        "mysql-sql-rag-ingestion.md",
+        "backup-encryption.md",
+        "multi-tenant-data-isolation.md",
+        "google-drive-qdrant-sync.md",
+        "pdf-mistralocr-processing.md",
+        "new Date().toISOString(), tenantId, userPhone, userQuery",
+        "skill-domains-mapping.md",
+        "qdrant-rag-ingestion.md",
+        "postgres-prisma-rag.md",
+        "multi-tenant-data-isolation.md",
+        "environment-variable-management.md",
+        "google-drive-qdrant-sync.md",
+        "whatsapp-uazapi-integration.md",
+        "openrouter-api-integration.md",
+        "mysql-optimization-4gb-ram.md"
       ]
     },
     {
@@ -1861,6 +2021,31 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
       "target": "01-RULES/06-MULTITENANCY-RULES.md",
       "type": "references"
@@ -2136,6 +2321,41 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
       "target": "01-RULES/06-MULTITENANCY-RULES.md",
       "type": "references"
@@ -2213,6 +2433,36 @@
     {
       "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
       "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "05-CONFIGURATIONS/environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
       "type": "references"
     },
     {
@@ -2318,6 +2568,156 @@
     {
       "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
       "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "espocrm-api-analytics.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "mysql-optimization-4gb-ram.md",
       "type": "references"
     },
     {
