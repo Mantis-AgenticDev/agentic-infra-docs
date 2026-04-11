@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-11T05:27:59.035283+00:00",
+  "generated_at": "2026-04-11T08:11:33.139596+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -812,6 +812,51 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "title": "google-sheets-as-database",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database",
+        "rag",
+        "multi-tenant"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/google-sheets",
+        "sdd/skill/database",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/n8n",
+        "sdd/skill/hoteles",
+        "sdd/skill/restaurantes",
+        "sdd/skill/rag",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+        "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+        "02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
       "title": "Aislamiento Multi-Tenant de Datos",
       "category": "Skill",
@@ -1274,20 +1319,13 @@
     {
       "id": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
       "title": "whatsapp-rag-openrouter.md",
-      "category": "Skill",
+      "category": "",
       "domain": [
         "comunicacion",
         "ai",
         "base-de-datos-rag"
       ],
-      "constraints": [
-        "C1",
-        "C2",
-        "C3",
-        "C4",
-        "C5",
-        "C6"
-      ],
+      "constraints": [],
       "tags": [
         "sdd/skill/comunicacion",
         "sdd/skill/ai",
@@ -1296,39 +1334,7 @@
       ],
       "priority": "CRÍTICA",
       "last_updated": "2026-04-11",
-      "wikilinks": [
-        "whatsapp-uazapi-integration.md",
-        "qdrant-rag-ingestion.md",
-        "environment-variable-management.md",
-        "vps-interconnection.md",
-        "redis-session-management.md",
-        "gmail-smtp-integration.md",
-        "espocrm-api-analytics.md",
-        "environment-variable-management.md",
-        "qdrant-rag-ingestion.md",
-        "multi-tenant-data-isolation.md",
-        "pdf-mistralocr-processing.md",
-        "rag-system-updates-all-engines.md",
-        "qdrant-rag-ingestion.md",
-        "backup-encryption.md",
-        "postgres-prisma-rag.md",
-        "mysql-optimization-4gb-ram.md",
-        "mysql-sql-rag-ingestion.md",
-        "backup-encryption.md",
-        "multi-tenant-data-isolation.md",
-        "google-drive-qdrant-sync.md",
-        "pdf-mistralocr-processing.md",
-        "new Date().toISOString(), tenantId, userPhone, userQuery",
-        "skill-domains-mapping.md",
-        "qdrant-rag-ingestion.md",
-        "postgres-prisma-rag.md",
-        "multi-tenant-data-isolation.md",
-        "environment-variable-management.md",
-        "google-drive-qdrant-sync.md",
-        "whatsapp-uazapi-integration.md",
-        "openrouter-api-integration.md",
-        "mysql-optimization-4gb-ram.md"
-      ]
+      "wikilinks": []
     },
     {
       "id": "00-CONTEXT/00-INDEX.md",
@@ -2096,6 +2102,61 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
       "target": "01-RULES/06-MULTITENANCY-RULES.md",
       "type": "references"
@@ -2568,156 +2629,6 @@
     {
       "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
       "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "whatsapp-uazapi-integration.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "qdrant-rag-ingestion.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "environment-variable-management.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "vps-interconnection.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "redis-session-management.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "gmail-smtp-integration.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "espocrm-api-analytics.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "environment-variable-management.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "qdrant-rag-ingestion.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "multi-tenant-data-isolation.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "pdf-mistralocr-processing.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "rag-system-updates-all-engines.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "qdrant-rag-ingestion.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "backup-encryption.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "postgres-prisma-rag.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "mysql-optimization-4gb-ram.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "mysql-sql-rag-ingestion.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "backup-encryption.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "multi-tenant-data-isolation.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "google-drive-qdrant-sync.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "pdf-mistralocr-processing.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "skill-domains-mapping.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "qdrant-rag-ingestion.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "postgres-prisma-rag.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "multi-tenant-data-isolation.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "environment-variable-management.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "google-drive-qdrant-sync.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "whatsapp-uazapi-integration.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "openrouter-api-integration.md",
-      "type": "references"
-    },
-    {
-      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "mysql-optimization-4gb-ram.md",
       "type": "references"
     },
     {
