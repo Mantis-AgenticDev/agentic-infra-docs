@@ -270,6 +270,13 @@ agentic-infra-docs/
 |    │   └── restaurant-multi-channel-receptionist.md 🆕 NUEVO
 |    │       └── Recepcionista multi-canal
 |    │
+|    ├── 📧 COORPORATE-KB
+|    |   ├── corp-kb-ingestion-pipeline.md           🆕
+|    |   ├── corp-kb-rag-telegram.md                 🆕
+|    |   ├── corp-kb-rag-whatsapp.md                 🆕
+|    |   ├── corp-kb-multi-tenant-isolation.md       🆕
+|    |   └── corp-kb-content-templates.md            🆕
+|    │
 |    ├── 📧 COMUNICACIÓN (Genérico)
 |    │   ├── telegram-bot-integration.md ✅ COMPLETADO
 |    │   │   └── Integración con Telegram Bot
