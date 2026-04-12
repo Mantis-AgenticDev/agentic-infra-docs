@@ -1,0 +1,35 @@
+name: 🔍 Daily SDD Integrity Check
+on:
+  schedule: [{ cron: "0 2 * * *" }] # 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install jsonschema
+
+      - name: 📄 Frontmatter & Constraints
+        run: chmod +x 05-CONFIGURATIONS/validation/*.sh && ./05-CONFIGURATIONS/validation/verify-constraints.sh . constraints-report.json 1 1
+
+      - name: 🔗 Wikilinks & Structure
+        run: ./05-CONFIGURATIONS/validation/check-wikilinks.sh . wikilinks-report.json 1 1
+
+      - name: 🧠 Schema Validation (IA Outputs)
+        run: python3 05-CONFIGURATIONS/validation/schema-validator.py 05-CONFIGURATIONS/validation/schemas/skill-output.schema.json 02-SKILLS/ --strict
+
+      - name: 📤 Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: integrity-checks, path: "*-report.json", retention-days: 7 }
+
+      - name: 🚦 Fail if Critical
+        run: |
+          if grep -q '"status": "failed"' *-report.json 2>/dev/null; then
+            echo "::error::Integrity check failed. Review artifacts."
+            exit 1
+          fi

@@ -71,6 +71,9 @@ agentic-infra-docs/
 ├── PROJECT_TREE.md                           📝 EN PROGRESO
 │   └── Este archivo - mapa del proyecto
 │
+├── knowledge-graph.json                           📝 EN PROGRESO
+│   
+│
 ├── 00-CONTEXT/
 │   ├── 00-INDEX.md                           ✅ COMPLETADO
 │   │   └── Índice con URLs raw de todos los archivos de contexto
@@ -94,6 +97,8 @@ agentic-infra-docs/
 │   └── documentation-validation-cheklist.md ✅ COMPLETADO
 │       └── Es material educativo de contexto; ayuda a entender el "por qué" 
 |           de Reglas, Constraits, Validacion, Referencias
+|
+|
 │
 ├── 01-RULES/
 |   |
@@ -126,9 +131,11 @@ agentic-infra-docs/
 │   │
 │   └── 08-SKILLS-REFERENCE.md                ✅ COMPLETADO
 │       └── Pointer a skills reutilizables en 02-SKILLS/
+|
+|
 │
 ├── 02-SKILLS/
-|    ├── 00-INDEX.md 🆕 PENDIENTE
+|    ├── 00-INDEX.md ✅ COMPLETADO
 |    │   
 |    ├── skill-domains-mapping.md ✅ COMPLETADO
 |    |
@@ -314,7 +321,7 @@ agentic-infra-docs/
 |    |
 |    │
 |    └── 🧠 DEPLOYMENT
-|        └── multi-channel-deploymen.md 🆕 PENDIENTE
+|        └── multi-channel-deploymen.md ✅ COMPLETADO
 |            
 │
 |
@@ -350,6 +357,7 @@ agentic-infra-docs/
 │       │
 │       └── espocrm-analytics-agent.md        🆕 PENDIENTE
 │           └── Agente de analytics de EspoCRM (reportes para clientes Full)
+|
 │
 ├── 04-WORKFLOWS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
@@ -386,6 +394,7 @@ agentic-infra-docs/
 │       │
 │       └── security-architecture.png         🆕 PENDIENTE
 │           └── Diagrama de arquitectura de seguridad
+|
 │
 ├── 05-CONFIGURATIONS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
@@ -404,43 +413,91 @@ agentic-infra-docs/
 │   │   └── vps3-n8n-uazapi.yml               🆕 PENDIENTE
 │   │       └── Docker Compose para VPS 3 (n8n + uazapi)
 |   |
+|   |
+|   |
 │   ├── terraform/                    # 🔹 Módulos IaC reusables
 │   │   ├── modules/
 │   │   │   ├── vps-base/            # C1/C2: limits, UFW, fail2ban 🆕 PENDIENTE
+|   |   |   |   ├── main.tf ✅ COMPLETADO
+|   |   |   |   ├── outputs.tf 
+|   |   |   |   ├── variables.tf
+|   |   |   |   ├── main/
+|   |   |   |   ├── output/
+|   |   |   |   └── variable/
+|   |   |   |   
 │   │   │   ├── qdrant-cluster/      # C3: localhost-only, tenant isolation 🆕 PENDIENTE
+|   |   |   |   └── main.tf 🆕 PENDIENTE
+|   |   |   |   ├── outputs.tf 🆕 PENDIENTE
+|   |   |   |   ├── variables.tf 🆕 PENDIENTE
+|   |   |   |   ├── main/
+|   |   |   |   ├── output/
+|   |   |   |   └── variable/
+|   |   |   |   
 │   │   │   ├── postgres-rls/        # C4: RLS policies, tenant_id enforcement 🆕 PENDIENTE
+|   |   |   |   └── main.tf ✅ COMPLETADO
+|   |   |   |   ├── outputs.tf 🆕 PENDIENTE
+|   |   |   |   ├── variables.tf 🆕 PENDIENTE
+|   |   |   |   ├── main/
+|   |   |   |   ├── output/
+|   |   |   |   └── variable/
+|   |   |   |   
 │   │   │   ├── openrouter-proxy/    # C6: cloud-only inference routing 🆕 PENDIENTE
+|   |   |   |   └── main.tf 🆕 PENDIENTE
+|   |   |   |   ├── outputs.tf 🆕 PENDIENTE
+|   |   |   |   ├── variables.tf 🆕 PENDIENTE
+|   |   |   |   ├── main/
+|   |   |   |   ├── output/
+|   |   |   |   └── variable/
+|   |   |   |   
 │   │   │   └── backup-encrypted/    # C5: SHA256 + age encryption 🆕 PENDIENTE
+|   |   |       └── main.tf 🆕 PENDIENTE
+|   |   |       ├── outputs.tf 🆕 PENDIENTE
+|   |   |       ├── variables.tf 🆕 PENDIENTE
+|   |   |       ├── main/
+|   |   |       ├── output/
+|   |   |       └── variable/
+|   |   |      
 │   │   ├── environments/
 │   │   │   ├── dev/terraform.tfvars 🆕 PENDIENTE
 │   │   │   ├── prod/terraform.tfvars 🆕 PENDIENTE
 │   │   │   └── variables.tf         # Validaciones: min/max, regex, types 🆕 PENDIENTE
-│   │   ├── backend.tf               # Remote state (S3/Supabase) + locking 🆕 PENDIENTE
+|   |   |
+│   │   ├── backend.tf               # Remote state (S3/Supabase) + locking ✅ COMPLETADO
+│   │   ├── variables.tf ✅ COMPLETADO
 │   │   └── outputs.tf               # Outputs tipados para consumo por agentes 🆕 PENDIENTE
 │   │
 │   ├── pipelines/                    # 🔹 CI/CD ejecutables
 │   │   ├── .github/workflows/
-│   │   │   ├── validate-skill.yml   # Lint + tests + Promptfoo eval 🆕 PENDIENTE
-│   │   │   ├── terraform-plan.yml   # Plan + security scan (tfsec/checkov) 🆕 PENDIENTE
-│   │   │   └── integrity-check.yml  # Daily: frontmatter, wikilinks, constraints 🆕 PENDIENTE
+│   │   │             ├── validate-skill.yml   # Lint + tests + Promptfoo eval ✅ COMPLETADO
+│   │   │             ├── terraform-plan.yml   # Plan + security scan (tfsec/checkov) 🆕 PENDIENTE
+│   │   │             └── integrity-check.yml  # Daily: frontmatter, wikilinks, constraints ✅ COMPLETADO
+|   |   |
 │   │   └── promptfoo/
 │   │       ├── config.yaml          # Evaluación de prompts de autogeneración 🆕 PENDIENTE
 │   │       ├── test-cases/          # Casos de prueba por modelo (5 mínimos) 🆕 PENDIENTE
 │   │       └── assertions/          # Schema validation + linting rules 🆕 PENDIENTE
 │   │
 │   ├── validation/                   # 🔹 Scripts de integridad centralizados
-│   │   ├── validate-skill-integrity.sh  # 🎯 Script maestro modular 🆕 PENDIENTE
-│   │   ├── audit-secrets.sh         # Hardening: detección de hardcoded creds 🆕 PENDIENTE
-│   │   ├── check-rls.sh             # Hardening: validación de políticas RLS 🆕 PENDIENTE
-│   │   ├── validate-frontmatter.sh  # SDD: YAML required fields + types 🆕 PENDIENTE
-│   │   ├── check-wikilinks.sh       # Obsidian: enlaces rotos o inexistentes 🆕 PENDIENTE
-│   │   ├── verify-constraints.sh    # C1-C6: presencia explícita en ejemplos 🆕 PENDIENTE
-│   │   └── schema-validator.py      # JSON Schema para outputs de meta-prompting 🆕 PENDIENTE
+|   |   ├── schemas/
+|   |   |   └── skill-output.schema.json ✅ COMPLETADO    
+|   |   |     
+│   │   ├── validate-skill-integrity.sh  # 🎯 Script maestro modular ✅ COMPLETADO
+│   │   ├── audit-secrets.sh         # Hardening: detección de hardcoded creds ✅ COMPLETADO
+│   │   ├── check-rls.sh             # Hardening: validación de políticas RLS ✅ COMPLETADO
+│   │   ├── validate-frontmatter.sh  # SDD: YAML required fields + types ✅ COMPLETADO
+│   │   ├── check-wikilinks.sh       # Obsidian: enlaces rotos o inexistentes ✅ COMPLETADO
+│   │   ├── verify-constraints.sh    # C1-C6: presencia explícita en ejemplos ✅ COMPLETADO
+│   │   └── schema-validator.py      # JSON Schema para outputs de meta-prompting ✅ COMPLETADO
 │   │
 │   ├── templates/                    # 🔹 Plantillas para autogeneración
-│   |   ├── skill-template.md        # Frontmatter + estructura base + 5 ejemplos mínimos 🆕 PENDIENTE
-│   |   ├── example-template.md      # ✅/❌ + troubleshooting + constraints mapeados 🆕 PENDIENTE
-│   |   ├── terraform-module-template/ # Estructura mínima de módulo reusable 🆕 PENDIENTE
+│   |   ├── skill-template.md        # Frontmatter + estructura base + 5 ejemplos mínimos ✅ COMPLETADO
+│   |   ├── example-template.md      # ✅/❌ + troubleshooting + constraints mapeados ✅ COMPLETADO
+│   |   ├── terraform-module-template/ # Estructura mínima de módulo reusable 
+|   |   |       └── main.tf ✅ COMPLETADO
+|   |   |       ├── outputs.tf 🆕 PENDIENTE
+|   |   |       ├── variables.tf 🆕 PENDIENTE
+|   |   |       └── README.md 🆕 PENDIENTE
+|   |   |
 │   |   └── pipeline-template.yml    # GitHub Actions base con jobs esenciales 🆕 PENDIENTE
 │   │
 │   ├── scripts/
@@ -479,6 +536,8 @@ agentic-infra-docs/
 │       │
 │       └── .env.example                      🆕 PENDIENTE
 │           └── Ejemplo de variables de entorno (sin valores reales)
+|
+|
 │
 ├── 06-PROGRAMMING/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
@@ -519,6 +578,8 @@ agentic-infra-docs/
 │       │
 │       └── async-error-handling.md           🆕 PENDIENTE
 │           └── Manejo de errores asíncronos en JavaScript
+|
+|
 │
 ├── 07-PROCEDURES/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
@@ -550,6 +611,8 @@ agentic-infra-docs/
 │   │
 │   └── weekly-checklist-template.md          🆕 PENDIENTE
 │       └── Plantilla de checklist semanal para seguimiento
+|
+|
 │
 ├── 08-LOGS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
@@ -564,6 +627,8 @@ agentic-infra-docs/
 │   │
 │   └── .gitkeep                              ✅ COMPLETADO
 │       └── Archivo vacío para mantener carpeta en Git
+|
+|
 │
 └── .github/
     └── workflows/

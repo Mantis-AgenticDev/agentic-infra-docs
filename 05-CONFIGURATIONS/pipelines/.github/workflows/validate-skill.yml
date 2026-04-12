@@ -1,0 +1,145 @@
+```yaml
+name: 🛡️ SDD Validation & Hardening Pipeline
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '00-CONTEXT/**'
+      - '01-RULES/**'
+      - '02-SKILLS/**'
+      - '04-WORKFLOWS/**'
+      - '05-CONFIGURATIONS/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '00-CONTEXT/**'
+      - '01-RULES/**'
+      - '02-SKILLS/**'
+      - '04-WORKFLOWS/**'
+      - '05-CONFIGURATIONS/**'
+  workflow_dispatch:
+    inputs:
+      strict_mode:
+        description: 'Strict mode: treat warnings as failures (C1-C6 compliance)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  validate-sdd:
+    name: Validate SDD Structure & Hardening
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    env:
+      STRICT_FLAG: ${{ github.event.inputs.strict_mode == true || github.event_name == 'pull_request' && '1' || '0' }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Setup Validation Environment
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq python3-pip coreutils
+          pip install jsonschema
+          echo "ENV_READY=true" >> $GITHUB_ENV
+
+      - name: 📄 Validate Frontmatter (SDD Base)
+        id: fm
+        continue-on-error: true
+        run: |
+          chmod +x 05-CONFIGURATIONS/validation/validate-frontmatter.sh
+          ./05-CONFIGURATIONS/validation/validate-frontmatter.sh . frontmatter-report.json 1 $STRICT_FLAG
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: 🔗 Validate Wikilinks (Navigation IA)
+        id: wl
+        continue-on-error: true
+        run: |
+          chmod +x 05-CONFIGURATIONS/validation/check-wikilinks.sh
+          ./05-CONFIGURATIONS/validation/check-wikilinks.sh . wikilinks-report.json 1 $STRICT_FLAG
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: 🔐 Audit Secrets (Constraint C3)
+        id: sec
+        continue-on-error: true
+        run: |
+          chmod +x 05-CONFIGURATIONS/validation/audit-secrets.sh
+          ./05-CONFIGURATIONS/validation/audit-secrets.sh . secrets-report.json 1 $STRICT_FLAG
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: 🛡️ Validate RLS & Multi-Tenant (Constraint C4)
+        id: rls
+        continue-on-error: true
+        run: |
+          chmod +x 05-CONFIGURATIONS/validation/check-rls.sh
+          ./05-CONFIGURATIONS/validation/check-rls.sh . rls-report.json 1 $STRICT_FLAG
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: ✅ Master SDD Integrity Validator (C1-C6 + Schema)
+        id: master
+        continue-on-error: true
+        run: |
+          chmod +x 05-CONFIGURATIONS/validation/validate-skill-integrity.sh
+          ./05-CONFIGURATIONS/validation/validate-skill-integrity.sh . master-report.json 1 $STRICT_FLAG
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload Validation Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdd-validation-reports-${{ github.run_id }}
+          path: |
+            frontmatter-report.json
+            wikilinks-report.json
+            secrets-report.json
+            rls-report.json
+            master-report.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: 🚦 Aggregate Results & Fail Fast
+        if: always()
+        run: |
+          CRITICAL_FAIL=0
+          declare -A CHECKS
+          CHECKS=(
+            ["frontmatter"]="${{ steps.fm.outputs.exit_code || 1 }}"
+            ["wikilinks"]="${{ steps.wl.outputs.exit_code || 1 }}"
+            ["secrets"]="${{ steps.sec.outputs.exit_code || 1 }}"
+            ["rls"]="${{ steps.rls.outputs.exit_code || 1 }}"
+            ["master"]="${{ steps.master.outputs.exit_code || 1 }}"
+          )
+
+          echo "### 🛡️ SDD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation Stage | Status | Exit Code |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+
+          for check in "${!CHECKS[@]}"; do
+            code="${CHECKS[$check]}"
+            if [[ "$code" -eq 0 ]]; then
+              status="✅ Passed"
+            else
+              status="❌ Failed"
+              CRITICAL_FAIL=1
+            fi
+            echo "| $(echo "$check" | sed 's/.*/\u&/') | $status | $code |" >> $GITHUB_STEP_SUMMARY
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔐 Reports uploaded to CI artifacts (retention: 30 days)." >> $GITHUB_STEP_SUMMARY
+          echo "📖 Constraints C1-C6 enforced: RAM limits, CPU isolation, secret hygiene, tenant RLS, SHA256 audit, cloud inference." >> $GITHUB_STEP_SUMMARY
+
+          if [[ "$CRITICAL_FAIL" -eq 1 ]]; then
+            echo "::error title=SDD Validation Failed::Critical constraint violations detected. Review artifacts and fix before merge."
+            exit 1
+          fi
+
+          echo "::notice::All SDD validation stages passed. Ready for merge/deploy."
+```
