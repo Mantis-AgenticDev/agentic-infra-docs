@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-11T08:11:33.139596+00:00",
+  "generated_at": "2026-04-12T01:20:24.616933+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -711,6 +711,51 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "title": "airtable-database-patterns",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database",
+        "multi-tenant",
+        "rag"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/airtable",
+        "sdd/skill/database",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/n8n",
+        "sdd/skill/restaurantes",
+        "sdd/skill/leads",
+        "sdd/skill/rag",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md",
+        "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
       "title": "environment-variable-management",
       "category": "Skill",
@@ -1335,6 +1380,334 @@
       "priority": "CRÍTICA",
       "last_updated": "2026-04-11",
       "wikilinks": []
+    },
+    {
+      "id": "02-SKILLS/AI/deepseek-integration.md",
+      "title": "deepseek-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "qwen-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/gemini-integration.md",
+      "title": "gemini-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "llama-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/gpt-integration.md",
+      "title": "gpt-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "gemini-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/image-gen-api.md",
+      "title": "image-gen-api.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/llama-integration.md",
+      "title": "llama-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/minimax-integration.md",
+      "title": "minimax-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "gemini-integration.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "title": "mistral-ocr-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "base-de-datos-rag"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "sdd/skill/ocr",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "qdrant-rag-ingestion.md",
+        "pdf-mistralocr-processing.md",
+        "google-drive-qdrant-sync.md",
+        "openrouter-api-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/openrouter-api-integration.md",
+      "title": "openrouter-api-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "qwen-integration.md",
+        "llama-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/qwen-integration.md",
+      "title": "qwen-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/video-gen-api.md",
+      "title": "video-gen-api.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "image-gen-api.md",
+        "whatsapp-rag-openrouter.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/voice-agent-integration.md",
+      "title": "voice-agent-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "comunicacion",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "sdd/skill/comunicacion",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "whatsapp-rag-openrouter.md",
+        "telegram-bot-integration.md",
+        "openrouter-api-integration.md",
+        "gpt-integration.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
     },
     {
       "id": "00-CONTEXT/00-INDEX.md",
@@ -2027,6 +2400,61 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
       "target": "01-RULES/03-SECURITY-RULES.md",
       "type": "references"
@@ -2629,6 +3057,271 @@
     {
       "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
       "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "image-gen-api.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "environment-variable-management.md",
       "type": "references"
     },
     {
