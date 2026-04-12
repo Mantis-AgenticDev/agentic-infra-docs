@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-12T17:28:25.416585+00:00",
+  "generated_at": "2026-04-12T19:33:54.168930+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -35,8 +35,19 @@
       "title": "example-template",
       "category": "",
       "domain": [],
-      "constraints": [],
-      "tags": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "example",
+        "troubleshooting",
+        "validation"
+      ],
       "priority": "media",
       "last_updated": null,
       "wikilinks": []
@@ -46,11 +57,35 @@
       "title": "skill-template",
       "category": "",
       "domain": [],
-      "constraints": [],
-      "tags": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "template",
+        "sdd",
+        "validation",
+        "multi-tenant",
+        "hardened"
+      ],
       "priority": "media",
       "last_updated": null,
-      "wikilinks": []
+      "wikilinks": [
+        "01-RULES/00-INDEX.md",
+        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "05-CONFIGURATIONS/validation/check-rls.sh",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json"
+      ]
     },
     {
       "id": "05-CONFIGURATIONS/templates/terraform-module-template/README.md",
@@ -263,6 +298,41 @@
       "last_updated": "2026-04-09",
       "wikilinks": [
         "01-RULES/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/00-INDEX.md",
+      "title": "00-INDEX",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "index",
+        "navigation",
+        "sdd",
+        "skills",
+        "human-readable",
+        "ai-parsable"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../05-CONFIGURATIONS/validation/"
       ]
     },
     {
@@ -768,6 +838,45 @@
         "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
         "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
         "01-RULES/03-SECURITY-RULES.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "title": "multi-channel-deploymen",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "deployment",
+        "blue-green",
+        "canary",
+        "tenant-scoped",
+        "rollout",
+        "hardening",
+        "ci-cd"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../00-INDEX.md",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../01-RULES/06-MULTITENANCY-RULES.md",
+        "../../01-RULES/04-API-RELIABILITY-RULES.md",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../00-INDEX.md"
       ]
     },
     {
@@ -1905,6 +2014,56 @@
       "type": "references"
     },
     {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
       "source": "01-RULES/00-INDEX.md",
       "target": "README.md",
       "type": "references"
@@ -2072,6 +2231,51 @@
     {
       "source": "01-RULES/validation-checklist.md",
       "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../05-CONFIGURATIONS/validation/.md",
       "type": "references"
     },
     {
@@ -2497,6 +2701,66 @@
     {
       "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
       "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../00-INDEX.md",
       "type": "references"
     },
     {
