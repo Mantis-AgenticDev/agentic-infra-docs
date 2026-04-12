@@ -1,4 +1,16 @@
 ---
+title: "02-SKILLS README Maestro"
+ai_optimized: true
+constraints: ["C1","C2","C3","C4","C5","C6"]
+related_files:
+  - "[[skill-domains-mapping.md]]"
+  - "[[01-RULES/06-MULTITENANCY-RULES.md]]"
+  - "[[PROJECT_TREE.md]]"
+version: "2.0.0"
+status: "HARDENED-SDD"
+last_updated: "2026-04-15"
+
+---
 
 ### 📄 README MAESTRO: `02-SKILLS/README.md`
 
