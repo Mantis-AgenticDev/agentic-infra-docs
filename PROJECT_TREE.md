@@ -403,6 +403,45 @@ agentic-infra-docs/
 │   │   │
 │   │   └── vps3-n8n-uazapi.yml               🆕 PENDIENTE
 │   │       └── Docker Compose para VPS 3 (n8n + uazapi)
+|   |
+│   ├── terraform/                    # 🔹 Módulos IaC reusables
+│   │   ├── modules/
+│   │   │   ├── vps-base/            # C1/C2: limits, UFW, fail2ban 🆕 PENDIENTE
+│   │   │   ├── qdrant-cluster/      # C3: localhost-only, tenant isolation 🆕 PENDIENTE
+│   │   │   ├── postgres-rls/        # C4: RLS policies, tenant_id enforcement 🆕 PENDIENTE
+│   │   │   ├── openrouter-proxy/    # C6: cloud-only inference routing 🆕 PENDIENTE
+│   │   │   └── backup-encrypted/    # C5: SHA256 + age encryption 🆕 PENDIENTE
+│   │   ├── environments/
+│   │   │   ├── dev/terraform.tfvars 🆕 PENDIENTE
+│   │   │   ├── prod/terraform.tfvars 🆕 PENDIENTE
+│   │   │   └── variables.tf         # Validaciones: min/max, regex, types 🆕 PENDIENTE
+│   │   ├── backend.tf               # Remote state (S3/Supabase) + locking 🆕 PENDIENTE
+│   │   └── outputs.tf               # Outputs tipados para consumo por agentes 🆕 PENDIENTE
+│   │
+│   ├── pipelines/                    # 🔹 CI/CD ejecutables
+│   │   ├── .github/workflows/
+│   │   │   ├── validate-skill.yml   # Lint + tests + Promptfoo eval 🆕 PENDIENTE
+│   │   │   ├── terraform-plan.yml   # Plan + security scan (tfsec/checkov) 🆕 PENDIENTE
+│   │   │   └── integrity-check.yml  # Daily: frontmatter, wikilinks, constraints 🆕 PENDIENTE
+│   │   └── promptfoo/
+│   │       ├── config.yaml          # Evaluación de prompts de autogeneración 🆕 PENDIENTE
+│   │       ├── test-cases/          # Casos de prueba por modelo (5 mínimos) 🆕 PENDIENTE
+│   │       └── assertions/          # Schema validation + linting rules 🆕 PENDIENTE
+│   │
+│   ├── validation/                   # 🔹 Scripts de integridad centralizados
+│   │   ├── validate-skill-integrity.sh  # 🎯 Script maestro modular 🆕 PENDIENTE
+│   │   ├── audit-secrets.sh         # Hardening: detección de hardcoded creds 🆕 PENDIENTE
+│   │   ├── check-rls.sh             # Hardening: validación de políticas RLS 🆕 PENDIENTE
+│   │   ├── validate-frontmatter.sh  # SDD: YAML required fields + types 🆕 PENDIENTE
+│   │   ├── check-wikilinks.sh       # Obsidian: enlaces rotos o inexistentes 🆕 PENDIENTE
+│   │   ├── verify-constraints.sh    # C1-C6: presencia explícita en ejemplos 🆕 PENDIENTE
+│   │   └── schema-validator.py      # JSON Schema para outputs de meta-prompting 🆕 PENDIENTE
+│   │
+│   ├── templates/                    # 🔹 Plantillas para autogeneración
+│   |   ├── skill-template.md        # Frontmatter + estructura base + 5 ejemplos mínimos 🆕 PENDIENTE
+│   |   ├── example-template.md      # ✅/❌ + troubleshooting + constraints mapeados 🆕 PENDIENTE
+│   |   ├── terraform-module-template/ # Estructura mínima de módulo reusable 🆕 PENDIENTE
+│   |   └── pipeline-template.yml    # GitHub Actions base con jobs esenciales 🆕 PENDIENTE
 │   │
 │   ├── scripts/
 |   |   ├── validate-against-specs.sh         ✅ COMPLETADO
@@ -412,6 +451,12 @@ agentic-infra-docs/
 |   |   |      
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
 │   │   │   └── Índice de scripts bash
+|   |   |
+|   |   ├── sync-mantis-graph.sh         # ✅ Existente: sync Obsidian → repo
+|   |   |    
+|   |   ├── validate-graph-health.py     # ✅ Existente: salud del grafo
+|   |   |    
+|   |   ├── bootstrap-hardened-repo.sh   # 🔹 Nuevo: inicializa estructura HARDENED
 │   │   │
 │   │   ├── health-check.sh                   🆕 PENDIENTE
 │   │   │   └── Script de health check para VPS (cada 5 min)
@@ -509,6 +554,13 @@ agentic-infra-docs/
 ├── 08-LOGS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
 │   │   └── Índice de logs (referencia)
+|   |
+│   ├── validation/                  # Logs de scripts de integridad
+│   │   ├── integrity-report-YYYYMMDD.json 🆕 PENDIENTE
+│   │   └── constraint-audit.log 🆕 PENDIENTE
+│   ├── generation/                  # Logs de autogeneración por IA
+│   |   ├── prompt-execution.log 🆕 PENDIENTE
+│   |   └── output-validation.json 🆕 PENDIENTE
 │   │
 │   └── .gitkeep                              ✅ COMPLETADO
 │       └── Archivo vacío para mantener carpeta en Git
