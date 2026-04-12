@@ -1,4 +1,3 @@
-```yaml
 name: 🛡️ SDD Validation & Hardening Pipeline
 on:
   push:
@@ -142,4 +141,3 @@ jobs:
           fi
 
           echo "::notice::All SDD validation stages passed. Ready for merge/deploy."
-```
