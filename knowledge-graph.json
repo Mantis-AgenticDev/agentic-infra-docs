@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-12T17:13:11.065484+00:00",
+  "generated_at": "2026-04-12T17:28:25.416585+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -267,14 +267,24 @@
     },
     {
       "id": "02-SKILLS/README.md",
-      "title": "README",
+      "title": "02-SKILLS README Maestro",
       "category": "",
       "domain": [],
-      "constraints": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
       "tags": [],
       "priority": "media",
-      "last_updated": null,
+      "last_updated": "2026-04-15",
       "wikilinks": [
+        "skill-domains-mapping.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "PROJECT_TREE.md",
         "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
         "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
         "openrouter-api-integration.md",
@@ -2062,6 +2072,21 @@
     {
       "source": "01-RULES/validation-checklist.md",
       "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "PROJECT_TREE.md",
       "type": "references"
     },
     {
