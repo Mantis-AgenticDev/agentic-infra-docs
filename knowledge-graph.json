@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-12T01:20:24.616933+00:00",
+  "generated_at": "2026-04-12T17:13:11.065484+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -29,6 +29,39 @@
         "00-CONTEXT/documentation-validation-cheklist.md",
         "PROJECT_TREE.md"
       ]
+    },
+    {
+      "id": "05-CONFIGURATIONS/templates/example-template.md",
+      "title": "example-template",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "05-CONFIGURATIONS/templates/skill-template.md",
+      "title": "skill-template",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "05-CONFIGURATIONS/templates/terraform-module-template/README.md",
+      "title": "README",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
     },
     {
       "id": "01-RULES/00-INDEX.md",
@@ -230,6 +263,23 @@
       "last_updated": "2026-04-09",
       "wikilinks": [
         "01-RULES/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/README.md",
+      "title": "README",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+        "openrouter-api-integration.md",
+        "archivo.md",
+        "00-CONTEXT/facundo-core-context.md"
       ]
     },
     {
@@ -2012,6 +2062,31 @@
     {
       "source": "01-RULES/validation-checklist.md",
       "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "archivo.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "00-CONTEXT/facundo-core-context.md",
       "type": "references"
     },
     {
