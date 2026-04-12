@@ -1,55 +1,89 @@
-
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.0
+# metadata_version: 1.1
 # sdd_compliant: true
 # ai_parser_compatible: true
-# purpose: "Validador maestro de integridad SDD para 02-SKILLS/"
-# dependencies: "bash 4+, grep, awk, sed, sha256sum, find, yq (opcional)"
-# validation_scope: "markdown, json, sql, yaml, docker-compose"
+# purpose: "Validador maestro de integridad SDD para MANTIS AGENTIC"
+# dependencies: "bash 4+, grep, awk, sed, sha256sum, find, python3 (opcional)"
+# validation_scope: "markdown, json, sql, yaml, docker-compose, tf"
 # constraints_enforced: ["C1","C2","C3","C4","C5","C6"]
-# output_format: "json + stdout"
+# output_format: "json + stdout + exit code"
 # ---
 # ============================================================================
-# VALIDATE-SKILL-INTEGRITY.SH v1.0
+# VALIDATE-SKILL-INTEGRITY.SH v1.1
 # Script maestro modular para validación SDD en MANTIS AGENTIC
 # Propósito: Validar estructura, constraints C1-C6, tenant-awareness,
 # seguridad, y generar reporte con checksum SHA256 para auditoría (C5).
+# Fixes v1.1: parsing de args robusto, resolución de rutas canónicas,
+# sanitización aritmética, schema path absoluto, wikilinks con fallback.
 # ============================================================================
 set -euo pipefail
 
 # ────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN GLOBAL
 # ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.0.0"
+readonly VERSION="1.1.0"
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly PROJECT_ROOT="${1:-.}"
-readonly REPORT_FILE="${2:-skill-validation-report.json}"
-readonly VERBOSE="${3:-0}"
-readonly STRICT="${4:-0}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# Variables por defecto (se sobrescriben con args)
+declare PROJECT_ROOT="."
+declare REPORT_FILE="skill-validation-report.json"
+declare VERBOSE="0"
+declare STRICT="0"
+
+# Arrays de estado
 declare -a ERRORS=()
 declare -a WARNINGS=()
 declare -a PASSED=()
 declare -i CHECKS_TOTAL=0
 declare -i CHECKS_PASSED=0
 
-# Constraints C1-C6 (para validación explícita)
+# Constraints C1-C6
 readonly CONSTRAINTS=("C1" "C2" "C3" "C4" "C5" "C6")
-readonly CONSTRAINT_DEFS=(
-  "C1:RAM≤4GB" "C2:1vCPU/servicio" "C3:DB-no-expuesta"
-  "C4:tenant_id-obligatorio" "C5:backup+SHA256" "C6:cloud-only-inference"
-)
+
+# ────────────────────────────────────────────────────────────────────────────
+# PARSER DE ARGUMENTOS (Robusto: separa flags de paths)
+# ────────────────────────────────────────────────────────────────────────────
+parse_arguments() {
+  local args=()
+  for arg in "$@"; do
+    case "$arg" in
+      --strict) STRICT="1" ;;
+      --verbose|-v) VERBOSE="1" ;;
+      --report=*) REPORT_FILE="${arg#--report=}" ;;
+      --help|-h) show_help; exit 0 ;;
+      -*) continue ;; # Ignorar flags no reconocidos
+      *) args+=("$arg") ;; # Paths válidos
+    esac
+  done
+  
+  # Asignar paths posicionales
+  [[ ${#args[@]} -ge 1 ]] && PROJECT_ROOT="${args[0]}"
+  [[ ${#args[@]} -ge 2 ]] && REPORT_FILE="${args[1]}"
+  
+  # Normalizar PROJECT_ROOT a ruta absoluta si es relativo
+  if [[ ! "$PROJECT_ROOT" =~ ^/ ]]; then
+    PROJECT_ROOT="$(pwd)/${PROJECT_ROOT}"
+  fi
+}
 
 # ────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
 # ────────────────────────────────────────────────────────────────────────────
 log_info() { [[ "$VERBOSE" == "1" ]] && echo "[INFO] $*" || true; }
-log_warn() { echo "[WARN] $*" >&2; WARNINGS+=("$*"); ((CHECKS_TOTAL++)) || true; }
-log_error() { echo "[ERROR] $*" >&2; ERRORS+=("$*"); ((CHECKS_TOTAL++)) || true; }
+log_warn() { echo "[WARN] $*" >&2; WARNINGS+=("$*"); CHECKS_TOTAL=$((CHECKS_TOTAL + 1)); }
+log_error() { echo "[ERROR] $*" >&2; ERRORS+=("$*"); CHECKS_TOTAL=$((CHECKS_TOTAL + 1)); }
 log_pass() { 
   [[ "$VERBOSE" == "1" ]] && echo "[PASS] $*" || true
-  PASSED+=("$*"); ((CHECKS_PASSED++)); ((CHECKS_TOTAL++)) || true
+  PASSED+=("$*"); CHECKS_PASSED=$((CHECKS_PASSED + 1)); CHECKS_TOTAL=$((CHECKS_TOTAL + 1))
+}
+
+# Sanitizar para operaciones aritméticas (evita "0\n0" → error)
+sanitize_int() {
+  local val="$1"
+  echo "$val" | tr -cd '0-9' | head -c 10
 }
 
 compute_sha256() {
@@ -77,18 +111,18 @@ validate_frontmatter() {
     return 1
   fi
 
-  # Extraer bloque frontmatter (entre primeros ---)
+  # Extraer bloque frontmatter
   local fm_content
   fm_content=$(sed -n '/^---$/,/^---$/p' "$file" | head -n -1 | tail -n +2)
 
-  # 2. Campo ai_optimized: true (obligatorio para skills)
+  # 2. Campo ai_optimized: true
   if ! echo "$fm_content" | grep -qE '^ai_optimized:\s*(true|yes)$'; then
     log_error "Frontmatter sin 'ai_optimized: true' en: $file"
     return 1
   fi
   log_pass "ai_optimized: true presente"
 
-  # 3. Campo constraints con al menos C1-C6 referenciados
+  # 3. Campo constraints con C1-C6
   if ! echo "$fm_content" | grep -qE '^constraints:\s*\[.*C[1-6].*\]$'; then
     log_warn "Frontmatter sin constraints C1-C6 mapeados explícitamente: $file"
   else
@@ -98,8 +132,8 @@ validate_frontmatter() {
   # 4. Campo related_files con wikilinks válidos
   if echo "$fm_content" | grep -q '^related_files:'; then
     local related
-    related=$(echo "$fm_content" | grep -A10 '^related_files:' | grep -E '^\s*-\s*"\[\[' | wc -l)
-    if [[ "$related" -gt 0 ]]; then
+    related=$(echo "$fm_content" | grep -A10 '^related_files:' | grep -cE '^\s*-\s*"\[\[' || echo 0)
+    if [[ $(sanitize_int "$related") -gt 0 ]]; then
       log_pass "related_files con formato Obsidian válido"
     fi
   fi
@@ -117,7 +151,7 @@ check_wikilinks() {
 
   log_info "Verificando wikilinks Obsidian: $file"
 
-  # Extraer todos los wikilinks [[archivo.md]]
+  # Extraer todos los wikilinks [[...]]
   local links
   links=$(grep -oE '\[\[[^]]+\]\]' "$file" 2>/dev/null | sed 's/\[\[//g; s/\]\]//g' || true)
 
@@ -131,38 +165,74 @@ check_wikilinks() {
   base_dir=$(dirname "$file")
 
   while IFS= read -r link; do
-    # Resolver ruta relativa desde el archivo actual
-    local target_path
-    target_path=$(echo "$link" | cut -d'|' -f1 | xargs) # Soportar alias [[file.md|alias]]
-
-    # Buscar archivo en 02-SKILLS/ o rutas absolutas del repo
-    if [[ "$target_path" =~ ^02-SKILLS/ ]]; then
-      target_path="${PROJECT_ROOT}/${target_path}"
-    elif [[ ! "$target_path" =~ ^/ ]]; then
-      target_path="${base_dir}/${target_path}"
+    [[ -z "$link" ]] && continue
+    
+    # Ignorar enlaces didácticos o anclas
+    if [[ "$link" =~ ^# || "$link" == "enlaces" || "$link" == *"|"*"texto legible"* ]]; then
+      log_pass "Wikilink ignorado (didáctico/ancla): [[${link}]]"
+      continue
     fi
 
-    if [[ ! -f "$target_path" ]]; then
-      # Intentar búsqueda recursiva en 02-SKILLS
-      local found
-      found=$(find "${PROJECT_ROOT}/02-SKILLS" -name "$(basename "$target_path")" -type f 2>/dev/null | head -1 || true)
-      if [[ -z "$found" ]]; then
-        log_warn "Wikilink roto: [[${link}]] en $file"
-        ((broken++)) || true
-      else
-        log_pass "Wikilink resuelto: [[${link}]] → $found"
-      fi
+    # Extraer ruta real (sin alias ni anclas)
+    local target_path
+    target_path=$(echo "$link" | cut -d'|' -f1 | sed 's/#.*//' | xargs)
+    [[ -z "$target_path" ]] && continue
+
+    # Asegurar extensión
+    if [[ ! "$target_path" =~ \.(md|json|sh|yml|yaml|tf|py)$ ]]; then
+      target_path="${target_path}.md"
+    fi
+
+    local resolved=""
+    
+    # Resolución en orden de prioridad:
+    # 1) Ruta absoluta desde root del repo
+    if [[ "$target_path" == /* ]]; then
+      resolved="${REPO_ROOT}${target_path}"
+    
+    # 2) Prefijos conocidos del repo
+    elif [[ "$target_path" =~ ^(00-CONTEXT|01-RULES|02-SKILLS|03-AGENTS|04-WORKFLOWS|05-CONFIGURATIONS|06-PROGRAMMING|07-PROCEDURES|08-LOGS)/ ]]; then
+      resolved="${REPO_ROOT}/${target_path}"
+    
+    # 3) Ruta relativa con ../ o ./
+    elif [[ "$target_path" == ../* || "$target_path" == ./* ]]; then
+      resolved="${base_dir}/${target_path}"
+    
+    # 4) Archivo en mismo directorio
+    elif [[ "$target_path" != */* ]]; then
+      resolved="${base_dir}/${target_path}"
+    
+    # 5) Fallback: búsqueda recursiva
     else
+      local basename_file
+      basename_file=$(basename "$target_path")
+      resolved=$(find "${REPO_ROOT}" -name "$basename_file" -type f 2>/dev/null | head -1 || echo "")
+      if [[ -n "$resolved" ]]; then
+        log_pass "Wikilink resuelto por fallback: [[${link}]] → $resolved"
+        continue
+      fi
+      resolved="${base_dir}/${target_path}"
+    fi
+
+    # Verificar existencia
+    if [[ -f "$resolved" ]]; then
       log_pass "Wikilink válido: [[${link}]]"
+    else
+      log_warn "Wikilink roto: [[${link}]] en $file (resuelto: $resolved)"
+      broken=$((broken + 1))
     fi
   done <<< "$links"
 
-  if [[ "$broken" -gt 0 ]]; then
-    log_error "$broken wikilinks rotos detectados en: $file"
+  # Sanitizar broken antes de comparar
+  local broken_clean
+  broken_clean=$(sanitize_int "$broken")
+  
+  if [[ -n "$broken_clean" && "$broken_clean" -gt 0 ]]; then
+    log_error "$broken_clean wikilinks rotos detectados en: $file"
     return 1
   fi
 
-  # Verificar ciclos simples (enlace a sí mismo)
+  # Verificar ciclos simples
   if grep -qE "\[\[$(basename "$file")\]\]" "$file"; then
     log_warn "Posible ciclo: archivo se enlaza a sí mismo: $file"
   fi
@@ -179,23 +249,25 @@ verify_constraints() {
 
   log_info "Verificando constraints C1-C6 en ejemplos: $file"
 
-  # Buscar secciones de ejemplo (### Ejemplo N:)
+  # Buscar secciones de ejemplo
   local examples
   examples=$(grep -c '^### Ejemplo [0-9]' "$file" 2>/dev/null || echo 0)
+  local examples_clean
+  examples_clean=$(sanitize_int "$examples")
 
-  if [[ "$examples" -lt 5 ]]; then
-    log_warn "Mínimo 5 ejemplos recomendados, encontrados: $examples en $file"
+  if [[ "$examples_clean" -lt 5 ]]; then
+    log_warn "Mínimo 5 ejemplos recomendados, encontrados: $examples_clean en $file"
   else
-    log_pass "Número de ejemplos ≥5: $examples"
+    log_pass "Número de ejemplos ≥5: $examples_clean"
   fi
 
-  # Verificar presencia explícita de cada constraint en el contenido
+  # Verificar presencia explícita de cada constraint
   for constraint in "${CONSTRAINTS[@]}"; do
-    if grep -qE "(^|\s)${constraint}(\s|:|,|\]|$)" "$file"; then
+    if grep -qE "(^|[[:space:]])${constraint}([[:space:]]|:|,|\]|$)" "$file"; then
       log_pass "Constraint $constraint referenciado explícitamente"
     else
       # C6 tiene excepción documentada para Llama (open-weight)
-      if [[ "$constraint" == "C6" ]] && grep -qi "llama.*open-weight\|exception.*C6" "$file"; then
+      if [[ "$constraint" == "C6" ]] && grep -qi "llama.*open-weight\|exception.*C6\|c6_exception_documented" "$file"; then
         log_pass "C6: excepción documentada para modelo open-weight"
       else
         log_warn "Constraint $constraint no encontrado explícitamente en: $file"
@@ -204,37 +276,35 @@ verify_constraints() {
   done
 
   # Validaciones específicas por constraint
-  # C1: timeout, connectionLimit, maxResults, memory limits
-  if grep -qE '(timeout|connectionLimit|maxResults|memory:\s*[0-9]+M)' "$file"; then
-    log_pass "C1: patrones de límite de recursos presentes"
-  fi
+  grep -qE '(timeout|connectionLimit|maxResults|memory:\s*[0-9]+M|mem_limit)' "$file" && \
+    log_pass "C1: patrones de límite de recursos presentes" || \
+    log_warn "C1: límites de recursos no explícitos"
 
-  # C2: cpus, nice, ionice, timeout explícito
-  if grep -qE "(cpus:|timeout:|EXECUTIONS_MAX_CONCURRENT)" "$file"; then
-    log_pass "C2: límites de CPU/concurrencia referenciados"
-  fi
+  grep -qE "(cpus:|cpu_limit|timeout:|EXECUTIONS_MAX_CONCURRENT|nice |ionice )" "$file" && \
+    log_pass "C2: límites de CPU/concurrencia referenciados" || \
+    log_warn "C2: aislamiento de CPU no explícito"
 
-  # C3: process.env, ${VAR}, zero hardcode, SSH tunnels
-  if grep -qE '(process\.env\.|os\.getenv\(|\$\{[A-Z_]+\}|ssh -L|tunnel)' "$file"; then
-    log_pass "C3: gestión segura de secretos presente"
-  fi
+  grep -qE '(process\.env\.|os\.getenv\(|\$\{[A-Z_]+\}|docker.*--env-file|age -r|vault)' "$file" && \
+    log_pass "C3: gestión segura de secretos presente" || \
+    log_warn "C3: gestión de secretos no explícita"
 
-  # C4: tenant_id en queries, filters, headers, logs
-  if grep -qiE '(tenant_id|tenant-id|WHERE.*tenant|filter.*tenant|headers.*tenant)' "$file"; then
+  if grep -qiE '(tenant_id|tenantId|ctx\.tenant|current_tenant|X-Tenant-ID|WHERE.*tenant|filter.*tenant)' "$file"; then
     log_pass "C4: tenant_id presente en contexto ejecutable"
   else
     log_error "C4 VIOLADO: tenant_id no encontrado en consultas/filtros: $file"
     return 1
   fi
 
-  # C5: sha256, checksum, backup, age, verification
-  if grep -qiE '(sha256|checksum|backup.*enc|age -r|verify.*integrity)' "$file"; then
-    log_pass "C5: patrones de backup+verificación presentes"
-  fi
+  grep -qiE '(sha256|checksum|audit_hash|backup.*enc|age -r|verify.*integrity)' "$file" && \
+    log_pass "C5: patrones de backup+verificación presentes" || \
+    log_warn "C5: auditoría de integridad no explícita"
 
-  # C6: openrouter, cloud API, no localhost model
-  if grep -qiE '(openrouter\.ai|api\.openai\.com|cloud.*inference|no.*local.*model)' "$file"; then
+  if grep -qiE '(openrouter\.ai|api\.openai\.com|cloud.*inference|provider.*cloud)'; then
     log_pass "C6: inferencia cloud-only referenciada"
+  elif grep -qiE '(llama.*local|c6_exception_documented.*true|open.*weight.*exception)'; then
+    log_pass "C6: excepción documentada para inferencia local"
+  else
+    log_warn "C6: inferencia cloud/local no documentada explícitamente"
   fi
 
   return 0
@@ -249,23 +319,21 @@ audit_secrets() {
 
   log_info "Auditoría de secretos (C3): $file"
 
-  # Patrones de credenciales a detectar (excluyendo placeholders válidos)
   local patterns=(
-    'sk-[a-zA-Z0-9]{20,}'                    # OpenAI/OpenRouter keys
-    'ghp_[a-zA-Z0-9]{36}'                    # GitHub personal tokens
-    'gho_[a-zA-Z0-9]{36}'                    # GitHub OAuth tokens
-    'password\s*=\s*["\x27][^"\x27]{8,}'     # Passwords hardcoded
-    'api_key\s*=\s*["\x27][^"\x27]{16,}'     # API keys hardcoded
-    'secret\s*=\s*["\x27][^"\x27]{16,}'      # Secrets hardcoded
-    'Bearer\s+[a-zA-Z0-9._-]{20,}'           # JWT/Bearer tokens
+    'sk-[a-zA-Z0-9]{20,}'
+    'ghp_[a-zA-Z0-9]{36}'
+    'gho_[a-zA-Z0-9]{36}'
+    'password\s*=\s*["\x27][^"\x27]{8,}'
+    'api_key\s*=\s*["\x27][^"\x27]{16,}'
+    'secret\s*=\s*["\x27][^"\x27]{16,}'
+    'Bearer\s+[a-zA-Z0-9._-]{20,}'
   )
 
   local found_secrets=0
   for pattern in "${patterns[@]}"; do
-    # Buscar coincidencias EXCLUYENDO placeholders válidos
-    if grep -E "$pattern" "$file" | grep -v -E '(ENV_VAR|\$\{|XXXX|TODO|PLACEHOLDER|your_key_here|<[^>]+>)' > /dev/null 2>&1; then
+    if grep -E "$pattern" "$file" 2>/dev/null | grep -v -E '(ENV_VAR|\$\{|XXXX|TODO|PLACEHOLDER|your_key_here|<[^>]+>|\$\([A-Z_]+\))' > /dev/null 2>&1; then
       log_error "Posible credencial hardcodeada detectada (patrón: $pattern) en: $file"
-      ((found_secrets++)) || true
+      found_secrets=$((found_secrets + 1))
     fi
   done
 
@@ -283,13 +351,24 @@ audit_secrets() {
 # ────────────────────────────────────────────────────────────────────────────
 validate_schema() {
   local file="$1"
-  local schema_path="${PROJECT_ROOT}/05-CONFIGURATIONS/validation/schemas/skill-output.schema.json"
   [[ ! -f "$file" ]] && return 0
-  [[ ! -f "$schema_path" ]] && { log_warn "Schema no encontrado: $schema_path"; return 0; }
+  
+  # Resolución robusta de schema path (absoluta desde repo root)
+  local schema_path="${REPO_ROOT}/05-CONFIGURATIONS/validation/schemas/skill-output.schema.json"
+  
+  if [[ ! -f "$schema_path" ]]; then
+    # Intentar ruta relativa desde script
+    schema_path="${SCRIPT_DIR}/schemas/skill-output.schema.json"
+  fi
+  
+  if [[ ! -f "$schema_path" ]]; then
+    log_warn "Schema skill-output.schema.json no encontrado en rutas esperadas"
+    return 0
+  fi
 
   log_info "Validando output contra JSON Schema: $file"
 
-  # Extraer bloques de código JSON del archivo markdown
+  # Extraer bloques JSON
   local json_blocks
   json_blocks=$(grep -zoP '```json\n\K[\s\S]*?(?=\n```)' "$file" 2>/dev/null || true)
 
@@ -298,7 +377,7 @@ validate_schema() {
     return 0
   fi
 
-  # Validar cada bloque JSON contra el schema (requiere python + jsonschema)
+  # Validar con python3 + jsonschema
   if command -v python3 &>/dev/null; then
     while IFS= read -r -d '' block; do
       if ! python3 -c "
@@ -339,7 +418,7 @@ validate_integrity_checksum() {
   local checksum
   checksum=$(compute_sha256 "$file")
 
-  # Verificar si existe archivo .sha256 companion
+  # Verificar archivo .sha256 companion
   local checksum_file="${file}.sha256"
   if [[ -f "$checksum_file" ]]; then
     if sha256sum -c "$checksum_file" &>/dev/null; then
@@ -379,7 +458,7 @@ run_validations() {
       [[ "$file" == *".git"* ]] && continue
       [[ "$file" == *"node_modules"* ]] && continue
       run_validations "$file"
-    done < <(find "$target" -type f \( -name "*.md" -o -name "*.json" -o -name "*.sql" -o -name "*.yml" -o -name "*.yaml" \) -print0 2>/dev/null)
+    done < <(find "$target" -type f \( -name "*.md" -o -name "*.json" -o -name "*.sql" -o -name "*.yml" -o -name "*.yaml" -o -name "*.tf" -o -name "*.sh" \) -print0 2>/dev/null)
   else
     log_error "Ruta no encontrada: $target"
     return 1
@@ -393,18 +472,32 @@ generate_report() {
   local timestamp
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   local status="passed"
-  local report_checksum
-
+  
+  # Determinar estado
   [[ ${#ERRORS[@]} -gt 0 ]] && status="failed"
   [[ "$STRICT" == "1" && ${#WARNINGS[@]} -gt 0 ]] && status="failed"
 
-  # Calcular checksum del reporte antes de escribirlo
+  # Sanitizar contadores para aritmética
+  local total_clean passed_clean warnings_clean errors_clean
+  total_clean=$(sanitize_int "$CHECKS_TOTAL")
+  passed_clean=$(sanitize_int "$CHECKS_PASSED")
+  warnings_clean=$(sanitize_int "${#WARNINGS[@]}")
+  errors_clean=$(sanitize_int "${#ERRORS[@]}")
+  
+  # Evitar división por cero
+  local pass_rate="0.00"
+  if [[ "$total_clean" -gt 0 ]]; then
+    pass_rate=$(awk "BEGIN {printf \"%.2f\", ($passed_clean/$total_clean)*100}" 2>/dev/null || echo "0.00")
+  fi
+
+  # Crear reporte temporal
   local temp_report
   temp_report=$(mktemp)
 
-  # Construir arrays JSON manualmente (compatibilidad sin jq)
+  # Construir arrays JSON manualmente
   local errors_json="[]"
   local warnings_json="[]"
+  
   if [[ ${#ERRORS[@]} -gt 0 ]]; then
     errors_json=$(printf '%s\n' "${ERRORS[@]}" | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}' | sed 's/"/\\"/g' | awk '{print "["$0"]"}')
   fi
@@ -412,6 +505,7 @@ generate_report() {
     warnings_json=$(printf '%s\n' "${WARNINGS[@]}" | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}' | sed 's/"/\\"/g' | awk '{print "["$0"]"}')
   fi
 
+  # Construir JSON del reporte
   cat > "$temp_report" << EOF
 {
   "validator_version": "$VERSION",
@@ -419,13 +513,13 @@ generate_report() {
   "target": "$PROJECT_ROOT",
   "status": "$status",
   "summary": {
-    "total_checks": $CHECKS_TOTAL,
-    "passed": $CHECKS_PASSED,
-    "warnings": ${#WARNINGS[@]},
-    "errors": ${#ERRORS[@]},
-    "pass_rate": $(awk "BEGIN {printf \"%.2f\", ($CHECKS_PASSED/$CHECKS_TOTAL)*100}" 2>/dev/null || echo "0")
+    "total_checks": $total_clean,
+    "passed": $passed_clean,
+    "warnings": $warnings_clean,
+    "errors": $errors_clean,
+    "pass_rate": $pass_rate
   },
-  "constraints_validated": $(printf '%s\n' "${CONSTRAINTS[@]}" | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}' | sed 's/"/\\"/g' | awk '{print "["$0"]"}'),
+  "constraints_validated": ["C1","C2","C3","C4","C5","C6"],
   "details": {
     "errors": $errors_json,
     "warnings": $warnings_json,
@@ -438,12 +532,14 @@ generate_report() {
 }
 EOF
 
-  # Calcular checksum final del reporte y reemplazar placeholder
+  # Calcular checksum final y reemplazar placeholder
+  local report_checksum
   report_checksum=$(compute_sha256 "$temp_report")
   sed -i "s/\"report_sha256\": \"PLACEHOLDER\"/\"report_sha256\": \"$report_checksum\"/" "$temp_report"
 
-  # Mover a destino final
-  mv "$temp_report" "$REPORT_FILE"
+  # Mover a destino final (usar cp para evitar conflictos con flags)
+  cp "$temp_report" "$REPORT_FILE"
+  rm -f "$temp_report"
 
   # Output en stdout
   echo ""
@@ -452,42 +548,46 @@ EOF
   echo "========================================="
   echo "Target: $PROJECT_ROOT"
   echo "Estado: $status"
-  echo "✅ Pasaron: $CHECKS_PASSED / $CHECKS_TOTAL checks"
-  echo "⚠️  Advertencias: ${#WARNINGS[@]}"
-  echo "❌ Errores: ${#ERRORS[@]}"
+  echo "✅ Pasaron: $passed_clean / $total_clean checks"
+  echo "⚠️  Advertencias: $warnings_clean"
+  echo "❌ Errores: $errors_clean"
   echo "🔐 Report SHA256: $report_checksum"
   echo "📄 Reporte guardado: $REPORT_FILE"
   echo "========================================="
 
-  # Si hay errores, salir con código 1 para CI/CD
-  [[ "$status" == "failed" ]] && exit 1
+  # Código de salida para CI/CD
+  if [[ "$status" == "failed" ]]; then
+    exit 1
+  fi
   exit 0
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# MAIN
+# HELP
 # ────────────────────────────────────────────────────────────────────────────
-main() {
-  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    cat << EOF
-Uso: $0 [ruta_archivo_o_directorio] [reporte.json] [verbose:0/1] [strict:0/1]
+show_help() {
+  cat << EOF
+Uso: $0 [ruta] [reporte.json] [opciones]
 
 Validador maestro de integridad SDD para MANTIS AGENTIC.
 
-Parámetros:
+Parámetros posicionales:
   ruta_archivo_o_directorio  Ruta a validar (default: .)
   reporte.json               Archivo de salida JSON (default: skill-validation-report.json)
-  verbose:0/1                Modo detallado (default: 0)
-  strict:0/1                 Tratar warnings como errores (default: 0)
+
+Opciones:
+  --strict       Tratar warnings como errores (para CI/CD)
+  --verbose, -v  Modo detallado
+  --help, -h     Mostrar esta ayuda
 
 Ejemplos:
   $0 02-SKILLS/AI/qwen-integration.md
-  $0 02-SKILLS/ validation-report.json 1 0
-  $0 . --all --report=ci-report.json --strict
+  $0 02-SKILLS/ validation-report.json --strict
+  $0 . --report=ci-report.json --verbose
 
 Validaciones ejecutadas:
   ✓ Frontmatter YAML obligatorio (ai_optimized, constraints C1-C6)
-  ✓ Wikilinks Obsidian válidos y sin ciclos
+  ✓ Wikilinks Obsidian válidos (resolución canónica + fallback)
   ✓ Constraints C1-C6 explícitos en ejemplos
   ✓ Auditoría de secretos (C3: cero hardcode)
   ✓ tenant_id obligatorio en consultas (C4)
@@ -498,16 +598,22 @@ Salida:
   - Reporte JSON con estado, métricas y checksum SHA256
   - Código de salida: 0 (éxito) / 1 (fallos críticos)
 EOF
-    exit 0
-  fi
+}
 
+# ────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────────────────────────
+main() {
+  parse_arguments "$@"
+  
   log_info "Iniciando validador SDD v$VERSION"
+  log_info "Repo root: $REPO_ROOT"
+  log_info "Target: $PROJECT_ROOT"
   log_info "Constraints activos: ${CONSTRAINTS[*]}"
+  log_info "Strict mode: $STRICT"
 
   run_validations "$PROJECT_ROOT"
   generate_report
 }
 
 main "$@"
-
-

@@ -1,7 +1,6 @@
-
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.0
+# metadata_version: 1.1
 # sdd_compliant: true
 # ai_parser_compatible: true
 # purpose: "Validador de wikilinks Obsidian para integridad de navegación SDD"
@@ -10,35 +9,75 @@
 # output_format: "json + stdout + exit code para CI/CD"
 # ---
 # ============================================================================
-# CHECK-WIKILINKS.SH v1.0
+# CHECK-WIKILINKS.SH v1.1
 # Validador de enlaces Obsidian [[...]] para MANTIS AGENTIC
 # Propósito: Detectar enlaces rotos, rutas mal resueltas, alias inválidos y
 # referencias cíclicas en toda la documentación SDD. Compatible con espacios
 # en nombres de directorio y resolución relativa/absoluta.
+# Fixes v1.1: resolución robusta de rutas, sanitización aritmética, 
+# manejo de anchors/alias, fallback recursivo mejorado, skip de enlaces didácticos.
 # ============================================================================
 set -euo pipefail
 
 # ────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN GLOBAL
 # ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.0.0"
+readonly VERSION="1.1.0"
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly PROJECT_ROOT="${1:-.}"
-readonly REPORT_FILE="${2:-wikilinks-validation-report.json}"
-readonly VERBOSE="${3:-0}"
-readonly STRICT="${4:-0}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# Variables por defecto (se sobrescriben con args)
+declare PROJECT_ROOT="."
+declare REPORT_FILE="wikilinks-validation-report.json"
+declare VERBOSE="0"
+declare STRICT="0"
+
+# Arrays de estado
 declare -a BROKEN_LINKS=()
 declare -a CYCLE_LINKS=()
 declare -i FILES_SCANNED=0
 declare -i TOTAL_LINKS_FOUND=0
 declare -i VALID_LINKS=0
 
-# Directorios válidos para resolución automática
-readonly -a KNOWN_PREFIXES=("00-CONTEXT" "01-RULES" "02-SKILLS" "04-WORKFLOWS" "05-CONFIGURATIONS")
+# Prefijos conocidos del repositorio para resolución canónica
+readonly -a KNOWN_PREFIXES=(
+  "00-CONTEXT" "01-RULES" "02-SKILLS" "03-AGENTS" 
+  "04-WORKFLOWS" "05-CONFIGURATIONS" "06-PROGRAMMING" 
+  "07-PROCEDURES" "08-LOGS"
+)
 
-# Directorios a excluir
-readonly -a EXCLUDE_DIRS=(".git" "node_modules" "venv" ".venv" "__pycache__" "dist" "build" ".obsidian")
+# Directorios a excluir del escaneo
+readonly -a EXCLUDE_DIRS=(
+  ".git" "node_modules" "venv" ".venv" "__pycache__" 
+  "dist" "build" ".obsidian" ".github"
+)
+
+# Extensiones válidas para resolución automática
+readonly -a VALID_EXTENSIONS=("md" "json" "sh" "yml" "yaml" "tf" "py" "sql")
+
+# ────────────────────────────────────────────────────────────────────────────
+# PARSER DE ARGUMENTOS
+# ────────────────────────────────────────────────────────────────────────────
+parse_arguments() {
+  local args=()
+  for arg in "$@"; do
+    case "$arg" in
+      --strict) STRICT="1" ;;
+      --verbose|-v) VERBOSE="1" ;;
+      --report=*) REPORT_FILE="${arg#--report=}" ;;
+      --help|-h) show_help; exit 0 ;;
+      -*) continue ;;
+      *) args+=("$arg") ;;
+    esac
+  done
+  [[ ${#args[@]} -ge 1 ]] && PROJECT_ROOT="${args[0]}"
+  [[ ${#args[@]} -ge 2 ]] && REPORT_FILE="${args[1]}"
+  # Normalizar a ruta absoluta si es relativo
+  if [[ ! "$PROJECT_ROOT" =~ ^/ ]]; then
+    PROJECT_ROOT="$(pwd)/${PROJECT_ROOT}"
+  fi
+}
 
 # ────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
@@ -46,12 +85,10 @@ readonly -a EXCLUDE_DIRS=(".git" "node_modules" "venv" ".venv" "__pycache__" "di
 log_info() { [[ "$VERBOSE" == "1" ]] && echo "[INFO] $*" || true; }
 log_error() { echo "[ERROR] $*" >&2; }
 
-is_excluded() {
-  local path="$1"
-  for excl in "${EXCLUDE_DIRS[@]}"; do
-    [[ "$path" == *"/$excl/"* || "$path" == *"/$excl" ]] && return 0
-  done
-  return 1
+# Sanitizar para operaciones aritméticas (evita "0\n0" → error)
+sanitize_int() {
+  local val="$1"
+  echo "$val" | tr -cd '0-9' | head -c 10
 }
 
 json_escape() {
@@ -67,21 +104,36 @@ compute_sha256() {
   sha256sum "$1" 2>/dev/null | awk '{print $1}' || echo "unknown"
 }
 
+is_excluded() {
+  local path="$1"
+  for excl in "${EXCLUDE_DIRS[@]}"; do
+    [[ "$path" == *"/$excl/"* || "$path" == *"/$excl" ]] && return 0
+  done
+  return 1
+}
+
 # ────────────────────────────────────────────────────────────────────────────
-# RESOLUCIÓN DE RUTAS
+# RESOLUCIÓN DE RUTAS (Robusta: anchors, alias, relativas, absolutas, fallback)
 # ────────────────────────────────────────────────────────────────────────────
 resolve_wikilink_target() {
   local source_file="$1"
   local raw_link="$2"
   
-  # Extraer ruta real (ignorar alias [[ruta|alias]])
+  # 1. Extraer ruta real: ignorar alias [[ruta|texto]] y anchors [[ruta#sección]]
   local target_path
-  target_path=$(echo "$raw_link" | sed 's/|.*//' | tr -d '[:space:]')
+  target_path=$(echo "$raw_link" | sed 's/|.*//; s/#.*//' | xargs)
   
   [[ -z "$target_path" ]] && return 1
   
-  # Asegurar extensión .md
-  if [[ ! "$target_path" == *.md ]]; then
+  # 2. Asegurar extensión válida
+  local has_ext=false
+  for ext in "${VALID_EXTENSIONS[@]}"; do
+    if [[ "$target_path" == *".$ext" ]]; then
+      has_ext=true
+      break
+    fi
+  done
+  if [[ "$has_ext" == "false" ]]; then
     target_path="${target_path}.md"
   fi
   
@@ -89,22 +141,43 @@ resolve_wikilink_target() {
   local source_dir
   source_dir=$(dirname "$source_file")
   
-  # 1. Ruta absoluta desde root del repo
+  # 3. Resolución en orden de prioridad:
+  
+  # a) Ruta absoluta desde root del repo (/...)
   if [[ "$target_path" == /* ]]; then
-    resolved="${PROJECT_ROOT}${target_path}"
-  # 2. Ruta con prefijo conocido (02-SKILLS/, etc.)
-  elif [[ "$target_path" =~ ^(${KNOWN_PREFIXES[0]}|${KNOWN_PREFIXES[1]}|${KNOWN_PREFIXES[2]}|${KNOWN_PREFIXES[3]}|${KNOWN_PREFIXES[4]})/ ]]; then
-    resolved="${PROJECT_ROOT}/${target_path}"
-  # 3. Ruta relativa al archivo fuente
+    resolved="${REPO_ROOT}${target_path}"
+  
+  # b) Prefijos conocidos del repo (00-CONTEXT/, 02-SKILLS/, etc.)
+  elif [[ "$target_path" =~ ^(${KNOWN_PREFIXES[0]}|${KNOWN_PREFIXES[1]}|${KNOWN_PREFIXES[2]}|${KNOWN_PREFIXES[3]}|${KNOWN_PREFIXES[4]}|${KNOWN_PREFIXES[5]}|${KNOWN_PREFIXES[6]}|${KNOWN_PREFIXES[7]}|${KNOWN_PREFIXES[8]})/ ]]; then
+    resolved="${REPO_ROOT}/${target_path}"
+  
+  # c) Ruta relativa con ../ o ./
+  elif [[ "$target_path" == ../* || "$target_path" == ./* ]]; then
+    resolved="${source_dir}/${target_path}"
+  
+  # d) Archivo en mismo directorio (sin slashes)
+  elif [[ "$target_path" != */* ]]; then
+    resolved="${source_dir}/${target_path}"
+  
+  # e) Fallback: búsqueda recursiva en repo root por nombre de archivo
   else
+    local basename_file
+    basename_file=$(basename "$target_path")
+    resolved=$(find "${REPO_ROOT}" -name "$basename_file" -type f 2>/dev/null | head -1 || echo "")
+    if [[ -n "$resolved" ]]; then
+      echo "$resolved"
+      return 0
+    fi
+    # Último intento: asumir ruta relativa desde source_dir
     resolved="${source_dir}/${target_path}"
   fi
   
-  # Normalizar ruta (resolver .., ./)
-  if command -v realpath &>/dev/null; then
-    resolved=$(realpath -m "$resolved" 2>/dev/null || echo "$resolved")
-  else
-    resolved=$(cd "$(dirname "$resolved")" 2>/dev/null && echo "$(pwd)/$(basename "$resolved")" || echo "$resolved")
+  # 4. Normalizar ruta (resolver .., ./) sin depender de realpath
+  if [[ -d "$(dirname "$resolved")" ]]; then
+    local dir_norm file_norm
+    dir_norm=$(cd "$(dirname "$resolved")" 2>/dev/null && pwd) || dir_norm="$(dirname "$resolved")"
+    file_norm=$(basename "$resolved")
+    resolved="${dir_norm}/${file_norm}"
   fi
   
   echo "$resolved"
@@ -120,42 +193,64 @@ validate_file_wikilinks() {
   is_excluded "$file" && return 0
   
   log_info "Escaneando wikilinks: $file"
-  ((FILES_SCANNED++)) || true
+  FILES_SCANNED=$((FILES_SCANNED + 1))
   
   # Extraer todos los wikilinks [[...]]
   local links
   links=$(grep -oE '\[\[[^]]+\]\]' "$file" 2>/dev/null | sed 's/^\[\[//; s/\]\]$//' || true)
   
   if [[ -z "$links" ]]; then
+    VALID_LINKS=$((VALID_LINKS + 1))
     return 0
   fi
   
   while IFS= read -r link; do
-    ((TOTAL_LINKS_FOUND++)) || true
+    [[ -z "$link" ]] && continue
+    TOTAL_LINKS_FOUND=$((TOTAL_LINKS_FOUND + 1))
+    
+    # Ignorar enlaces didácticos, ejemplos o anclas sueltas
+    if [[ "$link" =~ ^# || \
+          "$link" == "enlaces" || \
+          "$link" == *"|"*"texto legible"* || \
+          "$link" == *"|"*legible* || \
+          "$link" =~ ^\[.*\]$ ]]; then
+      log_info "[SKIP] Enlace didáctico/ancla: [[${link}]]"
+      VALID_LINKS=$((VALID_LINKS + 1))
+      continue
+    fi
     
     # Resolver ruta objetivo
     local target
     target=$(resolve_wikilink_target "$file" "$link") || continue
+    [[ -z "$target" ]] && continue
     
-    # 1. Verificar ciclo (auto-referencia directa)
-    if [[ "$(realpath -m "$file" 2>/dev/null || echo "$file")" == "$(realpath -m "$target" 2>/dev/null || echo "$target")" ]]; then
+    # Verificar ciclo (auto-referencia directa)
+    local file_norm target_norm
+    file_norm=$(cd "$(dirname "$file")" 2>/dev/null && echo "$(pwd)/$(basename "$file")") || file_norm="$file"
+    target_norm=$(cd "$(dirname "$target")" 2>/dev/null && echo "$(pwd)/$(basename "$target")" 2>/dev/null) || target_norm="$target"
+    
+    if [[ "$file_norm" == "$target_norm" ]]; then
       CYCLE_LINKS+=("$(json_escape "$file")|$(json_escape "$link")|self-reference")
       continue
     fi
     
-    # 2. Verificar existencia
+    # Verificar existencia
     if [[ -f "$target" ]]; then
-      ((VALID_LINKS++)) || true
+      VALID_LINKS=$((VALID_LINKS + 1))
+      log_info "[OK] Wikilink válido: [[${link}]] → $target"
     else
-      # Intentar búsqueda recursiva en directorio base como fallback
+      # Fallback: búsqueda recursiva por nombre exacto en repo root
+      local basename_target
+      basename_target=$(basename "$target")
       local found_fallback
-      found_fallback=$(find "${PROJECT_ROOT}" -name "$(basename "$target")" -type f 2>/dev/null | head -1 || true)
+      found_fallback=$(find "${REPO_ROOT}" -name "$basename_target" -type f 2>/dev/null | head -1 || echo "")
       
       if [[ -n "$found_fallback" ]]; then
-        ((VALID_LINKS++)) || true
-        log_info "[WARN] Enlace resuelto por fallback: [[${link}]] en $file → $found_fallback"
+        VALID_LINKS=$((VALID_LINKS + 1))
+        log_info "[FALLBACK] Enlace resuelto: [[${link}]] en $file → $found_fallback"
       else
         BROKEN_LINKS+=("$(json_escape "$file")|$(json_escape "$link")|target_not_found")
+        log_info "[BROKEN] Wikilink roto: [[${link}]] en $file (resuelto: $target)"
       fi
     fi
   done <<< "$links"
@@ -176,27 +271,38 @@ generate_report() {
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   local status="passed"
   
-  if [[ "$STRICT" == "1" && (${#BROKEN_LINKS[@]} -gt 0 || ${#CYCLE_LINKS[@]} -gt 0) ]]; then
+  # Sanitizar contadores
+  local broken_count cycle_count
+  broken_count=$(sanitize_int "${#BROKEN_LINKS[@]}")
+  cycle_count=$(sanitize_int "${#CYCLE_LINKS[@]}")
+  
+  # Determinar estado
+  if [[ "$STRICT" == "1" && ("$broken_count" -gt 0 || "$cycle_count" -gt 0) ]]; then
     status="failed"
-  elif [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+  elif [[ "$broken_count" -gt 0 ]]; then
     status="failed"
-  elif [[ ${#CYCLE_LINKS[@]} -gt 0 ]]; then
+  elif [[ "$cycle_count" -gt 0 ]]; then
     status="warnings"
   fi
   
   # Construir arrays JSON
   local broken_json="[]"
   if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
-    broken_json=$(printf '{"source":"%s","link":"%s","error":"%s"}\n' "${BROKEN_LINKS[@]//|/","}" | paste -sd ',' | sed 's/}{/},{/g')
+    broken_json=$(printf '%s\n' "${BROKEN_LINKS[@]}" | while IFS='|' read -r src lnk err; do
+      printf '{"source":"%s","link":"%s","error":"%s"}' "$src" "$lnk" "$err"
+    done | paste -sd ',' | sed 's/}{/},{/g')
     broken_json="[${broken_json}]"
   fi
   
   local cycles_json="[]"
   if [[ ${#CYCLE_LINKS[@]} -gt 0 ]]; then
-    cycles_json=$(printf '{"source":"%s","link":"%s","error":"%s"}\n' "${CYCLE_LINKS[@]//|/","}" | paste -sd ',' | sed 's/}{/},{/g')
+    cycles_json=$(printf '%s\n' "${CYCLE_LINKS[@]}" | while IFS='|' read -r src lnk err; do
+      printf '{"source":"%s","link":"%s","error":"%s"}' "$src" "$lnk" "$err"
+    done | paste -sd ',' | sed 's/}{/},{/g')
     cycles_json="[${cycles_json}]"
   fi
   
+  # Construir reporte
   local temp_report
   temp_report=$(mktemp)
   
@@ -207,11 +313,11 @@ generate_report() {
   "target": "$PROJECT_ROOT",
   "status": "$status",
   "summary": {
-    "files_scanned": $FILES_SCANNED,
-    "total_links_found": $TOTAL_LINKS_FOUND,
-    "valid_links": $VALID_LINKS,
-    "broken_links": ${#BROKEN_LINKS[@]},
-    "cyclic_references": ${#CYCLE_LINKS[@]}
+    "files_scanned": $(sanitize_int "$FILES_SCANNED"),
+    "total_links_found": $(sanitize_int "$TOTAL_LINKS_FOUND"),
+    "valid_links": $(sanitize_int "$VALID_LINKS"),
+    "broken_links": $broken_count,
+    "cyclic_references": $cycle_count
   },
   "findings": {
     "broken": $broken_json,
@@ -219,14 +325,16 @@ generate_report() {
   },
   "resolution_rules": {
     "known_prefixes": $(printf '"%s",' "${KNOWN_PREFIXES[@]}" | sed 's/,$//' | awk '{print "["$0"]"}'),
+    "valid_extensions": $(printf '"%s",' "${VALID_EXTENSIONS[@]}" | sed 's/,$//' | awk '{print "["$0"]"}'),
     "auto_append_md": true,
-    "fallback_recursive_search": true
+    "fallback_recursive_search": true,
+    "skip_didactic_links": true
   },
   "recommendations": [
-    "Actualizar rutas relativas a rutas canónicas desde root del repo",
-    "Eliminar auto-referencias directas [[mismo_archivo]]",
-    "Usar alias [[ruta.md|texto legible]] para mejorar legibilidad sin afectar resolución",
-    "Validar enlaces antes de merge con este script en modo --strict"
+    "Usar rutas canónicas desde root del repo: [[02-SKILLS/AI/qwen-integration.md]]",
+    "Evitar auto-referencias directas [[mismo_archivo.md]]",
+    "Usar alias para legibilidad: [[ruta.md|texto amigable]]",
+    "Validar enlaces antes de merge con --strict en CI/CD"
   ],
   "audit": {
     "script_sha256": "$(compute_sha256 "$0")",
@@ -235,27 +343,33 @@ generate_report() {
 }
 EOF
 
+  # Calcular checksum final y reemplazar placeholder
   local report_sha
   report_sha=$(compute_sha256 "$temp_report")
   sed -i "s/\"report_sha256\": \"PLACEHOLDER\"/\"report_sha256\": \"$report_sha\"/" "$temp_report"
-  mv "$temp_report" "$REPORT_FILE"
   
+  # Mover a destino final (usar cp para evitar conflictos con flags)
+  cp "$temp_report" "$REPORT_FILE"
+  rm -f "$temp_report"
+  
+  # Output en stdout
   echo ""
   echo "========================================="
   echo "🔗 VALIDACIÓN WIKILINKS OBSIDIAN v$VERSION"
   echo "========================================="
   echo "Target: $PROJECT_ROOT"
-  echo "📁 Archivos escaneados: $FILES_SCANNED"
-  echo "🔗 Enlaces encontrados: $TOTAL_LINKS_FOUND"
-  echo "✅ Válidos: $VALID_LINKS"
-  echo "❌ Rotos: ${#BROKEN_LINKS[@]}"
-  echo "🔄 Cíclicos: ${#CYCLE_LINKS[@]}"
+  echo "📁 Archivos escaneados: $(sanitize_int "$FILES_SCANNED")"
+  echo "🔗 Enlaces encontrados: $(sanitize_int "$TOTAL_LINKS_FOUND")"
+  echo "✅ Válidos: $(sanitize_int "$VALID_LINKS")"
+  echo "❌ Rotos: $broken_count"
+  echo "🔄 Cíclicos: $cycle_count"
   echo "Estado: $status"
   echo "🔐 Report SHA256: $report_sha"
   echo "📄 Reporte: $REPORT_FILE"
   echo "========================================="
   
-  if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+  # Mostrar detalles si hay hallazgos
+  if [[ "$broken_count" -gt 0 ]]; then
     echo ""
     echo "⚠️  Enlaces rotos detectados:"
     for bl in "${BROKEN_LINKS[@]}"; do
@@ -265,7 +379,7 @@ EOF
     done
   fi
   
-  if [[ ${#CYCLE_LINKS[@]} -gt 0 ]]; then
+  if [[ "$cycle_count" -gt 0 ]]; then
     echo ""
     echo "⚠️  Auto-referencias detectadas:"
     for cl in "${CYCLE_LINKS[@]}"; do
@@ -275,6 +389,7 @@ EOF
     done
   fi
   
+  # Código de salida para CI/CD
   if [[ "$status" == "failed" ]]; then
     exit 1
   fi
@@ -282,41 +397,52 @@ EOF
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# MAIN
+# HELP
 # ────────────────────────────────────────────────────────────────────────────
-main() {
-  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    cat << EOF
-Uso: $0 [ruta] [reporte.json] [verbose:0/1] [strict:0/1]
+show_help() {
+  cat << EOF
+Uso: $0 [ruta] [reporte.json] [opciones]
 
 Validador de wikilinks Obsidian [[...]] para integridad de navegación SDD.
 Detecta enlaces rotos, rutas mal resueltas y referencias cíclicas.
 
-Parámetros:
+Parámetros posicionales:
   ruta            Directorio/archivo a validar (default: .)
   reporte.json    Salida JSON (default: wikilinks-validation-report.json)
-  verbose:0/1     Modo detallado
-  strict:0/1      Fail on warnings (ciclos) o errores (rotos)
+
+Opciones:
+  --strict       Tratar warnings como errores (para CI/CD)
+  --verbose, -v  Modo detallado
+  --help, -h     Mostrar esta ayuda
 
 Reglas de resolución:
   ✓ Rutas absolutas: /02-SKILLS/AI/qwen-integration.md
   ✓ Prefijos conocidos: 02-SKILLS/AI/qwen-integration.md
   ✓ Rutas relativas: ../RULES/01-ARCHITECTURE-RULES.md
   ✓ Extensión .md auto-completada si falta
-  ✓ Fallback de búsqueda recursiva en root
+  ✓ Fallback de búsqueda recursiva en root del repo
   ✓ Detección de auto-referencias [[mismo_archivo]]
+  ✓ Skip de enlaces didácticos: [[enlaces]], [[ruta|texto legible]]
 
 Ejemplos:
   $0 02-SKILLS/
-  $0 . wikilinks-report.json 1 1
-  $0 --scan-only  # Dry-run (muestra solo stats)
+  $0 . wikilinks-report.json --strict
+  $0 02-SKILLS/GENERATION-MODELS.md --verbose
 
 Salida: Reporte JSON + código 0/1 para CI/CD
 EOF
-    exit 0
-  fi
+}
+
+# ────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────────────────────────
+main() {
+  parse_arguments "$@"
   
   log_info "Iniciando validación de wikilinks v$VERSION"
+  log_info "Repo root: $REPO_ROOT"
+  log_info "Target: $PROJECT_ROOT"
+  log_info "Strict mode: $STRICT"
   
   if [[ -f "$PROJECT_ROOT" ]]; then
     validate_file_wikilinks "$PROJECT_ROOT"
@@ -331,4 +457,3 @@ EOF
 }
 
 main "$@"
-
