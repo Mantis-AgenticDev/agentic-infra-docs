@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-12T19:33:54.168930+00:00",
+  "generated_at": "2026-04-12T23:50:51.951215+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -332,7 +332,126 @@
         "../PROJECT_TREE.md",
         "../knowledge-graph.json",
         "skill-domains-mapping.md",
-        "../05-CONFIGURATIONS/validation/"
+        "../05-CONFIGURATIONS/validation/",
+        "01-GENERATION-MODELS.md",
+        "../../SDD-COLLABORATIVE-GENERATION.md",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/validation/"
+      ]
+    },
+    {
+      "id": "02-SKILLS/GENERATION-MODELS.md",
+      "title": "GENERATION-MODELS",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "generation",
+        "sdd",
+        "workflow",
+        "terraform",
+        "validation",
+        "human-ai",
+        "deployment",
+        "hardening"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../../README.md",
+        "../../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../../01-RULES/00-INDEX.md",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+        "../../05-CONFIGURATIONS/validation/check-wikilinks.sh",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../../05-CONFIGURATIONS/validation/schema-validator.py",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml",
+        "../../README.md",
+        "../PROJECT_TREE.md",
+        "../../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../../05-CONFIGURATIONS/validation/",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/terraform/",
+        "../RESTAURANTES/restaurant-order-chatbot.md",
+        "../RESTAURANTES/restaurant-booking-ai.md",
+        "../AI/qwen-integration.md",
+        "../ODONTOLOGÍA/dental-appointment-automation.md",
+        "../AI/gemini-integration.md",
+        "../HOTELES-POSADAS/hotel-booking-automation.md",
+        "../COMUNICACION/whatsapp-rag-openrouter.md",
+        "../BASE-DE-DATOS-RAG/google-sheets-as-database.md",
+        "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "../BASE-DE-DATOS-RAG/postgres-prisma-rag.md",
+        "../COMUNICACION/whatsapp-rag-openrouter.md",
+        "../INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+        "../COMUNICACION/telegram-bot-integration.md",
+        "../INFRAESTRUCTURA/fail2ban-configuration.md",
+        "../COMUNICACION/multi-channel-routing.md",
+        "../INFRAESTRUCTURA/docker-compose-networking.md",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../SEGURIDAD/backup-encryption.md",
+        "../SEGURIDAD/security-hardening-vps.md",
+        "../AI/llama-integration.md",
+        "../../01-RULES/06-MULTITENANCY-RULES.md",
+        "../AI/openrouter-api-integration.md",
+        "../AI/qwen-integration.md",
+        "../AI/gemini-integration.md",
+        "../PROJECT_TREE.md",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../INFRAESTRUCTURA/health-monitoring-vps.md",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../BASE-DE-DATOS-RAG/multi-tenant-data-isolation.md",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../SEGURIDAD/backup-encryption.md",
+        "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+        "../../05-CONFIGURATIONS/validation/check-wikilinks.sh",
+        "enlaces",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../../05-CONFIGURATIONS/validation/schema-validator.py",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "../../00-CONTEXT/documentation-validation-cheklist.md",
+        "../../05-CONFIGURATIONS/terraform/",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/",
+        "../../05-CONFIGURATIONS/terraform/modules/vps-base/",
+        "../INFRAESTRUCTURA/health-monitoring-vps.md",
+        "../SEGURIDAD/rsync-automation.md",
+        "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "../INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "../INFRAESTRUCTURA/fail2ban-configuration.md",
+        "../INFRAESTRUCTURA/ssh-key-management.md",
+        "../INFRAESTRUCTURA/docker-compose-networking.md",
+        "01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
+        "../../05-CONFIGURATIONS/validation/",
+        "01-GENERATION-MODELS.md",
+        "02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
     },
     {
@@ -385,7 +504,10 @@
         "knowledge-graph.json",
         "01-RULES/06-MULTITENANCY-RULES.md",
         "skill-domains-mapping.md",
-        "01-RULES/06-MULTITENANCY-RULES.md"
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-GENERATION-MODELS.md",
+        "../../SDD-COLLABORATIVE-GENERATION.md",
+        "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
     },
     {
@@ -1532,23 +1654,91 @@
     },
     {
       "id": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "title": "whatsapp-rag-openrouter.md",
-      "category": "",
+      "title": "whatsapp-rag-openrouter",
+      "category": "Skill",
       "domain": [
         "comunicacion",
         "ai",
-        "base-de-datos-rag"
+        "base-de-datos-rag",
+        "iac",
+        "ci-cd",
+        "hardening"
       ],
-      "constraints": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
       "tags": [
         "sdd/skill/comunicacion",
         "sdd/skill/ai",
-        "sdd/skill/base-de-datos-rag",
+        "sdd/skill/rag",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/iac",
+        "sdd/skill/ci-cd",
+        "sdd/skill/hardening",
+        "sdd/skill/whatsapp",
         "lang/es"
       ],
       "priority": "CRÍTICA",
-      "last_updated": "2026-04-11",
-      "wikilinks": []
+      "last_updated": "2026-04-12",
+      "wikilinks": [
+        "01-RULES/00-INDEX.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/skill-domains-mapping.md",
+        "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+        "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+        "05-CONFIGURATIONS/templates/skill-template.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "SDD-COLLABORATIVE-GENERATION.md",
+        "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "\"$MISSING_TENANT\" -gt 0",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+        "05-CONFIGURATIONS/templates/skill-template.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "SDD-COLLABORATIVE-GENERATION.md"
+      ]
     },
     {
       "id": "02-SKILLS/AI/deepseek-integration.md",
@@ -2279,6 +2469,461 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "01-GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-wikilinks.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schema-validator.py.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../RESTAURANTES/restaurant-order-chatbot.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../ODONTOLOGÍA/dental-appointment-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../HOTELES-POSADAS/hotel-booking-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/multi-channel-routing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/docker-compose-networking.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-wikilinks.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "enlaces.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schema-validator.py.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../00-CONTEXT/documentation-validation-cheklist.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/vps-base/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/docker-compose-networking.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "01-GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/README.md",
       "target": "skill-domains-mapping.md",
       "type": "references"
@@ -2366,6 +3011,21 @@
     {
       "source": "02-SKILLS/skill-domains-mapping.md",
       "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "../../SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {
@@ -3421,6 +4081,261 @@
     {
       "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
       "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "SDD-COLLABORATIVE-GENERATION.md",
       "type": "references"
     },
     {
