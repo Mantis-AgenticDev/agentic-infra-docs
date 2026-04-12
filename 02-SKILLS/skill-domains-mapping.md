@@ -412,6 +412,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ├── postgres-prisma-rag.md                  ✅
 ├── supabase-rag-integration.md             ✅
 ├── mysql-sql-rag-ingestion.md              ✅
+├── airtable-database-patterns.md             ✅
 ├── google-drive-qdrant-sync.md             ✅
 ├── google-sheets-as-database.md            ✅
 └── espocrm-api-analytics.md                ✅
@@ -419,17 +420,17 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ### 4.4 Zona: AI
 
 02-SKILLS/AI/
-├── openrouter-api-integration.md           🆕
-├── mistral-ocr-integration.md              🆕
-├── qwen-integration.md                     🆕
-├── llama-integration.md                    🆕
-├── gemini-integration.md                   🆕
-├── gpt-integration.md                      🆕
-├── deepseek-integration.md                 🆕
-├── minimax-integration.md                  🆕
-├── voice-agent-integration.md              🆕
-├── image-gen-api.md                        🆕
-└── video-gen-api.md                        🆕
+├── openrouter-integration.md          ✅
+├── mistral-ocr-integration.md              ✅
+├── qwen-integration.md                    ✅
+├── llama-integration.md                   ✅
+├── gemini-integration.md                    ✅
+├── gpt-integration.md                      ✅
+├── deepseek-integration.md                 ✅
+├── minimax-integration.md                  ✅
+├── voice-agent-integration.md              ✅
+├── image-gen-api.md                        ✅
+└── video-gen-api.md                        ✅
 
 ### 4.5 Zona: Vertical - Restaurantes
 

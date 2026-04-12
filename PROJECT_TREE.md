@@ -134,17 +134,17 @@ agentic-infra-docs/
 |    |
 |    |
 |    ├── AI/
-|    |   ├── openrouter-api-integration.md           🆕 PENDIENTE
-|    |   ├── mistral-ocr-integration.md              🆕 PENDIENTE
-|    |   ├── qwen-integration.md                    🆕 PENDIENTE
-|    |   ├── llama-integration.md                   🆕 PENDIENTE
-|    |   ├── gemini-integration.md                  🆕 PENDIENTE
-|    |   ├── gpt-integration.md                     🆕 PENDIENTE
-|    |   ├── deepseek-integration.md                🆕 PENDIENTE
-|    |   ├── minimax-integration.md                 🆕 PENDIENTE
-|    |   ├── voice-agent-integration.md             🆕 PENDIENTE
-|    |   ├── image-gen-api.md                       🆕 PENDIENTE
-|    |   └── video-gen-api.md                      🆕 PENDIENTE
+|    |   ├── openrouter-integration.md           ✅ COMPLETADO
+|    |   ├── mistral-ocr-integration.md              ✅ COMPLETADO
+|    |   ├── qwen-integration.md                    ✅ COMPLETADO
+|    |   ├── llama-integration.md                   ✅ COMPLETADO
+|    |   ├── gemini-integration.md                 ✅ COMPLETADO
+|    |   ├── gpt-integration.md                     ✅ COMPLETADO
+|    |   ├── deepseek-integration.md                ✅ COMPLETADO
+|    |   ├── minimax-integration.md                 ✅ COMPLETADO
+|    |   ├── voice-agent-integration.md             ✅ COMPLETADO
+|    |   ├── image-gen-api.md                       ✅ COMPLETADO
+|    |   └── video-gen-api.md                      ✅ COMPLETADO
 |    |
 |    ├── 📡 INFRAESTRUCTURA (Servidores)
 |    │   ├── ssh-tunnels-remote-services.md ✅ COMPLETADO
@@ -189,6 +189,8 @@ agentic-infra-docs/
 |    │   │   └── Sincronización Google Drive → Qdrant
 |    │   ├── espocrm-api-analytics.md ✅ COMPLETADO
 |    │   │   └── Uso de EspoCRM API para reportes
+|    │   ├── airtable-database-patterns.md  ✅ COMPLETADO
+|    │   │   └── Uso de Airtable
 |    │   ├── google-sheets-as-database.md ✅ COMPLETADO
 |    │   │   └── Uso de google shets
 |    │   └── mysql-optimization-4gb-ram.md ✅ COMPLETADO
