@@ -1,4 +1,3 @@
-```bash
 # ---
 # title: "Validator Documentation - Agentic Infra Docs"
 # category: "Configuraciones"

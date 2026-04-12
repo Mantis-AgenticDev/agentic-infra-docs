@@ -468,6 +468,17 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 > 💡 **Regla de oro**: Si el `skill-domains-mapping.md` indica que un skill está en estado ⏳ "Pendiente", **no solicitar su documentación** a menos que la tarea sea específicamente desarrollarlo. Ahorro estimado: **70-85% de tokens** vs exploración secuencial.
 
 ---
+## 🤖 GUÍA DE GENERACIÓN DE DOCUMENTOS
+
+| Necesitas... | Usa este flujo | Enlace |
+|--------------|---------------|--------|
+| Generar una skill nueva o completar un archivo `🆕 PENDIENTE` con validación pre-entrega | **SDD Colaborativa Humano-IA** (gate de validación automático) | `[[SDD-COLLABORATIVE-GENERATION.md]]` |
+| Entender cómo se generan los outputs de IA (modelos colaborativo vs full-automated) | **Modelos de Generación** (diagramas ASCII + herramientas) | `[[02-SKILLS/01-GENERATION-MODELS.md]]` |
+| Validar que un documento generado cumple C1-C6 antes de merge | **Validadores SDD** | `[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]` |
+
+> 🎯 **Para IA**: Al generar contenido, carga primero `[[SDD-COLLABORATIVE-GENERATION.md]]` → ejecuta gate pre-entrega → entrega solo si `status: passed`.
+
+---
 
 ## SEGURANÇA E CONFORMIDADE
 

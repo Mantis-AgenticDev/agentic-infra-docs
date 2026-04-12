@@ -11,7 +11,9 @@ wikilinks:
   - "[[PROJECT_TREE.md]]"           # Referencia visual
   - "[[knowledge-graph.json]]"      # Grafo semántico (Carga prioritaria si el contexto lo permite)
   - "[[01-RULES/08-SKILLS-REFERENCE.md]]"
+  
 ---
+
 ## 1. Propósito y Contexto
 
 Este documento mapea los agentes n8n utilizados en producción con los dominios de skill necesarios para construirlos, basándose en el árbol de conocimientos existente y los patrones documentados.
@@ -515,7 +517,7 @@ La categorización sigue la estructura multi-tenant del proyecto, donde cada zon
 ## 6. Templates de Skills por Categoría (SDD-Compliant)
 
 ### 6.1 Template: Skill de Infraestructura/Comunicación
-```markdown
+
 ---
 ai_optimized: true
 file_type: skill
@@ -733,7 +735,33 @@ Documento	Propósito	URL Raw
    2. skill-domains-mapping.md (esta tabla)
    3. PROJECT_TREE.md (referencia visual)
    4. Skills específicos (solo los requeridos por la tarea)
-   
+```
+--- 
+
+## 🤖 GENERACIÓN DE NUEVAS SKILLS (Para IA)
+
+\> \*\*Instrucción:\*\* Usar estos documentos para generar contenido nuevo sin reparaciones manuales.
+
+\### ¿Cuál documento usar?
+
+\| Escenario \| Documento \| Por qué \|
+\|-----------\|----------\|---------\|
+\| Quiero crear una skill desde cero (ej: `AI/nuevo-modelo.md`) | `[[01-GENERATION-MODELS.md]]` | Proporciona dos flujos: colaborativo (preguntas guiadas) o full-automated (ZIP con Terraform). Incluye ejemplos ✅/❌ y troubleshooting por nivel. |
+\| Quiero completar un archivo `🆕 PENDIENTE` del árbol | `[[../../SDD-COLLABORATIVE-GENERATION.md]]` | Incluye gate de validación pre-entrega: fences cerrados, frontmatter válido, constraints C1-C6 explícitos, enlaces canónicos funcionales. Cero iteraciones por faltantes estructurales. |
+\| Necesito generar infraestructura production-ready | `[[01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | Genera ZIP con Terraform hardenizado, validaciones C1-C6, rollback automático y auditoría SHA256 (C5). |
+
+\### Flujo Mínimo para IA Generadora
+
+\`\`\`text
+1. Leer PROJECT_TREE.md → identificar estado del archivo (✅/🟡/🆕)
+2. Si 🆕 PENDIENTE → cargar SDD-COLLABORATIVE-GENERATION.md
+3. Aplicar skill-template.md como estructura base
+4. Ejecutar gate pre-entrega (validar fences, frontmatter, C1-C6, wikilinks, schema)
+5. Si falla → regenerar (máx 3 intentos) → si persiste, reportar error exacto
+6. Entregar solo si "GATE PASSED (5/5 checks)"
+\`\`\`
+
+\> 📌 \*\*Nota:\*\* Este mapeo de dominios es la fuente canónica para resolución de rutas. Toda IA debe filtrar primero por `domain:` y `priority:` antes de cargar archivos de Prioridad 3.  
 ---
 
 Autor: Facundo (validado por Qwen - Orquestadora Técnica)

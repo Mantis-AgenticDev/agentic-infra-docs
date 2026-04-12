@@ -125,4 +125,15 @@ Cualquier persona o asistente IA puede usar este índice para localizar rápidam
 - 🗺️ Mapeo de Dominios y Reglas de Asignación: `[[skill-domains-mapping.md]]`
 - 🛡️ Validadores y Hardening: `[[../05-CONFIGURATIONS/validation/]]`
 
+---
+
+\-\-\-
+
+\## 🤖 Generación de Skills (Para IA y Humanos)
+\- 🔹 Modelos de Generación (colaborativo / full-automated): `[[01-GENERATION-MODELS.md]]`
+\- 🔹 Flujo Colaborativo para Pendientes (gate pre-entrega): `[[../../SDD-COLLABORATIVE-GENERATION.md]]`
+\- 📦 Plantilla Base: `[[../../05-CONFIGURATIONS/templates/skill-template.md]]`
+\- 🛡️ Validadores: `[[../../05-CONFIGURATIONS/validation/]]`
+
+\> 📌 \*\*Instrucción para IA:\*\* Antes de generar cualquier archivo, leer `SDD-COLLABORATIVE-GENERATION.md` para aplicar gate de validación pre-entrega. Cero fences rotos. Cero frontmatter inválido. Cero constraints implícitos.
 > 📝 *Documento generado bajo especificación SDD. Última sincronización estructural: v1.0.0. Mantener actualizado ante cada merge a `02-SKILLS/`.*

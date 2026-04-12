@@ -72,7 +72,9 @@ agentic-infra-docs/
 │   └── Este archivo - mapa del proyecto
 │
 ├── knowledge-graph.json                           📝 EN PROGRESO
-│   
+|
+├── SDD-COLLABORATIVE-GENERATION.md           ✅ COMPLETADO
+│   └── Sistema colaborativo IA Humano para generacion archivos internos del proyecto.
 │
 ├── 00-CONTEXT/
 │   ├── 00-INDEX.md                           ✅ COMPLETADO
@@ -139,6 +141,10 @@ agentic-infra-docs/
 |    │   
 |    ├── skill-domains-mapping.md ✅ COMPLETADO
 |    |
+|    ├── GENERATION-MODELS.md     ✅ COMPLETADO
+|    |   └── Modelos de generación SDD para MANTIS AGENTIC
+|    |
+|    ├── 00-INDEX.md ✅ COMPLETADO
 |    |
 |    ├── AI/
 |    |   ├── openrouter-integration.md           ✅ COMPLETADO
@@ -852,6 +858,29 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 - 🔗 Integridad de wikilinks: 98.7% (2 aristas saneadas en último build)
 - 🧭 Navegabilidad para IAs: Alta (grafo + skill-domains-mapping como controladores)
 - 🔄 Actualización automática: Activa (script `sync-mantis-graph.sh` a las 03:00 AM)
+
+---
+
+## 🔄 NAVEGACIÓN PARA GENERACIÓN DE DOCUMENTOS
+
+\> \*\*Para IA generadora:\*\* Antes de crear cualquier archivo marcado `🆕 PENDIENTE`, seguir este flujo para garantizar cero reparaciones manuales.
+
+\### Flujo Recomendado por Tipo de Tarea
+
+\| Tipo de Solicitud \| Documento Guía \| Validadores Obligatorios \|
+\|------------------\|----------------|--------------------------\|
+\| Nueva skill horizontal (AI/, INFRAESTRUCTURA/, etc.) | `[[02-SKILLS/01-GENERATION-MODELS.md]]` | `validate-frontmatter.sh`, `verify-constraints.sh`, `schema-validator.py` |
+\| Completar archivo pendiente (`🆕` o `📝`) | `[[SDD-COLLABORATIVE-GENERATION.md]]` | Gate pre-entrega: fences, frontmatter, C1-C6, wikilinks, schema |
+\| Generar infraestructura production-ready | `[[02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | `tfsec`, `check-rls.sh`, `audit-secrets.sh`, `sha256sum` |
+
+\### Instrucciones Canónicas para IA
+
+1\. \*\*Resolver rutas:\*\* Usar exclusivamente paths desde `[[PROJECT_TREE.md]]` (este archivo). Cero inferencia externa.
+2\. \*\*Estructura base:\*\* Aplicar `[[05-CONFIGURATIONS/templates/skill-template.md]]` para todo nuevo `.md`.
+3\. \*\*Validación pre-entrega:\*\* Ejecutar gate de `[[SDD-COLLABORATIVE-GENERATION.md#-fase-2-gate-de-validación-pre-entrega-ia--autoverificación]]` antes de mostrar output al humano.
+4\. \*\*Constraints:\*\* C1-C6 explícitos en cada bloque de código. C4 (`tenant_id`) obligatorio en queries, logs y payloads.
+
+\> ⚠️ \*\*Si algún validador falla:\*\* Regenerar automáticamente (máx 3 intentos). Si persiste, reportar error exacto con línea y constraint violado.
 
 **Última auditoría**: Abril 2026  
 **Próxima revisión**: Al completar `06-PROGRAMMING/00-INDEX.md`  

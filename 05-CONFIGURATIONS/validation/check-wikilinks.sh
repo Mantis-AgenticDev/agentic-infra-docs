@@ -1,4 +1,4 @@
-```bash
+
 #!/usr/bin/env bash
 #---
 # metadata_version: 1.0
@@ -331,4 +331,4 @@ EOF
 }
 
 main "$@"
-```
+

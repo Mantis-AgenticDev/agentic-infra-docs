@@ -65,3 +65,5 @@ docker-compose.override.yml
 !04-WORKFLOWS/diagrams/
 !04-WORKFLOWS/diagrams/**
 !knowledge-graph.json
+!05-CONFIGURATIONS/validation/schemas/skill-output.schema.json
+
