@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-13T02:57:37.372246+00:00",
+  "generated_at": "2026-04-13T04:10:37.546987+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -12,6 +12,17 @@
       "tags": [],
       "priority": "media",
       "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "05-CONFIGURATIONS/00-INDEX.md",
+      "title": "00-INDEX: Master Configuration Registry",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": "2025-04-14T00:00:00Z",
       "wikilinks": []
     },
     {
