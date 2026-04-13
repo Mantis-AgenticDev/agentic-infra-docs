@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-12T23:50:51.951215+00:00",
+  "generated_at": "2026-04-13T02:57:37.372246+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -76,7 +76,7 @@
       "last_updated": null,
       "wikilinks": [
         "01-RULES/00-INDEX.md",
-        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
         "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
         "05-CONFIGURATIONS/validation/audit-secrets.sh",
         "05-CONFIGURATIONS/validation/check-rls.sh",
@@ -84,7 +84,7 @@
         "01-RULES/03-SECURITY-RULES.md",
         "01-RULES/06-MULTITENANCY-RULES.md",
         "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
-        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json"
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json"
       ]
     },
     {
@@ -288,6 +288,17 @@
       ]
     },
     {
+      "id": "01-RULES/09-AGENTIC-OUTPUT-RULES.md",
+      "title": "ai-agentic-generation.md",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
       "id": "01-RULES/validation-checklist.md",
       "title": "Checklist de Validación SDD para MANTIS AGENTIC",
       "category": "validation",
@@ -333,7 +344,7 @@
         "../knowledge-graph.json",
         "skill-domains-mapping.md",
         "../05-CONFIGURATIONS/validation/",
-        "02-SKILLS/GENERATION-MODELS.md",
+        "GENERATION-MODELS.md",
         "../../SDD-COLLABORATIVE-GENERATION.md",
         "../../05-CONFIGURATIONS/templates/skill-template.md",
         "../../05-CONFIGURATIONS/validation/"
@@ -379,7 +390,7 @@
         "../../05-CONFIGURATIONS/validation/check-wikilinks.sh",
         "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
         "../../05-CONFIGURATIONS/validation/schema-validator.py",
-        "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
         "../../05-CONFIGURATIONS/templates/skill-template.md",
         "../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
         "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf",
@@ -433,7 +444,7 @@
         "../../05-CONFIGURATIONS/validation/check-rls.sh",
         "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
         "../../05-CONFIGURATIONS/validation/schema-validator.py",
-        "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
         "../../00-CONTEXT/documentation-validation-cheklist.md",
         "../../05-CONFIGURATIONS/terraform/",
         "../../05-CONFIGURATIONS/pipelines/.github/workflows/",
@@ -446,10 +457,10 @@
         "../INFRAESTRUCTURA/fail2ban-configuration.md",
         "../INFRAESTRUCTURA/ssh-key-management.md",
         "../INFRAESTRUCTURA/docker-compose-networking.md",
-        "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
-        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
+        "GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
         "../../05-CONFIGURATIONS/validation/",
-        "02-SKILLS/GENERATION-MODELS.md",
+        "GENERATION-MODELS.md",
         "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
         "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
@@ -505,9 +516,9 @@
         "01-RULES/06-MULTITENANCY-RULES.md",
         "skill-domains-mapping.md",
         "01-RULES/06-MULTITENANCY-RULES.md",
-        "02-SKILLS/GENERATION-MODELS.md",
+        "GENERATION-MODELS.md",
         "../../SDD-COLLABORATIVE-GENERATION.md",
-        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
+        "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
     },
     {
@@ -961,6 +972,17 @@
         "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
         "01-RULES/03-SECURITY-RULES.md"
       ]
+    },
+    {
+      "id": "02-SKILLS/AGENTIC-ASSISTANCE/ide-cli-integration.md",
+      "title": "ide-cli-integration.md",
+      "category": "AGENTIC-ASSISTANCE",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
     },
     {
       "id": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
@@ -1708,7 +1730,7 @@
         "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
         "05-CONFIGURATIONS/templates/skill-template.md",
         "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
-        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
         "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
         "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
         "SDD-COLLABORATIVE-GENERATION.md",
@@ -1722,7 +1744,7 @@
         "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
         "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
         "02-SKILLS/AI/openrouter-api-integration.md",
-        "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
         "01-RULES/06-MULTITENANCY-RULES.md",
         "01-RULES/02-RESOURCE-GUARDRAILS.md",
         "01-RULES/03-SECURITY-RULES.md",
@@ -2210,7 +2232,7 @@
     },
     {
       "source": "05-CONFIGURATIONS/templates/skill-template.md",
-      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
@@ -2250,7 +2272,7 @@
     },
     {
       "source": "05-CONFIGURATIONS/templates/skill-template.md",
-      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
@@ -2470,7 +2492,7 @@
     },
     {
       "source": "02-SKILLS/00-INDEX.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md",
       "type": "references"
     },
     {
@@ -2560,7 +2582,7 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
@@ -2830,7 +2852,7 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
@@ -2895,12 +2917,12 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "target": "GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
       "type": "references"
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "target": "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {
@@ -2910,7 +2932,7 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md",
       "type": "references"
     },
     {
@@ -3015,7 +3037,7 @@
     },
     {
       "source": "02-SKILLS/skill-domains-mapping.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md",
       "type": "references"
     },
     {
@@ -3025,7 +3047,7 @@
     },
     {
       "source": "02-SKILLS/skill-domains-mapping.md",
-      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "target": "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {
@@ -4195,7 +4217,7 @@
     },
     {
       "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
@@ -4260,7 +4282,7 @@
     },
     {
       "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
-      "target": "05-CONFIGURATIONS/validation/schemas/skill-output.schema.json.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
       "type": "references"
     },
     {
