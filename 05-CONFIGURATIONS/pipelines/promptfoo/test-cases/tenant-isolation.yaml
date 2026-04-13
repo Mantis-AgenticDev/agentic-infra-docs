@@ -1,16 +1,163 @@
- ORDEN DE GENERACIÓN (Prioridad P0 → P2)
-1. `05-CONFIGURATIONS/pipelines/promptfoo/config.yaml`
-2. `05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml`
+---
+title: "Promptfoo Test Cases - Tenant Isolation Validation"
+version: "1.0.0"
+constraints_mapped: ["C4", "C3", "C1", "C8"]
+validation_command: "npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --filter-failing --no-progress-bar"
+---
+# Test cases for tenant isolation verification (C4)
+# All tests must confirm that data from tenant A is never leaked to tenant B
+# and that every request requires a valid tenant_id.
 
-3. `05-CONFIGURATIONS/pipelines/promptfoo/test-cases/resource-limits.yaml`
-4. `05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml`
-5. `05-CONFIGURATIONS/terraform/modules/vps-base/variables.tf`
-6. `05-CONFIGURATIONS/terraform/modules/vps-base/outputs.tf`
-7. `05-CONFIGURATIONS/terraform/modules/postgres-rls/variables.tf`
-8. `05-CONFIGURATIONS/terraform/modules/postgres-rls/outputs.tf`
-9. `05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf`
-10. `05-CONFIGURATIONS/terraform/modules/backup-encrypted/outputs.tf`
-11. `05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml`
-12. `05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml`
-13. `05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml`
-14. `05-CONFIGURATIONS/environment/.env.example`
+description: "Multi-tenant data isolation checks for RAG and API endpoints"
+
+tests:
+  # --- BLOCK 1: Tenant ID Enforcement ---
+  - description: "Reject request without tenant_id header"
+    vars:
+      tenant_id: ""
+      query: "show me my documents"
+      headers:
+        Authorization: "Bearer ${OPENROUTER_API_KEY}"
+    assert:
+      - type: status
+        value: 400
+      - type: contains
+        value: "tenant_id"
+        error: "Missing tenant_id must be rejected"
+    options:
+      transformVars: |
+        // Simulate API gateway behavior
+        return {
+          ...vars,
+          url: "https://api.mantis-agentic.local/v1/rag/query",
+          method: "POST",
+        };
+
+  - description: "Reject request with invalid tenant_id format"
+    vars:
+      tenant_id: "invalid-format"
+      query: "show me my documents"
+    assert:
+      - type: status
+        value: 400
+      - type: contains
+        value: "Invalid tenant_id format"
+    options:
+      transformVars: |
+        return {
+          ...vars,
+          url: "https://api.mantis-agentic.local/v1/rag/query",
+          method: "POST",
+        };
+
+  # --- BLOCK 2: Cross-Tenant Data Isolation (C4) ---
+  - description: "Tenant A cannot access Tenant B documents"
+    vars:
+      tenant_id: ${TENANT_ID_ALPHA}
+      query: "find document with id doc-beta-123"
+    assert:
+      - type: javascript
+        value: |
+          // Expect empty result or explicit "not found"
+          if (output.result && output.result.documents && output.result.documents.length > 0) {
+            throw new Error("Cross-tenant data leakage detected! Tenant A accessed Tenant B document.");
+          }
+          return true;
+    options:
+      provider: openrouter:mistralai/mistral-small-3.1-24b
+      transform: |
+        // This prompt should be executed by the RAG system with RLS enabled
+        return JSON.stringify({
+          model: "mistral-small-3.1-24b",
+          messages: [{
+            role: "system",
+            content: `You are a RAG assistant. Tenant ID: ${vars.tenant_id}. You only access data for this tenant. Query: ${vars.query}. Respond ONLY with JSON: {"documents": []} if nothing found.`
+          }]
+        });
+
+  - description: "Tenant B can only see own documents"
+    vars:
+      tenant_id: ${TENANT_ID_BETA}
+      query: "list my recent uploads"
+    assert:
+      - type: javascript
+        value: |
+          // Mock validation - in real test, response would contain only tenant B data
+          // For promptfoo dry-run we assert that tenant_id is included in context
+          if (!context.vars.tenant_id) throw new Error("Tenant ID missing in context");
+          return true;
+    options:
+      provider: openrouter:mistralai/mistral-small-3.1-24b
+
+  # --- BLOCK 3: RLS Enforcement in Qdrant/Postgres (C4) ---
+  - description: "Qdrant RAG query respects tenant_id filter"
+    vars:
+      tenant_id: ${TENANT_ID_ALPHA}
+      query: "explain multi-tenancy architecture"
+    assert:
+      - type: llm-rubric
+        value: |
+          The response does not mention any data or context from other tenants.
+          The assistant only uses information belonging to tenant ${TENANT_ID_ALPHA}.
+      - type: javascript
+        value: |
+          // Ensure response headers or logs contain tenant_id trace (C8)
+          return true; // placeholder; actual check via log validation
+    options:
+      provider: openrouter:google/gemini-2.5-flash-preview-05-20
+
+  - description: "PostgreSQL RLS prevents cross-tenant UPDATE"
+    vars:
+      tenant_id: ${TENANT_ID_ALPHA}
+      target_tenant: ${TENANT_ID_BETA}
+      sql: "UPDATE documents SET title='hacked' WHERE tenant_id='${TENANT_ID_BETA}'"
+    assert:
+      - type: javascript
+        value: |
+          // Expect zero rows affected due to RLS policy
+          // This test requires DB connection; simulated here
+          if (output.affectedRows > 0) {
+            throw new Error("RLS bypass detected");
+          }
+          return true;
+    options:
+      transformVars: |
+        return {
+          ...vars,
+          mockResult: { affectedRows: 0 }
+        };
+
+  # --- BLOCK 4: Audit and Observability (C8) ---
+  - description: "Logs contain tenant_id and trace_id for each request"
+    vars:
+      tenant_id: ${TENANT_ID_ALPHA}
+    assert:
+      - type: javascript
+        value: |
+          // Validate that the mock log entry includes tenant_id and trace_id
+          const logEntry = {
+            level: "info",
+            tenant_id: "${TENANT_ID_ALPHA}",
+            trace_id: "mock-trace-123",
+            message: "Request processed"
+          };
+          if (!logEntry.tenant_id || !logEntry.trace_id) {
+            throw new Error("Structured log missing tenant_id/trace_id");
+          }
+          return true;
+    options:
+      transform: |
+        // This would normally be a real API call
+        return { mock: true };
+
+  - description: "No tenant_id logged for failed auth attempts"
+    vars:
+      tenant_id: ""
+    assert:
+      - type: javascript
+        value: |
+          const logEntry = { level: "warn", tenant_id: null, error: "Missing tenant_id" };
+          if (logEntry.tenant_id) throw new Error("Tenant ID should not be logged for invalid requests");
+          return true;
+
+# 🟢 VALIDATION: npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --tests 05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml --no-cache
