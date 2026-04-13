@@ -1,8 +1,10 @@
 ---
-title: "Promptfoo Assertions - Schema & Structured Logging Validation"
-version: "1.0.0"
-constraints_mapped: ["C4", "C8", "C5"]
+title: "Promptfoo Assertions - Schema & Structured Logging"
+version: "1.1.0"
+constraints_mapped: ["C4", "C5", "C8"]
 validation_command: "npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --assertions 05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml --no-progress-bar"
+canonical_path: "05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml"
+ai_optimized: true
 ---
 # Reusable assertions for verifying response schemas and structured logging (C8)
 # Ensures tenant_id is present in outputs and logs follow JSON format with trace_id.

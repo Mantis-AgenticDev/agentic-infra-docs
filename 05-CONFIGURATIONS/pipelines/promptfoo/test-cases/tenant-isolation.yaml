@@ -1,8 +1,10 @@
----
-title: "Promptfoo Test Cases - Tenant Isolation Validation"
-version: "1.0.0"
-constraints_mapped: ["C4", "C3", "C1", "C8"]
-validation_command: "npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --filter-failing --no-progress-bar"
+ ---
+ title: "Promptfoo Test Cases - Tenant Isolation"
+ version: "1.0.0"
+ constraints_mapped: ["C1", "C3", "C4", "C8"]
+ validation_command: "npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --filter-failing --no-progress-bar"
+ canonical_path: "05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml"
+ ai_optimized: true
 ---
 # Test cases for tenant isolation verification (C4)
 # All tests must confirm that data from tenant A is never leaked to tenant B
