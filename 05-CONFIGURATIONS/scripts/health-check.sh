@@ -1,9 +1,9 @@
----
-title: "Health Check Script"
-version: "1.0.0"
-constraints_mapped: ["C7", "C8"]
-validation_command: "./05-CONFIGURATIONS/validation/validate-skill-integrity.sh --strict 05-CONFIGURATIONS/scripts/health-check.sh"
-canonical_path: "05-CONFIGURATIONS/scripts/health-check.sh"
+# ---
+# title: "Health Check Script"
+# version: "1.0.0"
+# constraints_mapped: ["C7", "C8"]
+# validation_command: "./05-CONFIGURATIONS/validation/validate-skill-integrity.sh --strict 05-CONFIGURATIONS/scripts/health-check.sh"
+# canonical_path: "05-CONFIGURATIONS/scripts/health-check.sh"
 ---
 #!/bin/bash
 set -euo pipefail
