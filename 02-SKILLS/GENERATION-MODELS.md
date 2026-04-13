@@ -20,7 +20,7 @@ related_files:
   - "[[../../05-CONFIGURATIONS/validation/check-wikilinks.sh]]"
   - "[[../../05-CONFIGURATIONS/validation/verify-constraints.sh]]"
   - "[[../../05-CONFIGURATIONS/validation/schema-validator.py]]"
-  - "[[../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]"
+  - "[[../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]"
   - "[[../../05-CONFIGURATIONS/templates/skill-template.md]]"
   - "[[../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf]]"
   - "[[../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf]]"
@@ -30,7 +30,7 @@ related_files:
 
 # 🤖 MODELOS DE GENERACIÓN SDD - MANTIS AGENTIC
 
-> 📌 **Para IA**: Este documento define los flujos de generación de skills. Usa `ai_optimized: true` para parsear bloques ASCII, validar contra `skill-output.schema.json`, y ejecutar validadores en orden: `validate-frontmatter.sh` → `audit-secrets.sh` → `check-rls.sh` → `verify-constraints.sh` → `schema-validator.py`.
+> 📌 **Para IA**: Este documento define los flujos de generación de skills. Usa `ai_optimized: true` para parsear bloques ASCII, validar contra `skill-input-output.schema.json`, y ejecutar validadores en orden: `validate-frontmatter.sh` → `audit-secrets.sh` → `check-rls.sh` → `verify-constraints.sh` → `schema-validator.py`.
 
 ---
 
@@ -58,7 +58,7 @@ Este archivo define **dos modelos de generación** para skills en MANTIS AGENTIC
 
 Ambos modelos garantizan:
 - ✅ Cumplimiento de constraints C1-C6 en cada artefacto generado
-- ✅ Validación automática contra `skill-output.schema.json`
+- ✅ Validación automática contra `skill-input-output.schema.json`
 - ✅ Cero credenciales hardcodeadas (C3)
 - ✅ Aislamiento multi-tenant obligatorio (C4)
 - ✅ Auditoría de integridad con SHA256 (C5)
@@ -177,7 +177,7 @@ Ambos modelos garantizan:
 │     e) [[../../05-CONFIGURATIONS/validation/verify-constraints.sh]]│
 │        → C1-C6 explícitos en ejemplos                           │
 │     f) python3 [[../../05-CONFIGURATIONS/validation/schema-validator.py]]│
-│        → outputs cumplen [[../../05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]│
+│        → outputs cumplen [[../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]│
 │  5. Genera checksum SHA256 del output final (C5 audit)          │
 │     - Comando: sha256sum generated_skill.md > generated_skill.sha256│
 └─────────────────┬───────────────────────────────────────────────┘
@@ -212,7 +212,7 @@ Ambos modelos garantizan:
 │  │  │   ├── pre-deploy-check.sh      [C5 SHA256]          │      │
 │  │  │   │   • sha256sum -c generated_skill.sha256         │      │
 │  │  │   └── skill-output.json        [schema validated]   │      │
-│  │  │       • validado contra skill-output.schema.json    │      │
+│  │  │       • validado contra skill-input-output.schema.json    │      │
 │  │  └── README-deploy.md             [pasos 1-2-3]        │      │
 │  │      • git clone, cp, validate, docker-compose up      │      │
 │  └────────────────────────────────────────────────────────┘      │
@@ -452,7 +452,7 @@ Ambos modelos garantizan:
 │  │  │       • docker service update --detach=false          │    │
 │  │  │       • swap de aliases DNS/ingress                   │    │
 │  │  ├── validation/                                         │    │
-│  │  │   ├── skill-output.schema.json [schema base]          │    │
+│  │  │   ├── skill-input-output.schema.json [schema base]          │    │
 │  │  │   └── integrity-report.json    [SHA256 audit]         │    │
 │  │  │       • {"files": {"main.tf": "abc123...", ...}}      │    │
 │  │  ├── .env.example               [C3: zero hardcode]      │    │
@@ -584,7 +584,7 @@ Este archivo está diseñado para ser parseado por IA. Para validar su integrida
 
 # 4. Ejemplos JSON cumplen schema (si los hubiera)
 python3 05-CONFIGURATIONS/validation/schema-validator.py \
-  05-CONFIGURATIONS/validation/schemas/skill-output.schema.json \
+  05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json \
   02-SKILLS/01-GENERATION-MODELS.md
 ```
 
@@ -609,7 +609,7 @@ python3 05-CONFIGURATIONS/validation/schema-validator.py \
 
 Este documento debe actualizarse cuando:
 - ✅ Se agregue un nuevo validador a `05-CONFIGURATIONS/validation/`
-- ✅ Se modifique `skill-output.schema.json`
+- ✅ Se modifique `skill-input-output.schema.json`
 - ✅ Se agregue un nuevo módulo Terraform o skill horizontal
 - ✅ Cambie el flujo de generación (ej: nuevo modelo "modo educativo")
 
@@ -627,6 +627,6 @@ Este documento debe actualizarse cuando:
 
 **Última actualización**: `$(date -u +"%Y-%m-%dT%H:%M:%SZ")`  
 **Versión**: `v1.0.0`  
-**Validado contra**: `skill-output.schema.json` ✅  
+**Validado contra**: `skill-input-output.schema.json` ✅  
 **Checksum**: `$(sha256sum 02-SKILLS/01-GENERATION-MODELS.md | awk '{print $1}')`
 ```

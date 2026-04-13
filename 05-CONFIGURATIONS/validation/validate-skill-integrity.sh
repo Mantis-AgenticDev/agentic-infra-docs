@@ -354,15 +354,15 @@ validate_schema() {
   [[ ! -f "$file" ]] && return 0
   
   # Resolución robusta de schema path (absoluta desde repo root)
-  local schema_path="${REPO_ROOT}/05-CONFIGURATIONS/validation/schemas/skill-output.schema.json"
+  local schema_path="${REPO_ROOT}/05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json"
   
   if [[ ! -f "$schema_path" ]]; then
     # Intentar ruta relativa desde script
-    schema_path="${SCRIPT_DIR}/schemas/skill-output.schema.json"
+    schema_path="${SCRIPT_DIR}/schemas/skill-input-output.schema.json"
   fi
   
   if [[ ! -f "$schema_path" ]]; then
-    log_warn "Schema skill-output.schema.json no encontrado en rutas esperadas"
+    log_warn "Schema skill-input-output.schema.json no encontrado en rutas esperadas"
     return 0
   fi
 

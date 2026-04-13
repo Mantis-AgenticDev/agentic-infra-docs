@@ -36,7 +36,7 @@ curl -s http://localhost:11434/api/generate -d '{"prompt": "...", "key": "sk-123
 
 ## 📊 Validación Automatizada
 - Frontmatter: `ai_optimized: true`
-- Schema: Cumple `skill-output.schema.json`
+- Schema: Cumple `skill-input-output.schema.json`
 - Scripts: Pasa `verify-constraints.sh` y `audit-secrets.sh`
 ```
 

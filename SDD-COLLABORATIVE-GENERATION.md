@@ -13,7 +13,7 @@ related_files:
   - "[[01-RULES/00-INDEX.md]]"
   - "[[05-CONFIGURATIONS/templates/skill-template.md]]"
   - "[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]"
-  - "[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]"
+  - "[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]"
 ---
 
 # 🔄 FLUJO SDD ASISTIDA COLABORATIVA HUMANO-IA
@@ -30,7 +30,7 @@ related_files:
 | 📜 Reglas Base | `[[01-RULES/00-INDEX.md]]` → `01-ARCHITECTURE-RULES.md` a `08-SKILLS-REFERENCE.md` | Constraints obligatorios, patrones de código, límites de recursos |
 | 📦 Plantilla Maestra | `[[05-CONFIGURATIONS/templates/skill-template.md]]` | Estructura frontmatter, secciones obligatorias, mapeo C1-C6 |
 | 🛡️ Validadores | `[[05-CONFIGURATIONS/validation/]]` | `validate-frontmatter.sh`, `audit-secrets.sh`, `check-rls.sh`, `verify-constraints.sh` |
-| 🔍 Schema Output | `[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]` | Validación determinista de bloques JSON generados |
+| 🔍 Schema Output | `[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]` | Validación determinista de bloques JSON generados |
 | 🕸️ Grafo de Dependencias | `[[knowledge-graph.json]]` | Resolución de referencias cruzadas y orden de generación |
 | 📖 Contexto Negocio/Infra | `[[00-CONTEXT/facundo-business-model.md]]`, `[[00-CONTEXT/facundo-infrastructure.md]]` | Parámetros reales de VPS, SLA, pricing, stack tecnológico |
 
@@ -106,7 +106,7 @@ Garantizar que **cualquier documento generado para completar pendientes** pase p
 │      • Alias permitidos: [[ruta.md|texto legible]]              │
 │                                                                   │
 │  [✓] 5. Schema Validation:                                      │
-│      • Bloques JSON cumplen [[.../skill-output.schema.json]]    │
+│      • Bloques JSON cumplen [[.../skill-input-output.schema.json]]    │
 │      • Campos obligatorios: tenant_id, constraints_verified, etc│
 │                                                                   │
 │  [❌] SI ALGÚN CHECK FALLA → IA REGENERA AUTOMÁTICAMENTE        │
@@ -149,7 +149,7 @@ Garantizar que **cualquier documento generado para completar pendientes** pase p
 │  # 2. Verificar integridad local                                │
 │  ./05-CONFIGURATIONS/validation/validate-skill-integrity.sh .   │
 │  python3 05-CONFIGURATIONS/validation/schema-validator.py \     │
-│    05-CONFIGURATIONS/validation/schemas/skill-output.schema.json .│
+│    05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json .│
 │                                                                   │
 │  # 3. Commit & Push                                             │
 │  git add 03-AGENTS/clients/whatsapp-attention-agent.md          │
@@ -179,7 +179,7 @@ Garantizar que **cualquier documento generado para completar pendientes** pase p
 |-------|----------------|----------|-------------|
 | 👶 **Junior** | Solicitante & Validador Visual | Pide documento, copia/pega, ejecuta comandos de verificación post-guardado | Modifica constraints, omite validadores, hardcodea variables |
 | 👨‍💻 **Intermedio** | Revisor & Integrador | Inspección fences, ejecuta validadores manualmente, ajusta límites C1/C2 según métricas reales | Ignora gate pre-entrega, mergea sin `validate-skill-integrity.sh` |
-| 👨‍🔧 **Experto** | Arquitecto & Auditor | Extiende plantillas, modifica `skill-output.schema.json`, integra validadores en CI/CD, revisa `knowledge-graph.json` | Bypassea C4/C6 sin documentación, genera sin resolución canónica |
+| 👨‍🔧 **Experto** | Arquitecto & Auditor | Extiende plantillas, modifica `skill-input-output.schema.json`, integra validadores en CI/CD, revisa `knowledge-graph.json` | Bypassea C4/C6 sin documentación, genera sin resolución canónica |
 
 ---
 
@@ -219,7 +219,7 @@ Garantizar que **cualquier documento generado para completar pendientes** pase p
 
 # 4. Schema (si contiene bloques JSON)
 python3 05-CONFIGURATIONS/validation/schema-validator.py \
-  05-CONFIGURATIONS/validation/schemas/skill-output.schema.json \
+  05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json \
   ./SDD-COLLABORATIVE-GENERATION.md
 ```
 **Criterio de Éxito**: Todos retornan `passed` / exit code `0`. Si alguno falla, este documento se considera inválido y debe regenerarse.
@@ -238,5 +238,5 @@ python3 05-CONFIGURATIONS/validation/schema-validator.py \
 
 **Última actualización**: `$(date -u +"%Y-%m-%dT%H:%M:%SZ")`  
 **Versión**: `v1.0.0`  
-**Validado contra**: `skill-output.schema.json` ✅  
+**Validado contra**: `skill-input-output.schema.json` ✅  
 **Checksum**: `$(sha256sum ./SDD-COLLABORATIVE-GENERATION.md 2>/dev/null | awk '{print $1}')`

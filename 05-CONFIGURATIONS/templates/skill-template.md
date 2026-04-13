@@ -7,7 +7,7 @@ tags: ["template", "sdd", "validation", "multi-tenant", "hardened"]
 ai_provider: "openrouter"
 related_files:
   - "[[01-RULES/00-INDEX.md]]"
-  - "[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]"
+  - "[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]"
   - "[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]"
   - "[[05-CONFIGURATIONS/validation/audit-secrets.sh]]"
   - "[[05-CONFIGURATIONS/validation/check-rls.sh]]"
@@ -69,7 +69,7 @@ db.query('SELECT ... WHERE tenant_id = $1', [tenantId]);
 ```
 
 ## 📊 Validated Examples (≥5)
-> **Nota**: Cada bloque JSON debe validar contra `skill-output.schema.json`. Los campos `c1_c6_compliance` deben ser explícitamente `true`.
+> **Nota**: Cada bloque JSON debe validar contra `skill-input-output.schema.json`. Los campos `c1_c6_compliance` deben ser explícitamente `true`.
 
 ### Ejemplo 01: Validación de Prompt & Schema
 ```json
@@ -120,7 +120,7 @@ db.query('SELECT ... WHERE tenant_id = $1', [tenantId]);
 | `VR-FRONTMATTER` | `ai_optimized: true` | Rechazar merge |
 | `VR-SECRETS` | `0 matches audit-secrets.sh regex` | Fail pipeline, alert |
 | `VR-RLS` | `tenant_id` en 100% queries | Bloquear deploy |
-| `VR-SCHEMA` | `jsonschema validate skill-output.schema.json` | Rechazar output |
+| `VR-SCHEMA` | `jsonschema validate skill-input-output.schema.json` | Rechazar output |
 | `VR-CHECKSUM` | `sha256sum -c` verify | Re-generate artifact |
 
 **Pre-commit Hook:**
@@ -141,4 +141,4 @@ exec 05-CONFIGURATIONS/validation/check-rls.sh --pre-commit || exit 1
 - Seguridad: `[[01-RULES/03-SECURITY-RULES.md]]`
 - Multi-Tenant: `[[01-RULES/06-MULTITENANCY-RULES.md]]`
 - Validadores: `[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]`
-- Esquema: `[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]`
+- Esquema: `[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]`

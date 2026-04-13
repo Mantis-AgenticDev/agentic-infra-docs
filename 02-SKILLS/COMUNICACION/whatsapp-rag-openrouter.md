@@ -44,7 +44,7 @@ related_files:
   - "[[02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md]]"
   - "[[05-CONFIGURATIONS/templates/skill-template.md]]"
   - "[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]"
-  - "[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]"
+  - "[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]"
   - "[[05-CONFIGURATIONS/terraform/modules/vps-base/main.tf]]"
   - "[[05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml]]"
   - "[[SDD-COLLABORATIVE-GENERATION.md]]"
@@ -56,7 +56,7 @@ related_files:
   [✓] Fence Integrity: todos los bloques tienen apertura/cierre + lenguaje declarado
   [✓] Constraint Mapping: C1-C6 explícitos en cada sección de código
   [✓] Wikilinks Obsidian: resolución canónica desde raíz del repo
-  [✓] Schema Validation: bloques JSON cumplen skill-output.schema.json
+  [✓] Schema Validation: bloques JSON cumplen skill-input-output.schema.json
   [✓] IaC/Terraform: módulo vps-base referenciado + ejemplo funcional
   [✓] CI/CD Pipeline: referencia a validate-skill.yml + comandos de verificación
 Generado siguiendo: SDD-COLLABORATIVE-GENERATION.md v1.0.0
@@ -1449,9 +1449,9 @@ return [{
 
 ---
 
-## 📊 Validated JSON Examples (skill-output.schema.json)
+## 📊 Validated JSON Examples (skill-input-output.schema.json)
 
-Los siguientes bloques JSON cumplen con `[[05-CONFIGURATIONS/validation/schemas/skill-output.schema.json]]`:
+Los siguientes bloques JSON cumplen con `[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]`:
 
 ```json
 {

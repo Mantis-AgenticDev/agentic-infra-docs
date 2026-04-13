@@ -349,7 +349,7 @@ def validate_skill_output(md_content: str) -> bool:
     # Extraer frontmatter
     fm = yaml.safe_load(md_content.split('---')[1])
     # Validar contra schema
-    with open('schemas/skill-output.schema.json') as f:
+    with open('schemas/skill-input-output.schema.json') as f:
         schema = json.load(f)
     jsonschema.validate(instance=fm, schema=schema)
     # Verificar ejemplos mínimos

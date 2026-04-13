@@ -131,9 +131,11 @@ agentic-infra-docs/
 │   ├── 07-SCALABILITY-RULES.md               ✅ COMPLETADO
 │   │   └── Criterios para escalar clientes por VPS (fases 1-2-3)
 │   │
-│   └── 08-SKILLS-REFERENCE.md                ✅ COMPLETADO
-│       └── Pointer a skills reutilizables en 02-SKILLS/
-|
+│   ├── 08-SKILLS-REFERENCE.md                ✅ COMPLETADO
+│   |   └── Pointer a skills reutilizables en 02-SKILLS/
+│   │
+│   └── 09-AGENTIC-OUTPUT-RULES.md               ✅ COMPLETADO
+│       └── Assitente salidas produccion SDD
 |
 │
 ├── 02-SKILLS/
@@ -323,8 +325,10 @@ agentic-infra-docs/
 |    |    │   └── Patrones de agentes LangChain
 |    |    └── n8n-error-handling.md 🆕 NUEVO
 |    |         └── Manejo de errores en n8n
-│    |
 |    |
+|    ├── 🧠 AGENTIC-ASSISTANCE
+|    |   └── ide-cli-integration.md  ✅ COMPLETADO
+|    |          └── Integración IDE & CLI para Generación Asistida y Autogeneración SDD
 |    │
 |    └── 🧠 DEPLOYMENT
 |        └── multi-channel-deploymen.md ✅ COMPLETADO
@@ -368,6 +372,10 @@ agentic-infra-docs/
 ├── 04-WORKFLOWS/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
 │   │   └── Índice de todos los workflows
+|   |
+│   ├── sdd-assisted-generation-loop.json     ✅ COMPLETADO
+│   │   └── Ciclo de generación asistida y autogeneración SDD Hardened
+|   |
 │   │
 │   ├── n8n/
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
@@ -485,7 +493,8 @@ agentic-infra-docs/
 │   │
 │   ├── validation/                   # 🔹 Scripts de integridad centralizados
 |   |   ├── schemas/
-|   |   |   └── skill-output.schema.json ✅ COMPLETADO    
+|   |   |   └── skill-input-output.schema.json ✅ COMPLETADO  
+|   |   |          └── Esquema estricto para validar la salida de agentes generadores de código  
 |   |   |     
 │   │   ├── validate-skill-integrity.sh  # 🎯 Script maestro modular ✅ COMPLETADO
 │   │   ├── audit-secrets.sh         # Hardening: detección de hardcoded creds ✅ COMPLETADO
