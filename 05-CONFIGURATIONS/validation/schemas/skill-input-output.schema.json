@@ -1,0 +1,321 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schemas/skill-output.schema.json",
+  "title": "SDD Hardened Skill Output Schema",
+  "description": "Esquema estricto para validar la salida de agentes generadores de código (Qwen/DeepSeek) asegurando cumplimiento C1-C8. Define la estructura de metadatos, código, tests y documentación requerida para cada skill generado.",
+  "type": "object",
+  "required": [
+    "metadata",
+    "implementation",
+    "validation",
+    "infrastructure",
+    "documentation"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Metadatos de trazabilidad, versionado y contexto del tenant.",
+      "required": [
+        "skill_id",
+        "tenant_id",
+        "version",
+        "generated_at",
+        "model_used",
+        "constraints_applied",
+        "inference_provider"
+      ],
+      "properties": {
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Identificador único kebab-case de la skill."
+        },
+        "tenant_id": {
+          "type": "string",
+          "minLength": 3,
+          "description": "C4: Identificador obligatorio del inquilino propietario."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Versionado semántico de la skill."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp ISO 8601 de generación."
+        },
+        "model_used": {
+          "type": "string",
+          "enum": [
+            "qwen/qwen-2.5-72b-instruct",
+            "deepseek/deepseek-chat",
+            "minimax/minimax-01",
+            "anthropic/claude-3-haiku-20240307",
+            "openai/gpt-4o-mini"
+          ],
+          "description": "C6: Modelo exacto utilizado vía proxy."
+        },
+        "inference_provider": {
+          "type": "string",
+          "enum": ["openrouter", "dashscope", "deepseek_api"],
+          "description": "C6: Proveedor de inferencia cloud utilizado."
+        },
+        "constraints_applied": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+          },
+          "minItems": 4,
+          "uniqueItems": true,
+          "description": "Lista de reglas SDD Hardened aplicadas explícitamente."
+        }
+      },
+      "additionalProperties": false
+    },
+    "implementation": {
+      "type": "object",
+      "description": "Código fuente principal y configuraciones asociadas.",
+      "required": [
+        "language",
+        "source_code",
+        "dependencies",
+        "env_vars_required"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": ["typescript", "python", "bash", "sql", "terraform"],
+          "description": "Lenguaje principal de la implementación."
+        },
+        "source_code": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Código fuente completo. Debe incluir validaciones C3/C4 inline."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version"],
+            "properties": {
+              "name": { "type": "string" },
+              "version": { "type": "string" }
+            }
+          },
+          "description": "Lista de dependencias externas necesarias."
+        },
+        "env_vars_required": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z_]+$"
+          },
+          "minItems": 1,
+          "description": "C3: Variables de entorno obligatorias. No valores hardcodeados."
+        }
+      },
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "description": "Pruebas unitarias, smoke tests y criterios de aceptación C5.",
+      "required": [
+        "unit_tests",
+        "smoke_test_script",
+        "expected_success_output",
+        "expected_failure_output",
+        "troubleshooting_table"
+      ],
+      "properties": {
+        "unit_tests": {
+          "type": "string",
+          "description": "Código de tests unitarios (Jest/Pytest) con mocks de tenant_id."
+        },
+        "smoke_test_script": {
+          "type": "string",
+          "description": "Script bash/ts ejecutable para验证 integración básica."
+        },
+        "expected_success_output": {
+          "type": "string",
+          "description": "C5: Output exacto esperado en caso de éxito (JSON o string)."
+        },
+        "expected_failure_output": {
+          "type": "string",
+          "description": "C5: Output exacto esperado en caso de fallo controlado."
+        },
+        "troubleshooting_table": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["error_exact", "root_cause", "diagnostic_cmd", "step_by_step_fix", "constraint_violated"],
+            "properties": {
+              "error_exact": { "type": "string" },
+              "root_cause": { "type": "string" },
+              "diagnostic_cmd": { "type": "string" },
+              "step_by_step_fix": { "type": "string" },
+              "constraint_violated": { 
+                "type": "string",
+                "enum": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+              }
+            }
+          },
+          "minItems": 1,
+          "description": "Tabla de diagnóstico para errores comunes."
+        }
+      },
+      "additionalProperties": false
+    },
+    "infrastructure": {
+      "type": "object",
+      "description": "Recursos IaC y configuración de despliegue asociados a la skill.",
+      "required": [
+        "docker_compose_snippet",
+        "terraform_module_ref",
+        "resource_limits"
+      ],
+      "properties": {
+        "docker_compose_snippet": {
+          "type": "string",
+          "description": "Fragmento YAML de docker-compose si requiere servicios adicionales."
+        },
+        "terraform_module_ref": {
+          "type": "string",
+          "description": "Ruta al módulo Terraform asociado (ej: modules/postgres-rls)."
+        },
+        "resource_limits": {
+          "type": "object",
+          "required": ["cpu", "memory", "max_connections"],
+          "properties": {
+            "cpu": { "type": "string", "pattern": "^[0-9]+m$" },
+            "memory": { "type": "string", "pattern": "^[0-9]+Mi$" },
+            "max_connections": { "type": "integer", "minimum": 1 }
+          },
+          "description": "C1/C2: Límites de recursos explícitos para el contenedor/servicio."
+        }
+      },
+      "additionalProperties": false
+    },
+    "documentation": {
+      "type": "object",
+      "description": "Documentación legible por humanos y máquinas.",
+      "required": [
+        "objective",
+        "level",
+        "usage_example",
+        "security_notes"
+      ],
+      "properties": {
+        "objective": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Objetivo de la skill en una línea."
+        },
+        "level": {
+          "type": "string",
+          "enum": ["Junior", "Intermediate", "Expert"],
+          "description": "Nivel de complejidad estimado."
+        },
+        "usage_example": {
+          "type": "string",
+          "description": "Ejemplo de ejecución CLI o llamada API."
+        },
+        "security_notes": {
+          "type": "string",
+          "description": "Notas específicas de seguridad C3/C4 aplicadas."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "metadata": {
+        "skill_id": "qdrant-rag-ingest",
+        "tenant_id": "nexus-arg-01",
+        "version": "1.0.0",
+        "generated_at": "2025-06-10T12:00:00Z",
+        "model_used": "qwen/qwen-2.5-72b-instruct",
+        "inference_provider": "openrouter",
+        "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6"]
+      },
+      "implementation": {
+        "language": "typescript",
+        "source_code": "import { QdrantClient } from '@qdrant/js-client-rest';\nconst client = new QdrantClient({ url: process.env.QDRANT_URL, apiKey: process.env.QDRANT_API_KEY });\nexport async function ingest(tenant_id: string, points: any[]) {\n  if (!tenant_id) throw new Error('C4 VIOLATION');\n  return client.upsert('vectors', { wait: true, points });\n}",
+        "dependencies": [{"name": "@qdrant/js-client-rest", "version": "^1.9.0"}],
+        "env_vars_required": ["QDRANT_URL", "QDRANT_API_KEY", "TENANT_ID"]
+      },
+      "validation": {
+        "unit_tests": "describe('ingest', () => { it('throws on missing tenant', () => { expect(ingest(undefined, [])).rejects.toThrow('C4 VIOLATION'); }); });",
+        "smoke_test_script": "node -e \"require('./dist/index').ingest('test-tenant', [])\"",
+        "expected_success_output": "{\"points_ok\": true}",
+        "expected_failure_output": "Error: C4 VIOLATION",
+        "troubleshooting_table": [
+          {
+            "error_exact": "C4 VIOLATION",
+            "root_cause": "Argumento tenant_id es undefined",
+            "diagnostic_cmd": "console.log(process.env.TENANT_ID)",
+            "step_by_step_fix": "Exportar TENANT_ID antes de ejecutar",
+            "constraint_violated": "C4"
+          }
+        ]
+      },
+      "infrastructure": {
+        "docker_compose_snippet": "services:\n  qdrant:\n    image: qdrant/qdrant\n    ports:\n      - \"6333:6333\"",
+        "terraform_module_ref": "modules/qdrant-base",
+        "resource_limits": {"cpu": "500m", "memory": "512Mi", "max_connections": 10}
+      },
+      "documentation": {
+        "objective": "Ingestar vectores en Qdrant con aislamiento por tenant.",
+        "level": "Intermediate",
+        "usage_example": "npm run ingest -- --tenant=nexus-arg-01",
+        "security_notes": "API Key inyectada vía env var. Tenant validado en runtime."
+      }
+    },
+    {
+      "metadata": {
+        "skill_id": "postgres-rls-policy",
+        "tenant_id": "acme-corp",
+        "version": "1.2.0",
+        "generated_at": "2025-06-10T12:05:00Z",
+        "model_used": "deepseek/deepseek-chat",
+        "inference_provider": "openrouter",
+        "constraints_applied": ["C3", "C4", "C5"]
+      },
+      "implementation": {
+        "language": "sql",
+        "source_code": "ALTER TABLE users ENABLE ROW LEVEL SECURITY;\nCREATE POLICY tenant_isolation ON users USING (tenant_id = current_setting('app.tenant_id')::uuid);",
+        "dependencies": [],
+        "env_vars_required": ["DB_HOST", "DB_USER", "DB_PASS"]
+      },
+      "validation": {
+        "unit_tests": "SELECT current_setting('app.tenant_id');",
+        "smoke_test_script": "psql -c \"SET app.tenant_id = '...'; SELECT * FROM users;\"",
+        "expected_success_output": "Rows filtered by tenant_id",
+        "expected_failure_output": "ERROR: permission denied for policy",
+        "troubleshooting_table": [
+          {
+            "error_exact": "permission denied",
+            "root_cause": "Policy no aplicada o tenant_id no seteado",
+            "diagnostic_cmd": "SHOW app.tenant_id;",
+            "step_by_step_fix": "Ejecutar SET app.tenant_id antes de query",
+            "constraint_violated": "C4"
+          }
+        ]
+      },
+      "infrastructure": {
+        "docker_compose_snippet": "",
+        "terraform_module_ref": "modules/postgres-rls",
+        "resource_limits": {"cpu": "1000m", "memory": "1Gi", "max_connections": 50}
+      },
+      "documentation": {
+        "objective": "Aplicar RLS en Postgres para aislamiento estricto.",
+        "level": "Expert",
+        "usage_example": "psql -f rls_policy.sql",
+        "security_notes": "RLS fuerza aislamiento a nivel de DB. Cero confianza en app layer."
+      }
+    }
+  ]
+}
