@@ -411,8 +411,12 @@ agentic-infra-docs/
 |
 │
 ├── 05-CONFIGURATIONS/
-│   ├── 00-INDEX.md                           🆕 PENDIENTE
-│   │   └── Índice de todas las configuraciones
+│   ├── 00-INDEX.md                          ✅ COMPLETADO
+│   │   └── Índice maestro y registro de integridad para el directorio 
+|   |       `05-CONFIGURATIONS/`. Centraliza referencias canónicas, mapeo de constraints 
+|   |       (C1-C8), y rutas de validación cruzada. Este documento actúa como hub de 
+|   |       navegación técnica y punto de entrada obligatorio
+|   |       para ciclos SDD (Collaborative/Automated).
 │   │
 │   ├── observability/                           ✅ COMPLETADO
 │   │   └── otel-tracing-config.yaml
@@ -424,14 +428,14 @@ agentic-infra-docs/
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
 │   │   │   └── Índice de archivos docker-compose
 │   │   │
-│   │   ├── vps1-n8n-uazapi.yml               🆕 PENDIENTE
-│   │   │   └── Docker Compose para VPS 1 (n8n + uazapi + Redis)
+│   │   ├── vps1-n8n-uazapi.yml               ✅ COMPLETADO
+│   │   │   └── Docker Compose para VPS 1 (n8n + uazapi )
 │   │   │
 │   │   ├── vps2-crm-qdrant.yml               🆕 PENDIENTE
 │   │   │   └── Docker Compose para VPS 2 (EspoCRM + MySQL + Qdrant)
 │   │   │
 │   │   └── vps3-n8n-uazapi.yml               🆕 PENDIENTE
-│   │       └── Docker Compose para VPS 3 (n8n + uazapi)
+│   │       └── Docker Compose para VPS 3 (n8n + uazapi+ Redis)
 |   |
 |   |
 |   |

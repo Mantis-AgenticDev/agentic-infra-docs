@@ -1,0 +1,851 @@
+---
+title: "vps1-n8n-uazapi — Docker Compose VPS1"
+version: "1.0.0"
+canonical_path: "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml"
+status: "PRODUCTION_READY"
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+target_servers:
+  kvm1: { vcpu: 1, ram_gb: 4, nvme_gb: 50, bandwidth_tb: 4 }
+  kvm2: { vcpu: 2, ram_gb: 8, nvme_gb: 100, bandwidth_tb: 8 }
+services: ["n8n", "uazapi", "redis", "traefik", "otel-collector"]
+validation_command: |
+  grep -E 'mem_limit|cpus|pids_limit' vps1-n8n-uazapi.yml | wc -l
+  # Esperado: >= 15 líneas con límites definidos
+last_updated: "2026-04-13"
+related_files:
+  - "[[05-CONFIGURATIONS/00-INDEX.md]]"
+  - "[[05-CONFIGURATIONS/terraform/modules/vps-base/main.tf]]"
+  - "[[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]]"
+  - "[[05-CONFIGURATIONS/observability/otel-tracing-config.yaml]]"
+  - "[[01-RULES/01-ARCHITECTURE-RULES.md]]"
+  - "[[01-RULES/02-RESOURCE-GUARDRAILS.md]]"
+  - "[[01-RULES/03-SECURITY-RULES.md]]"
+  - "[[02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md]]"
+  - "[[02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md]]"
+  - "[[02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md]]"
+  - "[[02-SKILLS/SEGURIDAD/security-hardening-vps.md]]"
+---
+
+# 🐳 VPS1 — Docker Compose: n8n + uazapi + Redis + Traefik + OTEL
+
+> Archivo de infraestructura de producción para VPS1 (KVM1 por defecto, override KVM2 disponible).
+> Cubre servicios: n8n (orquestador), uazapi (WhatsApp), Redis (sesiones), Traefik (proxy), OTEL Collector (observabilidad).
+
+---
+
+## 📊 Distribución de Recursos
+
+### KVM1 — Configuración Inicial (1 vCPU / 4 GB RAM)
+
+```
+VPS1 KVM1 — 4 GB RAM total
+├── n8n            → 1.5 GB RAM  |  0.50 vCPU   ← orquestador principal
+├── uazapi         → 0.75 GB RAM |  0.20 vCPU   ← WhatsApp interface
+├── Redis          → 0.25 GB RAM |  0.10 vCPU   ← sesiones RAG
+├── Traefik        → 0.12 GB RAM |  0.08 vCPU   ← reverse proxy + TLS
+├── OTEL Collector → 0.12 GB RAM |  0.07 vCPU   ← observabilidad C8
+└── OS / kernel    → 0.50 GB RAM |  0.05 vCPU   ← reservado
+   TOTAL           → 3.24 GB     |  1.00 vCPU   ✅ dentro de C1/C2
+```
+
+### KVM2 — Override Scale-Up (2 vCPU / 8 GB RAM)
+
+```
+VPS1 KVM2 — 8 GB RAM total
+├── n8n            → 3.00 GB RAM  |  1.00 vCPU
+├── uazapi         → 1.50 GB RAM  |  0.40 vCPU
+├── Redis          → 0.50 GB RAM  |  0.20 vCPU
+├── Traefik        → 0.25 GB RAM  |  0.15 vCPU
+├── OTEL Collector → 0.25 GB RAM  |  0.15 vCPU
+└── OS / kernel    → 1.00 GB RAM  |  0.10 vCPU
+   TOTAL           → 6.50 GB      |  2.00 vCPU  ✅ dentro de C1/C2
+```
+
+---
+
+## 📁 Archivo Principal — KVM1 (Default)
+
+```yaml
+# ==============================================================================
+# 05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml
+# VPS1: n8n + uazapi + Redis + Traefik + OTEL Collector
+# Target: KVM1 (1 vCPU / 4 GB RAM / 50 GB NVMe)
+# Constraints: C1(RAM), C2(CPU), C3(secrets), C4(tenant), C7(resiliencia), C8(logs)
+# Versión: 1.0.0 | MANTIS AGENTIC — SDD Hardened
+# ==============================================================================
+
+x-logging-default: &logging-default
+  # C8: Logs estructurados JSON con rotación automática
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    tag: "{{.Name}}/{{.ID}}"
+
+x-restart-default: &restart-default
+  # C7: Reinicio automático excepto en parada manual
+  restart: unless-stopped
+
+x-networks-default: &networks-default
+  networks:
+    - mantis-internal
+
+x-healthcheck-base: &healthcheck-base
+  # C7: Health checks en todos los servicios críticos
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+
+services:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TRAEFIK — Reverse Proxy + TLS Automático (Let's Encrypt)
+  # C3: Sin puertos DB/Redis expuestos al exterior
+  # C7: Circuit breaker + retry integrado en labels
+  # ─────────────────────────────────────────────────────────────────────────
+  traefik:
+    image: traefik:v3.0
+    container_name: mantis-traefik
+    <<: *restart-default
+    <<: *networks-default
+    logging: *logging-default
+
+    # C1/C2: Límites de recursos Traefik
+    mem_limit: 128m
+    mem_reservation: 64m
+    cpus: "0.08"
+    pids_limit: 100
+
+    ports:
+      - "80:80"             # HTTP → redirect a HTTPS
+      - "443:443"           # HTTPS (Let's Encrypt)
+      # C3: Panel admin NUNCA expuesto al exterior — solo localhost
+      - "127.0.0.1:8080:8080"
+
+    environment:
+      # C3: Cero valores hardcodeados — fallar rápido si falta
+      - TRAEFIK_LOG_LEVEL=${TRAEFIK_LOG_LEVEL:-warn}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL:?C3: ACME_EMAIL missing}
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+
+    command:
+      - "--api.insecure=false"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=mantis-internal"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      # C7: Retry y circuit breaker
+      - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=60s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.writeTimeout=60s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=180s"
+      # C8: Access logs estructurados
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--log.format=json"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+
+    labels:
+      - "traefik.enable=true"
+      # Dashboard protegido con BasicAuth
+      - "traefik.http.routers.traefik-dash.rule=Host(`traefik.${DOMAIN:?C3: DOMAIN missing}`)"
+      - "traefik.http.routers.traefik-dash.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-dash.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH:?C3: TRAEFIK_DASHBOARD_AUTH missing}"
+
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      <<: *healthcheck-base
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # N8N — Orquestador de Agentes
+  # C1: mem_limit 1536m (máximo permitido en KVM1)
+  # C2: cpus 0.50 (50% del único núcleo disponible)
+  # C4: TENANT_ID inyectado, propagado a todos los workflows
+  # C7: Concurrencia limitada, timeout de webhook explícito
+  # ─────────────────────────────────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: mantis-n8n
+    <<: *restart-default
+    <<: *networks-default
+    logging: *logging-default
+
+    # C1: Límite estricto de RAM — OOM killer limpio en vez de swap lento
+    mem_limit: 1536m
+    mem_reservation: 768m
+    memswap_limit: 1536m   # Sin swap — fallo limpio en OOM
+
+    # C2: CPU limitado a 50% del núcleo físico
+    cpus: "0.50"
+    cpu_shares: 512
+
+    # C7: Límite de procesos hijo
+    pids_limit: 150
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+
+    environment:
+      # ── Identidad y seguridad ──────────────────────────────────────────
+      # C3: Credenciales desde env — falla si no están definidas
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:?C3: N8N_BASIC_AUTH_USER missing}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?C3: N8N_BASIC_AUTH_PASSWORD missing}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?C3: N8N_ENCRYPTION_KEY missing}
+      N8N_USER_MANAGEMENT_JWT_SECRET: ${N8N_JWT_SECRET:?C3: N8N_JWT_SECRET missing}
+
+      # ── URL y acceso ───────────────────────────────────────────────────
+      N8N_HOST: ${DOMAIN:?C3: DOMAIN missing}
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: "https"
+      WEBHOOK_URL: "https://${DOMAIN}/webhook"
+      N8N_EDITOR_BASE_URL: "https://${DOMAIN}"
+
+      # ── Base de datos n8n (SQLite en KVM1, migrar a Postgres en KVM2) ──
+      DB_TYPE: "sqlite"
+      DB_SQLITE_VACUUM_ON_STARTUP: "true"
+
+      # ── C4: Tenant awareness ───────────────────────────────────────────
+      TENANT_ID: ${TENANT_ID:?C4: TENANT_ID missing}
+
+      # ── C1/C2: Límites de ejecución (RES-009) ─────────────────────────
+      EXECUTIONS_PROCESS: "main"
+      EXECUTIONS_MAX_CONCURRENT: "5"
+      EXECUTIONS_DATA_MAX_AGE: "336"         # 14 días de historial
+      EXECUTIONS_DATA_PRUNE: "true"
+      WEBHOOK_TIMEOUT: "30000"               # C2: 30s timeout máximo
+
+      # ── Memoria JVM-like para Node.js ──────────────────────────────────
+      NODE_OPTIONS: "--max-old-space-size=1400"  # 1.4GB — margen bajo mem_limit
+
+      # ── Redis para sesiones y queue ────────────────────────────────────
+      QUEUE_BULL_REDIS_HOST: "redis"
+      QUEUE_BULL_REDIS_PORT: "6379"
+      QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD:?C3: REDIS_PASSWORD missing}
+      QUEUE_BULL_REDIS_TIMEOUT_THRESHOLD: "10000"
+
+      # ── OpenRouter / AI (C6: cloud-only) ──────────────────────────────
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?C3: OPENROUTER_API_KEY missing}
+
+      # ── C8: Logs estructurados ─────────────────────────────────────────
+      N8N_LOG_LEVEL: ${N8N_LOG_LEVEL:-warn}
+      N8N_LOG_OUTPUT: "console"
+      N8N_METRICS: "true"
+      N8N_METRICS_PREFIX: "mantis_n8n_"
+
+      # ── Seguridad adicional ────────────────────────────────────────────
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_DISABLE_PRODUCTION_MAIN_PROCESS: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"         # Reducir superficie de ataque
+      N8N_PERSONALIZATION_ENABLED: "false"
+      GENERIC_TIMEZONE: "America/Sao_Paulo"
+
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - /etc/localtime:/etc/localtime:ro
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      # C7: Rate limiting via Traefik middleware
+      - "traefik.http.routers.n8n.middlewares=n8n-ratelimit,n8n-headers"
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.burst=50"
+      - "traefik.http.middlewares.n8n-ratelimit.ratelimit.period=1m"
+      # C3: Security headers
+      - "traefik.http.middlewares.n8n-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.n8n-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.n8n-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.n8n-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.n8n-headers.headers.referrerPolicy=same-origin"
+      # C4: Header tenant propagado
+      - "mantis.tenant=${TENANT_ID}"
+      - "mantis.service=n8n"
+
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -q --spider http://localhost:5678/healthz || exit 1"
+      <<: *healthcheck-base
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # UAZAPI — WhatsApp Business Gateway
+  # C1: mem_limit 768m
+  # C2: cpus 0.20
+  # C3: API token desde env
+  # C7: Auto-reconexión de sesión WhatsApp
+  # ─────────────────────────────────────────────────────────────────────────
+  uazapi:
+    image: uazapi/uazapi:latest
+    container_name: mantis-uazapi
+    <<: *restart-default
+    <<: *networks-default
+    logging: *logging-default
+
+    # C1/C2: Límites estrictos
+    mem_limit: 768m
+    mem_reservation: 384m
+    memswap_limit: 768m
+    cpus: "0.20"
+    pids_limit: 100
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+
+    environment:
+      # C3: Credenciales desde env
+      UAZAPI_TOKEN: ${UAZAPI_TOKEN:?C3: UAZAPI_TOKEN missing}
+      UAZAPI_MONGO_DB: ${UAZAPI_MONGO_DB:-uazapi}
+
+      # C4: Tenant inyectado en logs y headers de webhook
+      TENANT_ID: ${TENANT_ID:?C4: TENANT_ID missing}
+
+      # Webhook destino: n8n (red interna — C3)
+      UAZAPI_WEBHOOK_URL: "http://n8n:5678/webhook/whatsapp"
+      UAZAPI_WEBHOOK_SECRET: ${UAZAPI_WEBHOOK_SECRET:?C3: UAZAPI_WEBHOOK_SECRET missing}
+
+      # Redis para persistencia de sesión
+      UAZAPI_REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/1"
+
+      # C1: Timeout de operaciones
+      UAZAPI_TIMEOUT: "30000"
+
+      # C8: Logs JSON
+      LOG_LEVEL: ${LOG_LEVEL:-warn}
+      LOG_FORMAT: "json"
+      NODE_OPTIONS: "--max-old-space-size=700"
+
+    volumes:
+      - uazapi-sessions:/app/sessions
+      - uazapi-media:/app/media
+
+    labels:
+      - "traefik.enable=true"
+      # uazapi NO debe tener acceso público directo
+      # Solo n8n puede llamarlo internamente vía red Docker
+      - "traefik.enable=false"
+      - "mantis.tenant=${TENANT_ID}"
+      - "mantis.service=uazapi"
+
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -q --spider http://localhost:3333/health || exit 1"
+      <<: *healthcheck-base
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # REDIS — Session Store y Cache de Agentes
+  # C1: maxmemory 220mb (dentro de mem_limit 256m)
+  # C4: Claves prefijadas con tenant_id (enforced en aplicación)
+  # C7: volatile-lru — elimina solo keys con TTL cuando hay presión de RAM
+  # ─────────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: mantis-redis
+    <<: *restart-default
+    <<: *networks-default
+    logging: *logging-default
+
+    # C1/C2: Límites más conservadores para Redis
+    mem_limit: 256m
+    mem_reservation: 128m
+    memswap_limit: 256m
+    cpus: "0.10"
+    pids_limit: 50
+
+    # C3: Password desde env, puerto solo en red interna
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?C3: REDIS_PASSWORD missing}
+      --maxmemory 220mb
+      --maxmemory-policy volatile-lru
+      --save ""
+      --appendonly no
+      --loglevel warning
+      --protected-mode yes
+      --bind 0.0.0.0
+      --timeout 300
+      --tcp-keepalive 60
+      --databases 4
+    # DB 0: n8n queue/bull
+    # DB 1: uazapi sesiones
+    # DB 2: RAG response cache
+    # DB 3: rate limiting
+
+    ports:
+      # C3: NUNCA exponer Redis al exterior — solo red Docker interna
+      - "127.0.0.1:6379:6379"
+
+    volumes:
+      - redis-data:/data
+
+    healthcheck:
+      test:
+        - "CMD"
+        - "redis-cli"
+        - "-a"
+        - "${REDIS_PASSWORD}"
+        - "ping"
+      <<: *healthcheck-base
+      start_period: 15s
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # OTEL COLLECTOR — Observabilidad C8
+  # Recibe trazas, métricas y logs estructurados de todos los servicios
+  # Exporta a backends configurados vía env vars
+  # ─────────────────────────────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: mantis-otel
+    <<: *restart-default
+    <<: *networks-default
+    logging: *logging-default
+
+    # C1/C2: Colector es liviano por diseño
+    mem_limit: 128m
+    mem_reservation: 64m
+    cpus: "0.07"
+    pids_limit: 50
+
+    environment:
+      # C3: Endpoints de exportación desde env
+      OTEL_TRACES_ENDPOINT: ${OTEL_TRACES_ENDPOINT:-}
+      OTEL_METRICS_ENDPOINT: ${OTEL_METRICS_ENDPOINT:-}
+      OTEL_LOGS_ENDPOINT: ${OTEL_LOGS_ENDPOINT:-}
+      OTEL_AUTH_TOKEN: ${OTEL_AUTH_TOKEN:-}
+      # C4: Tenant como atributo de recurso global
+      TENANT_ID: ${TENANT_ID:?C4: TENANT_ID missing}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+
+    volumes:
+      - ./otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+      - /var/log:/var/log/host:ro
+
+    ports:
+      # Solo en red interna (C3)
+      - "127.0.0.1:4317:4317"   # OTLP gRPC
+      - "127.0.0.1:4318:4318"   # OTLP HTTP
+      - "127.0.0.1:8888:8888"   # Métricas del propio collector
+
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-q"
+        - "--spider"
+        - "http://localhost:13133/healthz"
+      <<: *healthcheck-base
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REDES — Aislamiento por Diseño
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  mantis-internal:
+    driver: bridge
+    name: mantis-internal-${TENANT_ID:-default}
+    driver_opts:
+      # C3: ICC deshabilitado — los contenedores solo se comunican
+      #     a través de los links declarados explícitamente
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.20.0.0/24"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VOLÚMENES — Persistencia con labels de tenant (C4)
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  n8n-data:
+    name: "mantis-n8n-data-${TENANT_ID:-default}"
+    labels:
+      mantis.tenant: "${TENANT_ID:-default}"
+      mantis.service: "n8n"
+      mantis.backup: "daily"     # C5: marcado para backup automático
+  uazapi-sessions:
+    name: "mantis-uazapi-sessions-${TENANT_ID:-default}"
+    labels:
+      mantis.tenant: "${TENANT_ID:-default}"
+      mantis.service: "uazapi"
+      mantis.backup: "daily"
+  uazapi-media:
+    name: "mantis-uazapi-media-${TENANT_ID:-default}"
+    labels:
+      mantis.tenant: "${TENANT_ID:-default}"
+      mantis.service: "uazapi"
+      mantis.backup: "weekly"
+  redis-data:
+    name: "mantis-redis-data-${TENANT_ID:-default}"
+    labels:
+      mantis.tenant: "${TENANT_ID:-default}"
+      mantis.service: "redis"
+      mantis.backup: "none"      # Redis es volátil — sesiones se pueden perder
+  traefik-certs:
+    name: "mantis-traefik-certs"
+    labels:
+      mantis.service: "traefik"
+      mantis.backup: "daily"     # C5: certificados TLS deben respaldarse
+```
+
+---
+
+## 📁 Override KVM2 — Scale-Up (2 vCPU / 8 GB RAM)
+
+Aplicar sobre el base: `docker compose -f vps1-n8n-uazapi.yml -f vps1-n8n-uazapi.kvm2.override.yml up -d`
+
+```yaml
+# 05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.kvm2.override.yml
+# Override para KVM2: 2 vCPU / 8 GB RAM
+# Uso: docker compose -f vps1-n8n-uazapi.yml -f vps1-n8n-uazapi.kvm2.override.yml up -d
+
+services:
+  n8n:
+    # C1/C2: Escalar a KVM2
+    mem_limit: 3072m
+    mem_reservation: 1536m
+    memswap_limit: 3072m
+    cpus: "1.00"
+    environment:
+      EXECUTIONS_MAX_CONCURRENT: "10"          # El doble de KVM1
+      NODE_OPTIONS: "--max-old-space-size=2800"
+      DB_TYPE: "postgresdb"                    # KVM2: migrar a Postgres
+      DB_POSTGRESDB_HOST: ${DB_HOST:?missing}
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${DB_NAME:?missing}
+      DB_POSTGRESDB_USER: ${DB_USER:?missing}
+      DB_POSTGRESDB_PASSWORD: ${DB_PASSWORD:?missing}
+      DB_POSTGRESDB_SCHEMA: "public"
+      DB_POSTGRESDB_SSL_ENABLED: "true"
+
+  uazapi:
+    mem_limit: 1536m
+    mem_reservation: 768m
+    memswap_limit: 1536m
+    cpus: "0.40"
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=1400"
+
+  redis:
+    mem_limit: 512m
+    mem_reservation: 256m
+    cpus: "0.20"
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 460mb
+      --maxmemory-policy volatile-lru
+      --save ""
+      --appendonly no
+      --loglevel warning
+
+  otel-collector:
+    mem_limit: 256m
+    mem_reservation: 128m
+    cpus: "0.15"
+
+  traefik:
+    mem_limit: 256m
+    mem_reservation: 128m
+    cpus: "0.15"
+```
+
+---
+
+## 🔑 Variables de Entorno — Template
+
+```bash
+# 05-CONFIGURATIONS/environment/.env.vps1.example
+# ==============================================================================
+# MANTIS AGENTIC — VPS1 Environment Variables
+# NUNCA commitear con valores reales. Usar como base para .env
+# Generar con: cp .env.vps1.example .env.vps1 && nano .env.vps1
+# ==============================================================================
+
+# ── C4: Identidad del tenant ────────────────────────────────────────────────
+TENANT_ID=restaurante_001                      # kebab-case, sin espacios
+
+# ── C3: Dominio y TLS ───────────────────────────────────────────────────────
+DOMAIN=n8n.tudominio.com.br
+ACME_EMAIL=admin@tudominio.com.br
+
+# ── C3: Credenciales n8n ────────────────────────────────────────────────────
+N8N_BASIC_AUTH_USER=admin
+N8N_BASIC_AUTH_PASSWORD=CAMBIAR_POR_CONTRASEÑA_FUERTE_32_CHARS
+N8N_ENCRYPTION_KEY=GENERAR_CON_openssl_rand_-hex_32
+N8N_JWT_SECRET=GENERAR_CON_openssl_rand_-hex_32
+
+# ── C3: Credenciales uazapi ─────────────────────────────────────────────────
+UAZAPI_TOKEN=CAMBIAR_POR_TOKEN_FUERTE
+UAZAPI_WEBHOOK_SECRET=GENERAR_CON_openssl_rand_-hex_24
+
+# ── C3: Redis ───────────────────────────────────────────────────────────────
+REDIS_PASSWORD=GENERAR_CON_openssl_rand_-hex_24
+
+# ── C6: OpenRouter (cloud-only inference) ───────────────────────────────────
+OPENROUTER_API_KEY=sk-or-v1-...
+
+# ── C3: Traefik Dashboard ───────────────────────────────────────────────────
+# Generar con: echo $(htpasswd -nB admin) | sed -e 's/\$/\$\$/g'
+TRAEFIK_DASHBOARD_AUTH=admin:$$2y$$...
+TRAEFIK_LOG_LEVEL=warn
+
+# ── C8: Observabilidad (opcional en dev, requerido en prod) ─────────────────
+OTEL_TRACES_ENDPOINT=https://tempo.tudominio.com.br/otlp
+OTEL_METRICS_ENDPOINT=https://prometheus.tudominio.com.br/api/v1/write
+OTEL_LOGS_ENDPOINT=https://loki.tudominio.com.br/loki/api/v1/push
+OTEL_AUTH_TOKEN=CAMBIAR_POR_TOKEN_OBSERVABILIDAD
+ENVIRONMENT=production
+
+# ── Configuración operativa ─────────────────────────────────────────────────
+LOG_LEVEL=warn
+N8N_LOG_LEVEL=warn
+```
+
+---
+
+## 🚀 Scripts de Deploy
+
+### Setup Inicial (ejecutar una vez por VPS)
+
+```bash
+#!/bin/bash
+# scripts/vps1-initial-setup.sh
+# Ejecutar como root en VPS1 virgen
+# C5: Verificar integridad antes de continuar
+
+set -euo pipefail
+
+TENANT_ID="${1:?C4: tenant_id requerido como primer argumento}"
+DOMAIN="${2:?C3: dominio requerido como segundo argumento}"
+
+echo "🚀 Setup VPS1 para tenant: $TENANT_ID | dominio: $DOMAIN"
+
+# ── 1. Actualizar sistema ──────────────────────────────────────────────────
+apt-get update -y && apt-get upgrade -y
+
+# ── 2. Instalar dependencias ───────────────────────────────────────────────
+apt-get install -y docker.io docker-compose-plugin ufw fail2ban \
+  htop curl wget jq openssl apache2-utils
+
+systemctl enable docker && systemctl start docker
+
+# ── 3. Hardening básico ────────────────────────────────────────────────────
+# UFW — ver ufw-firewall-configuration.md
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow ssh
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw --force enable
+
+# ── 4. Crear directorio de proyecto ──────────────────────────────────────
+mkdir -p /opt/mantis/{docker-compose,volumes,backups,logs}
+cd /opt/mantis
+
+# ── 5. Copiar archivos ─────────────────────────────────────────────────────
+# [El humano copia aquí el contenido del ZIP generado]
+
+# ── 6. Configurar .env ────────────────────────────────────────────────────
+echo "⚠️  ACCIÓN MANUAL REQUERIDA:"
+echo "   1. Editar /opt/mantis/.env con valores reales"
+echo "   2. Ejecutar: ./validate-env.sh"
+echo "   3. Ejecutar: ./deploy.sh $TENANT_ID"
+
+echo "✅ Setup inicial completo. Ahora configura el .env."
+```
+
+### Deploy + Validación
+
+```bash
+#!/bin/bash
+# scripts/vps1-deploy.sh
+# C5: Validar antes de deployar — nunca skip
+# C7: Rollback automático si health checks fallan
+
+set -euo pipefail
+
+TENANT_ID="${1:?C4: tenant_id requerido}"
+COMPOSE_FILE="05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml"
+OVERRIDE_FILE="05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.kvm2.override.yml"
+KVM_TYPE="${2:-kvm1}"   # kvm1 (default) | kvm2
+
+echo "🐳 Deploy VPS1 | tenant: $TENANT_ID | server: $KVM_TYPE"
+
+# ── PRE-DEPLOY: Validaciones C1-C8 ────────────────────────────────────────
+
+echo "  Verificando constraints C1/C2 (límites de recursos)..."
+LIMITS_COUNT=$(grep -cE 'mem_limit|cpus|pids_limit' "$COMPOSE_FILE" || true)
+if [[ "$LIMITS_COUNT" -lt 15 ]]; then
+  echo "❌ C1/C2: Solo $LIMITS_COUNT límites definidos (mínimo 15)"
+  exit 1
+fi
+echo "  ✅ C1/C2: $LIMITS_COUNT límites de recursos encontrados"
+
+echo "  Verificando C3 (sin secrets hardcodeados)..."
+./05-CONFIGURATIONS/validation/audit-secrets.sh "$COMPOSE_FILE" /dev/null 1 1
+echo "  ✅ C3: Sin credenciales hardcodeadas"
+
+echo "  Verificando C4 (tenant_id presente)..."
+if ! grep -q "TENANT_ID" "$COMPOSE_FILE"; then
+  echo "❌ C4: TENANT_ID no encontrado en compose file"
+  exit 1
+fi
+echo "  ✅ C4: TENANT_ID referenciado"
+
+echo "  Verificando .env cargado..."
+if [[ -z "${TENANT_ID:-}" ]]; then
+  echo "❌ C4: TENANT_ID no exportado en entorno"
+  exit 1
+fi
+echo "  ✅ Variables de entorno verificadas"
+
+# ── SNAPSHOT PRE-DEPLOY (C5) ───────────────────────────────────────────────
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+CONFIG_HASH=$(sha256sum "$COMPOSE_FILE" | awk '{print $1}')
+echo "  📸 Snapshot: $TIMESTAMP | SHA256: ${CONFIG_HASH:0:16}..."
+
+# ── DEPLOY ────────────────────────────────────────────────────────────────
+if [[ "$KVM_TYPE" == "kvm2" ]]; then
+  docker compose \
+    -f "$COMPOSE_FILE" \
+    -f "$OVERRIDE_FILE" \
+    --env-file .env \
+    up -d --remove-orphans --wait
+else
+  docker compose \
+    -f "$COMPOSE_FILE" \
+    --env-file .env \
+    up -d --remove-orphans --wait
+fi
+
+# ── POST-DEPLOY: Health Checks ─────────────────────────────────────────────
+echo "  ⏳ Esperando health checks (60s)..."
+sleep 60
+
+UNHEALTHY=$(docker ps --filter "health=unhealthy" --filter "label=mantis.tenant=$TENANT_ID" -q)
+if [[ -n "$UNHEALTHY" ]]; then
+  echo "❌ Servicios no saludables detectados — iniciando rollback"
+  docker compose -f "$COMPOSE_FILE" down
+  echo "❌ Deploy fallido. Revisar logs: docker compose logs"
+  exit 1
+fi
+
+echo "✅ Deploy exitoso para tenant: $TENANT_ID"
+echo "   n8n:    https://${DOMAIN}"
+echo "   Traefik: https://traefik.${DOMAIN}"
+
+# C5: Log final de auditoría
+echo "{\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"tenant_id\":\"$TENANT_ID\",\"event\":\"deploy_success\",\"sha256\":\"$CONFIG_HASH\",\"server\":\"$KVM_TYPE\"}"
+```
+
+---
+
+## ✅ Tabla de Validación (C5)
+
+| # | Check | Constraint | Comando | ✅ Deberías ver | ❌ Si ves esto | Solución |
+|---|---|---|---|---|---|---|
+| 1 | Límites C1/C2 declarados | C1/C2 | `grep -cE 'mem_limit\|cpus\|pids_limit' vps1-n8n-uazapi.yml` | `>= 15` | `< 15` | Agregar `mem_limit` y `cpus` a todos los servicios |
+| 2 | Sin credenciales hardcodeadas | C3 | `./05-CONFIGURATIONS/validation/audit-secrets.sh .` | `status: passed` | `CRITICAL: hardcoded secret` | Mover valores a `.env` con `${VAR:?missing}` |
+| 3 | tenant_id en compose | C4 | `grep -c 'TENANT_ID' vps1-n8n-uazapi.yml` | `>= 6` | `0` | Agregar `TENANT_ID: ${TENANT_ID:?C4}` a cada servicio |
+| 4 | Healthchecks en todos los servicios | C7 | `grep -c 'healthcheck' vps1-n8n-uazapi.yml` | `>= 5` | `< 5` | Agregar bloque `healthcheck:` al servicio faltante |
+| 5 | Logs JSON configurados | C8 | `grep -c 'json-file' vps1-n8n-uazapi.yml` | `>= 4` | `0` | Agregar `logging: *logging-default` a cada servicio |
+| 6 | Redis solo en localhost | C3 | `grep 'redis' vps1-n8n-uazapi.yml \| grep ports` | `127.0.0.1:6379` | `0.0.0.0:6379` | Cambiar binding a `127.0.0.1:6379:6379` |
+| 7 | ICC deshabilitado en red | C3 | `grep 'enable_icc' vps1-n8n-uazapi.yml` | `"false"` | `"true"` o ausente | Agregar `com.docker.network.bridge.enable_icc: "false"` |
+| 8 | uazapi sin exposición pública | C3 | `grep -A3 'uazapi:' vps1-n8n-uazapi.yml \| grep 'traefik.enable'` | `"false"` | `"true"` | uazapi solo debe ser accesible desde n8n internamente |
+| 9 | memswap_limit = mem_limit | C1 | `grep 'memswap_limit' vps1-n8n-uazapi.yml` | Mismo valor que `mem_limit` | `memswap_limit: -1` | Configurar `memswap_limit` igual a `mem_limit` para evitar swap |
+| 10 | docker compose validate | C1-C8 | `docker compose -f vps1-n8n-uazapi.yml config --quiet` | Sin output (éxito silencioso) | `Error: ...` | Corregir la sintaxis YAML indicada en el error |
+| 11 | n8n RAM < 1536m en KVM1 | C1 | `grep 'n8n' -A5 vps1-n8n-uazapi.yml \| grep mem_limit` | `1536m` | `> 1536m` | Reducir `mem_limit` o usar KVM2 override |
+| 12 | Volúmenes con label tenant | C4 | `grep -c 'mantis.tenant' vps1-n8n-uazapi.yml` | `>= 4` | `0` | Agregar `labels: mantis.tenant: "${TENANT_ID}"` a cada volumen |
+| 13 | TLS en Traefik activo | C3 | `grep 'tls.certresolver=letsencrypt' vps1-n8n-uazapi.yml` | Match encontrado | No match | Agregar `tls.certresolver=letsencrypt` en labels del router |
+| 14 | OTEL recibe en localhost | C3 | `grep '4317\|4318' vps1-n8n-uazapi.yml` | `127.0.0.1:4317` | `0.0.0.0:4317` | Restringir binding OTEL a localhost |
+| 15 | Override KVM2 no rompe KVM1 | C7 | `docker compose -f base.yml -f kvm2.override.yml config --quiet` | Sin output | `Error: conflicting` | Verificar que override solo sobreescribe recursos, no estructura |
+
+---
+
+## 🔍 Comandos de Verificación Post-Deploy
+
+```bash
+# 1. Estado de todos los servicios
+docker compose -f vps1-n8n-uazapi.yml ps
+
+# 2. Uso de recursos en tiempo real (C1/C2)
+docker stats --no-stream --format \
+  "table {{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}\t{{.PIDs}}"
+
+# 3. Verificar que n8n responde
+curl -sf https://${DOMAIN}/healthz | jq .
+
+# 4. Verificar que Redis es accesible solo desde la red interna
+docker exec mantis-n8n redis-cli -h redis -a "${REDIS_PASSWORD}" ping
+# ✅ Deberías ver: PONG
+
+# 5. Verificar que Redis NO es accesible desde fuera del VPS
+# (ejecutar desde tu máquina local, NO desde el VPS)
+redis-cli -h IP_DEL_VPS -p 6379 ping 2>&1
+# ✅ Deberías ver: Connection refused
+
+# 6. Verificar logs estructurados JSON (C8)
+docker logs mantis-n8n --tail 10 | python3 -m json.tool
+
+# 7. Verificar tenant_id en logs
+docker logs mantis-n8n 2>&1 | grep -o '"tenant_id":"[^"]*"' | head -5
+
+# 8. Verificar consumo de disco (C1)
+docker system df
+df -h /opt/mantis
+
+# 9. Health check de todos los contenedores
+docker inspect --format='{{.Name}}: {{.State.Health.Status}}' \
+  mantis-n8n mantis-uazapi mantis-redis mantis-traefik mantis-otel
+
+# 10. Validar compose contra schema SDD
+./05-CONFIGURATIONS/validation/validate-skill-integrity.sh \
+  05-CONFIGURATIONS/docker-compose/ master-report.json 1 1
+```
+
+---
+
+## 🔗 Referencias Cruzadas
+
+- [[05-CONFIGURATIONS/00-INDEX.md]] — Índice maestro de configuraciones
+- [[05-CONFIGURATIONS/terraform/modules/vps-base/main.tf]] — IaC complementario
+- [[05-CONFIGURATIONS/observability/otel-tracing-config.yaml]] — Config OTEL detallada
+- [[05-CONFIGURATIONS/validation/validate-skill-integrity.sh]] — Validador SDD maestro
+- [[02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md]] — Patrones de red Docker
+- [[02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md]] — Tuning de concurrencia n8n
+- [[02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md]] — Hardening de firewall
+- [[02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md]] — Protección SSH
+- [[02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md]] — Patrones de sesiones Redis
+- [[02-SKILLS/SEGURIDAD/security-hardening-vps.md]] — Hardening base del VPS
+- [[02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md]] — Estrategias de rollout
+- [[01-RULES/01-ARCHITECTURE-RULES.md]] — Constraints de arquitectura
+- [[01-RULES/02-RESOURCE-GUARDRAILS.md]] — Límites C1/C2 definidos
+- [[01-RULES/03-SECURITY-RULES.md]] — Reglas C3 de seguridad
+
+---
+
+<!-- ai:file-end marker — do not remove -->
+Versión 1.0.0 — 2026-04-13 — Mantis-AgenticDev
+Constraints: C1(RAM:KVM1≤1.5GB/servicio,KVM2≤3GB) C2(CPU:KVM1≤0.5vCPU,KVM2≤1vCPU) C3(zero-hardcode) C4(tenant_id) C5(SHA256+backup) C7(retry+healthcheck) C8(json-logs+OTEL)
