@@ -1,0 +1,405 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bootstrap Company Context Schema",
+  "description": "Plantilla maestra y esquema de validación para la inyección de contexto empresarial en flujos de autogeneración SDD Hardened. Este archivo es la fuente única de verdad (SSOT) para que el agente IA genere código, infraestructura y configuraciones específicas por tenant.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "company_profile",
+    "technical_constraints",
+    "infrastructure_preferences",
+    "ai_routing_config",
+    "security_policies"
+  ],
+  "properties": {
+    "company_profile": {
+      "type": "object",
+      "description": "Datos identitarios y de negocio del cliente/tenant.",
+      "required": ["name", "tenant_id", "industry", "primary_contact_email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Nombre legal o comercial de la empresa."
+        },
+        "tenant_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{3,20}$",
+          "description": "C4: Identificador único, kebab-case, usado en DB, logs y caché."
+        },
+        "industry": {
+          "type": "string",
+          "enum": ["retail", "finance", "healthcare", "tech", "logistics", "other"],
+          "description": "Sector industrial para ajustar compliance (ej: HIPAA para healthcare)."
+        },
+        "primary_contact_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email para alertas críticas y notificaciones de deploy."
+        },
+        "whatsapp_business_number": {
+          "type": "string",
+          "pattern": "^\\+[0-9]{1,15}$",
+          "description": "Número oficial para integración WhatsApp Business API."
+        }
+      }
+    },
+    "technical_constraints": {
+      "type": "object",
+      "description": "Límites operativos globales C1/C2 aplicados a todos los servicios generados.",
+      "required": ["max_results_default", "connection_limit_default", "timeout_ms_default", "rate_limit_rpm"],
+      "properties": {
+        "max_results_default": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 50,
+          "description": "C1: Límite por defecto para queries DB/API paginadas."
+        },
+        "connection_limit_default": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 15,
+          "description": "C2: Máximo de conexiones concurrentes a DB/Pools."
+        },
+        "timeout_ms_default": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000,
+          "default": 30000,
+          "description": "C2: Timeout global en milisegundos para requests externos."
+        },
+        "rate_limit_rpm": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 1000,
+          "default": 60,
+          "description": "C7: Requests por minuto permitidos por usuario/tenant."
+        }
+      }
+    },
+    "infrastructure_preferences": {
+      "type": "object",
+      "description": "Selección de stack tecnológico y proveedores cloud/on-prem.",
+      "required": ["database_engine", "vector_store", "hosting_provider", "region"],
+      "properties": {
+        "database_engine": {
+          "type": "string",
+          "enum": ["postgres", "mysql", "sqlite_local", "supabase"],
+          "default": "postgres",
+          "description": "Motor relacional principal."
+        },
+        "vector_store": {
+          "type": "string",
+          "enum": ["qdrant", "pinecone", "pgvector", "chroma"],
+          "default": "qdrant",
+          "description": "Base de datos vectorial para RAG."
+        },
+        "hosting_provider": {
+          "type": "string",
+          "enum": ["aws", "gcp", "azure", "vps_hetzner", "vps_digitalocean", "on_premise"],
+          "default": "vps_hetzner",
+          "description": "Proveedor de infraestructura computacional."
+        },
+        "region": {
+          "type": "string",
+          "default": "us-east-1",
+          "description": "Región geográfica para latency y data residency."
+        },
+        "use_docker_compose": {
+          "type": "boolean",
+          "default": true,
+          "description": "Si true, genera docker-compose.yml; si false, K8s manifests."
+        }
+      }
+    },
+    "ai_routing_config": {
+      "type": "object",
+      "description": "Configuración de enrutamiento de inferencia C6 (No Occidental Focus).",
+      "required": ["primary_model", "fallback_model", "provider_proxy"],
+      "properties": {
+        "primary_model": {
+          "type": "string",
+          "enum": [
+            "qwen/qwen-2.5-72b-instruct",
+            "deepseek/deepseek-chat",
+            "minimax/minimax-01",
+            "yi-large"
+          ],
+          "default": "qwen/qwen-2.5-72b-instruct",
+          "description": "Modelo principal para generación y chat."
+        },
+        "fallback_model": {
+          "type": "string",
+          "enum": [
+            "qwen/qwen-2.5-32b-instruct",
+            "deepseek/deepseek-coder",
+            "mistralai/mistral-7b"
+          ],
+          "default": "deepseek/deepseek-chat",
+          "description": "Modelo de respaldo si el primario falla o excede cuota."
+        },
+        "provider_proxy": {
+          "type": "string",
+          "enum": ["openrouter", "dashscope_direct", "deepseek_api_direct", "litellm_self_hosted"],
+          "default": "openrouter",
+          "description": "C6: Endpoint proxy para abstraer credenciales de modelos."
+        },
+        "temperature_default": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.2,
+          "description": "Creatividad por defecto. Bajo para código, alto para brainstorming."
+        },
+        "max_tokens_limit": {
+          "type": "integer",
+          "default": 4096,
+          "description": "Límite máximo de tokens de salida por request."
+        }
+      }
+    },
+    "security_policies": {
+      "type": "object",
+      "description": "Reglas de seguridad C3/C4/C8 hardenizadas.",
+      "required": ["enforce_rls", "encrypt_backups", "audit_logs_enabled"],
+      "properties": {
+        "enforce_rls": {
+          "type": "boolean",
+          "default": true,
+          "description": "Si true, aplica Row-Level Security en Postgres/Supabase."
+        },
+        "encrypt_backups": {
+          "type": "boolean",
+          "default": true,
+          "description": "Si true, cifra backups con GPG/AES antes de storage."
+        },
+        "audit_logs_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Si true, habilita logging estructurado JSON de todas las acciones críticas."
+        },
+        "ip_whitelist": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "ipv4"
+          },
+          "description": "Lista blanca de IPs para acceso administrativo (SSH/DB)."
+        },
+        "secret_manager": {
+          "type": "string",
+          "enum": ["env_file", "aws_secrets_manager", "hashicorp_vault", "doppler"],
+          "default": "env_file",
+          "description": "Método de gestión de secretos C3."
+        }
+      }
+    },
+    "communication_channels": {
+      "type": "object",
+      "description": "Integraciones de mensajería y notificación.",
+      "properties": {
+        "whatsapp_enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "telegram_bot_token_ref": {
+          "type": "string",
+          "default": "${TELEGRAM_BOT_TOKEN}",
+          "description": "Referencia a env var, nunca el token real."
+        },
+        "slack_webhook_url_ref": {
+          "type": "string",
+          "default": "${SLACK_WEBHOOK_URL}",
+          "description": "Referencia a env var para notificaciones de deploy."
+        },
+        "email_smtp_host": {
+          "type": "string",
+          "default": "smtp.gmail.com"
+        },
+        "email_smtp_port": {
+          "type": "integer",
+          "default": 587
+        }
+      }
+    },
+    "_meta_generation_instructions": {
+      "type": "object",
+      "description": "Instrucciones internas para el agente generador. No modificar manualmente.",
+      "properties": {
+        "skip_tests": {
+          "type": "boolean",
+          "default": false,
+          "description": "Si true, omite generación de tests unitarios (no recomendado)."
+        },
+        "verbose_logging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Si true, genera logs debug extra en código."
+        },
+        "target_language": {
+          "type": "string",
+          "enum": ["typescript", "python", "go"],
+          "default": "typescript",
+          "description": "Lenguaje preferido para lógica de aplicación."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "description": "Ejemplo 1: Startup Tech Argentina (Qwen + VPS)",
+      "value": {
+        "company_profile": {
+          "name": "NexusComercial",
+          "tenant_id": "nexus-arg-01",
+          "industry": "tech",
+          "primary_contact_email": "cto@nexus.com.ar",
+          "whatsapp_business_number": "+5491155550000"
+        },
+        "technical_constraints": {
+          "max_results_default": 50,
+          "connection_limit_default": 15,
+          "timeout_ms_default": 30000,
+          "rate_limit_rpm": 60
+        },
+        "infrastructure_preferences": {
+          "database_engine": "postgres",
+          "vector_store": "qdrant",
+          "hosting_provider": "vps_hetzner",
+          "region": "us-east",
+          "use_docker_compose": true
+        },
+        "ai_routing_config": {
+          "primary_model": "qwen/qwen-2.5-72b-instruct",
+          "fallback_model": "deepseek/deepseek-chat",
+          "provider_proxy": "openrouter",
+          "temperature_default": 0.2,
+          "max_tokens_limit": 4096
+        },
+        "security_policies": {
+          "enforce_rls": true,
+          "encrypt_backups": true,
+          "audit_logs_enabled": true,
+          "ip_whitelist": ["200.10.5.1"],
+          "secret_manager": "env_file"
+        },
+        "communication_channels": {
+          "whatsapp_enabled": true,
+          "telegram_bot_token_ref": "${TELEGRAM_BOT_TOKEN}",
+          "slack_webhook_url_ref": "${SLACK_WEBHOOK_URL}",
+          "email_smtp_host": "smtp.gmail.com",
+          "email_smtp_port": 587
+        },
+        "_meta_generation_instructions": {
+          "skip_tests": false,
+          "verbose_logging": false,
+          "target_language": "typescript"
+        }
+      }
+    },
+    {
+      "description": "Ejemplo 2: Retail México (DeepSeek + AWS)",
+      "value": {
+        "company_profile": {
+          "name": "RetailMX",
+          "tenant_id": "retail-mx-prod",
+          "industry": "retail",
+          "primary_contact_email": "devops@retailmx.com",
+          "whatsapp_business_number": "+525512345678"
+        },
+        "technical_constraints": {
+          "max_results_default": 100,
+          "connection_limit_default": 50,
+          "timeout_ms_default": 15000,
+          "rate_limit_rpm": 120
+        },
+        "infrastructure_preferences": {
+          "database_engine": "postgres",
+          "vector_store": "pgvector",
+          "hosting_provider": "aws",
+          "region": "us-west-2",
+          "use_docker_compose": false
+        },
+        "ai_routing_config": {
+          "primary_model": "deepseek/deepseek-chat",
+          "fallback_model": "qwen/qwen-2.5-32b-instruct",
+          "provider_proxy": "openrouter",
+          "temperature_default": 0.1,
+          "max_tokens_limit": 2048
+        },
+        "security_policies": {
+          "enforce_rls": true,
+          "encrypt_backups": true,
+          "audit_logs_enabled": true,
+          "ip_whitelist": [],
+          "secret_manager": "aws_secrets_manager"
+        },
+        "communication_channels": {
+          "whatsapp_enabled": true,
+          "telegram_bot_token_ref": "${TELEGRAM_BOT_TOKEN}",
+          "slack_webhook_url_ref": "${SLACK_WEBHOOK_URL}",
+          "email_smtp_host": "ses.amazonaws.com",
+          "email_smtp_port": 587
+        },
+        "_meta_generation_instructions": {
+          "skip_tests": false,
+          "verbose_logging": true,
+          "target_language": "python"
+        }
+      }
+    },
+    {
+      "description": "Ejemplo 3: Clínica Salud Chile (MiniMax + On-Premise)",
+      "value": {
+        "company_profile": {
+          "name": "SaludChile",
+          "tenant_id": "salud-cl-safe",
+          "industry": "healthcare",
+          "primary_contact_email": "it@saludchile.cl",
+          "whatsapp_business_number": "+56998765432"
+        },
+        "technical_constraints": {
+          "max_results_default": 20,
+          "connection_limit_default": 10,
+          "timeout_ms_default": 45000,
+          "rate_limit_rpm": 30
+        },
+        "infrastructure_preferences": {
+          "database_engine": "postgres",
+          "vector_store": "qdrant",
+          "hosting_provider": "on_premise",
+          "region": "local",
+          "use_docker_compose": true
+        },
+        "ai_routing_config": {
+          "primary_model": "minimax/minimax-01",
+          "fallback_model": "qwen/qwen-2.5-72b-instruct",
+          "provider_proxy": "litellm_self_hosted",
+          "temperature_default": 0.0,
+          "max_tokens_limit": 8192
+        },
+        "security_policies": {
+          "enforce_rls": true,
+          "encrypt_backups": true,
+          "audit_logs_enabled": true,
+          "ip_whitelist": ["192.168.1.0/24"],
+          "secret_manager": "hashicorp_vault"
+        },
+        "communication_channels": {
+          "whatsapp_enabled": false,
+          "telegram_bot_token_ref": "${TELEGRAM_BOT_TOKEN}",
+          "slack_webhook_url_ref": "",
+          "email_smtp_host": "smtp.office365.com",
+          "email_smtp_port": 587
+        },
+        "_meta_generation_instructions": {
+          "skip_tests": false,
+          "verbose_logging": false,
+          "target_language": "typescript"
+        }
+      }
+    }
+  ]
+}
