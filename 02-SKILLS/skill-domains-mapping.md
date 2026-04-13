@@ -746,9 +746,9 @@ Documento	Propósito	URL Raw
 
 \| Escenario \| Documento \| Por qué \|
 \|-----------\|----------\|---------\|
-\| Quiero crear una skill desde cero (ej: `AI/nuevo-modelo.md`) | `[[01-GENERATION-MODELS.md]]` | Proporciona dos flujos: colaborativo (preguntas guiadas) o full-automated (ZIP con Terraform). Incluye ejemplos ✅/❌ y troubleshooting por nivel. |
+\| Quiero crear una skill desde cero (ej: `AI/nuevo-modelo.md`) | `[[GENERATION-MODELS.md]]` | Proporciona dos flujos: colaborativo (preguntas guiadas) o full-automated (ZIP con Terraform). Incluye ejemplos ✅/❌ y troubleshooting por nivel. |
 \| Quiero completar un archivo `🆕 PENDIENTE` del árbol | `[[../../SDD-COLLABORATIVE-GENERATION.md]]` | Incluye gate de validación pre-entrega: fences cerrados, frontmatter válido, constraints C1-C6 explícitos, enlaces canónicos funcionales. Cero iteraciones por faltantes estructurales. |
-\| Necesito generar infraestructura production-ready | `[[01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | Genera ZIP con Terraform hardenizado, validaciones C1-C6, rollback automático y auditoría SHA256 (C5). |
+\| Necesito generar infraestructura production-ready | `[[GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | Genera ZIP con Terraform hardenizado, validaciones C1-C6, rollback automático y auditoría SHA256 (C5). |
 
 \### Flujo Mínimo para IA Generadora
 

@@ -541,29 +541,29 @@ Ambos modelos garantizan:
 ### Desde `skill-template.md`
 ```markdown
 ## 🔄 ¿Cómo se genera esta skill?
-- Modo colaborativo: `[[01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia]]`
-- Modo production: `[[01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]`
+- Modo colaborativo: `[[GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia]]`
+- Modo production: `[[GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]`
 - Validadores requeridos: `[[../../05-CONFIGURATIONS/validation/]]`
 ```
 
 ### Desde `00-INDEX.md`
 ```markdown
 ## 🤖 Flujos de Generación
-- `[[01-GENERATION-MODELS.md]]`: Modelos colaborativo y full-automated con validación C1-C6
+- `[[GENERATION-MODELS.md]]`: Modelos colaborativo y full-automated con validación C1-C6
 ```
 
 ### Desde `PROJECT_TREE.md`
 ```markdown
 ## 🧭 Navegación por Rol
-- 👶 Junior: Comienza en `[[02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia]]`
-- 👨‍🔧 Experto: Ve directo a `[[02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]`
+- 👶 Junior: Comienza en `[[02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia]]`
+- 👨‍🔧 Experto: Ve directo a `[[02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]`
 ```
 
 ### Desde `README.md` raíz
 ```markdown
 ## 🚀 Generación de Skills
-- ¿Eres nuevo? Usa el [Modelo Colaborativo](02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia)
-- ¿Necesitas producción enterprise? Usa el [Modelo Full-Automated](02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform)
+- ¿Eres nuevo? Usa el [Modelo Colaborativo](02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia)
+- ¿Necesitas producción enterprise? Usa el [Modelo Full-Automated](02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform)
 ```
 
 ---
@@ -574,18 +574,18 @@ Este archivo está diseñado para ser parseado por IA. Para validar su integrida
 
 ```bash
 # 1. Frontmatter obligatorio
-./05-CONFIGURATIONS/validation/validate-frontmatter.sh 02-SKILLS/01-GENERATION-MODELS.md
+./05-CONFIGURATIONS/validation/validate-frontmatter.sh 02-SKILLS/GENERATION-MODELS.md
 
 # 2. Wikilinks válidos
-./05-CONFIGURATIONS/validation/check-wikilinks.sh 02-SKILLS/01-GENERATION-MODELS.md
+./05-CONFIGURATIONS/validation/check-wikilinks.sh 02-SKILLS/GENERATION-MODELS.md
 
 # 3. Constraints C1-C6 presentes
-./05-CONFIGURATIONS/validation/verify-constraints.sh 02-SKILLS/01-GENERATION-MODELS.md
+./05-CONFIGURATIONS/validation/verify-constraints.sh 02-SKILLS/GENERATION-MODELS.md
 
 # 4. Ejemplos JSON cumplen schema (si los hubiera)
 python3 05-CONFIGURATIONS/validation/schema-validator.py \
   05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json \
-  02-SKILLS/01-GENERATION-MODELS.md
+  02-SKILLS/GENERATION-MODELS.md
 ```
 
 **Criterio de éxito**: Todos los comandos retornan `status: passed` o código de salida `0`.
@@ -628,5 +628,5 @@ Este documento debe actualizarse cuando:
 **Última actualización**: `$(date -u +"%Y-%m-%dT%H:%M:%SZ")`  
 **Versión**: `v1.0.0`  
 **Validado contra**: `skill-input-output.schema.json` ✅  
-**Checksum**: `$(sha256sum 02-SKILLS/01-GENERATION-MODELS.md | awk '{print $1}')`
+**Checksum**: `$(sha256sum 02-SKILLS/GENERATION-MODELS.md | awk '{print $1}')`
 ```

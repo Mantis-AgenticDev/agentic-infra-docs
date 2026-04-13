@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.1
+# metadata_version: 1.3
 # sdd_compliant: true
 # ai_parser_compatible: true
 # purpose: "Validador de wikilinks Obsidian para integridad de navegación SDD"
@@ -9,20 +9,20 @@
 # output_format: "json + stdout + exit code para CI/CD"
 # ---
 # ============================================================================
-# CHECK-WIKILINKS.SH v1.1
+# CHECK-WIKILINKS.SH v1.3
 # Validador de enlaces Obsidian [[...]] para MANTIS AGENTIC
 # Propósito: Detectar enlaces rotos, rutas mal resueltas, alias inválidos y
 # referencias cíclicas en toda la documentación SDD. Compatible con espacios
 # en nombres de directorio y resolución relativa/absoluta.
-# Fixes v1.1: resolución robusta de rutas, sanitización aritmética, 
-# manejo de anchors/alias, fallback recursivo mejorado, skip de enlaces didácticos.
+# Fixes v1.3: Normalización de rutas pura en bash (sin realpath), manejo robusto
+# de ../, sanitización aritmética, JSON seguro, skip de enlaces didácticos.
 # ============================================================================
 set -euo pipefail
 
 # ────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN GLOBAL
 # ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.1.0"
+readonly VERSION="1.3.0"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
@@ -88,7 +88,9 @@ log_error() { echo "[ERROR] $*" >&2; }
 # Sanitizar para operaciones aritméticas (evita "0\n0" → error)
 sanitize_int() {
   local val="$1"
-  echo "$val" | tr -cd '0-9' | head -c 10
+  local clean
+  clean=$(echo "$val" | tr -cd '0-9' | head -c 10)
+  [[ -z "$clean" ]] && echo "0" || echo "$clean"
 }
 
 json_escape() {
@@ -113,6 +115,44 @@ is_excluded() {
 }
 
 # ────────────────────────────────────────────────────────────────────────────
+# NORMALIZACIÓN DE RUTAS (Pura bash, sin dependencias externas)
+# Resuelve ../, ./, y rutas relativas a absolutas canónicas
+# ────────────────────────────────────────────────────────────────────────────
+normalize_path_pure() {
+  local path="$1"
+  local -a parts=()
+  local IFS='/'
+  
+  # Leer componentes de la ruta
+  read -ra parts <<< "$path"
+  
+  local -a result=()
+  for part in "${parts[@]}"; do
+    if [[ -z "$part" || "$part" == "." ]]; then
+      continue
+    elif [[ "$part" == ".." ]]; then
+      # Eliminar último componente si existe
+      if [[ ${#result[@]} -gt 0 ]]; then
+        unset 'result[-1]'
+      fi
+    else
+      result+=("$part")
+    fi
+  done
+  
+  # Reconstruir ruta absoluta
+  local normalized="/"
+  for ((i=0; i<${#result[@]}; i++)); do
+    normalized+="${result[$i]}"
+    if [[ $i -lt $((${#result[@]} - 1)) ]]; then
+      normalized+="/"
+    fi
+  done
+  
+  echo "$normalized"
+}
+
+# ────────────────────────────────────────────────────────────────────────────
 # RESOLUCIÓN DE RUTAS (Robusta: anchors, alias, relativas, absolutas, fallback)
 # ────────────────────────────────────────────────────────────────────────────
 resolve_wikilink_target() {
@@ -125,16 +165,18 @@ resolve_wikilink_target() {
   
   [[ -z "$target_path" ]] && return 1
   
-  # 2. Asegurar extensión válida
-  local has_ext=false
-  for ext in "${VALID_EXTENSIONS[@]}"; do
-    if [[ "$target_path" == *".$ext" ]]; then
-      has_ext=true
-      break
+  # 2. Asegurar extensión válida (solo si no es directorio)
+  if [[ ! "$target_path" =~ /$ ]]; then
+    local has_ext=false
+    for ext in "${VALID_EXTENSIONS[@]}"; do
+      if [[ "$target_path" == *".$ext" ]]; then
+        has_ext=true
+        break
+      fi
+    done
+    if [[ "$has_ext" == "false" ]]; then
+      target_path="${target_path}.md"
     fi
-  done
-  if [[ "$has_ext" == "false" ]]; then
-    target_path="${target_path}.md"
   fi
   
   local resolved=""
@@ -168,17 +210,11 @@ resolve_wikilink_target() {
       echo "$resolved"
       return 0
     fi
-    # Último intento: asumir ruta relativa desde source_dir
     resolved="${source_dir}/${target_path}"
   fi
   
-  # 4. Normalizar ruta (resolver .., ./) sin depender de realpath
-  if [[ -d "$(dirname "$resolved")" ]]; then
-    local dir_norm file_norm
-    dir_norm=$(cd "$(dirname "$resolved")" 2>/dev/null && pwd) || dir_norm="$(dirname "$resolved")"
-    file_norm=$(basename "$resolved")
-    resolved="${dir_norm}/${file_norm}"
-  fi
+  # 4. Normalización PURA BASH (sin dependencias de realpath)
+  resolved=$(normalize_path_pure "$resolved")
   
   echo "$resolved"
   return 0
@@ -213,8 +249,9 @@ validate_file_wikilinks() {
           "$link" == "enlaces" || \
           "$link" == *"|"*"texto legible"* || \
           "$link" == *"|"*legible* || \
-          "$link" =~ ^\[.*\]$ ]]; then
-      log_info "[SKIP] Enlace didáctico/ancla: [[${link}]]"
+          "$link" =~ ^\[.*\]$ || \
+          "$link" =~ /$ ]]; then
+      log_info "[SKIP] Enlace didáctico/ancla/directorio: [[${link}]]"
       VALID_LINKS=$((VALID_LINKS + 1))
       continue
     fi
@@ -226,8 +263,8 @@ validate_file_wikilinks() {
     
     # Verificar ciclo (auto-referencia directa)
     local file_norm target_norm
-    file_norm=$(cd "$(dirname "$file")" 2>/dev/null && echo "$(pwd)/$(basename "$file")") || file_norm="$file"
-    target_norm=$(cd "$(dirname "$target")" 2>/dev/null && echo "$(pwd)/$(basename "$target")" 2>/dev/null) || target_norm="$target"
+    file_norm=$(normalize_path_pure "$(cd "$(dirname "$file")" 2>/dev/null && echo "$(pwd)/$(basename "$file")")") || file_norm="$file"
+    target_norm=$(normalize_path_pure "$target")
     
     if [[ "$file_norm" == "$target_norm" ]]; then
       CYCLE_LINKS+=("$(json_escape "$file")|$(json_escape "$link")|self-reference")
@@ -272,9 +309,12 @@ generate_report() {
   local status="passed"
   
   # Sanitizar contadores
-  local broken_count cycle_count
+  local broken_count cycle_count files_scanned_clean total_found_clean valid_clean
   broken_count=$(sanitize_int "${#BROKEN_LINKS[@]}")
   cycle_count=$(sanitize_int "${#CYCLE_LINKS[@]}")
+  files_scanned_clean=$(sanitize_int "$FILES_SCANNED")
+  total_found_clean=$(sanitize_int "$TOTAL_LINKS_FOUND")
+  valid_clean=$(sanitize_int "$VALID_LINKS")
   
   # Determinar estado
   if [[ "$STRICT" == "1" && ("$broken_count" -gt 0 || "$cycle_count" -gt 0) ]]; then
@@ -285,21 +325,27 @@ generate_report() {
     status="warnings"
   fi
   
-  # Construir arrays JSON
+  # Construir arrays JSON de forma segura
   local broken_json="[]"
   if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
-    broken_json=$(printf '%s\n' "${BROKEN_LINKS[@]}" | while IFS='|' read -r src lnk err; do
-      printf '{"source":"%s","link":"%s","error":"%s"}' "$src" "$lnk" "$err"
-    done | paste -sd ',' | sed 's/}{/},{/g')
-    broken_json="[${broken_json}]"
+    local items=()
+    for bl in "${BROKEN_LINKS[@]}"; do
+      local src lnk err
+      IFS='|' read -r src lnk err <<< "$bl"
+      items+=("{\"source\":\"$(json_escape "$src")\",\"link\":\"$(json_escape "$lnk")\",\"error\":\"$(json_escape "$err")\"}")
+    done
+    broken_json="[$(IFS=,; echo "${items[*]}")]"
   fi
   
   local cycles_json="[]"
   if [[ ${#CYCLE_LINKS[@]} -gt 0 ]]; then
-    cycles_json=$(printf '%s\n' "${CYCLE_LINKS[@]}" | while IFS='|' read -r src lnk err; do
-      printf '{"source":"%s","link":"%s","error":"%s"}' "$src" "$lnk" "$err"
-    done | paste -sd ',' | sed 's/}{/},{/g')
-    cycles_json="[${cycles_json}]"
+    local items=()
+    for cl in "${CYCLE_LINKS[@]}"; do
+      local src lnk err
+      IFS='|' read -r src lnk err <<< "$cl"
+      items+=("{\"source\":\"$(json_escape "$src")\",\"link\":\"$(json_escape "$lnk")\",\"error\":\"$(json_escape "$err")\"}")
+    done
+    cycles_json="[$(IFS=,; echo "${items[*]}")]"
   fi
   
   # Construir reporte
@@ -313,9 +359,9 @@ generate_report() {
   "target": "$PROJECT_ROOT",
   "status": "$status",
   "summary": {
-    "files_scanned": $(sanitize_int "$FILES_SCANNED"),
-    "total_links_found": $(sanitize_int "$TOTAL_LINKS_FOUND"),
-    "valid_links": $(sanitize_int "$VALID_LINKS"),
+    "files_scanned": $files_scanned_clean,
+    "total_links_found": $total_found_clean,
+    "valid_links": $valid_clean,
     "broken_links": $broken_count,
     "cyclic_references": $cycle_count
   },
@@ -328,7 +374,8 @@ generate_report() {
     "valid_extensions": $(printf '"%s",' "${VALID_EXTENSIONS[@]}" | sed 's/,$//' | awk '{print "["$0"]"}'),
     "auto_append_md": true,
     "fallback_recursive_search": true,
-    "skip_didactic_links": true
+    "skip_didactic_links": true,
+    "pure_bash_normalization": true
   },
   "recommendations": [
     "Usar rutas canónicas desde root del repo: [[02-SKILLS/AI/qwen-integration.md]]",
@@ -358,9 +405,9 @@ EOF
   echo "🔗 VALIDACIÓN WIKILINKS OBSIDIAN v$VERSION"
   echo "========================================="
   echo "Target: $PROJECT_ROOT"
-  echo "📁 Archivos escaneados: $(sanitize_int "$FILES_SCANNED")"
-  echo "🔗 Enlaces encontrados: $(sanitize_int "$TOTAL_LINKS_FOUND")"
-  echo "✅ Válidos: $(sanitize_int "$VALID_LINKS")"
+  echo "📁 Archivos escaneados: $files_scanned_clean"
+  echo "🔗 Enlaces encontrados: $total_found_clean"
+  echo "✅ Válidos: $valid_clean"
   echo "❌ Rotos: $broken_count"
   echo "🔄 Cíclicos: $cycle_count"
   echo "Estado: $status"
@@ -419,10 +466,11 @@ Reglas de resolución:
   ✓ Rutas absolutas: /02-SKILLS/AI/qwen-integration.md
   ✓ Prefijos conocidos: 02-SKILLS/AI/qwen-integration.md
   ✓ Rutas relativas: ../RULES/01-ARCHITECTURE-RULES.md
-  ✓ Extensión .md auto-completada si falta
+  ✓ Extensión .md auto-completada si falta (solo archivos)
   ✓ Fallback de búsqueda recursiva en root del repo
   ✓ Detección de auto-referencias [[mismo_archivo]]
   ✓ Skip de enlaces didácticos: [[enlaces]], [[ruta|texto legible]]
+  ✓ Normalización pura bash: sin dependencia de realpath
 
 Ejemplos:
   $0 02-SKILLS/

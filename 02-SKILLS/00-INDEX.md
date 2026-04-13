@@ -130,7 +130,7 @@ Cualquier persona o asistente IA puede usar este índice para localizar rápidam
 \-\-\-
 
 \## 🤖 Generación de Skills (Para IA y Humanos)
-\- 🔹 Modelos de Generación (colaborativo / full-automated): `[[01-GENERATION-MODELS.md]]`
+\- 🔹 Modelos de Generación (colaborativo / full-automated): `[[GENERATION-MODELS.md]]`
 \- 🔹 Flujo Colaborativo para Pendientes (gate pre-entrega): `[[../../SDD-COLLABORATIVE-GENERATION.md]]`
 \- 📦 Plantilla Base: `[[../../05-CONFIGURATIONS/templates/skill-template.md]]`
 \- 🛡️ Validadores: `[[../../05-CONFIGURATIONS/validation/]]`

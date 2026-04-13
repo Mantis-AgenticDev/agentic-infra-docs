@@ -333,7 +333,7 @@
         "../knowledge-graph.json",
         "skill-domains-mapping.md",
         "../05-CONFIGURATIONS/validation/",
-        "01-GENERATION-MODELS.md",
+        "02-SKILLS/GENERATION-MODELS.md",
         "../../SDD-COLLABORATIVE-GENERATION.md",
         "../../05-CONFIGURATIONS/templates/skill-template.md",
         "../../05-CONFIGURATIONS/validation/"
@@ -446,12 +446,12 @@
         "../INFRAESTRUCTURA/fail2ban-configuration.md",
         "../INFRAESTRUCTURA/ssh-key-management.md",
         "../INFRAESTRUCTURA/docker-compose-networking.md",
-        "01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
-        "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
         "../../05-CONFIGURATIONS/validation/",
-        "01-GENERATION-MODELS.md",
-        "02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
-        "02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
+        "02-SKILLS/GENERATION-MODELS.md",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
     },
     {
@@ -505,9 +505,9 @@
         "01-RULES/06-MULTITENANCY-RULES.md",
         "skill-domains-mapping.md",
         "01-RULES/06-MULTITENANCY-RULES.md",
-        "01-GENERATION-MODELS.md",
+        "02-SKILLS/GENERATION-MODELS.md",
         "../../SDD-COLLABORATIVE-GENERATION.md",
-        "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
       ]
     },
     {
@@ -2470,7 +2470,7 @@
     },
     {
       "source": "02-SKILLS/00-INDEX.md",
-      "target": "01-GENERATION-MODELS.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md",
       "type": "references"
     },
     {
@@ -2895,12 +2895,12 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
       "type": "references"
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {
@@ -2910,17 +2910,17 @@
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "01-GENERATION-MODELS.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md",
       "type": "references"
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "02-SKILLS/01-GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
       "type": "references"
     },
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
-      "target": "02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {
@@ -3015,7 +3015,7 @@
     },
     {
       "source": "02-SKILLS/skill-domains-mapping.md",
-      "target": "01-GENERATION-MODELS.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md",
       "type": "references"
     },
     {
@@ -3025,7 +3025,7 @@
     },
     {
       "source": "02-SKILLS/skill-domains-mapping.md",
-      "target": "01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
       "type": "references"
     },
     {

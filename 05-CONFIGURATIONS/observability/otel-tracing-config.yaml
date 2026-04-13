@@ -1,0 +1,159 @@
+# 05-CONFIGURATIONS/observability/otel-tracing-config.yaml
+# ==============================================================================
+# OpenTelemetry Collector Configuration for SDD Hardened Agents
+# ==============================================================================
+# Descripción: Configuración para la captura, procesamiento y exportación de 
+# trazas, métricas y logs estructurados desde los agentes generadores y 
+# aplicaciones desplegadas. Cumple C8 (Observabilidad) y C4 (Trazabilidad por Tenant).
+#
+# Objetivo: Permitir la auditoría completa del flujo de generación de código,
+# desde el prompt inicial hasta el ZIP final, identificando cuellos de botella,
+# costes de inferencia y violaciones de constraints.
+#
+# Reglas Aplicadas: C4, C8
+# ==============================================================================
+
+receivers:
+  # Recepción de trazas desde SDKs de aplicación (Node.js/Python)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+  # Recepción de logs estructurados desde stdout/stderr de contenedores
+  filelog:
+    include:
+      - /var/log/agentic-agents/*.log
+    start_at: beginning
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.timestamp
+          layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+        severity:
+          parse_from: attributes.level
+
+processors:
+  # Batcheo para optimizar envío a backend
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+
+  # Enriquecimiento con metadatos de Tenant (C4)
+  resource:
+    attributes:
+      - key: service.namespace
+        value: "mantis-agentic-sdd"
+        action: upsert
+      - key: deployment.environment
+        value: "${ENVIRONMENT:-production}"
+        action: upsert
+
+  # Transformación para extraer tenant_id de logs JSON (C4 Enforcement)
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          - set(attributes["tenant_id"], body["tenant_id"]) where IsMap(body)
+          - set(attributes["constraint_violated"], body["constraint_violated"]) where IsMap(body)
+          - set(severity_text, "ERROR") where attributes["constraint_violated"] != nil
+
+exporters:
+  # Exportación a Backend de Trazas (ej: Jaeger, Tempo, Honeycomb)
+  otlphttp/traces:
+    endpoint: "${OTEL_TRACES_ENDPOINT}"
+    headers:
+      Authorization: "Bearer ${OTEL_AUTH_TOKEN}"
+
+  # Exportación a Backend de Métricas (ej: Prometheus, Datadog)
+  prometheusremotewrite:
+    endpoint: "${OTEL_METRICS_ENDPOINT}"
+    headers:
+      Authorization: "Bearer ${OTEL_AUTH_TOKEN}"
+
+  # Exportación a Backend de Logs (ej: Loki, Elasticsearch)
+  loki:
+    endpoint: "${OTEL_LOGS_ENDPOINT}"
+    default_labels_enabled:
+      exporter: true
+      job: true
+    labels:
+      attributes:
+        - tenant_id
+        - service.name
+        - severity_text
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [otlphttp/traces]
+
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [prometheusremotewrite]
+
+    logs:
+      receivers: [filelog, otlp]
+      processors: [batch, transform, resource]
+      exporters: [loki]
+
+  telemetry:
+    logs:
+      level: "info"
+    metrics:
+      address: ":8888"
+
+# ==============================================================================
+# INSTRUMENTATION EXAMPLES (Para incluir en código de aplicación)
+# ==============================================================================
+#
+# Ejemplo 1: Trace de Generación de Skill (TypeScript)
+# -----------------------------------------------------
+# import { trace } from '@opentelemetry/api';
+# const tracer = trace.getTracer('skill-generator');
+#
+# async function generateSkill(tenant_id: string, prompt: string) {
+#   return tracer.startActiveSpan(`generate_skill_${tenant_id}`, async (span) => {
+#     span.setAttribute('tenant_id', tenant_id); // C4
+#     span.setAttribute('model_used', 'qwen-2.5-72b');
+#     
+#     try {
+#       const result = await callLLM(prompt);
+#       span.setStatus({ code: SpanStatusCode.OK });
+#       return result;
+#     } catch (error) {
+#       span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+#       throw error;
+#     } finally {
+#       span.end();
+#     }
+#   });
+# }
+#
+# Ejemplo 2: Log Estructurado con Contexto (Python)
+# -------------------------------------------------
+# import logging
+# import json
+#
+# logger = logging.getLogger(__name__)
+#
+# def validate_constraint(tenant_id: str, constraint: str):
+#     log_entry = {
+#         "timestamp": datetime.utcnow().isoformat(),
+#         "level": "INFO",
+#         "tenant_id": tenant_id, # C4
+#         "event": "constraint_check",
+#         "constraint": constraint,
+#         "status": "pass"
+#     }
+#     logger.info(json.dumps(log_entry))
+#
+# ==============================================================================
+# END OF FILE
+# ==============================================================================
+

@@ -414,6 +414,12 @@ agentic-infra-docs/
 │   ├── 00-INDEX.md                           🆕 PENDIENTE
 │   │   └── Índice de todas las configuraciones
 │   │
+│   ├── observability/                           ✅ COMPLETADO
+│   │   └── otel-tracing-config.yaml
+|   |         Configuración para la captura, procesamiento y exportación de 
+|   |         trazas, métricas y logs estructurados desde los agentes generadores y 
+|   |         aplicaciones desplegadas.
+|   |
 │   ├── docker-compose/
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
 │   │   │   └── Índice de archivos docker-compose
@@ -481,6 +487,9 @@ agentic-infra-docs/
 │   │   └── outputs.tf               # Outputs tipados para consumo por agentes 🆕 PENDIENTE
 │   │
 │   ├── pipelines/                    # 🔹 CI/CD ejecutables
+|   |   ├──  provider-router.yml ✅ COMPLETADO
+|   |   |      └── Configuración maestra para el enrutamiento dinámico de inferencia de IA
+|   |   |
 │   │   ├── .github/workflows/
 │   │   │             ├── validate-skill.yml   # Lint + tests + Promptfoo eval ✅ COMPLETADO
 │   │   │             ├── terraform-plan.yml   # Plan + security scan (tfsec/checkov) 🆕 PENDIENTE
@@ -506,6 +515,8 @@ agentic-infra-docs/
 │   │
 │   ├── templates/                    # 🔹 Plantillas para autogeneración
 │   |   ├── skill-template.md        # Frontmatter + estructura base + 5 ejemplos mínimos ✅ COMPLETADO
+|   |   ├── bootstrap-company-context.json  ✅ COMPLETADO
+|   |   |       └── Configuración maestra para el enrutamiento dinámico de inferencia de IA
 │   |   ├── example-template.md      # ✅/❌ + troubleshooting + constraints mapeados ✅ COMPLETADO
 │   |   ├── terraform-module-template/ # Estructura mínima de módulo reusable 
 |   |   |       └── main.tf ✅ COMPLETADO
@@ -520,6 +531,11 @@ agentic-infra-docs/
 |   |   |   └── Validar automáticamente que los archivos del repositorio cumplan 
 |   |   |        con los constraints absolutos (C1-C6), estructura SDD, tenant-
 |   |   |        awareness y límites de recursos antes de commit o despliegue. 
+|   |   |
+|   |   ├── packager-assisted.sh              ✅ COMPLETADO
+|   |   |        Script maestro para empaquetar skills generadas por IA en 
+|   |   |        artefactos ZIP listos para despliegue humano. Valida constraints C1-C8,
+|   |   |        inyecta configuraciones de entorno seguras y genera checksums
 |   |   |      
 │   │   ├── 00-INDEX.md                       🆕 PENDIENTE
 │   │   │   └── Índice de scripts bash
@@ -878,9 +894,9 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 
 \| Tipo de Solicitud \| Documento Guía \| Validadores Obligatorios \|
 \|------------------\|----------------|--------------------------\|
-\| Nueva skill horizontal (AI/, INFRAESTRUCTURA/, etc.) | `[[02-SKILLS/01-GENERATION-MODELS.md]]` | `validate-frontmatter.sh`, `verify-constraints.sh`, `schema-validator.py` |
+\| Nueva skill horizontal (AI/, INFRAESTRUCTURA/, etc.) | `[[02-SKILLS/GENERATION-MODELS.md]]` | `validate-frontmatter.sh`, `verify-constraints.sh`, `schema-validator.py` |
 \| Completar archivo pendiente (`🆕` o `📝`) | `[[SDD-COLLABORATIVE-GENERATION.md]]` | Gate pre-entrega: fences, frontmatter, C1-C6, wikilinks, schema |
-\| Generar infraestructura production-ready | `[[02-SKILLS/01-GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | `tfsec`, `check-rls.sh`, `audit-secrets.sh`, `sha256sum` |
+\| Generar infraestructura production-ready | `[[02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform]]` | `tfsec`, `check-rls.sh`, `audit-secrets.sh`, `sha256sum` |
 
 \### Instrucciones Canónicas para IA
 

@@ -1,328 +1,269 @@
 {
-  "name": "SDD-Universal-Business-Assistant-v1",
-  "meta": {
-    "templateCredsSetupCompleted": false,
-    "sdd_version": "1.0.0",
-    "validation_status": "pending",
-    "last_validated": "2026-04-XX",
-    "constraints_enforced": ["C1", "C2", "C3", "C4", "C5", "C6"],
-    "spec_reference": "01-RULES/06-MULTITENANCY-RULES.md"
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "timezone": "America/Sao_Paulo",
-    "saveManualExecutions": true,
-    "callerPolicy": "workflowsFromSameOwner"
-  },
+  "workflow_id": "sdd-assisted-generation-loop",
+  "version": "2.0.0",
+  "description": "Ciclo de generación asistida y autogeneración SDD Hardened. Orquesta la creación, validación, empaquetado y entrega de artefactos bajo reglas C1-C8.",
+  "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "inference_providers": ["OpenRouter", "DashScope", "DeepSeek", "MiniMax"],
   "nodes": [
     {
-      "type": "n8n-nodes-base.stickyNote",
-      "name": "SDD-001: Documentación de Spec",
-      "position": [-1400, -900],
-      "parameters": {
-        "content": "# 📋 SDD INTEGRATION MAP v1.0\n- Trigger: WhatsApp/Telegram/Webhook → SDR.txt, Hotel Receptionist\n- Routing: Switch/If/Filter → Dental Clinic, Restaurant Order\n- AI Core: Agent + Tools → RAG Chatbot, VPS Monitor, Video Creation\n- Memory: Postgres/Redis → Hotel Guest Journey, SDR Buffer\n- Storage: Qdrant + MySQL + Sheets → Lead Router, Dental, Hotel\n- ⚠️ CONSTRAINTS C1-C6: Aplicados en cada nodo. tenant_id OBLIGATORIO en TODAS las queries.\n- 🔄 Validación: Nodo 'Validate SDD Compliance' ejecuta checks pre-procesamiento."
+      "id": "node_01_init_context",
+      "type": "validator",
+      "title": "Validación de Contexto Inicial (C4)",
+      "level": "Junior",
+      "action": "validate_bootstrap",
+      "script": "scripts/init-agent-context.sh",
+      "inputs": {
+        "tenant_id": "${env.TENANT_ID}",
+        "bootstrap_path": "config/bootstrap-company.json"
       },
-      "typeVersion": 1,
-      "notes": "SDD-Ref: 01-RULES/00-INDEX.md"
+      "validation_logic": "Verificar existencia de archivo y coincidencia de tenant_id.",
+      "success_output": "Contexto cargado. Variables MAX_RESULTS, TIMEOUT_MS, CONNECTION_LIMIT exportadas.",
+      "failure_output": "C4 VIOLATION: tenant_id missing or mismatch.",
+      "troubleshooting": {
+        "error": "C4 VIOLATION",
+        "cause": "Variable de entorno no definida o archivo bootstrap ausente.",
+        "fix": "Ejecutar 'export TENANT_ID=x' y verificar ruta del JSON."
+      }
     },
     {
-      "type": "n8n-nodes-base.webhook",
-      "name": "Trigger: Multi-Channel Inbound",
-      "position": [-1100, -400],
-      "webhookId": "sdd-inbound",
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "sdd-inbound",
-        "responseMode": "responseNode",
-        "options": {
-          "responseHeaders": {
-            "entries": [
-              { "name": "X-Tenant-ID", "value": "={{ $json.headers['x-tenant-id'] }}" },
-              { "name": "X-SDD-Compliance", "value": "v1.0" }
-            ]
-          }
-        }
-      },
-      "typeVersion": 2,
-      "notes": "C4: Capturar x-tenant-id header para aislamiento de datos"
+      "id": "node_02_load_skills_map",
+      "type": "loader",
+      "title": "Carga de Mapa de Skills Disponibles",
+      "level": "Junior",
+      "action": "read_json",
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "outputs": ["infra", "db-rag", "comms", "ai", "security"],
+      "constraint_check": "C5: Validar que el mapa tenga estructura legible."
     },
     {
-      "type": "n8n-nodes-base.set",
-      "name": "Normalize + Inject tenant_id",
-      "position": [-880, -400],
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            { "name": "tenant_id", "value": "={{ $json.headers['x-tenant-id'] || $json.query?.tenant_id || 'demo_tenant' }}", "type": "string" },
-            { "name": "chat_id", "value": "={{ $json.chat_id || $json.from || $json.sender_id || 'unknown' }}", "type": "string" },
-            { "name": "message_type", "value": "={{ $json.message_type || 'text' }}", "type": "string" },
-            { "name": "payload", "value": "={{ $json.payload || $json.body || $json }}", "type": "object" },
-            { "name": "sdd_context", "value": "={{ { request_ts: new Date().toISOString(), spec_version: '1.0.0', constraints_active: ['C1','C2','C3','C4','C5','C6'] } }}", "type": "object" }
-          ]
-        }
-      },
-      "typeVersion": 3.4,
-      "notes": "C4: Normalización centralizada de tenant_id con fallback seguro"
+      "id": "node_03_select_generation_mode",
+      "type": "router",
+      "title": "Selección de Modo: Asistido vs Auto",
+      "level": "Intermediate",
+      "condition": "${env.GENERATION_MODE} == 'AUTO' ? 'auto_pipeline' : 'interactive_assist'",
+      "branches": {
+        "auto_pipeline": "node_04_auto_gen",
+        "interactive_assist": "node_05_interactive_prompt"
+      }
     },
     {
-      "type": "n8n-nodes-base.if",
-      "name": "Validate SDD Compliance",
-      "position": [-640, -400],
-      "parameters": {
-        "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [
-            {
-              "id": "val-c4-001",
-              "leftValue": "={{ $json.tenant_id }}",
-              "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty" },
-              "name": "tenant_id present"
-            },
-            {
-              "id": "val-c4-002",
-              "leftValue": "={{ $json.tenant_id }}",
-              "rightValue": "demo_tenant",
-              "operator": { "type": "string", "operation": "notEquals" },
-              "name": "tenant_id not default"
-            }
-          ]
-        }
+      "id": "node_04_auto_gen",
+      "type": "generator",
+      "title": "Autogeneración Masiva de Skills (C6)",
+      "level": "Expert",
+      "action": "batch_generate",
+      "model": "${env.MODEL_PREFERENCE}",
+      "provider": "openrouter_proxy",
+      "inputs": {
+        "skills_list": "${node_02.outputs}",
+        "tenant_id": "${env.TENANT_ID}"
       },
-      "typeVersion": 2.2,
-      "notes": "🔴 C4 Enforcement: Bloquea procesamiento si tenant_id falta o es genérico. Ref: 06-MULTITENANCY-RULES.md#MT-001"
+      "constraints": {
+        "C1_C2": "Inyectar límites explícitos en prompts.",
+        "C3": "Forzar uso de process.env en código generado.",
+        "C6": "Usar solo proxy cloud para inferencia."
+      },
+      "output_dir": ".temp_generated_skills/"
     },
     {
-      "type": "n8n-nodes-base.respondToWebhook",
-      "name": "Reject: Invalid Tenant",
-      "position": [-400, -200],
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ { error: 'SDD Validation Failed', details: { constraint: 'C4', rule': 'MT-001', message: 'tenant_id missing or invalid', spec_ref: '01-RULES/06-MULTITENANCY-RULES.md#MT-001' }, tenant_id: $json.tenant_id, timestamp: new Date().toISOString() } }}",
-        "options": { "responseCode": 400, "responseHeaders": { "entries": [{ "name": "X-SDD-Error", "value": "C4_VIOLATION" }] } }
-      },
-      "typeVersion": 1,
-      "notes": "Respuesta estandarizada para fallos de validación SDD"
+      "id": "node_05_interactive_prompt",
+      "type": "input_handler",
+      "title": "Captura de Prompt Contextual (Asistido)",
+      "level": "Junior",
+      "action": "cli_input",
+      "prompt_text": "Describe el módulo a generar (ej: 'Conexión Qdrant con tenant_id'):",
+      "validation": "No vacío, > 10 caracteres."
     },
     {
-      "type": "n8n-nodes-base.switch",
-      "name": "Router: Message Type",
-      "position": [-400, -400],
-      "parameters": {
-        "rules": {
-          "values": [
-            { "outputKey": "text", "conditions": { "combinator": "and", "conditions": [{ "leftValue": "={{ $json.message_type }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "text" }] } },
-            { "outputKey": "audio", "conditions": { "combinator": "and", "conditions": [{ "leftValue": "={{ $json.message_type }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "audio" }] } },
-            { "outputKey": "location", "conditions": { "combinator": "and", "conditions": [{ "leftValue": "={{ $json.message_type }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "location" }] } }
-          ]
-        },
-        "options": { "fallbackOutput": "extra", "renameFallbackOutput": "unsupported" }
-      },
-      "typeVersion": 3.2,
-      "notes": "C1-C2: Routing eficiente para minimizar uso de CPU/RAM"
+      "id": "node_06_single_skill_gen",
+      "type": "generator",
+      "title": "Generación de Skill Única con Qwen/DeepSeek",
+      "level": "Intermediate",
+      "action": "single_generate",
+      "model": "${env.MODEL_PREFERENCE}",
+      "system_prompt": "Eres un ingeniero senior SDD Hardened. Genera código TS/Python cumpliendo C1-C8. Incluye troubleshooting.",
+      "user_prompt": "${node_05.input}",
+      "output_file": ".temp_generated_skills/single_skill.ts"
     },
     {
-      "type": "n8n-nodes-base.set",
-      "name": "Audio/Location Normalizer",
-      "position": [-400, -160],
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            { "name": "processed_text", "value": "={{ $json.message_type === 'audio' ? '[Audio Transcribed]' : ($json.message_type === 'location' ? `[Location: ${$json.lat}, ${$json.lng}]` : $json.payload.text) }}", "type": "string" },
-            { "name": "tenant_id", "value": "={{ $json.tenant_id }}", "type": "string" },
-            { "name": "chat_id", "value": "={{ $json.chat_id }}", "type": "string" }
-          ]
-        }
-      },
-      "typeVersion": 3.4,
-      "notes": "C4: Propagación explícita de tenant_id en rama alternativa"
+      "id": "node_07_validate_c3_secrets",
+      "type": "security_scanner",
+      "title": "Escaneo de Credenciales Hardcodeadas (C3)",
+      "level": "Intermediate",
+      "action": "grep_scan",
+      "target_dir": ".temp_generated_skills/",
+      "patterns": ["api_key\\s*=\\s*['\"]", "password\\s*=\\s*['\"]", "secret\\s*=\\s*['\"]"],
+      "fail_on_match": true,
+      "error_message": "C3 VIOLATION: Hardcoded secrets detected.",
+      "fix_instruction": "Reemplazar literals por process.env.VAR_NAME."
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "name": "AI Agent Core",
-      "position": [-120, -400],
-      "parameters": {
-        "text": "={{ $json.processed_text || $json.payload.text || '' }}",
-        "options": {
-          "systemMessage": "=# 🤖 ROL: Asistente SDD-Compliant para {{ $json.tenant_id }}\n\n# ⚠️ CONSTRAINTS ABSOLUTOS (C1-C6)\n- C4: NUNCA ejecutes queries sin WHERE tenant_id = '{{ $json.tenant_id }}'\n- C1-C2: Respuesta máxima 30s, contexto limitado a 40 mensajes\n- C3: Solo APIs internas autorizadas (MySQL/Qdrant en red privada)\n- C5: Todo log debe incluir tenant_id + timestamp + hash\n- C6: Sin modelos locales, solo cloud API autorizadas\n\n# TOOLS DISPONIBLES (todas con tenant_id enforcement)\n- qdrant_search: vector DB con filter.metadata.tenant_id = '{{ $json.tenant_id }}'\n- db_query: SQL con WHERE tenant_id = ? Y chat_id = ?\n- calendar_tool: reservas validando slot + tenant_id\n- http_tool: APIs externas con timeout 30000ms + header tenant-id\n\n# OUTPUT\nSiempre incluir tenant_id en respuesta estructurada.",
-          "maxIterations": 5,
-          "returnIntermediateSteps": false
-        },
-        "promptType": "define",
-        "hasOutputParser": true
-      },
-      "typeVersion": 3,
-      "notes": "C4-C6: System prompt con constraints explícitos para el LLM"
+      "id": "node_08_validate_c4_tenant",
+      "type": "logic_scanner",
+      "title": "Validación de Aislamiento Multi-Tenant (C4)",
+      "level": "Intermediate",
+      "action": "ast_parse_check",
+      "target_dir": ".temp_generated_skills/",
+      "check_logic": "Cada función DB/API debe recibir 'tenant_id' como argumento y usarlo en queries/logs.",
+      "fail_if_missing": true,
+      "error_message": "C4 VIOLATION: tenant_id not enforced in logic."
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "name": "Memory: Postgres Session",
-      "position": [-120, -160],
-      "parameters": {
-        "sessionKey": "={{ $json.tenant_id }}:{{ $json.chat_id }}",
-        "sessionIdType": "customKey",
-        "contextWindowLength": 40,
-        "tableName": "chat_sessions",
-        "options": {
-          "tableSchema": "CREATE TABLE IF NOT EXISTS chat_sessions (id SERIAL, tenant_id VARCHAR(64) NOT NULL, chat_id VARCHAR(128) NOT NULL, session_data JSONB, created_at TIMESTAMPTZ DEFAULT NOW(), PRIMARY KEY(id), CONSTRAINT unique_session UNIQUE(tenant_id, chat_id))"
-        }
-      },
-      "typeVersion": 1.3,
-      "notes": "C3-C4: Session key compuesta + schema con índice único por tenant_id+chat_id"
+      "id": "node_09_validate_c1_c2_limits",
+      "type": "code_quality_check",
+      "title": "Verificación de Límites Explícitos (C1/C2)",
+      "level": "Intermediate",
+      "action": "regex_check",
+      "patterns": ["timeout", "maxResults", "connectionLimit", "LIMIT"],
+      "min_occurrences": 1,
+      "scope": "database_calls, http_fetches",
+      "error_message": "C1/C2 WARNING: Missing explicit limits."
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
-      "name": "Tool: Qdrant RAG",
-      "position": [120, -280],
-      "parameters": {
-        "mode": "retrieve-as-tool",
-        "toolName": "qdrant_search",
-        "toolDescription": "Busca documentos en Qdrant. FILTRO OBLIGATORIO: filter.must.match.keyword.tenant_id = '{{ $json.tenant_id }}'. Nunca omitir.",
-        "qdrantCollection": "={{ $('Config').first().json.qdrant_collection || 'mantis_docs' }}",
-        "topK": 5,
-        "options": {
-          "filter": {
-            "must": [
-              { "key": "tenant_id", "match": { "keyword": "={{ $json.tenant_id }}" } }
-            ]
-          }
-        }
-      },
-      "typeVersion": 1,
-      "notes": "🔴 C4: Filtro obligatorio en metadata para aislamiento vectorial. Ref: 06-MULTITENANCY-RULES.md#MT-004"
+      "id": "node_10_lint_and_format",
+      "type": "formatter",
+      "title": "Linting y Formateo Automático",
+      "level": "Junior",
+      "action": "exec_command",
+      "command": "npx eslint .temp_generated_skills/ --fix && npx prettier .temp_generated_skills/ --write",
+      "ignore_errors": false
     },
     {
-      "type": "n8n-nodes-base.mySql",
-      "name": "Tool: DB Query",
-      "position": [120, -40],
-      "parameters": {
-        "query": "=SELECT id, data, created_at FROM interactions WHERE tenant_id = ? AND chat_id = ? ORDER BY created_at DESC LIMIT 10",
-        "operation": "executeQuery",
-        "options": {
-          "queryReplacement": "={{ [$json.tenant_id, $json.chat_id] }}",
-          "additionalFields": { "timeout": 5000 }
-        }
-      },
-      "typeVersion": 2.4,
-      "notes": "🔴 C4: Query parametrizada con tenant_id + chat_id. Ref: 05-CODE-PATTERNS-RULES.md#SQL-001"
+      "id": "node_11_unit_test_gen",
+      "type": "generator",
+      "title": "Generación de Tests Unitarios (C5)",
+      "level": "Expert",
+      "action": "generate_tests",
+      "source_code": ".temp_generated_skills/*.ts",
+      "framework": "jest",
+      "mock_strategy": "Mockear DB y API calls. Inyectar tenant_id de prueba.",
+      "output_dir": ".temp_generated_skills/__tests__/"
     },
     {
-      "type": "n8n-nodes-base.httpRequest",
-      "name": "Tool: External API",
-      "position": [120, 200],
-      "parameters": {
-        "url": "={{ $('Config').first().json.crm_endpoint || $env.CRM_ENDPOINT }}",
-        "method": "POST",
-        "timeout": 30000,
-        "retryOnFail": true,
-        "maxTries": 3,
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "tenant-id", "value": "={{ $json.tenant_id }}" },
-            { "name": "Authorization", "value": "={{ $env.CRM_API_KEY }}" },
-            { "name": "X-SDD-Compliance", "value": "v1.0" }
-          ]
-        },
-        "options": {
-          "allowUnauthorizedCerts": false,
-          "fullResponse": true
-        }
-      },
-      "typeVersion": 4.2,
-      "notes": "C4-C5: Headers con tenant-id + logging de respuesta. Ref: 04-API-RELIABILITY-RULES.md#API-005"
+      "id": "node_12_run_unit_tests",
+      "type": "tester",
+      "title": "Ejecución de Tests Unitarios",
+      "level": "Intermediate",
+      "action": "exec_command",
+      "command": "npm test -- .temp_generated_skills/__tests__/",
+      "timeout_ms": "${env.TIMEOUT_MS}",
+      "fail_on_error": true
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "name": "Parser: Structured Output",
-      "position": [360, -280],
-      "parameters": {
-        "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tenant_id\": { \"type\": \"string\", \"description\": \"ID del tenant, obligatorio para C4\" },\n    \"chat_id\": { \"type\": \"string\" },\n    \"response_text\": { \"type\": \"string\" },\n    \"action\": { \"type\": \"string\", \"enum\": [\"reply\", \"schedule\", \"log\", \"escalate\"] },\n    \"data_payload\": { \"type\": \"object\" },\n    \"sdd_metadata\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"constraints_checked\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"validation_ts\": { \"type\": \"string\", \"format\": \"date-time\" }\n      }\n    }\n  },\n  \"required\": [\"tenant_id\", \"response_text\", \"action\"]\n}",
-        "options": {
-          "strictValidation": true
-        }
-      },
-      "typeVersion": 1.3,
-      "notes": "C4: Schema exige tenant_id en output. Ref: 05-CODE-PATTERNS-RULES.md#PAT-002"
+      "id": "node_13_integration_smoke_test",
+      "type": "integration_tester",
+      "title": "Smoke Test de Integración Local",
+      "level": "Expert",
+      "action": "spin_up_docker_compose",
+      "services": ["postgres_test", "qdrant_test"],
+      "run_script": "scripts/smoke_test_deploy.ts",
+      "cleanup": true,
+      "validation": "Verificar conexión DB y respuesta API básica."
     },
     {
-      "type": "n8n-nodes-base.code",
-      "name": "Audit Log + Validation",
-      "position": [600, -280],
-      "parameters": {
-        "jsCode": "// SDD-C5: Auditoría con hash y validación de constraints\nconst item = $input.first().json;\n\n// Validación C4: tenant_id obligatorio\nif (!item.tenant_id || item.tenant_id === 'demo_tenant') {\n  throw new Error(`SDD-C4 VIOLATION: tenant_id invalid or missing. Spec: 06-MULTITENANCY-RULES.md#MT-001`);\n}\n\n// Preparar log estructurado\nconst auditEntry = {\n  tenant_id: item.tenant_id,\n  chat_id: item.chat_id,\n  action: item.action,\n  response_ts: new Date().toISOString(),\n  sdd_version: '1.0.0',\n  constraints_verified: ['C1','C2','C3','C4','C5','C6'],\n  // SHA256 se computa en DB para integridad\n  sha256_placeholder: 'computed_at_storage'\n};\n\n// Insertar en tabla de auditoría (ejemplo)\n// await $db.query('INSERT INTO audit_logs (...) VALUES (...)', [auditEntry]);\n\nreturn [{ json: { ...item, audit: auditEntry } }];"
-      },
-      "typeVersion": 2,
-      "notes": "C5: Logging estructurado con placeholder para SHA256. Ref: 03-SECURITY-RULES.md#SEG-005"
+      "id": "node_14_generate_docs",
+      "type": "documenter",
+      "title": "Generación de Documentación Markdown",
+      "level": "Junior",
+      "action": "parse_comments_to_md",
+      "source": ".temp_generated_skills/",
+      "template": "05-CONFIGURATIONS/templates/skill-template.md",
+      "output": "docs/generated_skills/",
+      "include_sections": ["Objetivo", "Código", "Troubleshooting", "Constraints"]
     },
     {
-      "type": "n8n-nodes-base.respondToWebhook",
-      "name": "Response Node",
-      "position": [840, -280],
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ status: 'ok', tenant_id: $json.tenant_id, chat_id: $json.chat_id, reply: $json.response_text, action: $json.action, sdd_compliance: { version: '1.0.0', constraints_applied: ['C1','C2','C3','C4','C5','C6'] } }) }}",
-        "options": {
-          "responseHeaders": {
-            "entries": [
-              { "name": "X-Tenant-ID", "value": "={{ $json.tenant_id }}" },
-              { "name": "X-SDD-Compliance", "value": "v1.0.0" }
-            ]
-          }
-        }
+      "id": "node_15_security_audit_deps",
+      "type": "security_scanner",
+      "title": "Auditoría de Dependencias (C7)",
+      "level": "Intermediate",
+      "action": "npm_audit",
+      "severity_threshold": "high",
+      "fail_if_vulns_found": true,
+      "output_report": "reports/dependency-audit.json"
+    },
+    {
+      "id": "node_16_prepare_artifact_structure",
+      "type": "packager",
+      "title": "Preparación de Estructura de Artefacto",
+      "level": "Intermediate",
+      "action": "copy_files",
+      "structure": {
+        "src/": ".temp_generated_skills/",
+        "config/": "config/bootstrap-company.json, config/.env.example",
+        "infra/": "05-CONFIGURATIONS/terraform/modules/",
+        "docs/": "docs/generated_skills/",
+        "scripts/": "scripts/packager-agentic.sh, scripts/validate-constraints-cli.sh"
       },
-      "typeVersion": 1,
-      "notes": "C4-C5: Respuesta incluye tenant_id + metadata de compliance"
+      "exclude": ["node_modules", ".git", "*.log"]
+    },
+    {
+      "id": "node_17_inject_env_template",
+      "type": "configurator",
+      "title": "Inyección de Plantilla .env Segura (C3)",
+      "level": "Junior",
+      "action": "create_env_example",
+      "variables": [
+        "TENANT_ID",
+        "DB_PRIMARY_DSN",
+        "OPENROUTER_API_KEY",
+        "QDRANT_URL",
+        "MAX_RESULTS",
+        "TIMEOUT_MS",
+        "CONNECTION_LIMIT"
+      ],
+      "warning_comment": "# NEVER commit this file with real values. Use vault/secrets manager."
+    },
+    {
+      "id": "node_18_create_zip_archive",
+      "type": "packager",
+      "title": "Compresión ZIP Final",
+      "level": "Intermediate",
+      "action": "zip_directory",
+      "source_dir": ".temp_artifact_staging/",
+      "output_file": "releases/release-${env.TENANT_ID}-${timestamp}.zip",
+      "compression_level": 9
+    },
+    {
+      "id": "node_19_sign_and_checksum",
+      "type": "security_signer",
+      "title": "Firma Digital y Checksum (C8)",
+      "level": "Expert",
+      "action": "gpg_sign_and_sha256",
+      "input_file": "${node_18.output_file}",
+      "outputs": [
+        "${node_18.output_file}.asc",
+        "${node_18.output_file}.sha256"
+      ],
+      "log_event": "artifact_signed"
+    },
+    {
+      "id": "node_20_notify_and_cleanup",
+      "type": "notifier",
+      "title": "Notificación de Entrega y Limpieza",
+      "level": "Junior",
+      "action": "send_slack_webhook",
+      "payload": {
+        "text": "✅ Deploy Package Ready for Tenant: ${env.TENANT_ID}",
+        "attachment": "Artifact: ${node_18.output_file}"
+      },
+      "cleanup_action": "rm -rf .temp_generated_skills/ .temp_artifact_staging/",
+      "final_status": "SUCCESS"
     }
   ],
-  "connections": {
-    "Trigger: Multi-Channel Inbound": {
-      "main": [[{ "node": "Normalize + Inject tenant_id", "type": "main", "index": 0 }]]
+  "global_error_handling": {
+    "retry_policy": {
+      "max_retries": 3,
+      "backoff_multiplier": 2,
+      "initial_delay_ms": 1000
     },
-    "Normalize + Inject tenant_id": {
-      "main": [[{ "node": "Validate SDD Compliance", "type": "main", "index": 0 }]]
-    },
-    "Validate SDD Compliance": {
-      "main": [
-        [{ "node": "Router: Message Type", "type": "main", "index": 0 }],
-        [{ "node": "Reject: Invalid Tenant", "type": "main", "index": 0 }]
-      ]
-    },
-    "Router: Message Type": {
-      "main": [
-        [{ "node": "AI Agent Core", "type": "main", "index": 0 }],
-        [{ "node": "Audio/Location Normalizer", "type": "main", "index": 0 }],
-        [{ "node": "Audio/Location Normalizer", "type": "main", "index": 0 }]
-      ]
-    },
-    "Audio/Location Normalizer": {
-      "main": [[{ "node": "AI Agent Core", "type": "main", "index": 0 }]]
-    },
-    "AI Agent Core": {
-      "main": [[{ "node": "Parser: Structured Output", "type": "main", "index": 0 }]]
-    },
-    "Memory: Postgres Session": {
-      "ai_memory": [[{ "node": "AI Agent Core", "type": "ai_memory", "index": 0 }]]
-    },
-    "Tool: Qdrant RAG": {
-      "ai_tool": [[{ "node": "AI Agent Core", "type": "ai_tool", "index": 0 }]]
-    },
-    "Tool: DB Query": {
-      "ai_tool": [[{ "node": "AI Agent Core", "type": "ai_tool", "index": 0 }]]
-    },
-    "Tool: External API": {
-      "ai_tool": [[{ "node": "AI Agent Core", "type": "ai_tool", "index": 0 }]]
-    },
-    "Parser: Structured Output": {
-      "ai_outputParser": [[{ "node": "AI Agent Core", "type": "ai_outputParser", "index": 0 }]],
-      "main": [[{ "node": "Audit Log + Validation", "type": "main", "index": 0 }]]
-    },
-    "Audit Log + Validation": {
-      "main": [[{ "node": "Response Node", "type": "main", "index": 0 }]]
-    }
+    "notification_channel": "slack_errors",
+    "rollback_trigger": "Si node_12 o node_13 fallan, abortar pipeline y limpiar temp dirs."
+  },
+  "environment_requirements": {
+    "node_version": ">=18",
+    "python_version": ">=3.9",
+    "required_tools": ["zip", "gpg", "docker", "kubectl"],
+    "env_vars_mandatory": ["TENANT_ID", "OPENROUTER_API_KEY", "MODEL_PREFERENCE"]
   }
 }
 
