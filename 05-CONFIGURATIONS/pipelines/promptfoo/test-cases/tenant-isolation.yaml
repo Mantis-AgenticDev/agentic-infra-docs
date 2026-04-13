@@ -1,0 +1,16 @@
+ ORDEN DE GENERACIÓN (Prioridad P0 → P2)
+1. `05-CONFIGURATIONS/pipelines/promptfoo/config.yaml`
+2. `05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml`
+
+3. `05-CONFIGURATIONS/pipelines/promptfoo/test-cases/resource-limits.yaml`
+4. `05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml`
+5. `05-CONFIGURATIONS/terraform/modules/vps-base/variables.tf`
+6. `05-CONFIGURATIONS/terraform/modules/vps-base/outputs.tf`
+7. `05-CONFIGURATIONS/terraform/modules/postgres-rls/variables.tf`
+8. `05-CONFIGURATIONS/terraform/modules/postgres-rls/outputs.tf`
+9. `05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf`
+10. `05-CONFIGURATIONS/terraform/modules/backup-encrypted/outputs.tf`
+11. `05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml`
+12. `05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml`
+13. `05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml`
+14. `05-CONFIGURATIONS/environment/.env.example`

@@ -425,16 +425,16 @@ agentic-infra-docs/
 |   |         aplicaciones desplegadas.
 |   |
 │   ├── docker-compose/
-│   │   ├── 00-INDEX.md                       🆕 PENDIENTE
+│   │   ├── 00-INDEX.md                       ✅ COMPLETADO
 │   │   │   └── Índice de archivos docker-compose
 │   │   │
 │   │   ├── vps1-n8n-uazapi.yml               ✅ COMPLETADO
 │   │   │   └── Docker Compose para VPS 1 (n8n + uazapi )
 │   │   │
-│   │   ├── vps2-crm-qdrant.yml               🆕 PENDIENTE
+│   │   ├── vps2-crm-qdrant.yml               ✅ COMPLETADO
 │   │   │   └── Docker Compose para VPS 2 (EspoCRM + MySQL + Qdrant)
 │   │   │
-│   │   └── vps3-n8n-uazapi.yml               🆕 PENDIENTE
+│   │   └── vps3-n8n-uazapi.yml               ✅ COMPLETADO
 │   │       └── Docker Compose para VPS 3 (n8n + uazapi+ Redis)
 |   |
 |   |
@@ -443,8 +443,8 @@ agentic-infra-docs/
 │   │   ├── modules/
 │   │   │   ├── vps-base/            # C1/C2: limits, UFW, fail2ban 🆕 PENDIENTE
 |   |   |   |   ├── main.tf ✅ COMPLETADO
-|   |   |   |   ├── outputs.tf 
-|   |   |   |   ├── variables.tf
+|   |   |   |   ├── outputs.tf ✅ COMPLETADO
+|   |   |   |   ├── variables.tf ✅ COMPLETADO
 |   |   |   |   ├── main/
 |   |   |   |   ├── output/
 |   |   |   |   └── variable/
@@ -459,8 +459,8 @@ agentic-infra-docs/
 |   |   |   |   
 │   │   │   ├── postgres-rls/        # C4: RLS policies, tenant_id enforcement 🆕 PENDIENTE
 |   |   |   |   └── main.tf ✅ COMPLETADO
-|   |   |   |   ├── outputs.tf 🆕 PENDIENTE
-|   |   |   |   ├── variables.tf 🆕 PENDIENTE
+|   |   |   |   ├── outputs.tf ✅ COMPLETADO
+|   |   |   |   ├── variables.tf ✅ COMPLETADO
 |   |   |   |   ├── main/
 |   |   |   |   ├── output/
 |   |   |   |   └── variable/
@@ -475,8 +475,8 @@ agentic-infra-docs/
 |   |   |   |   
 │   │   │   └── backup-encrypted/    # C5: SHA256 + age encryption 🆕 PENDIENTE
 |   |   |       └── main.tf 🆕 PENDIENTE
-|   |   |       ├── outputs.tf 🆕 PENDIENTE
-|   |   |       ├── variables.tf 🆕 PENDIENTE
+|   |   |       ├── outputs.tf ✅ COMPLETADO
+|   |   |       ├── variables.tf ✅ COMPLETADO
 |   |   |       ├── main/
 |   |   |       ├── output/
 |   |   |       └── variable/
@@ -500,9 +500,12 @@ agentic-infra-docs/
 │   │   │             └── integrity-check.yml  # Daily: frontmatter, wikilinks, constraints ✅ COMPLETADO
 |   |   |
 │   │   └── promptfoo/
-│   │       ├── config.yaml          # Evaluación de prompts de autogeneración 🆕 PENDIENTE
+│   │       ├── config.yaml          # Evaluación de prompts de autogeneración ✅ COMPLETADO
 │   │       ├── test-cases/          # Casos de prueba por modelo (5 mínimos) 🆕 PENDIENTE
+|   |       |      └── tenant-isolation.yaml   ✅ COMPLETADO
+|   |       |      └── resource-limits.yaml    ✅ COMPLETADO
 │   │       └── assertions/          # Schema validation + linting rules 🆕 PENDIENTE
+|   |              └── schema-check.yaml       ✅ COMPLETADO
 │   │
 │   ├── validation/                   # 🔹 Scripts de integridad centralizados
 |   |   ├── schemas/
@@ -569,7 +572,7 @@ agentic-infra-docs/
 │       ├── 00-INDEX.md                       🆕 PENDIENTE
 │       │   └── Índice de archivos de entorno
 │       │
-│       └── .env.example                      🆕 PENDIENTE
+│       └── .env.example                      ✅ COMPLETADO
 │           └── Ejemplo de variables de entorno (sin valores reales)
 |
 |

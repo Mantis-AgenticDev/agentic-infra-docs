@@ -1,0 +1,97 @@
+---
+title: "Promptfoo Configuration for Agentic Infra Guardrails"
+version: "1.0.0"
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+validation_command: "npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --max-concurrency 1"
+---
+# Promptfoo configuration for validating Agentic Infrastructure rules
+# Target: OpenRouter endpoints, Multi-tenant RAG, and API Reliability patterns
+
+description: "Agentic Infra Guardrails - E2E Validation Suite"
+
+providers:
+  # Remote AI Providers only - C6 enforced
+  - id: openrouter:mistralai/mistral-small-3.1-24b
+    config:
+      apiKey: ${OPENROUTER_API_KEY:?missing}
+      apiBaseUrl: https://openrouter.ai/api/v1
+      headers:
+        HTTP-Referer: ${SERVICE_DOMAIN:?missing}
+        X-Title: "Mantis Agentic Validator"
+      timeout: 30000 # C2: explicit timeout
+      maxRetries: 3 # C7: retry with backoff
+      retryDelay: 1000
+  - id: openrouter:google/gemini-2.5-flash-preview-05-20
+    config:
+      apiKey: ${OPENROUTER_API_KEY:?missing}
+      apiBaseUrl: https://openrouter.ai/api/v1
+      headers:
+        HTTP-Referer: ${SERVICE_DOMAIN:?missing}
+        X-Title: "Mantis Agentic Validator"
+      timeout: 30000
+      maxRetries: 3
+      retryDelay: 1000
+
+# Test configurations
+defaultTest:
+  options:
+    provider: openrouter:mistralai/mistral-small-3.1-24b
+  assert:
+    - type: contains-json
+      weight: 0.5
+    - type: latency
+      threshold: 10000 # 10s max for complex RAG
+    - type: cost
+      threshold: 0.05
+
+# Test suites
+prompts:
+  - file://05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml
+  - file://05-CONFIGURATIONS/pipelines/promptfoo/test-cases/resource-limits.yaml
+  - file://05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml
+
+# Global settings for evaluation
+evaluateOptions:
+  maxConcurrency: 2 # C2: resource control
+  repeat: 1
+  cache: false
+  showProgressBar: true
+
+# Output configuration
+outputPath: ./promptfoo-results.json
+
+# Sharing and logging
+sharing: false
+
+# Environment variable validation
+env:
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?error: OPENROUTER_API_KEY must be set}
+  SERVICE_DOMAIN: ${SERVICE_DOMAIN:?error: SERVICE_DOMAIN must be set}
+  NODE_ENV: ${NODE_ENV:-development}
+  TENANT_ID_ALPHA: ${TENANT_ID_ALPHA:-tenant-00000000-0000-0000-0000-000000000001}
+  TENANT_ID_BETA: ${TENANT_ID_BETA:-tenant-00000000-0000-0000-0000-000000000002}
+
+# Custom scripts for setup/teardown (healthchecks - C7)
+preRun: |
+  echo "[$(date -Iseconds)] [INFO] Starting promptfoo validation with tenant_id: ${TENANT_ID_ALPHA}" >&2
+  if ! curl -s -f -o /dev/null https://openrouter.ai/api/v1/models; then
+    echo "[$(date -Iseconds)] [ERROR] OpenRouter healthcheck failed" >&2
+    exit 1
+  fi
+postRun: |
+  echo "[$(date -Iseconds)] [INFO] Validation completed. Results written to promptfoo-results.json" >&2
+
+# Additional assertions schema
+derivedMetrics:
+  - name: tenant_isolation_score
+    description: "Measures consistency of tenant isolation across runs"
+    calculate: "avg(assertionsPassed['tenant-isolation'])"
+
+# Circuit breaker simulation (C7) - not directly in promptfoo but documented
+# Expect downstream services to implement: retry, exponential backoff, jitter
+
+# Note: For full validation of C4 (tenant_id in logs) and C8 (structured JSON logs),
+# we rely on the assertions in schema-check.yaml and the application logging middleware.
+# This config ensures that all calls are made to cloud endpoints with proper auth.
+
+# 🟢 VALIDATION: npx promptfoo@latest eval --config 05-CONFIGURATIONS/pipelines/promptfoo/config.yaml --dry-run
