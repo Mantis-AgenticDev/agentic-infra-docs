@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-14T05:46:29.001250+00:00",
+  "generated_at": "2026-04-14T06:59:05.939973+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -23,7 +23,11 @@
       "tags": [],
       "priority": "media",
       "last_updated": "2025-04-14T00:00:00Z",
-      "wikilinks": []
+      "wikilinks": [
+        "AI-NAVIGATION-CONTRACT.md",
+        "GOVERNANCE-ORCHESTRATOR.md",
+        "norms-matrix.json"
+      ]
     },
     {
       "id": "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
@@ -395,6 +399,12 @@
         "../PROJECT_TREE.md",
         "../knowledge-graph.json",
         "skill-domains-mapping.md",
+        "AI-NAVIGATION-CONTRACT.md",
+        "../AI-NAVIGATION-CONTRACT.md",
+        "/GOVERNANCE-ORCHESTRATOR.md",
+        "AI-NAVIGATION-CONTRACT.md",
+        "skill-domains-mapping.md",
+        "GENERATION-MODELS.md",
         "../README.md",
         "../PROJECT_TREE.md",
         "../knowledge-graph.json",
@@ -452,6 +462,7 @@
         "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf",
         "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
         "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml",
+        "AI-NAVIGATION-CONTRACT.md",
         "../../README.md",
         "../PROJECT_TREE.md",
         "../../knowledge-graph.json",
@@ -2363,6 +2374,21 @@
   ],
   "edges": [
     {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "GOVERNANCE-ORCHESTRATOR.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "norms-matrix.json.md",
+      "type": "references"
+    },
+    {
       "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
       "target": "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml.md",
       "type": "references"
@@ -2794,6 +2820,36 @@
     },
     {
       "source": "02-SKILLS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "/GOVERNANCE-ORCHESTRATOR.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
       "target": "../README.md",
       "type": "references"
     },
@@ -2935,6 +2991,11 @@
     {
       "source": "02-SKILLS/GENERATION-MODELS.md",
       "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
       "type": "references"
     },
     {
