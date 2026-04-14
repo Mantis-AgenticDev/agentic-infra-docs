@@ -30,3 +30,16 @@ Para revisión, compartir:
 2. Tier objetivo (1/2/3)
 3. Validadores ejecutados y resultados
 
+
+## 🆕 IAs Adicionales Incorporadas
+- `claude/`: Outputs de Claude (disponible desde jueves)
+- `gemini/`: Outputs de Gemini (Google AI)
+
+## 📋 Estado Actual de Generación
+| IA | Carpeta | Estado | Archivos Generados |
+|----|---------|--------|-------------------|
+| Qwen2.5-72B | `qwen/` | ✅ Activa | GOVERNANCE-ORCHESTRATOR.md, orchestrator-engine.sh |
+| MiniMax 2.7 | `minimax/` | ✅ Activa | GOVERNANCE-ORCHESTRATOR.md, orchestrator-engine.sh |
+| DeepSeek | `deepseek/` | ✅ Activa | GOVERNANCE-ORCHESTRATOR.md, orchestrator-engine.sh |
+| Claude | `claude/` | ⏳ Pendiente (desde jueves) | - |
+| Gemini | `gemini/` | 🔄 En progreso | Informe pendiente |
