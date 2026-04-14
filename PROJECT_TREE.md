@@ -418,8 +418,8 @@ agentic-infra-docs/
 |   |       navegación técnica y punto de entrada obligatorio
 |   |       para ciclos SDD (Collaborative/Automated).
 │   │
-│   ├── observability/                           ✅ COMPLETADO
-│   │   └── otel-tracing-config.yaml
+│   ├── observability/                           
+│   │   └── otel-tracing-config.yaml         ✅ COMPLETADO
 |   |         Configuración para la captura, procesamiento y exportación de 
 |   |         trazas, métricas y logs estructurados desde los agentes generadores y 
 |   |         aplicaciones desplegadas.
@@ -553,10 +553,10 @@ agentic-infra-docs/
 |   |   |    
 |   |   ├── bootstrap-hardened-repo.sh   # 🔹 Nuevo: inicializa estructura HARDENED
 │   │   │
-│   │   ├── health-check.sh                   🆕 PENDIENTE
+│   │   ├── health-check.sh                   ✅ COMPLETADO
 │   │   │   └── Script de health check para VPS (cada 5 min)
 │   │   │
-│   │   ├── backup-mysql.sh                   🆕 PENDIENTE
+│   │   ├── backup-mysql.sh                   ✅ COMPLETADO
 │   │   │   └── Script de backup de MySQL (diario 4 AM)
 │   │   │
 │   │   ├── backup-qdrant.sh                  🆕 PENDIENTE
@@ -920,6 +920,6 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 
 Última actualización: Abril 08 2026
 Próxima revisión: Al completar Fase 1 (Cimientos)
-Versión del árbol: 2.4.0 (estructura corregida)
+Versión del árbol: 2.9.4 (estructura corregida)
 
 ---
