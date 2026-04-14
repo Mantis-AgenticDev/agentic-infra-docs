@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-13T17:19:17.198473+00:00",
+  "generated_at": "2026-04-14T05:46:29.001250+00:00",
   "source": "/home/ricardo/obsidian-vaults/saas-backend",
   "nodes": [
     {
@@ -1125,6 +1125,58 @@
       ]
     },
     {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "title": "db-selection-decision-tree",
+      "category": "Skill",
+      "domain": [
+        "database",
+        "decision",
+        "multi-tenant",
+        "rag",
+        "vertical"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/database",
+        "sdd/skill/decision-tree",
+        "sdd/skill/vertical",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": null,
+      "wikilinks": [
+        "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/environment/.env.example",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/07-SCALABILITY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/environment/.env.example"
+      ]
+    },
+    {
       "id": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
       "title": "environment-variable-management",
       "category": "Skill",
@@ -1578,6 +1630,55 @@
         "01-RULES/06-MULTITENANCY-RULES.md",
         "01-RULES/03-SECURITY-RULES.md",
         "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "title": "vertical-db-schemas",
+      "category": "Skill",
+      "domain": [
+        "database",
+        "schema",
+        "vertical",
+        "multi-tenant",
+        "sql"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/schema",
+        "sdd/skill/vertical",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/sql",
+        "sdd/skill/restaurante",
+        "sdd/skill/hotel",
+        "sdd/skill/dental",
+        "sdd/skill/marketing",
+        "sdd/skill/corp-kb",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": null,
+      "wikilinks": [
+        "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml"
       ]
     },
     {
@@ -3727,6 +3828,111 @@
       "type": "references"
     },
     {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/environment/.env.example.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/07-SCALABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/environment/.env.example.md",
+      "type": "references"
+    },
+    {
       "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
       "target": "01-RULES/03-SECURITY-RULES.md",
       "type": "references"
@@ -4129,6 +4335,71 @@
     {
       "source": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
       "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
       "type": "references"
     },
     {
