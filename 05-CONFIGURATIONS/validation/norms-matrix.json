@@ -1,0 +1,726 @@
+{
+  "title": "Norms Application Matrix by Canonical Location",
+  "version": "1.0.0",
+  "constraints_mapped": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "validation_command": "./05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file 05-CONFIGURATIONS/validation/norms-matrix.json --json",
+  "canonical_path": "05-CONFIGURATIONS/validation/norms-matrix.json",
+  "ai_optimized": true,
+  "related_files": [
+    "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]",
+    "[[05-CONFIGURATIONS/00-INDEX.md]]",
+    "[[PROJECT_TREE.md]]",
+    "[[01-RULES/00-INDEX.md]]",
+    "[[01-RULES/01-ARCHITECTURE-RULES.md]]",
+    "[[01-RULES/02-RESOURCE-GUARDRAILS.md]]",
+    "[[01-RULES/03-SECURITY-RULES.md]]",
+    "[[01-RULES/04-API-RELIABILITY-RULES.md]]",
+    "[[01-RULES/05-CODE-PATTERNS-RULES.md]]",
+    "[[01-RULES/06-MULTITENANCY-RULES.md]]",
+    "[[01-RULES/07-SCALABILITY-RULES.md]]",
+    "[[02-SKILLS/00-INDEX.md]]",
+    "[[02-SKILLS/BASE DE DATOS-RAG/00-INDEX.md]]",
+    "[[02-SKILLS/INFRAESTRUCTURA/00-INDEX.md]]",
+    "[[05-CONFIGURATIONS/validation/audit-secrets.sh]]",
+    "[[05-CONFIGURATIONS/validation/check-rls.sh]]",
+    "[[05-CONFIGURATIONS/validation/check-wikilinks.sh]]",
+    "[[05-CONFIGURATIONS/validation/verify-constraints.sh]]",
+    "[[05-CONFIGURATIONS/validation/schema-validator.py]]"
+  ],
+  "master_precedence_rule": {
+    "description": "Rule of precedence for norm application based on canonical location",
+    "logic": [
+      {
+        "condition": "file_path contains '05-CONFIGURATIONS/' OR '04-WORKFLOWS/'",
+        "action": "Apply C1-C8 COMPLETE (Tier 2-3 target)"
+      },
+      {
+        "condition": "file_path contains '02-SKILLS/BASE DE DATOS-RAG/' OR '02-SKILLS/INFRAESTRUCTURA/'",
+        "action": "C4 MANDATORY + C1-C3/C7 contextual based on function"
+      },
+      {
+        "condition": "file_extension is '.md' AND file_path contains '00-CONTEXT/' OR '01-RULES/' OR '07-PROCEDURES/'",
+        "action": "C5/C8 + valid frontmatter (Tier 1 target)"
+      },
+      {
+        "condition": "default fallback",
+        "action": "Minimum validation (syntax + wikilinks only)"
+      }
+    ]
+  },
+  "intensity_legend": {
+    "mandatory": {
+      "symbol": "🔴",
+      "behavior": "Automatic failure if not met. Blocks tier certification. Exit code 2.",
+      "example_validators": ["audit-secrets.sh", "check-rls.sh --strict", "terraform validate"]
+    },
+    "applicable": {
+      "symbol": "🟢",
+      "behavior": "Must be present and verifiable. Warning for Tier 2-3 if missing, allows Tier 1 with correction.",
+      "example_validators": ["verify-constraints.sh", "validate-frontmatter.sh"]
+    },
+    "contextual": {
+      "symbol": "🟡",
+      "behavior": "Applies only if file function requires it. Checked conditionally based on inline content analysis.",
+      "example_validators": ["check-rls.sh --inline-sql", "grep -q 'tenant_id'"]
+    },
+    "not_applicable": {
+      "symbol": "⚪",
+      "behavior": "Norm irrelevant for this file type. Omitted from validation report entirely.",
+      "example_validators": []
+    }
+  },
+  "matrix_by_location": {
+    "00-CONTEXT/": {
+      "description": "Base documentation, user/project context files",
+      "extensions": {
+        ".md": {
+          "function": "documentation_base",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "not_applicable", "validator": null},
+            "C4": {"intensity": "not_applicable", "validator": null},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions logging/observability"}
+          },
+          "tier_requirements": {"min": 1, "examples_min": 5, "validation_command_required": false},
+          "active_validators": ["check-wikilinks.sh", "validate-frontmatter.sh"]
+        }
+      }
+    },
+    "01-RULES/": {
+      "description": "Canonical norms, C1-C8 constraint definitions",
+      "extensions": {
+        ".md": {
+          "function": "canonical_rules",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "not_applicable", "validator": null}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 5, "validation_command_required": true},
+          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "validate-frontmatter.sh"]
+        }
+      }
+    },
+    "02-SKILLS/AI/": {
+      "description": "AI model integration patterns (OpenRouter, Qwen, etc.)",
+      "extensions": {
+        ".md": {
+          "function": "ai_integration_pattern",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "not_applicable", "validator": null},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions structured logging"}
+          },
+          "tier_requirements": {"min": 1, "max": 2, "examples_min": 5, "validation_command_required": true},
+          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
+        }
+      }
+    },
+    "02-SKILLS/INFRAESTRUCTURA/": {
+      "description": "Infrastructure patterns: Docker, SSH, UFW, monitoring",
+      "extensions": {
+        ".md": {
+          "function": "infrastructure_pattern",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["verify-constraints.sh", "check-wikilinks.sh", "audit-secrets.sh"]
+        }
+      }
+    },
+    "02-SKILLS/BASE DE DATOS-RAG/": {
+      "description": "Database schemas, RAG ingestion, multi-tenant queries",
+      "extensions": {
+        ".md": {
+          "function": "database_schema_with_inline_sql",
+          "constraints": {
+            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions resource limits"},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions concurrency/timeout"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --strict", "blocking": true, "checks": ["tenant_id in all WHERE clauses", "tenant_id as second field in tables", "composite indexes start with tenant_id", "FK references tenants table"]},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "c4_blocking": true},
+          "active_validators": ["check-rls.sh", "audit-secrets.sh", "schema-validator.py", "verify-constraints.sh"]
+        }
+      }
+    },
+    "02-SKILLS/WHATSAPP-RAG AGENTS/": {
+      "description": "WhatsApp agents with RAG + multi-tenant awareness",
+      "extensions": {
+        ".md": {
+          "function": "whatsapp_rag_agent_pattern",
+          "constraints": {
+            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
+        }
+      }
+    },
+    "02-SKILLS/VERTICALES/": {
+      "description": "Industry-specific skills (restaurant, dental, hotel, etc.)",
+      "extensions": {
+        ".md": {
+          "function": "vertical_skill_pattern",
+          "constraints": {
+            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --if-db", "blocking": true},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 1, "max": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["check-rls.sh --if-db", "audit-secrets.sh", "verify-constraints.sh"]
+        }
+      }
+    },
+    "03-AGENTS/infrastructure/": {
+      "description": "Infrastructure agent definitions (monitoring, backup, alerts)",
+      "extensions": {
+        ".md": {
+          "function": "infrastructure_agent_definition",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "check-wikilinks.sh"]
+        }
+      }
+    },
+    "03-AGENTS/clients/": {
+      "description": "Client-facing agents (WhatsApp, RAG, analytics)",
+      "extensions": {
+        ".md": {
+          "function": "client_agent_definition",
+          "constraints": {
+            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
+        }
+      }
+    },
+    "04-WORKFLOWS/": {
+      "description": "Exported n8n workflows (executable JSON)",
+      "extensions": {
+        ".json": {
+          "function": "n8n_workflow_executable",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C2": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true, "checks": ["tenant_id in node parameters", "tenant_id in filters", "tenant_id in metadata"]},
+            "C5": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C6": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C7": {"intensity": "applicable", "validator": "schema-validator.py", "checks": ["error handling nodes", "retry configuration", "timeout settings"]},
+            "C8": {"intensity": "applicable", "validator": "schema-validator.py"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_packager": true},
+          "active_validators": ["schema-validator.py", "packager-assisted.sh", "audit-secrets.sh", "jq empty"]
+        }
+      }
+    },
+    "04-WORKFLOWS/n8n/": {
+      "description": "Function-specific n8n workflows",
+      "extensions": {
+        ".json": {
+          "function": "n8n_workflow_functional",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C2": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true},
+            "C5": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C6": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C7": {"intensity": "applicable", "validator": "schema-validator.py"},
+            "C8": {"intensity": "applicable", "validator": "schema-validator.py"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_packager": true},
+          "active_validators": ["schema-validator.py", "packager-assisted.sh", "audit-secrets.sh"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/docker-compose/": {
+      "description": "Container configuration for VPS deployment",
+      "extensions": {
+        ".yml": {
+          "function": "docker_compose_config",
+          "constraints": {
+            "C1": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["mem_limit declared", "memswap_limit equals mem_limit", "no swap usage"]},
+            "C2": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["cpus declared", "pids_limit declared", "timeout settings"]},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["${VAR:?missing} syntax", "no hardcoded credentials", "sensitive ports on 127.0.0.1"]},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in labels", "tenant_id in networks", "tenant_id in volumes", "tenant_id in environment"]},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["healthcheck present", "restart: unless-stopped", "retry/backoff config"]},
+            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh", "checks": ["logging driver json-file", "structured log context", "tenant_id in logs"]}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_healthcheck": true, "requires_namespace_isolation": true},
+          "active_validators": ["docker compose config --quiet", "audit-secrets.sh", "verify-constraints.sh", "yq eval"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/terraform/modules/": {
+      "description": "Reusable IaC modules (vps-base, postgres-rls, etc.)",
+      "extensions": {
+        ".tf": {
+          "function": "terraform_module_reusable",
+          "constraints": {
+            "C1": {"intensity": "mandatory", "validator": "terraform_validate", "blocking": true, "checks": ["validation {} blocks for resource ranges", "mem_limit/cpus constraints"]},
+            "C2": {"intensity": "mandatory", "validator": "terraform_validate", "blocking": true},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["sensitive = true on secret outputs", "default = null + TF_VAR_* pattern", "no hardcoded values"]},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id as required variable", "regex validation on tenant_id format", "tenant_id propagated to outputs"]},
+            "C5": {"intensity": "mandatory", "validator": "terraform_validate", "checks": ["checksums in backup outputs", "validation_checklist output"]},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh", "checks": ["validation prohibiting localhost in inference endpoints"]},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_terraform_fmt": true},
+          "active_validators": ["terraform fmt -check", "terraform validate -no-color -json", "audit-secrets.sh", "verify-constraints.sh"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/pipelines/promptfoo/": {
+      "description": "Prompt evaluation configuration and test cases",
+      "extensions": {
+        ".yaml": {
+          "function": "prompt_evaluation_config",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "applicable", "validator": "yamllint", "checks": ["timeout settings in provider config"]},
+            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "promptfoo_dry_run", "checks": ["assertions present", "test cases ≥5 per model"]},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "max": 3, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["yamllint", "promptfoo eval --dry-run", "audit-secrets.sh", "yq eval"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/validation/": {
+      "description": "Validation and integrity scripts",
+      "extensions": {
+        ".sh": {
+          "function": "validation_script_executable",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "bash_syntax_check", "checks": ["set -euo pipefail", "executable validation command"]},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "applicable", "validator": "shellcheck", "checks": ["timeout in curl/wget", "error handling"]},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_shellcheck": true},
+          "active_validators": ["shellcheck", "bash -n", "python3 -m py_compile", "audit-secrets.sh"]
+        },
+        ".py": {
+          "function": "validation_script_python",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "python_compile_check"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["python3 -m py_compile", "audit-secrets.sh", "verify-constraints.sh"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/scripts/": {
+      "description": "Operational scripts (backup, health-check, deploy)",
+      "extensions": {
+        ".sh": {
+          "function": "operational_script",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh", "checks": ["resource limit comments or enforcement"]},
+            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["${VAR:?missing} in all credentials", "no echo of secrets"]},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in logs", "tenant_id in paths", "tenant_id in queries"]},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "mandatory", "validator": "shellcheck", "checks": ["timeout in curl/wget", "retry with backoff if applicable", "error trapping"]},
+            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh", "checks": ["JSON output via heredoc", "trace_id in logs", "structured context"]}
+          },
+          "tier_requirements": {"min": 2, "max": 3, "examples_min": 10, "validation_command_required": true, "requires_heredoc_json": true},
+          "active_validators": ["shellcheck", "bash -n", "audit-secrets.sh", "verify-constraints.sh"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/environment/": {
+      "description": "Environment variable templates",
+      "extensions": {
+        ".example": {
+          "function": "env_template",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["placeholders use replace_with_... OR ${VAR:?missing} pattern", "no real values"]},
+            "C4": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "checks": ["TENANT_ID placeholder present"]},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "not_applicable", "validator": null}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 5, "validation_command_required": true, "accepts_placeholder_patterns": ["replace_with_...", "${VAR:?missing}"]},
+          "active_validators": ["audit-secrets.sh", "validate-frontmatter.sh"]
+        }
+      }
+    },
+    "05-CONFIGURATIONS/templates/": {
+      "description": "Templates for auto-generation",
+      "extensions": {
+        ".md": {
+          "function": "generation_template_markdown",
+          "constraints": {
+            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["validate-frontmatter.sh", "verify-constraints.sh", "audit-secrets.sh"]
+        },
+        ".tf": {
+          "function": "generation_template_terraform",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "terraform_validate"},
+            "C2": {"intensity": "applicable", "validator": "terraform_validate"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "terraform_validate"},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["terraform fmt -check", "terraform validate", "audit-secrets.sh"]
+        },
+        ".yml": {
+          "function": "generation_template_yaml",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "yq_eval"},
+            "C2": {"intensity": "applicable", "validator": "yq_eval"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["yq eval", "yamllint", "audit-secrets.sh"]
+        }
+      }
+    },
+    "06-PROGRAMMING/": {
+      "description": "Code patterns by language",
+      "extensions": {
+        ".md": {
+          "function": "code_pattern_documentation",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if code snippet mentions concurrency"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in inline queries"]},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 1, "max": 2, "examples_min": 5, "validation_command_required": true},
+          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "check-wikilinks.sh"]
+        }
+      }
+    },
+    "07-PROCEDURES/": {
+      "description": "Operational procedures, checklists, SOPs",
+      "extensions": {
+        ".md": {
+          "function": "operational_procedure",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "not_applicable", "validator": null},
+            "C4": {"intensity": "not_applicable", "validator": null},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 3},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if procedure mentions retry/fallback"},
+            "C8": {"intensity": "not_applicable", "validator": null}
+          },
+          "tier_requirements": {"min": 1, "examples_min": 3, "validation_command_required": false, "note": "Procedures prioritize clarity over technical exhaustiveness"},
+          "active_validators": ["check-wikilinks.sh", "validate-frontmatter.sh"]
+        }
+      }
+    },
+    "08-LOGS/": {
+      "description": "Audit logs, reports, traces",
+      "extensions": {
+        ".json": {
+          "function": "audit_log_output",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "schema-validator.py"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "mandatory", "validator": "schema-validator.py", "checks": ["tenant_id field", "trace_id field", "timestamp ISO8601", "severity level"]}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_schema_validation": true},
+          "active_validators": ["schema-validator.py", "jq empty", "audit-secrets.sh"]
+        },
+        ".log": {
+          "function": "raw_log_output",
+          "constraints": {
+            "C1": {"intensity": "not_applicable", "validator": null},
+            "C2": {"intensity": "not_applicable", "validator": null},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "mandatory", "validator": "verify-constraints.sh"},
+            "C6": {"intensity": "not_applicable", "validator": null},
+            "C7": {"intensity": "not_applicable", "validator": null},
+            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true},
+          "active_validators": ["audit-secrets.sh", "verify-constraints.sh"]
+        }
+      }
+    },
+    "09-TEST-SANDBOX/": {
+      "description": "Isolated testing space for multi-IA generation comparison",
+      "extensions": {
+        "*": {
+          "function": "test_artifact",
+          "constraints": {
+            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
+            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
+            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
+            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
+            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
+          },
+          "tier_requirements": {"min": 1, "max": 1, "examples_min": 5, "validation_command_required": true, "note": "Tier max is 1; promotion to production requires explicit re-certification"},
+          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"],
+          "promotion_rule": "Files in sandbox cannot be merged to production without explicit promotion workflow and re-validation against target folder matrix"
+        }
+      }
+    }
+  },
+  "extension_decision_rules": {
+    ".md": {
+      "description": "Decision rules for Markdown files (documentation/skills)",
+      "rules": [
+        {
+          "condition": "file_path contains 'BASE DE DATOS-RAG' OR 'INFRAESTRUCTURA' OR 'VERTICALES'",
+          "actions": [
+            "C4 (tenant_id) MANDATORY in all inline code examples",
+            "C3 (secrets) applies to any credential placeholder",
+            "C5 (examples) requires ≥10 with format ✅/❌/🔧"
+          ]
+        },
+        {
+          "condition": "default",
+          "actions": [
+            "C5 requires ≥5 examples",
+            "C4 applies only if file mentions queries or payloads"
+          ]
+        }
+      ]
+    },
+    ".yaml": {
+      "description": "Decision rules for YAML files (Docker, Promptfoo, CI/CD)",
+      "rules": [
+        "C1/C2: mem_limit, cpus, pids_limit, timeout declared explicitly",
+        "C3: ZERO hardcode; use ${VAR:?missing} or env_file references",
+        "C4: tenant_id in labels, networks, volumes, environment",
+        "C7: healthcheck + restart policy on critical services",
+        "C8: logging driver json-file + structured context",
+        "Validator: yq eval + docker compose config --quiet (if applicable)"
+      ]
+    },
+    ".tf": {
+      "description": "Decision rules for Terraform files",
+      "rules": [
+        "C1/C2: validation {} blocks for resource ranges",
+        "C3: sensitive = true on secret outputs; default = null + TF_VAR_*",
+        "C4: tenant_id as required variable with regex validation",
+        "C5: checksums in backup/artifact outputs",
+        "C6: validation prohibiting localhost in inference endpoints",
+        "Validator: terraform fmt -check + terraform validate -no-color -json"
+      ]
+    },
+    ".sh": {
+      "description": "Decision rules for Bash scripts",
+      "rules": [
+        "Frontmatter COMMENTED with # (for bash compatibility)",
+        "Shebang #!/bin/bash + set -euo pipefail mandatory",
+        "C3: ${VAR:?missing} in all credentials",
+        "C4: tenant_id injected in logs, paths, queries",
+        "C7: timeout in curl/wget, retry with backoff if applicable",
+        "C8: JSON output via heredoc (cat <<EOF | jq .)",
+        "Validator: shellcheck + bash -n + audit-secrets.sh"
+      ]
+    },
+    ".json": {
+      "description": "Decision rules for JSON files (n8n workflows, schemas)",
+      "rules": [
+        "Strict syntax: jq empty must pass",
+        "C3: No secrets exposed in JSON; use ${ENV_VAR} or references",
+        "C4: tenant_id in payloads, filters, node metadata",
+        "C5: Schema validation against skill-input-output.schema.json",
+        "C7: Error handling nodes, retry, timeout declared",
+        "Validator: schema-validator.py + jq empty + audit-secrets"
+      ]
+    }
+  },
+  "special_cases": [
+    {
+      "case": "02-SKILLS/BASE DE DATOS-RAG/*.md with inline SQL",
+      "treatment": "C4 (tenant_id) MANDATORY in ALL example queries",
+      "justification": "Core of multi-tenant isolation; a single SELECT * without filter breaks architecture",
+      "enforcement": "check-rls.sh --strict blocks certification if any query lacks WHERE tenant_id=?"
+    },
+    {
+      "case": "05-CONFIGURATIONS/environment/.env.example",
+      "treatment": "C3 applies but accepts placeholders replace_with_... OR ${VAR:?missing}",
+      "justification": "Template file, not executable; validator must accept both patterns",
+      "enforcement": "audit-secrets.sh --template-mode"
+    },
+    {
+      "case": "07-PROCEDURES/*.md",
+      "treatment": "C5 requires only 3 examples (not 5/10)",
+      "justification": "Operational checklists, not code; value is in clarity, not technical exhaustiveness",
+      "enforcement": "validate-frontmatter.sh --procedure-mode"
+    },
+    {
+      "case": "08-LOGS/*.json",
+      "treatment": "C3/C4/C5 mandatory, but C1/C2/C6/C7 not applicable",
+      "justification": "Audit outputs, not executable configs; focus is integrity and isolation, not resources",
+      "enforcement": "schema-validator.py --audit-mode"
+    },
+    {
+      "case": "Files in 09-TEST-SANDBOX/",
+      "treatment": "All norms apply, but max tier is 1 (no merge to prod without explicit promotion)",
+      "justification": "Test zone; final certification occurs only after promotion to production folder",
+      "enforcement": "orchestrator-engine.sh blocks tier >1 for sandbox paths"
+    }
+  ],
+  "ai_generation_prompt_checklist": {
+    "description": "Mandatory checklist to include in ALL AI generation prompts",
+    "items": [
+      "Before generating, read PROJECT_TREE.md and resolve:",
+      "1. Exact canonical path of file to create",
+      "2. Extension → apply validation rules by type (see C1-C8 matrix)",
+      "3. Function → determine target tier (1/2/3) and required examples (5/10)",
+      "4. Dominant constraints → C4 mandatory if path contains 'DB-RAG', 'INFRA', 'VERTICAL'",
+      "5. Frontmatter → commented if .sh, pure YAML if .md/.yaml/.tf/.json",
+      "6. Zero hardcode → use ${VAR:?missing} or sensitive = true",
+      "7. tenant_id → present in queries, labels, logs, payloads if applicable",
+      "8. Examples → ≥5 (Tier 1) or ≥10 (Tier 2-3) with format ✅/❌/🔧",
+      "9. Validation command → executable and specific to this file type",
+      "10. If context missing: '⚠️ BLOCKED: missing [X]. Awaiting context.' and STOP."
+    ]
+  },
+  "orchestrator_integration_notes": {
+    "matrix_lookup_strategy": "Use longest prefix match on file_path to find most specific matrix entry",
+    "validator_execution": "Only execute validators marked as applicable/mandatory for the resolved profile",
+    "tier_calculation": "Calculate achieved tier based on passed checks + examples count + functional requirements",
+    "blocking_behavior": "If any mandatory check fails, return exit code 2 immediately without tier calculation",
+    "json_output_schema": {
+      "file": "string (canonical path)",
+      "tier_certified": "integer (1|2|3) or null if blocked",
+      "passed_checks": ["C1", "C3", ...],
+      "blocking_issues": [{"constraint": "C4", "message": "tenant_id missing in query line 42"}],
+      "warnings": [{"constraint": "C8", "message": "structured logging not detected but recommended"}],
+      "next_action": "string ('review_human'|'merge_auto'|'trigger_deploy'|'correct_and_retry')",
+      "sha256": "string (for tier 3 artifacts)",
+      "timestamp": "ISO8601 string"
+    }
+  },
+  "version_history": [
+    {"version": "1.0.0", "date": "2026-04-14", "changes": ["Initial matrix definition", "All canonical locations mapped", "C1-C8 intensity rules defined", "Validator routing logic specified"]}
+  ],
+  "validated_examples": [
+    "✅ Should see: orchestrator resolves '02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md' → applies C4 mandatory with check-rls.sh",
+    "❌ If you see: C4 marked as contextual for DB-RAG files → 🔧 Fix: Update matrix entry for that path",
+    "✅ Should see: '05-CONFIGURATIONS/docker-compose/*.yml' triggers docker compose config --quiet validator",
+    "❌ If you see: yamllint only, no docker validation → 🔧 Fix: Check active_validators array in matrix",
+    "✅ Should see: Sandbox files capped at Tier 1 regardless of content quality",
+    "❌ If you see: Sandbox file certified Tier 3 → 🔧 Fix: Enforce promotion_rule in orchestrator",
+    "✅ Should see: .env.example accepts both replace_with_... and ${VAR:?missing} patterns",
+    "❌ If you see: audit-secrets.sh fails on valid template → 🔧 Fix: Use --template-mode flag",
+    "✅ Should see: Procedures require only 3 examples, not 10",
+    "❌ If you see: validate-frontmatter.sh demands 10 examples for 07-PROCEDURES/ → 🔧 Fix: Check min_examples in tier_requirements",
+    "✅ Should see: JSON logs require tenant_id + trace_id + severity fields",
+    "❌ If you see: schema-validator.py passes log without tenant_id → 🔧 Fix: Update required_fields in C4 checks",
+    "✅ Should see: Terraform modules require validation {} blocks for C1/C2",
+    "❌ If you see: terraform validate passes without resource limit validation → 🔧 Fix: Add custom check in verify-constraints.sh"
+  ],
+  "footer_validation": "# 🟢 VALIDATION: ./05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file 05-CONFIGURATIONS/validation/norms-matrix.json --json && jq '.tier_certified' skill-validation-report.json"
+}
