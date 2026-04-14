@@ -429,6 +429,14 @@ Eres un generador de código SDD para MANTIS AGENTIC. Reglas:
 
 ---
 
+## 🤖 Para IAs Generadoras
+Antes de generar contenido, leer:
+• [[AI-NAVIGATION-CONTRACT.md]] — Contrato de navegación SDD → Producción
+• [[GOVERNANCE-ORCHESTRATOR.md]] — Arquitectura de validación 4 capas
+• [[PROJECT_TREE.md]] — Árbol canónico de rutas
+
+---
+
 ## NAVEGAÇÃO PARA AGENTES DE IA
 
 | Se você é uma IA gerando código...       | Comece por                                           |

@@ -11,7 +11,20 @@ related_files:
   - "[[skill-domains-mapping.md]]"
 ---
 
+
 # 📚 ÍNDICE MAESTRO DE HABILIDADES (SKILLS) - MANTIS AGENTIC
+
+## 🧭 Para Generación IA
+• [[AI-NAVIGATION-CONTRACT.md]] — Contrato maestro de navegación
+• [[../AI-NAVIGATION-CONTRACT.md]] — (ruta relativa alternativa)
+• [[/GOVERNANCE-ORCHESTRATOR.md]] — Arquitectura de validación
+
+## 🤖 Generación de Nuevas Skills
+Antes de crear una skill, leer:
+1. [[AI-NAVIGATION-CONTRACT.md]] — Navegación canónica + checklist de generación
+2. [[skill-domains-mapping.md]] — Mapeo dominio → plantilla
+3. [[GENERATION-MODELS.md]] — Modelos por tipo de skill
+
 
 ## 🧭 Guía Rápida (Para personas sin perfil técnico)
 Este documento es el **mapa central** de todo el conocimiento y las herramientas automatizadas del proyecto. Piensa en él como el índice de una biblioteca técnica:

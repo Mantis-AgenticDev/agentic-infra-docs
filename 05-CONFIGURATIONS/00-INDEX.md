@@ -47,6 +47,15 @@ python3 05-CONFIGURATIONS/validation/schema-validator.py \
 - **C6 Verificación:** `grep -E 'openrouter|dashscope|deepseek'` en `provider-router.yml`; prohibido `localhost:11434` en prod.
 - **C8 Verificación:** Logs estructurados con `tenant_id`, `trace_id`, `severity` en `otel-tracing-config.yaml`.
 
+---
+
+## 🧭 Navegación para Generación IA
+• [[AI-NAVIGATION-CONTRACT.md]] — Contrato maestro de navegación SDD
+• [[GOVERNANCE-ORCHESTRATOR.md]] — Motor de certificación 4 capas
+• [[norms-matrix.json]] — Matriz de decisión por ruta/extensión/función
+
+---
+
 ## 📊 Validated Examples (≥15)
 *(Mapeo explícito de uso, constraint, comando de validación y salida esperada/fallida)*
 

@@ -18,6 +18,8 @@ related_files:
 
 # 🔄 FLUJO SDD ASISTIDA COLABORATIVA HUMANO-IA
 > Generación de documentos pendientes con validación pre-entrega, navegación canónica y hardening C1-C6
+> **Nota**: Para navegación canónica durante la generación, consultar:
+> [[AI-NAVIGATION-CONTRACT.md]] — Proporciona rutas, constraints aplicables y checklist de validación.
 
 ---
 

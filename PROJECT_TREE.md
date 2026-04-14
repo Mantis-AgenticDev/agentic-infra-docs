@@ -893,6 +893,12 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 
 ---
 
+## 🧭 Navegación para IAs Generadoras
+Para generación SDD o auto-producción, consultar el contrato maestro:
+[[AI-NAVIGATION-CONTRACT.md]] — Navegación canónica, flujo de validación, checklist de generación.
+
+---
+
 ## 🔄 NAVEGACIÓN PARA GENERACIÓN DE DOCUMENTOS
 
 \> \*\*Para IA generadora:\*\* Antes de crear cualquier archivo marcado `🆕 PENDIENTE`, seguir este flujo para garantizar cero reparaciones manuales.

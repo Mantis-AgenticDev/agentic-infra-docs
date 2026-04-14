@@ -32,6 +32,10 @@ related_files:
 
 > 📌 **Para IA**: Este documento define los flujos de generación de skills. Usa `ai_optimized: true` para parsear bloques ASCII, validar contra `skill-input-output.schema.json`, y ejecutar validadores en orden: `validate-frontmatter.sh` → `audit-secrets.sh` → `check-rls.sh` → `verify-constraints.sh` → `schema-validator.py`.
 
+## 🧭 Navegación Complementaria
+Para ejecutar el flujo completo de generación → validación → producción:
+[[AI-NAVIGATION-CONTRACT.md]] — Proporciona rutas canónicas, constraints por tipo de archivo, y validación automatizada vía `orchestrator-engine.sh`.
+
 ---
 
 ## 🧭 Navegación Rápida (Humanos + IA)
