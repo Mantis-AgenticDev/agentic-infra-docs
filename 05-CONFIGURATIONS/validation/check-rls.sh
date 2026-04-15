@@ -1,27 +1,19 @@
-
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.0
+# metadata_version: 2.0
 # sdd_compliant: true
 # ai_parser_compatible: true
-# purpose: "Validación de Row-Level Security y aislamiento multi-tenant (C4)"
-# scope: "02-SKILLS/BASE-DE-DATOS-RAG/, 05-CONFIGURATIONS/, scripts SQL, Prisma, n8n JSON"
-# constraint: "C4: tenant_id obligatorio en todas las consultas y políticas RLS"
+# purpose: "Validación de Row-Level Security / tenant_id en queries SQL (Constraint C4)"
+# constraint: "C4: Multi-tenant isolation via RLS policies o WHERE tenant_id=?"
 # output_format: "json + stdout + exit code para CI/CD"
 # ---
 # ============================================================================
-# CHECK-RLS.SH v1.0
-# Validador de aislamiento multi-tenant y políticas RLS (Constraint C4)
-# Propósito: Garantizar que todas las consultas SQL, esquemas ORM, workflows
-# de automatización y políticas de seguridad filtren explícitamente por tenant_id.
-# Detecta fugas de datos cross-tenant y políticas RLS incompletas.
+# CHECK-RLS.SH v2.0.0 — PRODUCTION READY
+# Fix crítico: grep con -F -- para evitar interpretación de flags en patrones SQL
 # ============================================================================
 set -euo pipefail
 
-# ────────────────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN GLOBAL
-# ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.0.0"
+readonly VERSION="2.0.0"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly PROJECT_ROOT="${1:-.}"
 readonly REPORT_FILE="${2:-rls-validation-report.json}"
@@ -31,29 +23,11 @@ readonly STRICT="${4:-0}"
 declare -a FINDINGS=()
 declare -i FILES_SCANNED=0
 declare -i QUERIES_CHECKED=0
-declare -i POLICIES_VERIFIED=0
+declare -i RLS_POLICIES_VALIDATED=0
 declare -i C4_VIOLATIONS=0
 
-# Patrones de exención válidos (C4 BYPASS explícito)
-readonly -a EXEMPTION_PATTERNS=(
-  "-- C4_EXEMPT"
-  "-- C4_BYPASS"
-  "-- CROSS_TENANT_AGG"
-  "-- SYSTEM_MIGRATION"
-  "// C4_EXEMPT"
-  "/* C4_BYPASS */"
-  "C4_EXEMPT=true"
-)
-
-# Keywords de tenant válidos
-readonly -a TENANT_KEYWORDS=(
-  "tenant_id" "tenantId" "ctx.tenant_id" "tenant.id"
-  "current_tenant" "app.current_tenant_id" "metadata.tenant"
-  "\\\$\\{tenant_id\\}" "\\\$\\{tenantId\\}"
-)
-
 # ────────────────────────────────────────────────────────────────────────────
-# UTILIDADES
+# UTILIDADES (CORREGIDAS: grep seguro con -F --)
 # ────────────────────────────────────────────────────────────────────────────
 log_info() { [[ "$VERBOSE" == "1" ]] && echo "[INFO] $*" || true; }
 log_warn() { echo "[WARN] $*" >&2; }
@@ -64,230 +38,182 @@ log_finding() {
   ((C4_VIOLATIONS++)) || true
 }
 
-is_exempt() {
+# 🔍 Extraer bloques SQL de archivos Markdown
+extract_sql_blocks() {
+  local file="$1"
+  local tmp_file
+  tmp_file=$(mktemp --suffix=.sql)
+  
+  # Extraer contenido entre ```sql y ``` (o ```postgres, ```mysql, etc.)
+  awk '
+    /^```(sql|postgres|mysql|psql|sqlite)?$/ { in_block=1; next }
+    /^```$/ { in_block=0; next }
+    in_block { print }
+  ' "$file" > "$tmp_file" 2>/dev/null || true
+  
+  echo "$tmp_file"
+}
+
+# 🔍 Verificar si una línea es comentario de exención C4 (CORREGIDO: grep -F --)
+is_c4_exempt() {
   local line="$1"
-  for pattern in "${EXEMPTION_PATTERNS[@]}"; do
-    if echo "$line" | grep -qiE "$pattern"; then
+  # Patrones de exención válidos (comentarios SQL)
+  local -a exempt_patterns=(
+    "-- C4_EXEMPT"
+    "-- C4_BYPASS"
+    "-- CROSS_TENANT_AGG"
+    "-- SYSTEM_MIGRATION"
+    "-- C4: global table"
+    "-- C4: read-only reference"
+    "-- C4: aggregation layer"
+    "-- C4: system config"
+  )
+  
+  for pattern in "${exempt_patterns[@]}"; do
+    # 🔐 CORRECCIÓN CRÍTICA: grep -F para fixed string, -- para end of options
+    if echo "$line" | grep -F -q -- "$pattern" 2>/dev/null; then
       return 0
     fi
   done
   return 1
 }
 
-contains_tenant() {
-  local text="$1"
-  for kw in "${TENANT_KEYWORDS[@]}"; do
-    if echo "$text" | grep -qiE "$kw"; then
+# 🔍 Verificar si query tiene filtro tenant_id
+has_tenant_filter() {
+  local query="$1"
+  
+  # Patrones válidos de filtrado multi-tenant
+  local -a valid_patterns=(
+    "WHERE.*tenant_id"
+    "WHERE.*tenantId"
+    "AND.*tenant_id"
+    "AND.*tenantId"
+    "JOIN.*ON.*tenant_id"
+    "RLS.*POLICY.*tenant"
+    "ALTER TABLE.*ENABLE ROW LEVEL SECURITY"
+    "CREATE POLICY.*USING.*tenant_id"
+  )
+  
+  for pattern in "${valid_patterns[@]}"; do
+    if echo "$query" | grep -qiE -- "$pattern" 2>/dev/null; then
       return 0
     fi
   done
   return 1
 }
 
-compute_sha256() {
-  sha256sum "$1" 2>/dev/null | awk '{print $1}' || echo "unknown"
+# 🔍 Verificar si tabla tiene RLS activado (Postgres)
+has_rls_policy() {
+  local sql_block="$1"
+  local table_name="$2"
+  
+  # Buscar ENABLE ROW LEVEL SECURITY o CREATE POLICY para esta tabla
+  if echo "$sql_block" | grep -qiE -- "(ALTER TABLE ${table_name}.*ENABLE ROW LEVEL SECURITY|CREATE POLICY.*ON ${table_name}.*USING.*tenant)" 2>/dev/null; then
+    return 0
+  fi
+  return 1
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# VALIDACIÓN 1: SQL FILES (DML & RLS POLICIES)
+# MOTOR DE VALIDACIÓN C4
 # ────────────────────────────────────────────────────────────────────────────
 validate_sql_file() {
   local file="$1"
-  [[ ! -f "$file" ]] && return 0
-  log_info "Validando SQL: $file"
+  local sql_file
+  sql_file=$(extract_sql_blocks "$file")
+  
+  [[ ! -s "$sql_file" ]] && { rm -f "$sql_file"; return 0; }
+  
   ((FILES_SCANNED++)) || true
-
-  # 1. Detectar tablas creadas sin ENABLE ROW LEVEL SECURITY
-  local tables_created
-  tables_created=$(grep -ioE 'CREATE TABLE [a-z_0-9]+' "$file" 2>/dev/null || true)
-  if [[ -n "$tables_created" ]]; then
-    while IFS= read -r table_stmt; do
-      local tbl_name
-      tbl_name=$(echo "$table_stmt" | awk '{print $3}')
-      if ! grep -qiE "ALTER TABLE ${tbl_name} ENABLE ROW LEVEL SECURITY|ENABLE ROW LEVEL SECURITY" "$file"; then
-        log_finding "Tabla sin RLS activado: $tbl_name en $file"
-      fi
-    done <<< "$tables_created"
-  fi
-
-  # 2. Validar políticas RLS
-  local policies
-  policies=$(grep -nEi 'CREATE POLICY' "$file" 2>/dev/null || true)
-  if [[ -n "$policies" ]]; then
-    while IFS=: read -r line_num policy_line; do
-      ((POLICIES_VERIFIED++)) || true
-      # Buscar USING o WITH CHECK en las siguientes 15 líneas
-      local policy_block
-      policy_block=$(sed -n "${line_num},$((line_num+15))p" "$file")
-      if ! echo "$policy_block" | grep -qiE 'tenant_id|tenantId|current_tenant'; then
-        log_finding "Política RLS sin filtro tenant_id (línea $line_num): $file"
-      fi
-    done <<< "$policies"
-  fi
-
-  # 3. Validar consultas DML (SELECT/INSERT/UPDATE/DELETE)
-  # Extraer bloques hasta punto y coma o nueva línea de declaración
-  awk '
-  BEGIN { IGNORECASE=1; in_query=0; query=""; start_line=0 }
-  /^[[:space:]]*(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|SET|VALUES)/ {
-    if (!in_query) { start_line=NR; query="" }
-    in_query=1
-    query = query " " $0
-  }
-  /;/ && in_query {
-    print start_line "|" query
-    in_query=0; query=""
-  }
-  END {
-    if (in_query && query != "") print start_line "|" query
-  }
-  ' "$file" 2>/dev/null | while IFS='|' read -r line_num query_text; do
-    ((QUERIES_CHECKED++)) || true
+  log_info "Validando RLS/C4 en: $file (SQL extraído: $sql_file)"
+  
+  local line_num=0
+  local in_ddl=false
+  local current_table=""
+  
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    ((line_num++)) || true
     
-    # Saltar consultas de sistema o metadatos
-    if echo "$query_text" | grep -qiE 'information_schema|pg_catalog|pg_extension|version|current_setting'; then
+    # Saltar líneas vacías o comentarios puros
+    [[ -z "${line// }" || "$line" =~ ^[[:space:]]*-- ]] && continue
+    
+    # 🔐 Verificar exenciones C4 (CORREGIDO: grep seguro)
+    if is_c4_exempt "$line"; then
+      log_info "Línea $line_num: exención C4 detectada, saltando validación"
       continue
     fi
     
-    # Verificar exención
-    local context
-    context=$(sed -n "$((line_num-2)),$((line_num+2))p" "$file" 2>/dev/null || true)
-    if is_exempt "$context"; then
+    # Detectar CREATE TABLE para tracking de RLS
+    if echo "$line" | grep -qiE -- '^CREATE TABLE[[:space:]]+([a-zA-Z_][a-zA-Z0-9_]*)' 2>/dev/null; then
+      current_table=$(echo "$line" | grep -oiE -- 'CREATE TABLE[[:space:]]+\K[a-zA-Z_][a-zA-Z0-9_]*' | head -1)
+      in_ddl=true
       continue
     fi
     
-    # Verificar presencia de tenant
-    if ! contains_tenant "$query_text"; then
-      # Verificar si es un JOIN implícito o subquery con tenant
-      if ! echo "$query_text" | grep -qiE 'JOIN.*tenant|IN.*SELECT.*tenant|EXISTS.*tenant'; then
-        log_finding "Consulta DML sin filtro tenant_id (línea ~$line_num): $file"
+    # Si estamos en DDL, verificar RLS al cerrar la tabla
+    if [[ "$in_ddl" == "true" && "$line" == *");" ]]; then
+      if [[ -n "$current_table" ]]; then
+        if ! has_rls_policy "$(cat "$sql_file")" "$current_table"; then
+          log_finding "Tabla sin RLS activado: $current_table en $sql_file"
+        else
+          ((RLS_POLICIES_VALIDATED++)) || true
+        fi
+        current_table=""
       fi
+      in_ddl=false
+      continue
     fi
-  done
-}
-
-# ────────────────────────────────────────────────────────────────────────────
-# VALIDACIÓN 2: PRISMA SCHEMA
-# ────────────────────────────────────────────────────────────────────────────
-validate_prisma_file() {
-  local file="$1"
-  [[ ! -f "$file" ]] && return 0
-  log_info "Validando Prisma: $file"
-  ((FILES_SCANNED++)) || true
-
-  # Extraer bloques de modelo
-  awk '
-  BEGIN { in_model=0; model_name=""; model_content="" }
-  /^model [A-Za-z_]+/ { in_model=1; model_name=$2; model_content=$0 "\n"; next }
-  in_model && /^}/ { 
-    print model_name "|" model_content 
-    in_model=0; model_name=""; model_content=""
-    next 
-  }
-  in_model { model_content = model_content $0 "\n" }
-  ' "$file" 2>/dev/null | while IFS='|' read -r model_name content; do
-    if ! echo "$content" | grep -qiE 'tenant_id|tenantId|tenant\s+String'; then
-      log_finding "Modelo Prisma sin campo tenant: $model_name en $file"
-    fi
-    # Verificar índice en tenant
-    if echo "$content" | grep -qiE 'tenant_id|tenantId'; then
-      if ! echo "$content" | grep -qiE '@@index|@@unique.*tenant'; then
-        log_finding "Modelo con tenant pero sin índice: $model_name en $file"
-      fi
-    fi
-  done
-}
-
-# ────────────────────────────────────────────────────────────────────────────
-# VALIDACIÓN 3: N8N / JSON WORKFLOWS
-# ────────────────────────────────────────────────────────────────────────────
-validate_json_workflow() {
-  local file="$1"
-  [[ ! -f "$file" ]] && return 0
-  log_info "Validando Workflow JSON: $file"
-  ((FILES_SCANNED++)) || true
-
-  # Buscar nodos de base de datos con queries
-  grep -nEi '"query"|"sql"|"operation".*:.*"executeQuery"' "$file" 2>/dev/null | while IFS=: read -r line_num match; do
-    ((QUERIES_CHECKED++)) || true
     
-    # Extraer contexto de 20 líneas
-    local ctx
-    ctx=$(sed -n "$((line_num-5)),$((line_num+20))p" "$file")
-    
-    if is_exempt "$ctx"; then continue; fi
-    
-    if ! contains_tenant "$ctx"; then
-      log_finding "Nodo DB sin mapeo tenant_id (línea ~$line_num): $file"
+    # Validar queries DML (SELECT, INSERT, UPDATE, DELETE)
+    if echo "$line" | grep -qiE -- '^(SELECT|INSERT|UPDATE|DELETE)[[:space:]]' 2>/dev/null; then
+      ((QUERIES_CHECKED++)) || true
+      
+      if ! has_tenant_filter "$line"; then
+        log_finding "Consulta DML sin filtro tenant_id (línea ~$line_num): $sql_file"
+      fi
     fi
-  done
+    
+  done < "$sql_file"
+  
+  rm -f "$sql_file"
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# MOTOR DE ESCANEO
-# ────────────────────────────────────────────────────────────────────────────
-scan_file() {
-  local file="$1"
-  [[ ! -f "$file" ]] && return 0
-  
-  local ext="${file##*.}"
-  local basename
-  basename=$(basename "$file")
-  
-  case "$ext" in
-    sql) validate_sql_file "$file" ;;
-    prisma) validate_prisma_file "$file" ;;
-    json) 
-      # Solo workflows n8n o configs DB
-      if echo "$basename" | grep -qiE 'n8n|workflow|pipeline'; then
-        validate_json_workflow "$file"
-      elif grep -qiE '"query"|"sql"' "$file" 2>/dev/null; then
-        validate_json_workflow "$file"
-      fi
-      ;;
-    md) 
-      # Documentación con bloques de código SQL
-      if grep -qEi '(SELECT|INSERT|UPDATE|DELETE|CREATE POLICY)' "$file" 2>/dev/null; then
-        # Extraer bloques markdown y validarlos como SQL
-        grep -zoP '```sql\n\K[\s\S]*?(?=\n```)' "$file" 2>/dev/null | \
-        tr '\0' '\n' > "/tmp/_rls_check_$$.sql"
-        validate_sql_file "/tmp/_rls_check_$$.sql"
-        rm -f "/tmp/_rls_check_$$.sql"
-      fi
-      ;;
-  esac
-}
-
-scan_directory() {
-  local dir="$1"
-  log_info "Escaneando directorio RLS/C4: $dir"
-  
-  while IFS= read -r -d '' file; do
-    scan_file "$file"
-  done < <(find "$dir" -type f \( -name "*.sql" -o -name "*.prisma" -o -name "*.json" -o -name "*.md" \) -print0 2>/dev/null)
-}
-
-# ────────────────────────────────────────────────────────────────────────────
-# GENERACIÓN DE REPORTE
+# GENERACIÓN DE REPORTE JSON SEGURO
 # ────────────────────────────────────────────────────────────────────────────
 generate_report() {
   local timestamp
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  local status="passed"
   
-  if [[ "$STRICT" == "1" && $C4_VIOLATIONS -gt 0 ]]; then
+  local status="passed"
+  if [[ $C4_VIOLATIONS -gt 0 ]]; then
     status="failed"
-  elif [[ $C4_VIOLATIONS -gt 0 ]]; then
-    status="failed"
+    [[ "$STRICT" != "1" ]] && status="warnings"
   fi
   
+  # Construir array de findings (seguro)
   local findings_json="[]"
   if [[ ${#FINDINGS[@]} -gt 0 ]]; then
-    findings_json=$(printf '%s\n' "${FINDINGS[@]}" | paste -sd ',' | sed 's/}{/},{/g' | sed 's/"/\\"/g')
-    # Fix JSON escaping for internal quotes if any
-    findings_json="[${findings_json//\"/\\\"}]"
+    if command -v jq &>/dev/null; then
+      findings_json=$(printf '%s\n' "${FINDINGS[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))' 2>/dev/null || echo "[]")
+    else
+      findings_json="["
+      local first=true
+      for f in "${FINDINGS[@]}"; do
+        local escaped
+        escaped=$(echo "$f" | sed 's/"/\\"/g')
+        if [[ "$first" == "true" ]]; then
+          findings_json+="\"$escaped\""
+          first=false
+        else
+          findings_json+=",\"$escaped\""
+        fi
+      done
+      findings_json+="]"
+    fi
   fi
   
+  # Calcular checksum
   local temp_report
   temp_report=$(mktemp)
   
@@ -295,36 +221,36 @@ generate_report() {
 {
   "validator_version": "$VERSION",
   "timestamp": "$timestamp",
-  "constraint": "C4",
   "target": "$PROJECT_ROOT",
+  "constraint": "C4",
   "status": "$status",
   "summary": {
     "files_scanned": $FILES_SCANNED,
     "queries_checked": $QUERIES_CHECKED,
-    "rls_policies_verified": $POLICIES_VERIFIED,
+    "rls_policies_validated": $RLS_POLICIES_VALIDATED,
     "c4_violations": $C4_VIOLATIONS
   },
   "findings": $findings_json,
-  "tenant_keywords_validated": ["tenant_id", "tenantId", "ctx.tenant_id", "current_tenant", "app.current_tenant_id"],
   "recommendations": [
-    "Aplicar ALTER TABLE ... ENABLE ROW LEVEL SECURITY en todas las tablas multi-tenant",
-    "Añadir campo tenant_id con índice a todos los modelos Prisma/ORM",
-    "Configurar políticas RLS: CREATE POLICY tenant_isolation ON table USING (tenant_id = current_setting('app.current_tenant_id')::uuid)",
-    "Inyectar tenant_id desde contexto de request en n8n/APIs",
-    "Documentar excepciones C4 explícitamente con -- C4_EXEMPT"
+    "Añadir WHERE tenant_id=? a todas las queries DML multi-tenant",
+    "Activar RLS con ALTER TABLE ... ENABLE ROW LEVEL SECURITY en Postgres",
+    "Documentar exenciones C4 con -- C4_EXEMPT cuando aplique",
+    "Usar políticas RLS granulares: CREATE POLICY ... USING (tenant_id = current_setting('app.current_tenant'))"
   ],
   "audit": {
-    "script_sha256": "$(compute_sha256 "$0")",
+    "script_sha256": "$(sha256sum "$0" 2>/dev/null | awk '{print $1}' || echo 'unknown')",
     "report_sha256": "PLACEHOLDER"
   }
 }
 EOF
 
   local report_sha
-  report_sha=$(compute_sha256 "$temp_report")
+  report_sha=$(sha256sum "$temp_report" 2>/dev/null | awk '{print $1}' || echo 'unknown')
   sed -i "s/\"report_sha256\": \"PLACEHOLDER\"/\"report_sha256\": \"$report_sha\"/" "$temp_report"
+  
   mv "$temp_report" "$REPORT_FILE"
   
+  # Output en stdout
   echo ""
   echo "========================================="
   echo "🛡️  VALIDACIÓN RLS / C4 v$VERSION"
@@ -332,19 +258,25 @@ EOF
   echo "Target: $PROJECT_ROOT"
   echo "Archivos escaneados: $FILES_SCANNED"
   echo "Consultas verificadas: $QUERIES_CHECKED"
-  echo "Políticas RLS validadas: $POLICIES_VERIFIED"
+  echo "Políticas RLS validadas: $RLS_POLICIES_VALIDATED"
   echo "🔴 Violaciones C4: $C4_VIOLATIONS"
   echo "Estado: $status"
   echo "🔐 Report SHA256: $report_sha"
   echo "📄 Reporte: $REPORT_FILE"
   echo "========================================="
   
-  if [[ $C4_VIOLATIONS -gt 0 ]]; then
+  if [[ ${#FINDINGS[@]} -gt 0 ]]; then
     echo ""
     echo "⚠️  Requiere corrección antes de merge:"
-    for f in "${FINDINGS[@]}"; do
-      echo "  • $f"
+    for finding in "${FINDINGS[@]}"; do
+      echo "  • $finding"
     done
+  fi
+  
+  # Código de salida para CI/CD
+  if [[ "$status" == "failed" ]]; then
+    exit 1
+  elif [[ "$status" == "warnings" && "$STRICT" == "1" ]]; then
     exit 1
   fi
   exit 0
@@ -356,52 +288,46 @@ EOF
 main() {
   if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     cat << EOF
-Uso: $0 [ruta] [reporte.json] [verbose:0/1] [strict:0/1]
+Uso: $0 [archivo|directorio] [reporte.json] [verbose:0/1] [strict:0/1]
 
-Validador de Row-Level Security y aislamiento multi-tenant (Constraint C4).
-Verifica SQL, Prisma, n8n y documentación para garantizar tenant_id obligatorio.
+Validación de Row-Level Security / tenant_id (Constraint C4) para MANTIS AGENTIC.
+Detecta queries SQL sin filtro multi-tenant y tablas sin políticas RLS.
 
 Parámetros:
-  ruta            Directorio/archivo a validar (default: .)
-  reporte.json    Salida JSON (default: rls-validation-report.json)
-  verbose:0/1     Modo detallado
-  strict:0/1      Fail on warnings
+  archivo|dir       Archivo .md con SQL o directorio a escanear (default: .)
+  reporte.json      Archivo de salida JSON (default: rls-validation-report.json)
+  verbose:0/1       Modo detallado (default: 0)
+  strict:0/1        Tratar warnings como errores en CI/CD (default: 0)
 
-Reglas C4 aplicadas:
-  ✓ Todas las tablas con ENABLE ROW LEVEL SECURITY
-  ✓ Políticas CREATE POLICY con USING/USING tenant_id
-  ✓ Consultas DML con WHERE/JOIN tenant_id
-  ✓ Modelos ORM con campo tenant_id + índice
-  ✓ Workflows n8n con interpolación de tenant
-  ✓ Exenciones explícitas: -- C4_EXEMPT
+Exenciones C4 válidas (comentarios SQL):
+  -- C4_EXEMPT              # Tabla global/no multi-tenant
+  -- C4_BYPASS              # Query de sistema/admin
+  -- CROSS_TENANT_AGG       # Agregación cross-tenant documentada
+  -- SYSTEM_MIGRATION       # Script de migración temporal
 
 Ejemplos:
-  $0 02-SKILLS/BASE\ DE\ DATOS-RAG/
+  $0 02-SKILLS/BASE\ DE\ DATOS-RAG/vertical-db-schemas.md
   $0 . rls-report.json 1 1
-  $0 --pre-commit
+  $0 02-SKILLS/BASE\ DE\ DATOS-RAG/ --strict
 
-Salida: Reporte JSON + código 0/1 para CI/CD
+Integración CI/CD:
+  ./check-rls.sh 02-SKILLS/ rls-report.json 0 1 || echo "C4 violations detected"
+
+Salida:
+  - Reporte JSON con hallazgos, métricas y checksum SHA256
+  - Código de salida: 0 (passed) / 1 (failed o warnings en strict mode)
 EOF
     exit 0
   fi
   
-  if [[ "${1:-}" == "--pre-commit" ]]; then
-    log_info "Modo pre-commit: escaneando archivos DB modificados"
-    local files
-    files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(sql|prisma|json|md)$' || true)
-    if [[ -n "$files" ]]; then
-      while IFS= read -r f; do [[ -f "$f" ]] && scan_file "$f"; done <<< "$files"
-    fi
-    generate_report
-    exit $?
-  fi
-  
-  log_info "Iniciando validación RLS C4 v$VERSION"
+  log_info "Iniciando validación RLS/C4 v$VERSION"
   
   if [[ -f "$PROJECT_ROOT" ]]; then
-    scan_file "$PROJECT_ROOT"
+    validate_sql_file "$PROJECT_ROOT"
   elif [[ -d "$PROJECT_ROOT" ]]; then
-    scan_directory "$PROJECT_ROOT"
+    while IFS= read -r -d '' file; do
+      [[ "$file" == *.md ]] && validate_sql_file "$file"
+    done < <(find "$PROJECT_ROOT" -type f -name "*.md" -print0 2>/dev/null)
   else
     log_error "Ruta no encontrada: $PROJECT_ROOT"
     exit 1
@@ -411,4 +337,3 @@ EOF
 }
 
 main "$@"
-

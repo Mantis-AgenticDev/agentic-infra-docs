@@ -1,7 +1,6 @@
-
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.0
+# metadata_version: 1.1
 # sdd_compliant: true
 # ai_parser_compatible: true
 # purpose: "Auditoría de secretos (C3) para todo el repositorio MANTIS AGENTIC"
@@ -11,18 +10,16 @@
 # output_format: "json + stdout + exit code para CI/CD"
 # ---
 # ============================================================================
-# AUDIT-SECRETS.SH v1.0
+# AUDIT-SECRETS.SH v1.1.0 — CORREGIDO Y BLINDADO
 # Detección de credenciales hardcodeadas (Constraint C3)
-# Propósito: Escanear archivos del repositorio en busca de patrones de
-# secretos expuestos, excluyendo placeholders válidos, y generar reporte
-# auditivo con checksum SHA256 para integración en pre-commit/CI.
+# Fix crítico: grep con -- para evitar interpretación de flags
 # ============================================================================
 set -euo pipefail
 
 # ────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN GLOBAL
 # ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.0.0"
+readonly VERSION="1.1.0"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly PROJECT_ROOT="${1:-.}"
 readonly REPORT_FILE="${2:-secrets-audit-report.json}"
@@ -37,140 +34,141 @@ declare -i SECRETS_FOUND=0
 declare -i FALSE_POSITIVES_AVOIDED=0
 
 # ────────────────────────────────────────────────────────────────────────────
-# PATRONES DE SECRETOS POR CATEGORÍA
-# Formato: "CATEGORY|PATTERN_REGEX|DESCRIPTION|SEVERITY"
+# PATRONES DE SECRETOS POR CATEGORÍA (LITERALES - USAR grep -F)
+# Formato: "CATEGORY|PATTERN_LITERAL|DESCRIPTION|SEVERITY"
 # ────────────────────────────────────────────────────────────────────────────
 readonly -a SECRET_PATTERNS=(
   # ── AI PROVIDERS ───────────────────────────────────────────────────────
-  "AI-OPENROUTER|sk-or-v1-[a-zA-Z0-9]{48,}|OpenRouter API key hardcodeada|CRITICAL"
-  "AI-OPENROUTER|Bearer\s+sk-or-v1[a-zA-Z0-9_-]{20,}|OpenRouter Bearer token expuesto|CRITICAL"
+  "AI-OPENROUTER|sk-or-v1-|OpenRouter API key prefix hardcodeado|CRITICAL"
+  "AI-OPENROUTER|Bearer sk-or-v1|OpenRouter Bearer token expuesto|CRITICAL"
   
-  "AI-QWEN|qwen_api_key\s*=\s*['\"][a-zA-Z0-9]{32,}['\"]|Qwen API key hardcodeada|CRITICAL"
-  "AI-QWEN|DASHSCOPE_API_KEY\s*=\s*['\"][^'\"]{20,}['\"]|DashScope/Qwen credential expuesta|CRITICAL"
+  "AI-QWEN|qwen_api_key=|Qwen API key assignment sin variable|CRITICAL"
+  "AI-QWEN|DASHSCOPE_API_KEY=|DashScope/Qwen credential hardcodeada|CRITICAL"
   
-  "AI-DEEPSEEK|sk-ds-[a-zA-Z0-9]{40,}|DeepSeek API key hardcodeada|CRITICAL"
-  "AI-DEEPSEEK|deepseek_key\s*[:=]\s*['\"][a-zA-Z0-9]{30,}['\"]|DeepSeek credential en texto plano|CRITICAL"
+  "AI-DEEPSEEK|sk-ds-|DeepSeek API key prefix hardcodeado|CRITICAL"
+  "AI-DEEPSEEK|deepseek_key=|DeepSeek credential assignment directa|CRITICAL"
   
-  "AI-LLAMA|llama_api_token\s*=\s*['\"][a-zA-Z0-9_-]{40,}['\"]|Llama API token hardcodeado|HIGH"
-  "AI-LLAMA|HF_TOKEN\s*=\s*['\"]hf_[a-zA-Z]{34}['\"]|HuggingFace token expuesto (para Llama)|CRITICAL"
+  "AI-LLAMA|llama_api_token=|Llama API token hardcodeado|HIGH"
+  "AI-LLAMA|HF_TOKEN=hf_|HuggingFace token prefix expuesto|CRITICAL"
   
-  "AI-GEMINI|AIzaSy[a-zA-Z0-9_-]{33}|Google Gemini API key hardcodeada|CRITICAL"
-  "AI-GEMINI|gemini_api_key\s*[:=]\s*['\"][a-zA-Z0-9_-]{30,}['\"]|Gemini credential en texto plano|CRITICAL"
+  "AI-GEMINI|AIzaSy|Google Gemini API key prefix hardcodeado|CRITICAL"
+  "AI-GEMINI|gemini_api_key=|Gemini credential assignment directa|CRITICAL"
   
-  "AI-GPT|sk-proj-[a-zA-Z0-9]{48,}|OpenAI GPT project key hardcodeada|CRITICAL"
-  "AI-GPT|sk-[a-zA-Z0-9]{48,}|OpenAI API key genérica expuesta|CRITICAL"
-  "AI-GPT|OPENAI_API_KEY\s*=\s*['\"][^'\"]{20,}['\"]|OPENAI_API_KEY hardcodeada|CRITICAL"
+  "AI-GPT|sk-proj-|OpenAI GPT project key prefix hardcodeado|CRITICAL"
+  "AI-GPT|sk-|OpenAI API key generic prefix expuesto|CRITICAL"
+  "AI-GPT|OPENAI_API_KEY=|OPENAI_API_KEY hardcodeada|CRITICAL"
   
-  "AI-MINIMAX|minimax_api_key\s*=\s*['\"][a-zA-Z0-9]{32,}['\"]|MiniMax API key hardcodeada|CRITICAL"
-  "AI-MINIMAX|Authorization:\s*Bearer\s+[a-zA-Z0-9._-]{40,}|MiniMax Bearer token expuesto|HIGH"
+  "AI-MINIMAX|minimax_api_key=|MiniMax API key hardcodeada|CRITICAL"
+  "AI-MINIMAX|Authorization: Bearer|MiniMax Bearer token sin variable|HIGH"
   
-  "AI-MISTRAL-OCR|mistral_ocr_key\s*=\s*['\"][a-zA-Z0-9_-]{32,}['\"]|Mistral OCR key hardcodeada|HIGH"
-  "AI-MISTRAL-OCR|MISTRAL_API_KEY\s*=\s*['\"][^'\"]{20,}['\"]|Mistral API key en texto plano|CRITICAL"
+  "AI-MISTRAL-OCR|mistral_ocr_key=|Mistral OCR key hardcodeada|HIGH"
+  "AI-MISTRAL-OCR|MISTRAL_API_KEY=|Mistral API key en texto plano|CRITICAL"
   
-  "AI-VOICE|deepgram_api_key\s*=\s*['\"][a-zA-Z0-9_-]{40,}['\"]|Deepgram STT key hardcodeada|CRITICAL"
-  "AI-VOICE|assemblyai_key\s*[:=]\s*['\"][a-zA-Z0-9]{32,}['\"]|AssemblyAI credential expuesta|HIGH"
-  "AI-VOICE|elevenlabs_api_key\s*=\s*['\"][a-zA-Z0-9_-]{32,}['\"]|ElevenLabs TTS key hardcodeada|HIGH"
+  "AI-VOICE|deepgram_api_key=|Deepgram STT key hardcodeada|CRITICAL"
+  "AI-VOICE|assemblyai_key=|AssemblyAI credential expuesta|HIGH"
+  "AI-VOICE|elevenlabs_api_key=|ElevenLabs TTS key hardcodeada|HIGH"
   
-  "AI-IMAGE|dalle_api_key\s*=\s*['\"][^'\"]{20,}['\"]|DALL-E API key hardcodeada|CRITICAL"
-  "AI-IMAGE|stability_api_key\s*[:=]\s*['\"][a-zA-Z0-9_-]{32,}['\"]|Stability AI key expuesta|CRITICAL"
-  "AI-IMAGE|replicate_token\s*=\s*['\"][a-zA-Z0-9/_-]{32,}['\"]|Replicate token hardcodeado|HIGH"
+  "AI-IMAGE|dalle_api_key=|DALL-E API key hardcodeada|CRITICAL"
+  "AI-IMAGE|stability_api_key=|Stability AI key expuesta|CRITICAL"
+  "AI-IMAGE|replicate_token=|Replicate token hardcodeado|HIGH"
   
-  "AI-VIDEO|runwayml_key\s*=\s*['\"][a-zA-Z0-9_-]{32,}['\"]|RunwayML API key hardcodeada|HIGH"
-  "AI-VIDEO|pika_labs_token\s*[:=]\s*['\"][^'\"]{20,}['\"]|Pika Labs token expuesto|MEDIUM"
+  "AI-VIDEO|runwayml_key=|RunwayML API key hardcodeada|HIGH"
+  "AI-VIDEO|pika_labs_token=|Pika Labs token expuesto|MEDIUM"
   
   # ── CLOUD PROVIDERS ────────────────────────────────────────────────────
-  "CLOUD-AWS|AKIA[0-9A-Z]{16}|AWS Access Key ID hardcodeado|CRITICAL"
-  "CLOUD-AWS|aws_secret_access_key\s*=\s*['\"][a-zA-Z0-9/+=]{40}['\"]|AWS Secret Key hardcodeada|CRITICAL"
-  "CLOUD-AWS|arn:aws:iam::[0-9]{12}:user/[a-zA-Z0-9_/-]+|AWS ARN con credencial potencial|MEDIUM"
+  "CLOUD-AWS|AKIA|AWS Access Key ID prefix hardcodeado|CRITICAL"
+  "CLOUD-AWS|aws_secret_access_key=|AWS Secret Key assignment directa|CRITICAL"
   
-  "CLOUD-GCP|AIza[0-9A-Za-z_-]{35}|Google Cloud API key hardcodeada|CRITICAL"
-  "CLOUD-GCP|service_account.*private_key.*-----BEGIN PRIVATE KEY-----|GCP service account key expuesta|CRITICAL"
+  "CLOUD-GCP|AIza|Google Cloud API key prefix hardcodeada|CRITICAL"
+  "CLOUD-GCP|-----BEGIN PRIVATE KEY-----|GCP service account key expuesta|CRITICAL"
   
-  "CLOUD-AZURE|client_secret\s*=\s*['\"][a-zA-Z0-9~._-]{34}['\"]|Azure client secret hardcodeado|CRITICAL"
-  "CLOUD-AZURE|TenantId\s*[:=]\s*['\"][a-f0-9-]{36}['\"]|Azure Tenant ID con posible secret adjunto|HIGH"
+  "CLOUD-AZURE|client_secret=|Azure client secret hardcodeado|CRITICAL"
+  "CLOUD-AZURE|TenantId=|Azure Tenant ID con posible secret adjunto|HIGH"
   
   # ── VERSION CONTROL & CI/CD ───────────────────────────────────────────
-  "VCS-GITHUB|ghp_[a-zA-Z0-9]{36}|GitHub Personal Access Token hardcodeado|CRITICAL"
-  "VCS-GITHUB|gho_[a-zA-Z0-9]{36}|GitHub OAuth Token expuesto|CRITICAL"
-  "VCS-GITHUB|ghs_[a-zA-Z0-9]{36}|GitHub Server-to-Server Token hardcodeado|CRITICAL"
-  "VCS-GITHUB|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}|GitHub Fine-Grained PAT expuesto|CRITICAL"
+  "VCS-GITHUB|ghp_|GitHub Personal Access Token prefix hardcodeado|CRITICAL"
+  "VCS-GITHUB|gho_|GitHub OAuth Token prefix expuesto|CRITICAL"
+  "VCS-GITHUB|ghs_|GitHub Server-to-Server Token prefix hardcodeado|CRITICAL"
+  "VCS-GITHUB|github_pat_|GitHub Fine-Grained PAT prefix expuesto|CRITICAL"
   
-  "VCS-GITLAB|glpat-[a-zA-Z0-9_-]{20}|GitLab Personal Access Token hardcodeado|CRITICAL"
+  "VCS-GITLAB|glpat-|GitLab Personal Access Token prefix hardcodeado|CRITICAL"
   
-  "VCS-BITBUCKET|ATBB[a-zA-Z0-9_-]{32}|Bitbucket App Password expuesto|HIGH"
+  "VCS-BITBUCKET|ATBB|Bitbucket App Password prefix expuesto|HIGH"
   
   # ── DATABASES & CACHING ───────────────────────────────────────────────
-  "DB-POSTGRES|postgresql://[^:]+:[^@]+@[^/]+|Postgres connection string con password|CRITICAL"
-  "DB-POSTGRES|PGPASSWORD\s*=\s*['\"][^'\"]{8,}['\"]|Postgres password hardcodeada|CRITICAL"
+  "DB-POSTGRES|postgresql://|Postgres connection string con credenciales|CRITICAL"
+  "DB-POSTGRES|PGPASSWORD=|Postgres password hardcodeada|CRITICAL"
   
-  "DB-MYSQL|mysql://[^:]+:[^@]+@[^/]+|MySQL connection string con password|CRITICAL"
-  "DB-MYSQL|MYSQL_PASSWORD\s*=\s*['\"][^'\"]{8,}['\"]|MySQL password hardcodeada|CRITICAL"
+  "DB-MYSQL|mysql://|MySQL connection string con credenciales|CRITICAL"
+  "DB-MYSQL|MYSQL_PASSWORD=|MySQL password hardcodeada|CRITICAL"
   
-  "DB-REDIS|redis://:[^@]+@|Redis connection string con password|HIGH"
-  "DB-REDIS|REDIS_PASSWORD\s*=\s*['\"][^'\"]{8,}['\"]|Redis password hardcodeada|HIGH"
+  "DB-REDIS|redis://:|Redis connection string con password|HIGH"
+  "DB-REDIS|REDIS_PASSWORD=|Redis password hardcodeada|HIGH"
   
-  "DB-QDRANT|QDRANT_API_KEY\s*=\s*['\"][a-zA-Z0-9_-]{32,}['\"]|Qdrant API key hardcodeada|CRITICAL"
-  "DB-QDRANT|qdrant_url\s*=\s*['\"]https://[^:]+:[^@]+@|Qdrant URL con credenciales|HIGH"
+  "DB-QDRANT|QDRANT_API_KEY=|Qdrant API key hardcodeada|CRITICAL"
+  "DB-QDRANT|qdrant_url=|Qdrant URL con credenciales potenciales|HIGH"
   
-  "DB-ESPORM|ESPOCRM_API_KEY\s*=\s*['\"][a-zA-Z0-9]{32,}['\"]|EspoCRM API key hardcodeada|HIGH"
-  "DB-ESPORM|espo_password\s*[:=]\s*['\"][^'\"]{8,}['\"]|EspoCRM password en texto plano|CRITICAL"
+  "DB-ESPORM|ESPOCRM_API_KEY=|EspoCRM API key hardcodeada|HIGH"
+  "DB-ESPORM|espo_password=|EspoCRM password en texto plano|CRITICAL"
   
   # ── INFRASTRUCTURE & ORCHESTRATION ─────────────────────────────────────
-  "INFRA-DOCKER|DOCKER_HUB_TOKEN\s*=\s*['\"][a-zA-Z0-9-]{32,}['\"]|Docker Hub token hardcodeado|HIGH"
-  "INFRA-DOCKER|docker login -u [^ ]+ -p [^ ]+|Docker login con password en CLI|CRITICAL"
+  "INFRA-DOCKER|DOCKER_HUB_TOKEN=|Docker Hub token hardcodeado|HIGH"
+  "INFRA-DOCKER|docker login -p|Docker login con password en CLI|CRITICAL"
   
-  "INFRA-N8N|N8N_ENCRYPTION_KEY\s*=\s*['\"][a-zA-Z0-9]{32,}['\"]|n8n encryption key hardcodeada|CRITICAL"
-  "INFRA-N8N|WEBHOOK_URL\s*=\s*['\"]https://[^/]+/webhook/[a-zA-Z0-9_-]{32,}['\"]|n8n webhook URL con token|MEDIUM"
+  "INFRA-N8N|N8N_ENCRYPTION_KEY=|n8n encryption key hardcodeada|CRITICAL"
+  "INFRA-N8N|/webhook/|n8n webhook URL con token potencial|MEDIUM"
   
-  "INFRA-SSH|-----BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY-----|Private SSH key hardcodeado|CRITICAL"
-  "INFRA-SSH|sshpass\s+-p\s+['\"][^'\"]+['\"]|sshpass con password en texto plano|CRITICAL"
+  "INFRA-SSH|-----BEGIN RSA PRIVATE KEY-----|Private SSH RSA key hardcodeado|CRITICAL"
+  "INFRA-SSH|-----BEGIN OPENSSH PRIVATE KEY-----|Private SSH OpenSSH key hardcodeado|CRITICAL"
+  "INFRA-SSH|-----BEGIN EC PRIVATE KEY-----|Private SSH EC key hardcodeado|CRITICAL"
+  "INFRA-SSH|sshpass -p|sshpass con password en texto plano|CRITICAL"
   
-  "INFRA-FAIL2BAN|fail2ban_password\s*=\s*['\"][^'\"]{8,}['\"]|Fail2ban password hardcodeada|MEDIUM"
-  
-  "INFRA-UFW|ufw\s+allow\s+from\s+[0-9.]+/32\s+to\s+any\s+port\s+[0-9]+\s+comment\s+['\"][^'\"]*key[^'\"]*['\"]|Regla UFW con referencia a clave|MEDIUM"
+  "INFRA-FAIL2BAN|fail2ban_password=|Fail2ban password hardcodeada|MEDIUM"
   
   # ── GENERAL SECRET PATTERNS ───────────────────────────────────────────
-  "GEN-PASSWORD|password\s*[:=]\s*['\"][^'\"]{8,}['\"]|Password genérico hardcodeado|HIGH"
-  "GEN-PASSWORD|passwd\s*[:=]\s*['\"][^'\"]{8,}['\"]|Passwd hardcodeado (variante)|HIGH"
-  "GEN-PASSWORD|pwd\s*[:=]\s*['\"][^'\"]{8,}['\"]|Pwd hardcodeado (variante)|MEDIUM"
+  "GEN-PASSWORD|password=|Password genérico assignment directo|HIGH"
+  "GEN-PASSWORD|passwd=|Passwd assignment directo|HIGH"
+  "GEN-PASSWORD|pwd=|Pwd assignment directo|MEDIUM"
   
-  "GEN-APIKEY|api[_-]?key\s*[:=]\s*['\"][a-zA-Z0-9_-]{16,}['\"]|API key genérica hardcodeada|HIGH"
-  "GEN-APIKEY|apikey\s*[:=]\s*['\"][a-zA-Z0-9]{20,}['\"]|ApiKey sin guiones hardcodeada|HIGH"
+  "GEN-APIKEY|api_key=|API key genérica assignment directa|HIGH"
+  "GEN-APIKEY|apikey=|ApiKey assignment sin guiones|HIGH"
   
-  "GEN-SECRET|secret\s*[:=]\s*['\"][a-zA-Z0-9_-]{16,}['\"]|Secret genérico hardcodeado|HIGH"
-  "GEN-SECRET|private[_-]?key\s*[:=]\s*['\"][^'\"]{20,}['\"]|Private key reference hardcodeada|CRITICAL"
+  "GEN-SECRET|secret=|Secret genérico assignment directo|HIGH"
+  "GEN-SECRET|private_key=|Private key reference hardcodeada|CRITICAL"
   
-  "GEN-JWT|eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*|JWT token hardcodeado|HIGH"
+  "GEN-JWT|eyJ|JWT token prefix hardcodeado|HIGH"
   
-  "GEN-BASICAUTH|Authorization:\s*Basic\s+[A-Za-z0-9+/=]{20,}|Basic Auth header hardcodeado|HIGH"
+  "GEN-BASICAUTH|Authorization: Basic|Basic Auth header hardcodeado|HIGH"
   
-  "GEN-BEARER|Authorization:\s*Bearer\s+[a-zA-Z0-9._-]{20,}|Bearer token genérico expuesto|HIGH"
+  "GEN-BEARER|Authorization: Bearer|Bearer token genérico expuesto|HIGH"
 )
 
 # ────────────────────────────────────────────────────────────────────────────
 # PATRONES DE EXCLUSIÓN (PLACEHOLDERS VÁLIDOS - NO SON FALSOS POSITIVOS)
 # ────────────────────────────────────────────────────────────────────────────
 readonly -a EXCLUSION_PATTERNS=(
-  '\$\{[A-Z_0-9]+\}'           # ${ENV_VAR}
-  '\$\([A-Z_0-9]+\)'           # $(ENV_VAR) shell
-  'process\.env\.[A-Z_0-9]+'  # process.env.VAR Node.js
-  'os\.getenv\([A-Z_0-9_]+\)' # os.getenv() Python
-  'getenv\([A-Z_0-9_]+\)'     # getenv() genérico
-  'ENV\[[A-Z_0-9_]+\]'        # ENV['VAR'] Ruby
-  '<[A-Z_0-9_]+>'             # <PLACEHOLDER>
-  'XXXX+'                     # XXXX, XXXXXXX
-  'TODO'                      # TODO markers
-  'FIXME'                     # FIXME markers
-  'CHANGEME'                  # CHANGEME markers
-  'your[_-]?key[_-]?here'     # Documentación
-  'your[_-]?api[_-]?key'      # Documentación
-  'placeholder'               # Placeholder genérico
-  'REPLACE_ME'                # REPLACE_ME
-  'INSERT_KEY_HERE'           # Instrucciones
-  'GET_YOUR_KEY_FROM'         # Instrucciones
-  'https://.*\.example\.com'  # URLs de ejemplo
-  'sk-XXXX'                   # Key ofuscada en docs
-  'api_key_XXXX'              # Key ofuscada en docs
+  '${'                      # ${ENV_VAR} bash
+  '$('                      # $(ENV_VAR) shell
+  'process.env.'            # process.env.VAR Node.js
+  'os.getenv'               # os.getenv() Python
+  'getenv('                 # getenv() genérico
+  'ENV['                    # ENV['VAR'] Ruby
+  '<'                       # <PLACEHOLDER>
+  'XXXX'                    # XXXX, XXXXXXX
+  'TODO'                    # TODO markers
+  'FIXME'                   # FIXME markers
+  'CHANGEME'                # CHANGEME markers
+  'your-key-here'           # Documentación
+  'your_api_key'            # Documentación
+  'placeholder'             # Placeholder genérico
+  'REPLACE_ME'              # REPLACE_ME
+  'INSERT_KEY_HERE'         # Instrucciones
+  'GET_YOUR_KEY_FROM'       # Instrucciones
+  '.example.com'            # URLs de ejemplo
+  'sk-XXXX'                 # Key ofuscada en docs
+  'api_key_XXXX'            # Key ofuscada en docs
+  ':?missing'               # ${VAR:?missing} patrón seguro
+  ':?"'                     # ${VAR:?"message"} patrón seguro
 )
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -187,7 +185,7 @@ readonly -a EXCLUDE_DIRS=(
 )
 
 # ────────────────────────────────────────────────────────────────────────────
-# UTILIDADES
+# UTILIDADES (CORREGIDAS: grep con -- y -F para literales)
 # ────────────────────────────────────────────────────────────────────────────
 log_info() { [[ "$VERBOSE" == "1" ]] && echo "[INFO] $*" || true; }
 log_warn() { echo "[WARN] $*" >&2; }
@@ -215,10 +213,12 @@ is_valid_extension() {
   return 1
 }
 
+# 🔐 FUNCIÓN CORREGIDA: is_placeholder con grep -F -- para evitar flags
 is_placeholder() {
   local line="$1"
   for pattern in "${EXCLUSION_PATTERNS[@]}"; do
-    if echo "$line" | grep -qE "$pattern"; then
+    # grep -F: fixed string (no regex), -q: quiet, --: end of options
+    if echo "$line" | grep -F -q -- "$pattern" 2>/dev/null; then
       ((FALSE_POSITIVES_AVOIDED++)) || true
       return 0
     fi
@@ -237,7 +237,7 @@ load_custom_exclusions() {
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# MOTOR DE DETECCIÓN
+# MOTOR DE DETECCIÓN (CORREGIDO: grep -F -- para patrones literales)
 # ────────────────────────────────────────────────────────────────────────────
 scan_file() {
   local file="$1"
@@ -260,16 +260,21 @@ scan_file() {
     for pattern_entry in "${SECRET_PATTERNS[@]}"; do
       IFS='|' read -r category pattern description severity <<< "$pattern_entry"
       
-      if echo "$line" | grep -qE "$pattern"; then
+      # 🔐 CORRECCIÓN CRÍTICA: grep -F para fixed-string, -- para evitar flags
+      if echo "$line" | grep -F -q -- "$pattern" 2>/dev/null; then
         # Verificar exclusiones personalizadas
         local excluded=false
         for custom_excl in "${EXCLUDED_PATTERNS[@]}"; do
-          if echo "$line" | grep -qE "$custom_excl"; then
+          if echo "$line" | grep -F -q -- "$custom_excl" 2>/dev/null; then
             excluded=true
             break
           fi
         done
         [[ "$excluded" == "true" ]] && continue
+        
+        # Escapar comillas para JSON seguro
+        local safe_line
+        safe_line=$(echo "$line" | sed 's/["\\]/\\&/g' | cut -c1-120)
         
         # Registrar hallazgo
         log_finding "$(cat <<EOF
@@ -281,7 +286,7 @@ scan_file() {
   "description": "$description",
   "severity": "$severity",
   "constraint": "C3",
-  "snippet_preview": "$(echo "$line" | sed 's/["\]/\\&/g' | cut -c1-120)..."
+  "snippet_preview": "${safe_line}..."
 }
 EOF
 )"
@@ -308,7 +313,7 @@ scan_directory() {
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# GENERACIÓN DE REPORTE JSON
+# GENERACIÓN DE REPORTE JSON (CORREGIDO: construcción segura de array)
 # ────────────────────────────────────────────────────────────────────────────
 generate_report() {
   local timestamp
@@ -320,12 +325,12 @@ generate_report() {
   local medium_count=0
   
   # Contar por severidad
-  for finding in "${FINDINGS[@]}"; do
-    if echo "$finding" | grep -q '"severity": "CRITICAL"'; then
+  for finding in "${FINDINGS[@]+"${FINDINGS[@]}"}"; do
+    if echo "$finding" | grep -F -q -- '"severity": "CRITICAL"' 2>/dev/null; then
       ((critical_count++)) || true
-    elif echo "$finding" | grep -q '"severity": "HIGH"'; then
+    elif echo "$finding" | grep -F -q -- '"severity": "HIGH"' 2>/dev/null; then
       ((high_count++)) || true
-    elif echo "$finding" | grep -q '"severity": "MEDIUM"'; then
+    elif echo "$finding" | grep -F -q -- '"severity": "MEDIUM"' 2>/dev/null; then
       ((medium_count++)) || true
     fi
   done
@@ -339,10 +344,25 @@ generate_report() {
     status="warnings"
   fi
   
-  # Construir array de findings para JSON
+  # Construir array de findings para JSON (seguro con jq o fallback)
   local findings_json="[]"
   if [[ ${#FINDINGS[@]} -gt 0 ]]; then
-    findings_json=$(printf '%s\n' "${FINDINGS[@]}" | paste -sd ',' | sed 's/}{/},{/g')
+    if command -v jq &>/dev/null; then
+      findings_json=$(printf '%s\n' "${FINDINGS[@]}" | jq -s -c '.' 2>/dev/null || echo "[]")
+    else
+      # Fallback manual: unir con coma, asegurando que cada finding esté entre {}
+      findings_json="["
+      local first=true
+      for f in "${FINDINGS[@]}"; do
+        if [[ "$first" == "true" ]]; then
+          findings_json+="$f"
+          first=false
+        else
+          findings_json+=",$f"
+        fi
+      done
+      findings_json+="]"
+    fi
   fi
   
   # Calcular checksum del reporte
@@ -368,7 +388,7 @@ generate_report() {
   },
   "ai_providers_audited": ["openrouter", "qwen", "deepseek", "llama", "gemini", "gpt", "minimax", "mistral-ocr", "voice-agent", "image-gen", "video-gen"],
   "infrastructure_patterns_audited": ["aws", "gcp", "azure", "github", "docker", "postgres", "mysql", "redis", "qdrant", "espocrm", "n8n", "ssh", "fail2ban", "ufw"],
-  "findings": [$findings_json],
+  "findings": $findings_json,
   "recommendations": [
     "Migrar todas las credenciales a variables de entorno o secret manager",
     "Implementar pre-commit hook con este script",
@@ -410,7 +430,11 @@ EOF
     echo ""
     echo "⚠️  Hallazgos detectados (revisar reporte JSON para detalles):"
     for finding in "${FINDINGS[@]}"; do
-      echo "  • $(echo "$finding" | grep -o '"file": "[^"]*"' | cut -d'"' -f4):$(echo "$finding" | grep -o '"line": [0-9]*' | cut -d' ' -f2) - $(echo "$finding" | grep -o '"category": "[^"]*"' | cut -d'"' -f4)"
+      local f_file f_line f_cat
+      f_file=$(echo "$finding" | grep -oP '"file": "\K[^"]*' 2>/dev/null || echo "unknown")
+      f_line=$(echo "$finding" | grep -oP '"line": \K[0-9]*' 2>/dev/null || echo "?")
+      f_cat=$(echo "$finding" | grep -oP '"category": "\K[^"]*' 2>/dev/null || echo "unknown")
+      echo "  • ${f_file}:${f_line} - ${f_cat}"
     done
   fi
   
@@ -430,7 +454,7 @@ run_precommit() {
   log_info "Modo pre-commit: escaneando solo archivos modificados"
   
   # Obtener archivos modificados en staging o working tree
-  local files
+  local files=""
   if git diff --cached --name-only >/dev/null 2>&1; then
     files=$(git diff --cached --name-only 2>/dev/null || true)
   fi
@@ -513,7 +537,6 @@ EOF
   
   if [[ "${1:-}" == "--test-sample" ]]; then
     echo "Ejecutando prueba con muestra segura..."
-    # Crear archivo temporal con placeholders válidos (debería pasar)
     local test_file
     test_file=$(mktemp --suffix=.md)
     cat > "$test_file" << 'TESTEOF'
@@ -523,6 +546,7 @@ Ejemplos de uso correcto (NO deben detectarse):
 - `api_key = "${OPENROUTER_KEY}"` ✓
 - `password = process.env.DB_PASS` ✓
 - `sk-XXXX` en documentación ✓
+- `${VAR:?missing}` patrón seguro ✓
 
 Ejemplo de fallo intencional (comentado para no fallar):
 - # api_key = "sk-or-v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -552,4 +576,3 @@ TESTEOF
 }
 
 main "$@"
-

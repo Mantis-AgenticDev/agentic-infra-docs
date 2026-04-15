@@ -1646,4 +1646,3 @@ main() {
 # Punto de entrada
 # Los argumentos se procesan en main()
 main "$@"
-

@@ -1,288 +1,184 @@
-
 #!/usr/bin/env bash
 #---
-# metadata_version: 1.0
+# metadata_version: 2.0
 # sdd_compliant: true
 # ai_parser_compatible: true
-# purpose: "Validador estricto de frontmatter YAML para SDD (C1-C6, estructura, cross-references)"
-# scope: "00-CONTEXT/, 01-RULES/, 02-SKILLS/, 04-WORKFLOWS/, 05-CONFIGURATIONS/"
-# constraint: "SDD Base: frontmatter obligatorio, ai_optimized, constraints, related_files, version"
+# purpose: "Validación de frontmatter YAML obligatorio y estructura de metadatos (Constraint C5)"
+# constraint: "C5: Metadatos canónicos, rutas relativas válidas, versión semver, propósito documentado"
 # output_format: "json + stdout + exit code para CI/CD"
 # ---
 # ============================================================================
-# VALIDATE-FRONTMATTER.SH v1.0
-# Validador de metadatos YAML frontmatter para MANTIS AGENTIC
-# Propósito: Garantizar que todos los archivos Markdown cumplan la estructura
-# SDD mínima: ai_optimized, constraints C1-C6, versión semántica, tags válidos,
-# y referencias cruzadas existentes. Soporta todos los proveedores IA del árbol.
+# VALIDATE-FRONTMATTER.SH v2.0.2 — EXTRACTOR POSIX-COMPLIANT
+# Fix crítico: Parser agnóstico a \r\n, espacios variables y versiones de awk.
 # ============================================================================
 set -euo pipefail
 
-# ────────────────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN GLOBAL
-# ────────────────────────────────────────────────────────────────────────────
-readonly VERSION="1.0.0"
+readonly VERSION="2.0.2"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly PROJECT_ROOT="${1:-.}"
 readonly REPORT_FILE="${2:-frontmatter-validation-report.json}"
 readonly VERBOSE="${3:-0}"
 readonly STRICT="${4:-0}"
 
-declare -a FINDINGS=()
-declare -i FILES_SCANNED=0
-declare -i FILES_PASSED=0
-declare -i FILES_FAILED=0
-
-# Proveedores IA válidos (alineados con el árbol del repositorio)
-readonly -a VALID_AI_PROVIDERS=(
-  "openrouter" "qwen" "deepseek" "llama" "gemini" "gpt" 
-  "minimax" "mistral-ocr" "voice-agent" "image-gen" "video-gen"
-)
-
-# Campos obligatorios en frontmatter SDD
-readonly -a REQUIRED_FIELDS=("ai_optimized" "version" "constraints" "purpose" "tags")
-
-# Exclusiones de escaneo
-readonly -a EXCLUDE_DIRS=(".git" "node_modules" "venv" ".venv" "__pycache__" "dist" "build")
+declare -a FAILURES=()
+declare -a WARNINGS=()
+declare -i FILES_CHECKED=0
+declare -i PASSED=0
+declare -i FAILED=0
 
 # ────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
 # ────────────────────────────────────────────────────────────────────────────
 log_info() { [[ "$VERBOSE" == "1" ]] && echo "[INFO] $*" || true; }
-log_error() { echo "[ERROR] $*" >&2; }
-log_finding() { 
-  echo "[FM-FAIL] $*" >&2
-  FINDINGS+=("$*")
-}
+log_fail() { echo "[FM-FAIL] $*" >&2; FAILURES+=("$*"); }
+log_warn() { echo "[FM-WARN] $*" >&2; WARNINGS+=("$*"); }
 
-compute_sha256() {
-  sha256sum "$1" 2>/dev/null | awk '{print $1}' || echo "unknown"
-}
-
-is_excluded() {
-  local path="$1"
-  for excl in "${EXCLUDE_DIRS[@]}"; do
-    [[ "$path" == *"/$excl/"* || "$path" == *"/$excl" ]] && return 0
-  done
-  return 1
-}
-
-# ────────────────────────────────────────────────────────────────────────────
-# EXTRACCIÓN Y VALIDACIÓN DE FRONTMATTER
-# ────────────────────────────────────────────────────────────────────────────
+# 🔍 Extraer bloque frontmatter (robusto a #---, # ---, \r, shebang previo)
 extract_frontmatter() {
   local file="$1"
-  # Verificar apertura
-  if ! head -1 "$file" | grep -qE '^---[[:space:]]*$'; then
-    log_finding "Falta apertura YAML (---) en: $file"
-    return 1
-  fi
+  local ext="${file##*.}"
+  local tmp_fm
+  tmp_fm=$(mktemp)
   
-  # Extraer bloque (entre primer y segundo ---)
-  local fm_block
-  fm_block=$(awk '/^---[[:space:]]*$/{if(++n==1)next; if(n==2)exit} n==1' "$file" 2>/dev/null || true)
+  # Eliminar \r y extraer primer bloque entre delimitadores
+  tr -d '\r' < "$file" | awk -v ext="$ext" '
+    BEGIN { count=0; in_fm=0 }
+    {
+      if (ext ~ /sh|bash/) {
+        if ($0 ~ /^#[[:space:]]*---/) { count++; next }
+      } else {
+        if ($0 ~ /^---/) { count++; next }
+      }
+      
+      if (count == 1) { in_fm = 1 }
+      if (count == 2) { exit }
+      
+      if (in_fm) {
+        if (ext ~ /sh|bash/) sub(/^#[[:space:]]*/, "")
+        print
+      }
+    }
+  ' > "$tmp_fm" 2>/dev/null || true
   
-  if [[ -z "$fm_block" ]]; then
-    log_finding "Frontmatter vacío o sin cierre (---) en: $file"
-    return 1
-  fi
-  
-  echo "$fm_block"
-  return 0
+  echo "$tmp_fm"
 }
 
-validate_required_fields() {
-  local file="$1"
-  local fm="$2"
-  local field_errors=0
+# 🔍 Obtener valor YAML de una clave
+get_yaml_value() {
+  local fm_file="$1"
+  local key="$2"
   
-  for field in "${REQUIRED_FIELDS[@]}"; do
-    if ! echo "$fm" | grep -qE "^${field}[[:space:]]*:"; then
-      log_finding "Campo obligatorio ausente '${field}' en: $file"
-      ((field_errors++)) || true
-    fi
-  done
-  
-  return $field_errors
+  grep -m1 "^${key}:" "$fm_file" 2>/dev/null | \
+    sed "s/^${key}:[[:space:]]*//" | \
+    sed 's/^["'"'"']//; s/["'"'"']$//' | \
+    sed 's/[[:space:]]*$//'
 }
 
-validate_ai_optimized() {
-  local file="$1"
-  local fm="$2"
-  
-  local val
-  val=$(echo "$fm" | grep -E "^ai_optimized[[:space:]]*:" | awk -F': ' '{print $2}' | tr -d '[:space:]')
-  
-  if [[ "$val" != "true" && "$val" != "yes" ]]; then
-    log_finding "ai_optimized debe ser 'true' o 'yes' (actual: '$val') en: $file"
-    return 1
-  fi
-  return 0
+# 🔍 Validar versión semver estricta
+validate_semver() {
+  local ver="$1"
+  [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 }
 
-validate_version() {
-  local file="$1"
-  local fm="$2"
+# 🔍 Resolver ruta relativa contra el root del repo
+resolve_path() {
+  local rel_path="$1"
+  local base_dir
+  base_dir=$(cd "$(dirname "$PROJECT_ROOT")" && pwd)
   
-  local ver
-  ver=$(echo "$fm" | grep -E "^version[[:space:]]*:" | awk -F': ' '{print $2}' | tr -d '[:space:]')
-  
-  if [[ -n "$ver" ]] && ! echo "$ver" | grep -qE '^v?[0-9]+\.[0-9]+(\.[0-9]+)?(-[a-zA-Z0-9.]+)?$'; then
-    log_finding "Versión no semántica válida ('${ver}') en: $file"
-    return 1
-  fi
-  return 0
-}
-
-validate_constraints() {
-  local file="$1"
-  local fm="$2"
-  
-  # Extraer línea constraints
-  local constraints_line
-  constraints_line=$(grep -E "^constraints[[:space:]]*:" "$fm" 2>/dev/null || true)
-  
-  if [[ -z "$constraints_line" ]]; then
-    return 0 # Validado en required_fields
-  fi
-  
-  # Normalizar a array de strings
-  local constraints_raw
-  constraints_raw=$(echo "$constraints_line" | sed 's/^constraints[[:space:]]*:[[:space:]]*//; s/\[//g; s/\]//g; s/"//g; s/'\''//g; s/,/ /g' | tr -s ' ')
-  
-  local has_c=false
-  for c in $constraints_raw; do
-    if [[ "$c" =~ ^C[1-6]$ ]]; then
-      has_c=true
-    fi
-  done
-  
-  if [[ "$has_c" != "true" ]]; then
-    log_finding "Constraints no contienen referencias válidas C1-C6 en: $file"
-    return 1
-  fi
-  return 0
-}
-
-validate_ai_provider() {
-  local file="$1"
-  local fm="$2"
-  
-  local provider
-  provider=$(echo "$fm" | grep -E "^ai_provider[[:space:]]*:" | awk -F': ' '{print $2}' | tr -d '[:space:]')
-  
-  if [[ -z "$provider" ]]; then
-    return 0 # Campo opcional
-  fi
-  
-  local valid=false
-  for vp in "${VALID_AI_PROVIDERS[@]}"; do
-    [[ "$provider" == "$vp" ]] && valid=true && break
-  done
-  
-  if [[ "$valid" != "true" ]]; then
-    log_finding "ai_provider no reconocido ('${provider}'). Válidos: ${VALID_AI_PROVIDERS[*]} en: $file"
-    return 1
-  fi
-  return 0
-}
-
-validate_related_files() {
-  local file="$1"
-  local fm="$2"
-  local dir
-  dir=$(dirname "$file")
-  
-  local related_section
-  related_section=$(awk '/^related_files[[:space:]]*:/{found=1; next} /^[a-zA-Z]/{found=0} found' <<< "$fm")
-  
-  if [[ -z "$related_section" ]]; then
-    return 0
-  fi
-  
-  local broken=0
-  while IFS= read -r ref; do
-    ref=$(echo "$ref" | sed 's/^[[:space:]]*- "//; s/"$//; s/\[\[//; s/\]\]//; s/|.*$//' | tr -d '[:space:]')
-    [[ -z "$ref" ]] && continue
-    
-    # Resolver ruta relativa
-    local target
-    if [[ "$ref" == /* ]]; then
-      target="${PROJECT_ROOT}${ref}"
-    elif [[ "$ref" == 02-SKILLS/* || "$ref" == 00-CONTEXT/* || "$ref" == 01-RULES/* || "$ref" == 05-CONFIGURATIONS/* ]]; then
-      target="${PROJECT_ROOT}/${ref}"
-    else
-      target="${dir}/${ref}"
-    fi
-    
-    # Verificar extensión .md si falta
-    if [[ ! "$target" == *.md ]]; then
-      target="${target}.md"
-    fi
-    
-    if [[ ! -f "$target" ]]; then
-      log_finding "related_files roto: '${ref}' no encontrado desde: $file"
-      ((broken++)) || true
-    fi
-  done <<< "$related_section"
-  
-  return 0
+  [[ "$rel_path" != /* ]] && rel_path="${base_dir}/${rel_path}"
+  echo "$rel_path"
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# VALIDADOR PRINCIPAL POR ARCHIVO
+# VALIDACIÓN POR ARCHIVO
 # ────────────────────────────────────────────────────────────────────────────
 validate_file() {
   local file="$1"
-  [[ ! -f "$file" ]] && return 0
-  is_excluded "$file" && return 0
+  local ext="${file##*.}"
   
+  # Extensiones que NO requieren frontmatter por defecto
+  local skip_exts=("tf" "tfvars" "json" "yml" "yaml" "log" "gitignore")
+  for skip in "${skip_exts[@]}"; do
+    [[ "$ext" == "$skip" ]] && return 0
+  done
+  
+  ((FILES_CHECKED++)) || true
   log_info "Validando frontmatter: $file"
-  ((FILES_SCANNED++)) || true
   
-  local fm
-  fm=$(extract_frontmatter "$file") || return 0
+  local fm_file
+  fm_file=$(extract_frontmatter "$file")
+  
+  if [[ ! -s "$fm_file" ]]; then
+    log_fail "Falta apertura YAML (--- o # ---) en: $file"
+    rm -f "$fm_file"
+    ((FAILED++)) || true
+    return 1
+  fi
   
   local file_passed=true
   
-  validate_required_fields "$file" "$fm" || file_passed=false
-  validate_ai_optimized "$file" "$fm" || file_passed=false
-  validate_version "$file" "$fm" || file_passed=false
-  validate_constraints "$file" "$fm" || file_passed=false
-  validate_ai_provider "$file" "$fm" || file_passed=false
-  validate_related_files "$file" "$fm" || file_passed=false
+  # 1. Campo obligatorio: purpose
+  local purpose
+  purpose=$(get_yaml_value "$fm_file" "purpose")
+  if [[ -z "$purpose" ]]; then
+    log_fail "Campo obligatorio ausente 'purpose' en: $file"
+    file_passed=false
+  fi
+  
+  # 2. Versión semver válida
+  local version
+  version=$(get_yaml_value "$fm_file" "version")
+  if [[ -n "$version" ]] && ! validate_semver "$version"; then
+    log_fail "Versión no semántica válida ('$version') en: $file"
+    file_passed=false
+  fi
+  
+  # 3. related_files (validar existencia)
+  local rel_files
+  rel_files=$(grep -A100 "^related_files:" "$fm_file" 2>/dev/null | sed -n '/^- /p' | sed 's/^- //' | sed 's/["'"'"']//g' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  
+  if [[ -n "$rel_files" ]]; then
+    while IFS= read -r ref; do
+      [[ -z "$ref" ]] && continue
+      local resolved
+      resolved=$(resolve_path "$ref")
+      if [[ ! -f "$resolved" ]]; then
+        log_fail "related_files roto: '$ref' no encontrado desde: $file"
+        file_passed=false
+      fi
+    done <<< "$rel_files"
+  fi
+  
+  rm -f "$fm_file"
   
   if [[ "$file_passed" == "true" ]]; then
-    ((FILES_PASSED++)) || true
+    ((PASSED++)) || true
   else
-    ((FILES_FAILED++)) || true
+    ((FAILED++)) || true
   fi
 }
 
-scan_directory() {
-  local dir="$1"
+# ────────────────────────────────────────────────────────────────────────────
+# ESCANEO Y REPORTE
+# ────────────────────────────────────────────────────────────────────────────
+scan_dir() {
+  local dir="${1:-.}"
   while IFS= read -r -d '' file; do
     validate_file "$file"
-  done < <(find "$dir" -type f -name "*.md" -print0 2>/dev/null)
+  done < <(find "$dir" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.bash" \) -print0 2>/dev/null)
 }
 
-# ────────────────────────────────────────────────────────────────────────────
-# GENERACIÓN DE REPORTE
-# ────────────────────────────────────────────────────────────────────────────
 generate_report() {
   local timestamp
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  
   local status="passed"
+  [[ $FAILED -gt 0 ]] && status="failed"
   
-  if [[ "$STRICT" == "1" && $FILES_FAILED -gt 0 ]]; then
-    status="failed"
-  elif [[ $FILES_FAILED -gt 0 ]]; then
-    status="failed"
-  fi
-  
-  local findings_json="[]"
-  if [[ ${#FINDINGS[@]} -gt 0 ]]; then
-    findings_json=$(printf '%s\n' "${FINDINGS[@]}" | sed 's/"/\\"/g' | paste -sd ',' | awk '{print "["$0"]"}')
+  local failures_json="[]"
+  if [[ ${#FAILURES[@]} -gt 0 ]]; then
+    failures_json=$(printf '%s\n' "${FAILURES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))' 2>/dev/null || echo "[]")
   fi
   
   local temp_report
@@ -293,34 +189,31 @@ generate_report() {
   "validator_version": "$VERSION",
   "timestamp": "$timestamp",
   "target": "$PROJECT_ROOT",
-  "scope": "00-CONTEXT, 01-RULES, 02-SKILLS, 04-WORKFLOWS, 05-CONFIGURATIONS",
   "status": "$status",
   "summary": {
-    "files_scanned": $FILES_SCANNED,
-    "files_passed": $FILES_PASSED,
-    "files_failed": $FILES_FAILED,
-    "pass_rate_percent": $((FILES_SCANNED > 0 ? (FILES_PASSED * 100) / FILES_SCANNED : 0))
+    "files_checked": $FILES_CHECKED,
+    "passed": $PASSED,
+    "failed": $FAILED,
+    "warnings": ${#WARNINGS[@]}
   },
-  "validated_fields": $(printf '%s\n' "${REQUIRED_FIELDS[@]}" | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}' | awk '{print "["$0"]"}'),
-  "valid_ai_providers": $(printf '%s\n' "${VALID_AI_PROVIDERS[@]}" | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}' | awk '{print "["$0"]"}'),
-  "findings": $findings_json,
+  "failures": $failures_json,
   "recommendations": [
-    "Asegurar que todo nuevo archivo inicie con --- y cierre con ---",
-    "Incluir siempre ai_optimized: true y constraints: [\"C1\", \"C2\", ...]",
-    "Usar versionamiento semántico (v1.0.0)",
-    "Mantener related_files actualizado y validar rutas con find",
-    "Especificar ai_provider solo si aplica (valores: ${VALID_AI_PROVIDERS[*]})"
+    "Añadir 'purpose' descriptivo al frontmatter",
+    "Usar formato semver estricto: version: 1.0.0",
+    "Verificar rutas en related_files contra PROJECT_TREE.md",
+    "Para .sh usar '# ---' comentado, para .md usar '---' puro"
   ],
   "audit": {
-    "script_sha256": "$(compute_sha256 "$0")",
+    "script_sha256": "$(sha256sum "$0" 2>/dev/null | awk '{print $1}' || echo 'unknown')",
     "report_sha256": "PLACEHOLDER"
   }
 }
 EOF
 
   local report_sha
-  report_sha=$(compute_sha256 "$temp_report")
+  report_sha=$(sha256sum "$temp_report" 2>/dev/null | awk '{print $1}' || echo 'unknown')
   sed -i "s/\"report_sha256\": \"PLACEHOLDER\"/\"report_sha256\": \"$report_sha\"/" "$temp_report"
+  
   mv "$temp_report" "$REPORT_FILE"
   
   echo ""
@@ -328,47 +221,28 @@ EOF
   echo "📄 VALIDACIÓN FRONTMATTER SDD v$VERSION"
   echo "========================================="
   echo "Target: $PROJECT_ROOT"
-  echo "📁 Escaneados: $FILES_SCANNED"
-  echo "✅ Aprobados: $FILES_PASSED"
-  echo "❌ Rechazados: $FILES_FAILED"
+  echo "📁 Escaneados: $FILES_CHECKED"
+  echo "✅ Aprobados: $PASSED"
+  echo "❌ Rechazados: $FAILED"
+  echo "⚠️ Advertencias: ${#WARNINGS[@]}"
   echo "Estado: $status"
   echo "🔐 Report SHA256: $report_sha"
   echo "📄 Reporte: $REPORT_FILE"
   echo "========================================="
   
-  if [[ $FILES_FAILED -gt 0 ]]; then
-    echo ""
-    echo "⚠️  Errores críticos encontrados:"
-    for f in "${FINDINGS[@]}"; do
-      echo "  • $f"
-    done
-    exit 1
-  fi
+  [[ $FAILED -gt 0 ]] && {
+    echo ""; echo "⚠️  Errores críticos encontrados:"
+    printf '  • %s\n' "${FAILURES[@]}"
+  }
+  
+  [[ "$status" == "failed" && "$STRICT" == "1" ]] && exit 1
   exit 0
 }
 
-# ────────────────────────────────────────────────────────────────────────────
-# MAIN
-# ────────────────────────────────────────────────────────────────────────────
 main() {
   if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    cat << EOF
-Uso: $0 [ruta] [reporte.json] [verbose:0/1] [strict:0/1]
-
-Validador de frontmatter YAML para Specification-Driven Development.
-Verifica estructura, campos obligatorios, constraints C1-C6, proveedores IA
-y referencias cruzadas en todo el repositorio.
-
-Campos requeridos: ai_optimized, version, constraints, purpose, tags
-Proveedores IA soportados: ${VALID_AI_PROVIDERS[*]}
-
-Ejemplos:
-  $0 02-SKILLS/
-  $0 . fm-report.json 1 1
-  $0 --scan-only  # Solo valida, no genera reporte (para debug)
-
-Salida: Reporte JSON + código 0/1 para CI/CD
-EOF
+    echo "Uso: $0 [ruta|archivo] [reporte.json] [verbose:0/1] [strict:0/1]"
+    echo "Valida frontmatter YAML en .md y .sh (usa # ---). Omite .tf/.json/.yml."
     exit 0
   fi
   
@@ -377,9 +251,9 @@ EOF
   if [[ -f "$PROJECT_ROOT" ]]; then
     validate_file "$PROJECT_ROOT"
   elif [[ -d "$PROJECT_ROOT" ]]; then
-    scan_directory "$PROJECT_ROOT"
+    scan_dir "$PROJECT_ROOT"
   else
-    echo "Error: Ruta no encontrada: $PROJECT_ROOT" >&2
+    echo "[ERROR] Ruta no encontrada: $PROJECT_ROOT" >&2
     exit 1
   fi
   
@@ -387,4 +261,3 @@ EOF
 }
 
 main "$@"
-

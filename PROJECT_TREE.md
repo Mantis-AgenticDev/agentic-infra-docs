@@ -62,6 +62,11 @@ max_tokens_per_session: 8000
 
 agentic-infra-docs/
 │
+├── IA-QUICKSTART.md                                 ✅ COMPLETADO
+│   └── Documento semilla universal que instruye a cualquier IA (DeepSeek, Qwen, MiniMax, 
+|       GPT, Claude, Gemini) sobre cómo navegar, validar y generar artefactos en el ecosistema 
+|       MANTIS AGENTIC, cubriendo desarrollo interno y producción externa con tres niveles de autonomía."
+|
 ├── README.md                                 ✅ COMPLETADO
 │   └── Presentación general del repositorio
 │
@@ -75,6 +80,10 @@ agentic-infra-docs/
 |
 ├── SDD-COLLABORATIVE-GENERATION.md           ✅ COMPLETADO
 │   └── Sistema colaborativo IA Humano para generacion archivos internos del proyecto.
+|
+├── TOOLCHAIN-REFERENCE.md          ✅ COMPLETADO
+│   └── Documentación técnica centralizada para el uso, integración y mantenimiento de
+|       los validadores y scripts operativos del ecosistema MANTIS AGENTIC
 │
 ├── 00-CONTEXT/
 │   ├── 00-INDEX.md                           ✅ COMPLETADO

@@ -67,3 +67,8 @@ docker-compose.override.yml
 !knowledge-graph.json
 !05-CONFIGURATIONS/validation/schemas/skill-output.schema.json
 
+08-LOGS/
+*.bak
+*.pre-fix.bak
+-report
+*-report.json

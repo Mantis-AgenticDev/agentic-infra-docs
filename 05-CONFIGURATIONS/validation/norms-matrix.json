@@ -695,7 +695,7 @@
     "json_output_schema": {
       "file": "string (canonical path)",
       "tier_certified": "integer (1|2|3) or null if blocked",
-      "passed_checks": ["C1", "C3", ...],
+      "passed_checks": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
       "blocking_issues": [{"constraint": "C4", "message": "tenant_id missing in query line 42"}],
       "warnings": [{"constraint": "C8", "message": "structured logging not detected but recommended"}],
       "next_action": "string ('review_human'|'merge_auto'|'trigger_deploy'|'correct_and_retry')",
