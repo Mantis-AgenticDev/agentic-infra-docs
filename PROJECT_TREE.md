@@ -527,6 +527,10 @@ agentic-infra-docs/
 │   │   ├── validate-frontmatter.sh  # SDD: YAML required fields + types ✅ COMPLETADO
 │   │   ├── check-wikilinks.sh       # Obsidian: enlaces rotos o inexistentes ✅ COMPLETADO
 │   │   ├── verify-constraints.sh    # C1-C6: presencia explícita en ejemplos ✅ COMPLETADO
+│   │   ├── orchestrator-engine.sh   # Este script es el sistema nervioso central que traduce las normas C1-C8,
+|   |   |                            # los requisitos multi-tenant, las políticas de no-regresión y los estándares
+|   |   |                            # de hardening en decisiones binarias, certificadas y ejecutables. ✅ COMPLETADO
+│   │   ├── norms-matrix.json        # Norms Application Matrix by Canonical Location ✅ COMPLETADO
 │   │   └── schema-validator.py      # JSON Schema para outputs de meta-prompting ✅ COMPLETADO
 │   │
 │   ├── templates/                    # 🔹 Plantillas para autogeneración
@@ -546,7 +550,10 @@ agentic-infra-docs/
 |   |   ├── validate-against-specs.sh         ✅ COMPLETADO
 |   |   |   └── Validar automáticamente que los archivos del repositorio cumplan 
 |   |   |        con los constraints absolutos (C1-C6), estructura SDD, tenant-
-|   |   |        awareness y límites de recursos antes de commit o despliegue. 
+|   |   |        awareness y límites de recursos antes de commit o despliegue.
+|   |   |
+|   |   ├── VALIDATOR_DOCUMENTATION.md         ✅ COMPLETADO
+|   |   |   └── Validator Documentation & Constraints Mapping  
 |   |   |
 |   |   ├── packager-assisted.sh              ✅ COMPLETADO
 |   |   |        Script maestro para empaquetar skills generadas por IA en 
@@ -573,6 +580,10 @@ agentic-infra-docs/
 │   │   │
 │   │   ├── test-alerts.sh                    🆕 PENDIENTE
 │   │   │   └── Script de prueba de alertas (Telegram, Gmail, Calendar)
+│   │   │
+│   │   ├── sync-to-sandbox                    ✅ COMPLETADO
+│   │   │   └── Sincronizar main al sandbox de forma rápida, segura y sin git
+|   |   |       para pruebas de artefactos sin afectar la linea Main/ del proyecto.
 │   │   │
 │   │   └── restore-mysql.sh                  🆕 PENDIENTE
 │   │       └── Script de restauración de MySQL
@@ -617,15 +628,51 @@ agentic-infra-docs/
 │   │       └── Comandos SQL para backup y restauración
 │   │
 │   └── javascript/
-│       ├── 00-INDEX.md                       🆕 PENDIENTE
-│       │   └── Índice de patrones JavaScript
-│       │
-│       ├── n8n-function-node-patterns.md     🆕 PENDIENTE
-│       │   └── Patrones para Function Node de n8n
-│       │
-│       └── async-error-handling.md           🆕 PENDIENTE
-│           └── Manejo de errores asíncronos en JavaScript
-|
+│   |   ├── 00-INDEX.md                       🆕 PENDIENTE
+│   |   │   └── Índice de patrones JavaScript
+│   |   │
+│   |   ├── n8n-function-node-patterns.md     🆕 PENDIENTE
+│   |   │   └── Patrones para Function Node de n8n
+│   |   │
+│   |   └── async-error-handling.md           🆕 PENDIENTE
+│   |       └── Manejo de errores asíncronos en JavaScript
+|   |
+|   │
+|   ├── bash/
+|   ├── 00-INDEX.md                       🆕 PENDIENTE
+|   │   └── Índice de patrones Bash (enlaces, nivel de madurez, constraints aplicados)
+|   │
+|   ├── robust-error-handling.md          🆕 PENDIENTE
+|   │   └── `set -euo pipefail`, `trap`, fallbacks explícitos `${VAR:?missing}`, idempotencia
+|   │   └── Constraints: C3, C7
+|   │
+|   ├── filesystem-sandboxing.md          🆕 PENDIENTE
+|   │   └── Rutas canónicas, `chmod`/`chattr`, límites de escritura, verificación de integridad
+|   │   └── Constraints: C3, C4, C5
+|   │
+|   ├── git-disaster-recovery.md          🆕 PENDIENTE
+|   │   └── Snapshots preventivos, `git stash/archive`, rollback con checksum, validación pre/post
+|   │   └── Constraints: C5, C7
+|   │
+|   ├── orchestrator-routing.md           🆕 PENDIENTE
+|   │   └── Modo `headless`, dispatch de validadores, routing JSON, scoring umbral ≥30
+|   │   └── Constraints: C5, C8
+|   │
+|   ├── context-compaction-utils.md       🆕 PENDIENTE
+|   │   └── Extracción de contexto crítico, generación de dossiers `handoff`, logging estructurado
+|   │   └── Constraints: C5, C7
+|   │
+|   ├── hardening-verification.md           🆕 PENDIENTE
+|   │   └── Protocolo de pre-vuelo para evitar desastres en despliegue o aplicación de código.
+|   │   └── C4 (tenant/entorno aware), C5 (checksum pre/post), C7 (rollback), C8 (observability)
+|   │
+|   ├── fix-sintaxis-code.md       🆕 PENDIENTE
+|   │   └── Control sistemático de errores sintácticos y anti-patrones en Bash.
+|   │   └── Constraints: C3 (fallback explícito), C5 (checksum de linting)
+|   │
+|   └── yaml-frontmatter-parser.md        🆕 PENDIENTE
+|       └── Parsing seguro con `awk`/`grep`, validación de campos obligatorios, extracción sin `yq`/`python`
+|       └── Constraints: C3, C4
 |
 │
 ├── 07-PROCEDURES/
