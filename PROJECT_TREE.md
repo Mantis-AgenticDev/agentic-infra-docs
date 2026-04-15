@@ -75,308 +75,583 @@ filter_policy:
 
 agentic-infra-docs/
 │
-├── 📄 ROOT (10 artefactos canónicos)
-│   ├── ✅ IA-QUICKSTART.md          # 🧭 Semilla universal: modo/tier/validación
-│   ├── ✅ PROJECT_TREE.md           # 🗺️ ESTE ARCHIVO: mapa canónico de rutas
-│   ├── ✅ RAW_URLS_INDEX.md         # 🔗 Índice de URLs raw para fetch IA
-│   ├── ✅ norms-matrix.json         # 📐 Matriz C1-C8 por ubicación canónica
-│   ├── ✅ orchestrator-engine.sh    # ⚙️ Sistema nervioso: validación binaria
-│   ├── ✅ TOOLCHAIN-REFERENCE.md    # 🧰 Documentación técnica centralizada
-│   ├── ✅ SDD-COLLABORATIVE-GENERATION.md  # 🤝 Especificación generación humano-IA
-│   ├── ✅ GOVERNANCE-ORCHESTRATOR.md # 🛡️ Gobernanza: roles, gates, promoción
-│   ├── ✅ AI-NAVIGATION-CONTRACT.md # 🤖 Contrato de navegación para agentes
-│   └── ✅ README.md                 # 📋 Presentación general del proyecto
+├── 🧭 IA-QUICKSTART.md ✅ COMPLETADO
+│      └── Documento semilla universal que instruye a cualquier IA (DeepSeek, 
+|          Qwen, MiniMax, GPT, Claude, Gemini) sobre cómo navegar, validar y generar
+|          artefactos en el ecosistema MANTIS AGENTIC, cubriendo desarrollo interno 
+|          y producción externa con tres niveles de autonomía.
 │
-├── 📁 00-CONTEXT/ (7 artefactos ✅)
-│   ├── ✅ 00-INDEX.md               # 📑 Índice con URLs raw de contexto
-│   ├── ✅ PROJECT_OVERVIEW.md       # 🌐 Visión bilingüe ES+PT-BR del proyecto
-│   ├── ✅ facundo-core-context.md   # 👤 Contexto humano: dominio, stack, flujo
-│   ├── ✅ facundo-infrastructure.md # 🖥️ Specs técnicas: 3 VPS, red, servicios
-│   ├── ✅ facundo-business-model.md # 💼 Modelo de negocio: pricing, SLA, proyecciones
-│   ├── ✅ documentation-validation-cheklist.md  # ✅ Checklist educativo de validación
-│   └── ✅ documentation-validation-cheklist.txt # 📄 Versión plana para parsing ligero
+├── 📋 README.md ✅ COMPLETADO
+│      └── Presentación general del repositorio.
 │
-├── 📁 01-RULES/ (11 artefactos ✅)
-│   ├── ✅ 00-INDEX.md               # 📑 Índice de rules con flujo de lectura
-│   ├── ✅ 01-ARCHITECTURE-RULES.md  # 🏗️ Constraints de infra: VPS, Docker, red
-│   ├── ✅ 02-RESOURCE-GUARDRAILS.md # ⚡ Límites RAM/CPU/polling para VPS 4GB
-│   ├── ✅ 03-SECURITY-RULES.md      # 🔐 UFW, SSH, fail2ban, permisos, secretos
-│   ├── ✅ 04-API-RELIABILITY-RULES.md # 🌐 Fiabilidad APIs: OpenRouter, Telegram
-│   ├── ✅ 05-CODE-PATTERNS-RULES.md # 💻 Patrones JS/Python/SQL/Docker/Bash
-│   ├── ✅ 06-MULTITENANCY-RULES.md  # 👥 Aislamiento tenant: MySQL + Qdrant RLS
-│   ├── ✅ 07-SCALABILITY-RULES.md   # 📈 Criterios escalamiento: fases 1-2-3
-│   ├── ✅ 08-SKILLS-REFERENCE.md    # 🔗 Pointer a skills reutilizables en 02-SKILLS/
-│   ├── ✅ 09-AGENTIC-OUTPUT-RULES.md # 📤 Formato validación entrega SDD
-│   └── ✅ validation-checklist.md   # ✅ Checklist referenciando MT-001, API-001
+├── 🚫 .gitignore ✅ COMPLETADO
+│      └── Reglas para no subir archivos sensibles.
 │
-├── 📁 02-SKILLS/ (46 artefactos ✅ + 58 🆕)
-│   ├── 🗂️ ROOT (4 ✅)
-│   │   ├── ✅ 00-INDEX.md           # 📑 Índice maestro de skills
-│   │   ├── ✅ skill-domains-mapping.md  # 🗺️ Mapeo semántico dominios→skills
-│   │   ├── ✅ GENERATION-MODELS.md  # 🧠 Modelos generación SDD para MANTIS
-│   │   └── ✅ README.md             # 📋 Guía de uso de skills para humanos/IA
-│   │
-│   ├── 🤖 AI/ (11 ✅)
-│   │   ├── ✅ qwen-integration.md   # 🔷 Qwen3.6 + validación SDD nativa
-│   │   ├── ✅ deepseek-integration.md # 🔶 DeepSeek + SQL/RAG multi-tenant
-│   │   ├── ✅ gpt-integration.md    # 🟢 GPT-4/3.5 + OpenRouter fallback
-│   │   ├── ✅ gemini-integration.md # 🟡 Gemini + voice/calendar/multimodal
-│   │   ├── ✅ llama-integration.md  # 🦙 Llama 3 local/remote vía Ollama
-│   │   ├── ✅ minimax-integration.md # 🔴 Minimax + voz/texto low-latency
-│   │   ├── ✅ openrouter-api-integration.md # 🔄 Enrutamiento dinámico proveedores
-│   │   ├── ✅ mistral-ocr-integration.md # 📄 OCR PDFs + ingestión Qdrant
-│   │   ├── ✅ voice-agent-integration.md # 🎤 Voice agents + Twilio/Gemini
-│   │   ├── ✅ image-gen-api.md      # 🖼️ Generación imágenes: DALL·E, SD
-│   │   └── ✅ video-gen-api.md      # 🎬 Generación video/reels con APIs
-│   │
-│   ├── 🗄️ BASE DE DATOS-RAG/ (16 ✅)
-│   │   ├── ✅ qdrant-rag-ingestion.md     # 🔷 Ingesta docs + tenant_id + filtros
-│   │   ├── ✅ mysql-sql-rag-ingestion.md  # 🐬 Patrones ingesta RAG en MySQL
-│   │   ├── ✅ postgres-prisma-rag.md      # 🐘 PostgreSQL + Prisma + RLS + tipado
-│   │   ├── ✅ supabase-rag-integration.md # ⚡ Supabase + RLS nativo + RAG
-│   │   ├── ✅ multi-tenant-data-isolation.md # 👥 Aislamiento: RLS + encryption + audit
-│   │   ├── ✅ redis-session-management.md # 🧠 Buffer sesión Redis para contexto
-│   │   ├── ✅ google-drive-qdrant-sync.md # 📁 Sync GDrive → Qdrant con tenant_id
-│   │   ├── ✅ google-sheets-as-database.md # 📊 Sheets como DB ligera + schema validation
-│   │   ├── ✅ airtable-database-patterns.md # 🗃️ Airtable backend para pequeños clientes
-│   │   ├── ✅ espocrm-api-analytics.md    # 📈 EspoCRM API para reportes/analytics
-│   │   ├── ✅ pdf-mistralocr-processing.md # 📄 Procesamiento PDF + extracción estructurada
-│   │   ├── ✅ rag-system-updates-all-engines.md # 🔄 Actualización/concatenación RAG
-│   │   ├── ✅ mysql-optimization-4gb-ram.md # ⚡ Optimización MySQL para VPS 4GB
-│   │   ├── ✅ db-selection-decision-tree.md # 🌳 Árbol decisión DB por caso de uso
-│   │   ├── ✅ vertical-db-schemas.md      # 🏢 Esquemas DB predefinidos por dominio
-│   │   └── ✅ environment-variable-management.md # 🔐 Gestión segura vars de entorno
-│   │
-│   ├── 📡 INFRAESTRUCTURA/ (9 ✅)
-│   │   ├── ✅ docker-compose-networking.md # 🐳 Redes Docker: bridge/overlay/secrets
-│   │   ├── ✅ vps-interconnection.md       # 🔗 Conexión segura VPS 1-2-3: WireGuard/SSH
-│   │   ├── ✅ ssh-tunnels-remote-services.md # 🕳️ Túneles SSH para MySQL/Qdrant/Redis
-│   │   ├── ✅ ufw-firewall-configuration.md # 🧱 Firewall UFW: reglas/logging/hardening
-│   │   ├── ✅ fail2ban-configuration.md    # 🚫 Protección SSH: jails/reglas/logging
-│   │   ├── ✅ ssh-key-management.md        # 🔑 Gestión claves SSH: generación/rotación
-│   │   ├── ✅ health-monitoring-vps.md     # 💓 Monitoreo VPS: CPU/RAM/disco/red
-│   │   ├── ✅ n8n-concurrency-limiting.md  # ⏱️ Limitación concurrencia n8n
-│   │   └── ✅ espocrm-setup.md             # 🏢 Instalación EspoCRM en Docker
-│   │
-│   ├── 🔒 SEGURIDAD/ (3 ✅)
-│   │   ├── ✅ security-hardening-vps.md   # 🛡️ Hardening VPS: kernel/sysctl/auditd
-│   │   ├── ✅ backup-encryption.md        # 🔐 Encriptación backups: age + checksum
-│   │   └── ✅ rsync-automation.md         # 🔄 Automatización rsync: incremental + logging
-│   │
-│   ├── 📧 COMUNICACIÓN/ (4 ✅)
-│   │   ├── ✅ telegram-bot-integration.md # 📱 Telegram Bot: alertas/atención
-│   │   ├── ✅ gmail-smtp-integration.md   # 📧 Gmail SMTP: notificaciones transaccionales
-│   │   ├── ✅ google-calendar-api-integration.md # 📅 Calendar API: reservas/recordatorios
-│   │   └── ✅ whatsapp-rag-openrouter.md  # 💬 WhatsApp + RAG + OpenRouter fallback
-│   │
-│   ├── 🧠 AGENTIC-ASSISTANCE/ (1 ✅)
-│   │   └── ✅ ide-cli-integration.md      # 💻 Integración IDE/CLI para generación asistida
-│   │
-│   ├── 🧠 DEPLOYMENT/ (1 ✅)
-│   │   └── ✅ multi-channel-deploymen.md  # 🌐 Despliegue multi-canal: WhatsApp/Telegram/Web
-│   │
-│   └── 📦 DOMINIOS VERTICALES (58 🆕 - placeholders)
-│       ├── 🆕 WHATSAPP-RAG AGENTS/       # 💬 Agentes WhatsApp + RAG multi-engine
-│       ├── 🆕 INSTAGRAM-SOCIAL-MEDIA/    # 📸 Automatización IG: API/Cloudinary/AI
-│       ├── 🆕 ODONTOLOGIA/               # 🦷 Skills clínicas dentales: citas/voice/pacientes
-│       ├── 🆕 HOTELES-POSADAS/           # 🏨 Skills hotelería: reservas/journey/monitoring
-│       ├── 🆕 RESTAURANTES/              # 🍕 Skills restaurantes: pedidos/POS/delivery
-│       ├── 🆕 CORPORATE-KB/              # 🏢 Skills KB corporativo multi-tenant
-│       └── 🆕 N8N-PATTERNS/              # ⚙️ Patrones reutilizables workflows/agentes n8n
+├── 🗺️ PROJECT_TREE.md 📝 EN PROGRESO
+│      └── Este archivo - mapa del proyecto.
 │
-├── 📁 03-AGENTS/ (10 🆕 - en desarrollo)
-│   ├── 🗂️ infrastructure/ (4 🆕)
-│   │   ├── 🆕 health-monitor-agent.md    # 💓 Agente monitoreo VPS: polling 5min
-│   │   ├── 🆕 backup-manager-agent.md    # 💾 Agente backups: diario 4AM + checksum
-│   │   ├── 🆕 alert-dispatcher-agent.md  # 📢 Agente alertas: Telegram/Gmail/Calendar
-│   │   └── 🆕 security-hardening-agent.md # 🛡️ Agente hardening: UFW/SSH/fail2ban
-│   │
-│   └── 🗂️ clients/ (3 🆕)
-│       ├── 🆕 whatsapp-attention-agent.md # 💬 Agente atención WhatsApp + uazapi + RAG
-│       ├── 🆕 rag-knowledge-agent.md      # 🧠 Agente conocimiento RAG + Qdrant + tenant_id
-│       └── 🆕 espocrm-analytics-agent.md  # 📈 Agente analytics EspoCRM para clientes Full
+├── 🕸️ knowledge-graph.json 📝 EN PROGRESO
+│      └── Representación estructurada de las relaciones entre los documentos.
 │
-├── 📁 04-WORKFLOWS/ (12 artefactos: 1 ✅ + 11 🆕)
-│   ├── ✅ sdd-universal-assistant.json   # 🔄 Ciclo generación asistida SDD Hardened
-│   ├── 🗂️ n8n/ (5 🆕)
-│   │   ├── 🆕 INFRA-001-Monitor-Salud-VPS.json    # 💓 Workflow monitoreo VPS 5min
-│   │   ├── 🆕 INFRA-002-Backup-Manager.json       # 💾 Workflow backups diario 4AM
-│   │   ├── 🆕 INFRA-003-Alert-Dispatcher.json     # 📢 Workflow despacho alertas multi-canal
-│   │   ├── 🆕 INFRA-004-Security-Hardening.json   # 🛡️ Workflow hardening cada 6h
-│   │   └── 🆕 CLIENT-001-WhatsApp-RAG.json        # 💬 Workflow atención WhatsApp + RAG
-│   │
-│   └── 🗂️ diagrams/ (3 🆕)
-│       ├── 🆕 architecture-overview.png  # 🏗️ Diagrama arquitectura 3 VPS + redes
-│       ├── 🆕 data-flow.png              # 🌊 Diagrama flujo datos: ingest→RAG→respuesta
-│       └── 🆕 security-architecture.png  # 🔐 Diagrama seguridad: capas/gates/audit
+├── 🤝 SDD-COLLABORATIVE-GENERATION.md ✅ COMPLETADO
+│      └── Sistema colaborativo IA-Humano para la generación de archivos internos del proyecto.
 │
-├── 📁 05-CONFIGURATIONS/ (68 artefactos: 46 ✅ + 22 🆕)
-│   ├── ✅ 00-INDEX.md                    # 📑 Índice maestro + registro integridad
-│   │
-│   ├── 🐳 docker-compose/ (4 ✅)
-│   │   ├── ✅ 00-INDEX.md                # 📑 Índice compose con mapeo VPS
-│   │   ├── ✅ vps1-n8n-uazapi.yml        # 🖥️ VPS 1: n8n + uazapi + Redis
-│   │   ├── ✅ vps2-crm-qdrant.yml        # 🖥️ VPS 2: EspoCRM + MySQL + Qdrant
-│   │   └── ✅ vps3-n8n-uazapi.yml        # 🖥️ VPS 3: réplica n8n + uazapi + Redis
-│   │
-│   ├── 🌍 environment/ (2 ✅)
-│   │   ├── ✅ .env.example               # 🔐 Ejemplo vars entorno (sin valores reales)
-│   │   └── ✅ otel-tracing-config.yaml   # 📊 OpenTelemetry: trazas/métricas/logs
-│   │
-│   ├── 🔄 pipelines/ (8 ✅)
-│   │   ├── ✅ provider-router.yml        # 🔄 Enrutamiento dinámico inferencia IA
-│   │   ├── ✅ .github/workflows/integrity-check.yml  # ✅ Validación diaria: frontmatter/wikilinks
-│   │   ├── ✅ .github/workflows/validate-skill.yml   # ✅ Validación skills: lint/tests/Promptfoo
-│   │   ├── 🆕 .github/workflows/terraform-plan.yml   # 🏗️ Plan Terraform + security scan
-│   │   ├── ✅ promptfoo/config.yaml      # 🧪 Evaluación prompts autogeneración
-│   │   ├── ✅ promptfoo/assertions/schema-check.yaml # 🔍 Validación schema JSON outputs
-│   │   ├── ✅ promptfoo/test-cases/resource-limits.yaml # ⚡ Casos prueba límites recursos C1-C2
-│   │   └── ✅ promptfoo/test-cases/tenant-isolation.yaml # 👥 Casos prueba aislamiento C4
-│   │
-│   ├── 🛠️ scripts/ (8 artefactos: 7 ✅ + 1 🆕)
-│   │   ├── 🆕 00-INDEX.md                # 📑 Índice scripts bash con propósito/uso
-│   │   ├── ✅ VALIDATOR_DOCUMENTATION.md # 📚 Documentación validadores + constraints
-│   │   ├── ✅ backup-mysql.sh            # 💾 Backup MySQL diario 4AM + checksum
-│   │   ├── ✅ generate-repo-validation-report.sh # 📊 Reporte validación estructura completa
-│   │   ├── ✅ health-check.sh            # 💓 Health check VPS cada 5min + alertas
-│   │   ├── ✅ packager-assisted.sh       # 📦 Empaquetado skills IA → ZIP listo para deploy
-│   │   ├── ✅ sync-to-sandbox.sh         # 🔄 Sync seguro main→sandbox sin git push
-│   │   └── ✅ validate-against-specs.sh  # ✅ Validación automática constraints C1-C6 pre-commit
-│   │
-│   ├── 📋 templates/ (8 artefactos: 4 ✅ + 4 🆕)
-│   │   ├── ✅ skill-template.md          # 📝 Plantilla base skills: frontmatter + ejemplos
-│   │   ├── ✅ example-template.md        # ✅/❌/🔧 Plantilla ejemplos + troubleshooting
-│   │   ├── ✅ bootstrap-company-context.json # 🏢 Configuración onboarding contexto empresa
-│   │   ├── 🆕 pipeline-template.yml      # 🔄 Plantilla base GitHub Actions con jobs esenciales
-│   │   └── 🗂️ terraform-module-template/ (4 artefactos: 1 ✅ + 3 🆕)
-│   │       ├── ✅ main.tf                # 🏗️ Estructura mínima módulo Terraform reusable
-│   │       ├── 🆕 outputs.tf             # 📤 Outputs tipados para consumo agentes
-│   │       ├── 🆕 variables.tf           # 🔧 Variables con validaciones: min/max/regex
-│   │       └── 🆕 README.md              # 📋 Documentación módulo con ejemplos de uso
-│   │
-│   ├── 🏗️ terraform/ (19 artefactos: 10 ✅ + 9 🆕)
-│   │   ├── ✅ backend.tf                 # 🗄️ Remote state S3/Supabase + locking
-│   │   ├── ✅ variables.tf               # 🔧 Variables globales con validaciones
-│   │   ├── 🆕 outputs.tf                 # 📤 Outputs tipados para agentes/pipelines
-│   │   ├── 🗂️ environments/ (3 🆕)
-│   │   │   ├── 🆕 dev/terraform.tfvars   # 🔧 Variables desarrollo (no sensibles)
-│   │   │   ├── 🆕 prod/terraform.tfvars  # 🔧 Variables producción (referenciar vault)
-│   │   │   └── 🆕 variables.tf           # 🔧 Validaciones entorno: regex/types/ranges
-│   │   │
-│   │   └── 🗂️ modules/ (15 artefactos: 9 ✅ + 6 🆕)
-│   │       ├── 🗂️ vps-base/ (3 ✅)
-│   │       │   ├── ✅ main.tf            # 🖥️ Configuración base VPS: UFW/fail2ban/users
-│   │       │   ├── ✅ outputs.tf         # 📤 Outputs VPS: IP/hostname/health endpoint
-│   │       │   └── ✅ variables.tf       # 🔧 Variables VPS: size/region/ssh_key/monitoring
-│   │       │
-│   │       ├── 🗂️ postgres-rls/ (3 ✅)
-│   │       │   ├── ✅ main.tf            # 🔐 Políticas RLS PostgreSQL: tenant_id enforcement
-│   │       │   ├── ✅ outputs.tf         # 📤 Outputs RLS: policy_names/audit_table/rollback
-│   │       │   └── ✅ variables.tf       # 🔧 Variables RLS: tenant_column/policy_prefix/audit
-│   │       │
-│   │       ├── 🗂️ qdrant-cluster/ (3 🆕)
-│   │       │   ├── 🆕 main.tf            # 🔷 Configuración cluster Qdrant: replicas/persistence
-│   │       │   ├── 🆕 outputs.tf         # 📤 Outputs Qdrant: endpoint/api_key/health
-│   │       │   └── 🆕 variables.tf       # 🔧 Variables Qdrant: cluster_size/snapshot_path/tenant
-│   │       │
-│   │       ├── 🗂️ openrouter-proxy/ (3 🆕)
-│   │       │   ├── 🆕 main.tf            # 🔄 Proxy enrutamiento proveedores IA + rate limiting
-│   │       │   ├── 🆕 outputs.tf         # 📤 Outputs proxy: endpoint/metrics_url/fallback
-│   │       │   └── 🆕 variables.tf       # 🔧 Variables proxy: api_key_vault/rate_limit/timeout
-│   │       │
-│   │       └── 🗂️ backup-encrypted/ (3 artefactos: 2 ✅ + 1 🆕)
-│   │           ├── 🆕 main.tf            # 🔐 Backup con encriptación age + checksum verification
-│   │           ├── ✅ outputs.tf         # 📤 Outputs backup: last_success/checksum/rollback_point
-│   │           └── ✅ variables.tf       # 🔧 Variables backup: retention_days/encryption_key/schedule
-│   │
-│   └── 🔍 validation/ (10 ✅)
-│       ├── ✅ audit-secrets.sh           # 🔍 Detección hardcoded creds/keys/tokens
-│       ├── ✅ check-rls.sh               # 🔐 Validación políticas RLS: presencia/sintaxis/tenant_id
-│       ├── ✅ check-wikilinks.sh         # 🔗 Detección enlaces rotos/inexistentes Obsidian
-│       ├── ✅ norms-matrix.json          # 📐 Matriz aplicación constraints C1-C8 por ubicación
-│       ├── ✅ orchestrator-engine.sh     # ⚙️ Sistema nervioso: normas C1-C8 → decisiones binarias
-│       ├── ✅ schema-validator.py        # 🔍 Validación JSON Schema outputs meta-prompting
-│       ├── ✅ schemas/skill-input-output.schema.json # 📐 Esquema estricto salida agentes generadores
-│       ├── ✅ validate-frontmatter.sh    # ✅ Validación frontmatter YAML: campos requeridos/tipos/semver
-│       ├── ✅ validate-skill-integrity.sh # ✅ Validación skill: ejemplos/constraints/validation_command
-│       └── ✅ verify-constraints.sh      # ✅ Verificación presencia explícita constraints C1-C6 en ejemplos
+├── 🧰 TOOLCHAIN-REFERENCE.md ✅ COMPLETADO
+│      └── Documentación técnica centralizada para el uso, integración y 
+|          mantenimiento de los validadores y scripts operativos del 
+|          ecosistema MANTIS AGENTIC.
 │
-├── 📁 06-PROGRAMMING/ (18 🆕 - patrones por lenguaje)
-│   ├── 🗂️ bash/ (10 🆕)
-│   │   ├── 🆕 00-INDEX.md                # 📑 Índice patrones Bash: enlaces/madurez/constraints
-│   │   ├── 🆕 robust-error-handling.md   # ⚠️ set -euo pipefail/trap/fallbacks ${VAR:?missing}
-│   │   ├── 🆕 filesystem-sandboxing.md   # 🔒 Rutas canónicas/chmod/chattr/límites escritura
-│   │   ├── 🆕 git-disaster-recovery.md   # 🔄 Snapshots preventivos/git stash/archive/rollback checksum
-│   │   ├── 🆕 orchestrator-routing.md    # ⚙️ Modo headless/dispatch validadores/routing JSON/scoring ≥30
-│   │   ├── 🆕 context-compaction-utils.md # 🧠 Extracción contexto crítico/dossiers handoff/logging
-│   │   ├── 🆕 hardening-verification.md  # 🛡️ Protocolo pre-vuelo: checklist/--dry-run/inmutabilidad/gate
-│   │   ├── 🆕 fix-sintaxis-code.md       # 🔧 Control errores sintácticos: bash -n/shellcheck/quoting seguro
-│   │   ├── 🆕 yaml-frontmatter-parser.md # 📄 Parsing seguro awk/grep: validación campos/sin dependencias
-│   │   └── 🆕 filesystem-sandbox-sync.md # 🔄 Sincronización rsync main→sandbox + exclusión + validación
+├── 📁 00-CONTEXT/
+│   ├── 📑 00-INDEX.md ✅ COMPLETADO
+│   │      └── Índice con URLs raw de todos los archivos de contexto.
 │   │
-│   ├── 🗂️ python/ (4 🆕)
-│   │   ├── 🆕 00-INDEX.md                # 📑 Índice patrones Python con ejemplos/constraints
-│   │   ├── 🆕 api-call-patterns.md       # 🌐 Patrones requests: retry/timeout/logging
-│   │   ├── 🆕 telegram-bot-integration.md # 📱 Telegram Bot Python: webhook/polling/RAG
-│   │   └── 🆕 google-calendar-api.md     # 📅 Calendar API Python: OAuth2/events/reminders
+│   ├── 🌐 PROJECT_OVERVIEW.md ✅ COMPLETADO
+│   │      └── Visión general bilingüe (ES+PT-BR) del proyecto completo.
 │   │
-│   ├── 🗂️ sql/ (4 🆕)
-│   │   ├── 🆕 00-INDEX.md                # 📑 Índice patrones SQL con optimizaciones/RLS
-│   │   ├── 🆕 multi-tenant-schema.md     # 👥 Esquema multi-tenant MySQL: tenant_id/índices/particionamiento
-│   │   ├── 🆕 indexed-queries.md         # ⚡ Queries optimizadas: EXPLAIN/covering indexes/avoiding N+1
-│   │   └── 🆕 backup-restore-commands.md # 💾 Comandos SQL backup/restore: mysqldump/point-in-time
+│   ├── 📋 README.md ✅ COMPLETADO
+│   │      └── Reglas del repositorio, accesible para todas las IAs.
 │   │
-│   └── 🗂️ javascript/ (3 🆕)
-│       ├── 🆕 00-INDEX.md                # 📑 Índice patrones JS: enfoque n8n/frontend
-│       ├── 🆕 n8n-function-node-patterns.md # ⚙️ Patrones Function Node n8n: error handling/async/tenant_id
-│       └── 🆕 async-error-handling.md    # ⚠️ Manejo errores async JS: try/catch/Promise.allSettled
+│   ├── 👤 facundo-core-context.md ✅ COMPLETADO
+│   │      └── Contexto base del usuario: dominio, stack, forma de trabajo.
+│   │
+│   ├── 🖥️ facundo-infrastructure.md ✅ COMPLETADO
+│   │      └── Detalle técnico de infraestructura (3 VPS, specs, red).
+│   │
+│   ├── 💼 facundo-business-model.md ✅ COMPLETADO
+│   │      └── Modelo de negocio, pricing, SLA, proyecciones financieras.
+│   │
+│   └── ✅ documentation-validation-cheklist.md ✅ COMPLETADO
+│          └── Es material educativo de contexto; ayuda a entender el 
+|              "por qué" de Reglas, Constraints, Validación, Referencias.
 │
-├── 📁 07-PROCEDURES/ (9 🆕 - procedimientos operativos)
-│   ├── 🆕 00-INDEX.md                    # 📑 Índice procedimientos con pasos numerados
-│   ├── 🆕 vps-initial-setup.md           # 🖥️ Configuración inicial VPS: 12 pasos
-│   ├── 🆕 onboarding-client.md           # 👥 Onboarding clientes: 12 pasos
-│   ├── 🆕 incident-response-checklist.md # 🚨 Respuesta incidentes: 12 pasos
-│   ├── 🆕 backup-restore-test.md         # 💾 Test restauración backup: 12 pasos
-│   ├── 🆕 scaling-decision-matrix.md     # 📈 Matriz decisión escalamiento: métricas/umbrales
-│   ├── 🆕 fire-drill-test-procedures.md  # 🔥 Test incendio: 5 escenarios
-│   ├── 🆕 backup-restore-procedures.md   # 💾 Procedimientos detallados backup/restore
-│   └── 🆕 monitoring-alerts-procedures.md # 💓 Procedimientos alertas monitoreo: umbrales/canales/escalation
+├── 📁 01-RULES/
+│   ├── ✅ validation-checklist.md ✅ COMPLETADO
+│   │      └── Está directamente ligado a las reglas de validación; referencia MT-001, API-001, etc.
+│   │
+│   ├── 📑 00-INDEX.md ✅ COMPLETADO
+│   │      └── Índice de todas las rules con URLs raw y flujo de lectura.
+│   │
+│   ├── 🏗️ 01-ARCHITECTURE-RULES.md ✅ COMPLETADO
+│   │      └── Constraints de infraestructura (VPS, Docker, red, servicios).
+│   │
+│   ├── ⚡ 02-RESOURCE-GUARDRAILS.md ✅ COMPLETADO
+│   │      └── Límites de recursos para VPS 4GB RAM (memoria, CPU, polling).
+│   │
+│   ├── 🔐 03-SECURITY-RULES.md ✅ COMPLETADO
+│   │ └── Seguridad de VPS: UFW, SSH, fail2ban, permisos, secretos.
+│   │
+│   ├── 🌐 04-API-RELIABILITY-RULES.md ✅ COMPLETADO
+│   │      └── Estándar de fiabilidad para APIs externas (OpenRouter, Telegram, Gmail).
+│   │
+│   ├── 💻 05-CODE-PATTERNS-RULES.md ✅ COMPLETADO
+│   │      └── Patrones de código para JS, Python, SQL, Docker Compose, Bash.
+│   │
+│   ├── 👥 06-MULTITENANCY-RULES.md ✅ COMPLETADO
+│   │      └── Aislamiento de datos por tenant en MySQL y Qdrant.
+│   │
+│   ├── 📈 07-SCALABILITY-RULES.md ✅ COMPLETADO
+│   │      └── Criterios para escalar clientes por VPS (fases 1-2-3).
+│   │
+│   ├── 🔗 08-SKILLS-REFERENCE.md ✅ COMPLETADO
+│   │      └── Pointer a skills reutilizables en 02-SKILLS/.
+│   │
+│   └── 📤 09-AGENTIC-OUTPUT-RULES.md ✅ COMPLETADO
+│          └── Asistente de salidas para producción SDD.
 │
-├── 📁 08-LOGS/ (4 artefactos: 1 ✅ + 3 🆕)
-│   ├── 🆕 00-INDEX.md                    # 📑 Índice logs con política rotación
-│   ├── ✅ .gitkeep                       # 📁 Placeholder para mantener carpeta en Git
-│   ├── ✅ validation/.gitkeep            # 📁 Placeholder logs scripts integridad
-│   └── ✅ generation/.gitkeep            # 📁 Placeholder logs autogeneración IA
-│   # 🔒 Política: *-report.json excluidos por .gitignore para evitar contaminación contexto
+├── 📁 02-SKILLS/
+│   ├── 📑 00-INDEX.md ✅ COMPLETADO
+│   │      └── Índice maestro de skills.
+│   │
+│   ├── 🗺️ skill-domains-mapping.md ✅ COMPLETADO
+│   │      └── Mapeo semántico de dominios a skills.
+│   │
+│   ├── 🧠 GENERATION-MODELS.md ✅ COMPLETADO
+│   │      └── Modelos de generación SDD para MANTIS AGENTIC.
+│   │
+│   ├── 🤖 AI/
+│   │ ├── openrouter-integration.md ✅ COMPLETADO
+│   │ ├── mistral-ocr-integration.md ✅ COMPLETADO
+│   │ ├── qwen-integration.md ✅ COMPLETADO
+│   │ ├── llama-integration.md ✅ COMPLETADO
+│   │ ├── gemini-integration.md ✅ COMPLETADO
+│   │ ├── gpt-integration.md ✅ COMPLETADO
+│   │ ├── deepseek-integration.md ✅ COMPLETADO
+│   │ ├── minimax-integration.md ✅ COMPLETADO
+│   │ ├── voice-agent-integration.md ✅ COMPLETADO
+│   │ ├── image-gen-api.md ✅ COMPLETADO
+│   │ └── video-gen-api.md ✅ COMPLETADO
+│   │
+│   ├── 📡 INFRAESTRUCTURA/
+│   │ ├── ssh-tunnels-remote-services.md ✅ COMPLETADO
+│   │ │   └── Túneles SSH para MySQL, Qdrant entre VPS.
+│   │ ├── docker-compose-networking.md ✅ COMPLETADO
+│   │ │   └── Redes Docker entre VPS.
+│   │ ├── espocrm-setup.md ✅ COMPLETADO
+│   │ │   └── Instalación de EspoCRM.
+│   │ ├── fail2ban-configuration.md ✅ COMPLETADO
+│   │ │   └── Protección SSH con fail2ban.
+│   │ ├── ufw-firewall-configuration.md ✅ COMPLETADO
+│   │ │   └── Firewall UFW en VPS.
+│   │ ├── ssh-key-management.md ✅ COMPLETADO
+│   │ │   └── Gestión de claves SSH.
+│   │ ├── n8n-concurrency-limiting.md ✅ COMPLETADO
+│   │ │   └── Limitación de concurrencia en n8n.
+│   │ ├── health-monitoring-vps.md ✅ COMPLETADO
+│   │ │   └── Agentes de monitoreo de salud VPS.
+│   │ ├── vps-interconnection.md ✅ COMPLETADO
+│   │ │   └── Conexión entre VPS 1-2-3.
+│   │ ├── redis-session-management.md ✅ COMPLETADO
+│   │ │   └── Buffer de sesión para contexto de conversación.
+│   │ └── environment-variable-management.md ✅ COMPLETADO
+│   │     └── Gestión de variables de entorno.
+│   │
+│   ├── 🗄️ BASE DE DATOS-RAG/
+│   │ ├── qdrant-rag-ingestion.md ✅ COMPLETADO
+│   │ │   └── Ingesta de documentos en Qdrant con tenant_id.
+│   │ ├── mysql-sql-rag-ingestion.md ✅ COMPLETADO
+│   │ │   └── MySQL/SQL, RAG Ingestion patterns base de datos.
+│   │ ├── rag-system-updates-all-engines.md ✅ COMPLETADO
+│   │ │   └── Actualización, reemplazo, concatenación de BD RAG.
+│   │ ├── multi-tenant-data-isolation.md ✅ COMPLETADO
+│   │ │   └── Aislamiento de datos por tenant.
+│   │ ├── postgres-prisma-rag.md ✅ COMPLETADO
+│   │ │   └── PostgreSQL + Prisma para RAG.
+│   │ ├── supabase-rag-integration.md ✅ COMPLETADO
+│   │ │   └── Supabase + RAG patterns.
+│   │ ├── pdf-mistralocr-processing.md ✅ COMPLETADO
+│   │ │   └── PDF parsing con Mistral OCR.
+│   │ ├── google-drive-qdrant-sync.md ✅ COMPLETADO
+│   │ │   └── Sincronización Google Drive → Qdrant.
+│   │ ├── espocrm-api-analytics.md ✅ COMPLETADO
+│   │ │   └── Uso de EspoCRM API para reportes.
+│   │ ├── airtable-database-patterns.md ✅ COMPLETADO
+│   │ │   └── Uso de Airtable.
+│   │ ├── google-sheets-as-database.md ✅ COMPLETADO
+│   │ │   └── Uso de Google Sheets.
+│   │ └── mysql-optimization-4gb-ram.md ✅ COMPLETADO
+│   │     └── Optimización MySQL para VPS 4GB.
+│   │
+│   ├── 📱 WHATSAPP-RAG AGENTS/
+│   │ ├── whatsapp-rag-openrouter.md 🆕 PENDIENTE
+│   │ │   └── Patrones para agentes WhatsApp con RAG Qdrant, Prisma, Supabase,
+|   | |       GoogleDrive, MySQL, SQL, PostgreSQL, ChromeDB, Google Sheets, 
+|   | |       Airtable DB, en Openrouter, GPT, Claude, Qwen, DeepSeek, Minimax.
+│   │ ├── whatsapp-uazapi-integration.md 🆕 PENDIENTE
+│   │ │   └── Integración con uazapi.
+│   │ ├── telegram-bot-integration.md 🆕 PENDIENTE
+│   │ │   └── Integración Telegram Bot.
+│   │ └── multi-channel-routing.md 🆕 NUEVO
+│   │     └── Routing WhatsApp + Telegram.
+│   │
+│   ├── 📸 INSTAGRAM-SOCIAL-MEDIA/
+│   │ ├── instagram-api-integration.md 🆕 NUEVO
+│   │ │   └── API de Instagram para automatización.
+│   │ ├── cloudinary-media-management.md 🆕 NUEVO
+│   │ │   └── Cloudinary para imágenes/videos.
+│   │ ├── ai-image-generation.md 🆕 NUEVO
+│   │ │   └── Generación de imágenes con AI.
+│   │ ├── ai-video-creation.md 🆕 NUEVO
+│   │ │   └── Creación de reels con AI.
+│   │ ├── multi-platform-posting.md 🆕 NUEVO
+│   │ │   └── Posting a TikTok, Instagram, FB.
+│   │ └── social-media-alerts-telegram.md 🆕 NUEVO
+│   │     └── Alertas Telegram para social media.
+│   │
+│   ├── 🦷 ODONTOLOGÍA/
+│   │ ├── dental-appointment-automation.md 🆕 NUEVO
+│   │ │   └── Automatización de citas dentales.
+│   │ ├── voice-agent-dental.md 🆕 NUEVO
+│   │ │   └── Voice agent con Gemini AI.
+│   │ ├── google-calendar-dental.md 🆕 NUEVO
+│   │ │   └── Google Calendar para clínicas.
+│   │ ├── supabase-dental-patient.md 🆕 NUEVO
+│   │ │   └── Supabase para gestión de pacientes.
+│   │ ├── phone-integration-dental.md 🆕 NUEVO
+│   │ │   └── Integración telefónica.
+│   │ └── gmail-smtp-integration.md 🆕 PENDIENTE
+│   │     └── Integración Gmail SMTP.
+│   │
+│   ├── 🏨 HOTELES-POSADAS/
+│   │ ├── hotel-booking-automation.md 🆕 NUEVO
+│   │ │   └── Automatización de reservas hoteleras.
+│   │ ├── hotel-receptionist-whatsapp.md 🆕 NUEVO
+│   │ │   └── Recepcionista WhatsApp con Gemini.
+│   │ ├── hotel-competitor-monitoring.md 🆕 NUEVO
+│   │ │   └── Monitoreo de competidores.
+│   │ ├── hotel-guest-journey.md 🆕 NUEVO
+│   │ │   └── Journey del huésped.
+│   │ ├── hotel-pre-arrival-messages.md 🆕 NUEVO
+│   │ │   └── Mensajes pre-llegada.
+│   │ ├── redis-session-management.md 🆕 NUEVO
+│   │ │   └── Redis para sesiones.
+│   │ └── slack-hotel-integration.md 🆕 NUEVO
+│   │     └── Slack para equipos hoteleros.
+│   │
+│   ├── 🍕 RESTAURANTES/
+│   │ ├── restaurant-booking-ai.md 🆕 NUEVO
+│   │ │   └── Sistema de reservas con AI.
+│   │ ├── restaurant-order-chatbot.md 🆕 NUEVO
+│   │ │   └── Chatbot de pedidos con qwen3.5.
+│   │ ├── restaurant-pos-integration.md 🆕 NUEVO
+│   │ │   └── Integración POS.
+│   │ ├── restaurant-voice-agents.md 🆕 NUEVO
+│   │ │   └── Voice agents para restaurantes.
+│   │ ├── restaurant-menu-management.md 🆕 NUEVO
+│   │ │   └── Gestión de menús.
+│   │ ├── restaurant-delivery-tracking.md 🆕 NUEVO
+│   │ │   └── Tracking de delivery.
+│   │ ├── restaurant-google-maps-leadgen.md 🆕 NUEVO
+│   │ │   └── Lead generation desde Google Maps.
+│   │ ├── apify-web-scraping.md 🆕 NUEVO
+│   │ │   └── Web scraping con Apify.
+│   │ ├── airtable-restaurant-db.md 🆕 NUEVO
+│   │ │   └── Patrones Airtable para restaurantes.
+│   │ └── restaurant-multi-channel-receptionist.md 🆕 NUEVO
+│   │     └── Recepcionista multi-canal.
+│   │
+│   ├── 📧 CORPORATE-KB/
+│   │ ├── corp-kb-ingestion-pipeline.md 🆕 NUEVO
+│   │ ├── corp-kb-rag-telegram.md 🆕 NUEVO
+│   │ ├── corp-kb-rag-whatsapp.md 🆕 NUEVO
+│   │ ├── corp-kb-multi-tenant-isolation.md 🆕 NUEVO
+│   │ └── corp-kb-content-templates.md 🆕 NUEVO
+│   │
+│   ├── 📧 COMUNICACIÓN/
+│   │ ├── telegram-bot-integration.md ✅ COMPLETADO
+│   │ │   └── Integración con Telegram Bot.
+│   │ ├── gmail-smtp-integration.md ✅ COMPLETADO
+│   │ │   └── Integración con Gmail SMTP.
+│   │ ├── google-calendar-api-integration.md ✅ COMPLETADO
+│   │ │   └── Integración Google Calendar API.
+│   │ ├── email-notification-patterns.md 🆕 NUEVO
+│   │ │   └── Patrones de notificaciones email.
+│   │ ├── whatsapp-rag-openRouter ✅ COMPLETADO
+│   │ │   └── Patrones de manejo de RAG.
+│   │ └── whatsapp-uazapi-integration.md 🆕 PENDIENTE
+│   │     └── Interoperatividad WhatsApp y uazapi.
+│   │
+│   ├── 🔒 SEGURIDAD/
+│   │ ├── backup-encryption.md ✅ COMPLETADO
+│   │ │   └── Encriptación de backups.
+│   │ ├── rsync-automation.md ✅ COMPLETADO
+│   │ │   └── Automatización rsync.
+│   │ └── security-hardening-vps.md ✅ COMPLETADO
+│   │     └── Hardening de VPS.
+│   │
+│   ├── 🧠 N8N-PATTERNS/
+│   │ ├── n8n-workflow-patterns.md 🆕 PENDIENTE
+│   │ │   └── Patrones reutilizables para workflows.
+│   │ ├── n8n-agent-patterns.md 🆕 NUEVO
+│   │ │   └── Patrones de agentes LangChain.
+│   │ └── n8n-error-handling.md 🆕 NUEVO
+│   │     └── Manejo de errores en n8n.
+│   │
+│   ├── 🧠 AGENTIC-ASSISTANCE/
+│   │ └── ide-cli-integration.md ✅ COMPLETADO
+│   │     └── Integración IDE & CLI para Generación Asistida y Autogeneración SDD.
+│   │
+│   └── 🧠 DEPLOYMENT/
+│       └── multi-channel-deploymen.md ✅ COMPLETADO
 │
-└── 📁 09-TEST-SANDBOX/ (15 artefactos: 1 ✅ + 14 🆕)
-    ├── ✅ README.md                      # 📋 Guía uso sandbox: propósito/reglas/limpieza
-    │
-    ├── 🗂️ qwen/ (3 ✅)
-    │   ├── ✅ GOVERNANCE-ORCHESTRATOR.md # 🛡️ Gobernanza Qwen: constraints/validación/output
-    │   ├── ✅ orchestrator-engine.sh     # ⚙️ Validador adaptado Qwen: headless/scoring/reporting
-    │   └── ✅ .gitkeep                   # 📁 Placeholder outputs generación Qwen
-    │
-    ├── 🗂️ deepseek/ (3 ✅)
-    │   ├── ✅ GOVERNANCE-ORCHESTRATOR.md # 🛡️ Gobernanza DeepSeek: SQL/RAG/multi-tenant
-    │   ├── ✅ orchestrator-engine.sh     # ⚙️ Validador adaptado DeepSeek: parsing SQL/RLS checks
-    │   └── ✅ .gitkeep                   # 📁 Placeholder outputs generación DeepSeek
-    │
-    ├── 🗂️ gemini/ (3 ✅)
-    │   ├── ✅ GOVERNANCE-ORCHESTRATOR.md # 🛡️ Gobernanza Gemini: voice/calendar/multimodal
-    │   ├── ✅ orchestrator-engine.sh     # ⚙️ Validador adaptado Gemini: prompt safety/output schema
-    │   └── ✅ .gitkeep                   # 📁 Placeholder outputs generación Gemini
-    │
-    ├── 🗂️ minimax/ (3 ✅)
-    │   ├── ✅ GOVERNANCE-ORCHESTRATOR.md # 🛡️ Gobernanza Minimax: voz/texto/low-latency
-    │   ├── ✅ orchestrator-engine.sh     # ⚙️ Validador adaptado Minimax: streaming/fallback/logging
-    │   └── ✅ .gitkeep                   # 📁 Placeholder outputs generación Minimax
-    │
-    ├── 🗂️ claude/ (1 🆕)
-    │   └── 🆕 .gitkeep                   # 📁 Placeholder pruebas Claude (futuro)
-    │
-    └── 🗂️ comparison/ (1 🆕)
-        └── 🆕 .gitkeep                   # 📁 Placeholder comparativas multi-modelo
+├── 📁 03-AGENTS/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de todos los agentes.
+│   │
+│   ├── 📁 infrastructure/
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de agentes de infraestructura.
+│   │ ├── health-monitor-agent.md 🆕 PENDIENTE
+│   │ │   └── Agente de monitoreo de salud de VPS (polling cada 5 min).
+│   │ ├── backup-manager-agent.md 🆕 PENDIENTE
+│   │ │   └── Agente de gestión de backups (diario 4 AM).
+│   │ ├── alert-dispatcher-agent.md 🆕 PENDIENTE
+│   │ │   └── Agente de despacho de alertas (Telegram, Gmail, Calendar).
+│   │ └── security-hardening-agent.md 🆕 PENDIENTE
+│   │     └── Agente de endurecimiento de seguridad (UFW, SSH, fail2ban).
+│   │
+│   └── 📁 clients/
+│     ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│     │      └── Índice de agentes de clientes.
+│     ├── whatsapp-attention-agent.md 🆕 PENDIENTE
+│     │   └── Agente de atención por WhatsApp (uazapi + RAG + OpenRouter).
+│     ├── rag-knowledge-agent.md 🆕 PENDIENTE
+│     │   └── Agente de conocimiento RAG (Qdrant + tenant_id).
+│     └── espocrm-analytics-agent.md 🆕 PENDIENTE
+│         └── Agente de analytics de EspoCRM (reportes para clientes Full).
+│
+├── 📁 04-WORKFLOWS/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de todos los workflows.
+│   ├── 🔄 sdd-assisted-generation-loop.json ✅ COMPLETADO ????
+│   │      └── Ciclo de generación asistida y autogeneración SDD Hardened.
+│   │
+│   ├── 📁 n8n/
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de workflows de n8n.
+│   │ ├── INFRA-001-Monitor-Salud-VPS.json 🆕 PENDIENTE
+│   │ │   └── Workflow de monitoreo de salud de VPS (cada 5 min).
+│   │ ├── INFRA-002-Backup-Manager.json 🆕 PENDIENTE
+│   │ │   └── Workflow de gestión de backups (diario 4 AM).
+│   │ ├── INFRA-003-Alert-Dispatcher.json 🆕 PENDIENTE
+│   │ │   └── Workflow de despacho de alertas.
+│   │ ├── INFRA-004-Security-Hardening.json 🆕 PENDIENTE
+│   │ │   └── Workflow que verifica y aplica configuraciones de seguridad en los VPS (cada 6 horas).
+│   │ └── CLIENT-001-WhatsApp-RAG.json 🆕 PENDIENTE
+│   │     └── Workflow de atención WhatsApp con RAG.
+│   │
+│   └── 📁 diagrams/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de diagramas.
+│   ├── architecture-overview.png 🆕 PENDIENTE
+│   │   └── Diagrama de arquitectura de 3 VPS.
+│   ├── data-flow.png 🆕 PENDIENTE
+│   │   └── Diagrama de flujo de datos.
+│   └── security-architecture.png 🆕 PENDIENTE
+│       └── Diagrama de arquitectura de seguridad.
+│
+├── 📁 05-CONFIGURATIONS/
+│   ├── 📑 00-INDEX.md ✅ COMPLETADO
+│   │      └── Índice maestro y registro de integridad para el directorio 
+|   |          05-CONFIGURATIONS/. Centraliza referencias canónicas, mapeo 
+|   |          de constraints (C1-C8), y rutas de validación cruzada. Este 
+|   |          documento actúa como hub de navegación técnica y punto de 
+|   |          entrada obligatorio para ciclos SDD (Collaborative/Automated).
+│   │
+│   ├── 📁 observability/
+│   │ └── otel-tracing-config.yaml ✅ COMPLETADO
+│   │     └── Configuración para la captura, procesamiento y exportación de trazas,
+|   |         métricas y logs estructurados desde los agentes generadores y aplicaciones desplegadas.
+│   │
+│   ├── 📁 docker-compose/
+│   │ ├── 📑 00-INDEX.md ✅ COMPLETADO
+│   │ │      └── Índice de archivos docker-compose.
+│   │ ├── vps1-n8n-uazapi.yml ✅ COMPLETADO
+│   │ │   └── Docker Compose para VPS 1 (n8n + uazapi).
+│   │ ├── vps2-crm-qdrant.yml ✅ COMPLETADO
+│   │ │   └── Docker Compose para VPS 2 (EspoCRM + MySQL + Qdrant).
+│   │ └── vps3-n8n-uazapi.yml ✅ COMPLETADO
+│   │     └── Docker Compose para VPS 3 (n8n + uazapi+ Redis).
+│   │
+│   ├── 📁 terraform/ # 🔹 Módulos IaC reusables
+│   │ ├── 📁 modules/
+│   │ │ ├── 📁 vps-base/ # C1/C2: limits, UFW, fail2ban
+│   │ │ │ ├── main.tf ✅ COMPLETADO
+│   │ │ │ ├── outputs.tf ✅ COMPLETADO
+│   │ │ │ ├── variables.tf ✅ COMPLETADO
+│   │ │ │ ├── 📁 main/ 🆕 PENDIENTE
+│   │ │ │ ├── 📁 output/ 🆕 PENDIENTE
+│   │ │ │ └── 📁 variable/ 🆕 PENDIENTE
+│   │ │ ├── 📁 qdrant-cluster/ # C3: localhost-only, tenant isolation 🆕 PENDIENTE
+│   │ │ │ ├── main.tf 🆕 PENDIENTE
+│   │ │ │ ├── outputs.tf 🆕 PENDIENTE
+│   │ │ │ ├── variables.tf 🆕 PENDIENTE
+│   │ │ │ ├── 📁 main/ 🆕 PENDIENTE
+│   │ │ │ ├── 📁 output/ 🆕 PENDIENTE
+│   │ │ │ └── 📁 variable/ 🆕 PENDIENTE
+│   │ │ ├── 📁 postgres-rls/ # C4: RLS policies, tenant_id enforcement
+│   │ │ │ ├── main.tf ✅ COMPLETADO
+│   │ │ │ ├── outputs.tf ✅ COMPLETADO
+│   │ │ │ ├── variables.tf ✅ COMPLETADO
+│   │ │ │ ├── 📁 main/ 🆕 PENDIENTE
+│   │ │ │ ├── 📁 output/ 🆕 PENDIENTE
+│   │ │ │ └── 📁 variable/ 🆕 PENDIENTE
+│   │ │ ├── 📁 openrouter-proxy/ # C6: cloud-only inference routing 🆕 PENDIENTE
+│   │ │ │ ├── main.tf 🆕 PENDIENTE
+│   │ │ │ ├── outputs.tf 🆕 PENDIENTE
+│   │ │ │ ├── variables.tf 🆕 PENDIENTE
+│   │ │ │ ├── 📁 main/ 🆕 PENDIENTE
+│   │ │ │ ├── 📁 output/ 🆕 PENDIENTE
+│   │ │ │ └── 📁 variable/ 🆕 PENDIENTE
+│   │ │ └── 📁 backup-encrypted/ # C5: SHA256 + age encryption
+│   │ │   ├── main.tf 🆕 PENDIENTE
+│   │ │   ├── outputs.tf ✅ COMPLETADO
+│   │ │   ├── variables.tf ✅ COMPLETADO
+│   │ │   ├── 📁 main/ 🆕 PENDIENTE
+│   │ │   ├── 📁 output/ 🆕 PENDIENTE
+│   │ │   └── 📁 variable/ 🆕 PENDIENTE
+│   │ │
+│   │ ├── 📁 environments/
+│   │ │ ├── 📁 dev/terraform.tfvars 🆕 PENDIENTE
+│   │ │ ├── 📁 prod/terraform.tfvars 🆕 PENDIENTE
+│   │ │ └── variables.tf # Validaciones: min/max, regex, types 🆕 PENDIENTE
+│   │ │
+│   │ ├── backend.tf # Remote state (S3/Supabase) + locking ✅ COMPLETADO
+│   │ ├── variables.tf ✅ COMPLETADO
+│   │ └── outputs.tf # Outputs tipados para consumo por agentes 🆕 PENDIENTE
+│   │
+│   ├── 📁 pipelines/ # 🔹 CI/CD ejecutables
+│   │ ├── provider-router.yml ✅ COMPLETADO
+│   │ │   └── Configuración maestra para el enrutamiento dinámico de inferencia de IA.
+│   │ ├── 📁 .github/workflows/
+│   │ │  ├── validate-skill.yml # Lint + tests + Promptfoo eval ✅ COMPLETADO
+│   │ │  ├── terraform-plan.yml # Plan + security scan (tfsec/checkov) 🆕 PENDIENTE
+│   │ │  └── integrity-check.yml # Daily: frontmatter, wikilinks, constraints ✅ COMPLETADO
+│   │ │
+│   │ └── 📁 promptfoo/
+│   │   ├── config.yaml # Evaluación de prompts de autogeneración ✅ COMPLETADO
+│   │   ├── 📁 test-cases/ # Casos de prueba por modelo (5 mínimos) 🆕 PENDIENTE
+│   │   │ ├── tenant-isolation.yaml ✅ COMPLETADO
+│   │   │ └── resource-limits.yaml ✅ COMPLETADO
+│   │   └── 📁 assertions/ # Schema validation + linting rules 🆕 PENDIENTE
+│   │     └── schema-check.yaml ✅ COMPLETADO
+│   │
+│   ├── 📁 validation/ # 🔹 Scripts de integridad centralizados
+│   │ ├── 📁 schemas/
+│   │ │   └── skill-input-output.schema.json ✅ COMPLETADO
+│   │ │       └── Esquema estricto para validar la salida de agentes generadores de código.
+│   │ ├── validate-skill-integrity.sh # 🎯 Script maestro modular ✅ COMPLETADO
+│   │ ├── audit-secrets.sh # Hardening: detección de hardcoded creds ✅ COMPLETADO
+│   │ ├── check-rls.sh # Hardening: validación de políticas RLS ✅ COMPLETADO
+│   │ ├── validate-frontmatter.sh # SDD: YAML required fields + types ✅ COMPLETADO
+│   │ ├── check-wikilinks.sh # Obsidian: enlaces rotos o inexistentes ✅ COMPLETADO
+│   │ ├── verify-constraints.sh # C1-C6: presencia explícita en ejemplos ✅ COMPLETADO
+│   │ ├── orchestrator-engine.sh # Este script es el sistema nervioso central que traduce 
+|   | |   las normas C1-C8, los requisitos multi-tenant, las políticas de no-regresión 
+|   | |   y los estándares de hardening en decisiones binarias, certificadas y ejecutables. ✅ COMPLETADO
+│   │ ├── norms-matrix.json # Norms Application Matrix by Canonical Location ✅ COMPLETADO
+│   │ └── schema-validator.py # JSON Schema para outputs de meta-prompting ✅ COMPLETADO
+│   │
+│   ├── 📁 templates/ # 🔹 Plantillas para autogeneración
+│   │ ├── skill-template.md # Frontmatter + estructura base + 5 ejemplos mínimos ✅ COMPLETADO
+│   │ ├── bootstrap-company-context.json ✅ COMPLETADO
+│   │ │   └── Configuración maestra para el enrutamiento dinámico de inferencia de IA.
+│   │ ├── example-template.md # ✅/❌ + troubleshooting + constraints mapeados ✅ COMPLETADO
+│   │ ├── 📁 terraform-module-template/ # Estructura mínima de módulo reusable
+│   │ │ ├── main.tf ✅ COMPLETADO
+│   │ │ ├── outputs.tf 🆕 PENDIENTE
+│   │ │ ├── variables.tf 🆕 PENDIENTE
+│   │ │ └── README.md 🆕 PENDIENTE
+│   │ └── pipeline-template.yml # GitHub Actions base con jobs esenciales 🆕 PENDIENTE
+│   │
+│   ├── 📁 scripts/
+│   │ ├── validate-against-specs.sh ✅ COMPLETADO
+│   │ │   └── Validar automáticamente que los archivos del repositorio cumplan con 
+|   | |       los constraints absolutos (C1-C6), estructura SDD, tenant-awareness y 
+|   | |       límites de recursos antes de commit o despliegue.
+│   │ ├── VALIDATOR_DOCUMENTATION.md ✅ COMPLETADO
+│   │ │   └── Validator Documentation & Constraints Mapping.
+│   │ ├── packager-assisted.sh ✅ COMPLETADO
+│   │ │   └── Script maestro para empaquetar skills generadas por IA en artefactos
+|   | |       ZIP listos para despliegue humano. Valida constraints C1-C8, 
+|   | |       inyecta configuraciones de entorno seguras y genera checksums.
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de scripts bash.
+│   │ ├── sync-mantis-graph.sh # ✅ Existente: sync Obsidian → repo
+│   │ ├── validate-graph-health.py # ✅ Existente: salud del grafo
+│   │ ├── bootstrap-hardened-repo.sh # 🔹 Nuevo: inicializa estructura HARDENED
+│   │ ├── health-check.sh ✅ COMPLETADO
+│   │ │   └── Script de health check para VPS (cada 5 min).
+│   │ ├── generate-repo-validation-report.sh ✅ COMPLETADO
+│   │ │   └── Validador de documentos de toda la estructura con log en /08-LOGS.
+│   │ ├── backup-mysql.sh ✅ COMPLETADO
+│   │ │   └── Script de backup de MySQL (diario 4 AM).
+│   │ ├── backup-qdrant.sh 🆕 PENDIENTE
+│   │ │   └── Script de backup de Qdrant (snapshots).
+│   │ ├── test-alerts.sh 🆕 PENDIENTE
+│   │ │   └── Script de prueba de alertas (Telegram, Gmail, Calendar).
+│   │ ├── sync-to-sandbox ✅ COMPLETADO
+│   │ │   └── Sincronizar main al sandbox de forma rápida, segura y sin git
+|   | |       para pruebas de artefactos sin afectar la linea Main/ del proyecto.
+│   │ └── restore-mysql.sh 🆕 PENDIENTE
+│   │     └── Script de restauración de MySQL.
+│   │
+│   └── 📁 environment/
+│       ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│       │      └── Índice de archivos de entorno.
+│       └── .env.example ✅ COMPLETADO
+│           └── Ejemplo de variables de entorno (sin valores reales).
+│
+├── 📁 06-PROGRAMMING/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de todos los patrones de programación.
+│   │
+│   ├── 📁 python/
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de patrones Python.
+│   │ ├── api-call-patterns.md 🆕 PENDIENTE
+│   │ │   └── Patrones para llamadas API con requests.
+│   │ ├── telegram-bot-integration.md 🆕 PENDIENTE
+│   │ │   └── Integración con Telegram Bot en Python.
+│   │ └── google-calendar-api.md 🆕 PENDIENTE
+│   │     └── Integración con Google Calendar API en Python.
+│   │
+│   ├── 📁 sql/
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de patrones SQL.
+│   │ ├── multi-tenant-schema.md 🆕 PENDIENTE
+│   │ │   └── Esquema multi-tenant para MySQL.
+│   │ ├── indexed-queries.md 🆕 PENDIENTE
+│   │ │   └── Queries con índices optimizados.
+│   │ └── backup-restore-commands.md 🆕 PENDIENTE
+│   │     └── Comandos SQL para backup y restauración.
+│   │
+│   ├── 📁 javascript/
+│   │ ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │ │      └── Índice de patrones JavaScript.
+│   │ ├── n8n-function-node-patterns.md 🆕 PENDIENTE
+│   │ │   └── Patrones para Function Node de n8n.
+│   │ └── async-error-handling.md 🆕 PENDIENTE
+│   │     └── Manejo de errores asíncronos en JavaScript.
+│   │
+│   └── 📁 bash/
+│     ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│     │      └── Índice de patrones Bash (enlaces, nivel de madurez, constraints aplicados).
+│     ├── robust-error-handling.md 🆕 PENDIENTE
+│     │   └── set -euo pipefail, trap, fallbacks explícitos ${VAR:?missing}, idempotencia. Constraints: C3, C7.
+│     ├── filesystem-sandboxing.md 🆕 PENDIENTE
+│     │   └── Rutas canónicas, chmod/chattr, límites de escritura, verificación de integridad. Constraints: C3, C4, C5.
+│     ├── git-disaster-recovery.md 🆕 PENDIENTE
+│     │   └── Snapshots preventivos, git stash/archive, rollback con checksum, validación pre/post. Constraints: C5, C7.
+│     ├── orchestrator-routing.md 🆕 PENDIENTE
+│     │   └── Modo headless, dispatch de validadores, routing JSON, scoring umbral ≥30. Constraints: C5, C8.
+│     ├── context-compaction-utils.md 🆕 PENDIENTE
+│     │   └── Extracción de contexto crítico, generación de dossiers handoff, logging estructurado. Constraints: C5, C7.
+│     ├── hardening-verification.md 🆕 PENDIENTE
+│     │   └── Protocolo de pre-vuelo para evitar desastres en despliegue o aplicación de código. C4 (tenant/entorno aware)
+|     |       , C5 (checksum pre/post), C7 (rollback), C8 (observability).
+│     ├── fix-sintaxis-code.md 🆕 PENDIENTE
+│     │   └── Control sistemático de errores sintácticos y anti-patrones en Bash. Constraints: C3 (fallback explícito), C5 (checksum de linting).
+│     └── yaml-frontmatter-parser.md 🆕 PENDIENTE
+│         └── Parsing seguro con awk/grep, validación de campos obligatorios, extracción sin yq/python. Constraints: C3, C4.
+│
+├── 📁 07-PROCEDURES/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de todos los procedimientos.
+│   ├── vps-initial-setup.md 🆕 PENDIENTE
+│   │   └── Procedimiento de configuración inicial de VPS (12 pasos).
+│   ├── onboarding-client.md 🆕 PENDIENTE
+│   │   └── Procedimiento de onboarding de clientes (12 pasos).
+│   ├── incident-response-checklist.md 🆕 PENDIENTE
+│   │   └── Checklist de respuesta a incidentes (12 pasos).
+│   ├── backup-restore-test.md 🆕 PENDIENTE
+│   │   └── Procedimiento de test de restauración de backup (12 pasos).
+│   ├── scaling-decision-matrix.md 🆕 PENDIENTE
+│   │   └── Matriz de decisión para escalar clientes por VPS.
+│   ├── fire-drill-test-procedures.md 🆕 PENDIENTE
+│   │   └── Procedimientos de test de incendio (5 escenarios).
+│   ├── backup-restore-procedures.md 🆕 PENDIENTE
+│   │   └── Procedimientos detallados de backup y restauración (movido desde RULES).
+│   ├── monitoring-alerts-procedures.md 🆕 PENDIENTE
+│   │   └── Procedimientos de alertas de monitoreo (movido desde RULES).
+│   └── weekly-checklist-template.md 🆕 PENDIENTE
+│       └── Plantilla de checklist semanal para seguimiento.
+│
+├── 📁 08-LOGS/
+│   ├── 📑 00-INDEX.md 🆕 PENDIENTE
+│   │      └── Índice de logs (referencia).
+│   ├── 📁 validation/ # Logs de scripts de integridad
+│   │   ├── integrity-report-YYYYMMDD.json 🆕 PENDIENTE
+│   │   └── constraint-audit.log 🆕 PENDIENTE
+│   ├── 📁 generation/ # Logs de autogeneración por IA
+│   │   ├── prompt-execution.log 🆕 PENDIENTE
+│   │   └── output-validation.json 🆕 PENDIENTE
+│   └── .gitkeep ✅ COMPLETADO
+│       └── Archivo vacío para mantener carpeta en Git.
+│
+└── 📁 .github/
+    └── 📁 workflows/
+        └── 📑 00-INDEX.md 🆕 PENDIENTE
+            └── Índice de workflows de GitHub Actions (futuro).
 
 ================================================================================
 🔑 LEYENDA DE ESTADOS Y SÍMBOLOS
@@ -386,10 +661,6 @@ agentic-infra-docs/
 📝 EN PROGRESO = Artefacto en desarrollo activo (PROJECT_TREE.md mismo)
 🔧 REVISIÓN    = Artefacto requiere actualización de constraints
 
-📄 = Archivo raíz | 📁 = Directorio | 🗂️ = Subdirectorio con índice
-🔷🔶🟢🟡🦙🔴 = Iconos de modelos IA para identificación visual rápida
-🔐🛡️🔍 = Símbolos de seguridad/validación/auditoría
-💾🔄⚡ = Símbolos de backup/sincronización/rendimiento
 
 ================================================================================
 🧭 PROTOCOLO DE NAVEGACIÓN VISUAL
@@ -413,7 +684,6 @@ Próxima actualización: Tras merge de 06-PROGRAMMING/bash/ artefactos completad
 ================================================================================
 
 ---
-
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a1a2e', 'primaryTextColor': '#eee', 'primaryBorderColor': '#4a4a6a', 'lineColor': '#6a6a8a', 'secondaryColor': '#16213e', 'tertiaryColor': '#0f3460', 'fontSize': '14px'}}}%%
 
@@ -422,93 +692,127 @@ flowchart TD
     ROOT["🗺️ PROJECT_TREE.md\nMapa Canónico MANTIS AGENTIC"]:::root
 
     %% SECCIONES PRINCIPALES
-    subgraph CONTEXT["📁 00-CONTEXT\nContexto Base"]
-        direction TB
-        C1["✅ facundo-core-context.md"]:::complete
-        C2["✅ facundo-infrastructure.md"]:::complete
-        C3["✅ PROJECT_OVERVIEW.md"]:::complete
+    subgraph CONTEXT["📁 00-CONTEXT\nContexto Base (7 ✅)"]
+        direction LR
+        C1["👤 facundo-core-context.md"]:::complete
+        C2["🖥️ facundo-infrastructure.md"]:::complete
+        C3["💼 facundo-business-model.md"]:::complete
+        C4["🌐 PROJECT_OVERVIEW.md"]:::complete
+        C5["✅ documentation-validation-cheklist.md"]:::complete
     end
 
-    subgraph RULES["📁 01-RULES\nGobernanza y Constraints"]
-        direction TB
-        R1["✅ 01-ARCHITECTURE-RULES.md"]:::complete
-        R2["✅ 03-SECURITY-RULES.md"]:::complete
-        R3["✅ 06-MULTITENANCY-RULES.md"]:::complete
-        R4["✅ norms-matrix.json"]:::complete
+    subgraph RULES["📁 01-RULES\nGobernanza (11 ✅)"]
+        direction LR
+        R1["🏗️ 01-ARCHITECTURE-RULES.md"]:::complete
+        R2["🔐 03-SECURITY-RULES.md"]:::complete
+        R3["👥 06-MULTITENANCY-RULES.md"]:::complete
+        R4["📜 validation-checklist.md"]:::complete
+        R5["📑 00-INDEX.md"]:::complete
     end
 
     subgraph SKILLS["📁 02-SKILLS\nNúcleo Operativo"]
         direction TB
-        SK1["🤖 AI/ (11 ✅)"]:::complete
-        SK2["🗄️ BASE-DATOS-RAG/ (16 ✅)"]:::complete
-        SK3["📡 INFRAESTRUCTURA/ (9 ✅)"]:::complete
-        SK4["🔒 SEGURIDAD/ (3 ✅)"]:::complete
-        SK5["📦 DOMINIOS VERTICALES (58 🆕)"]:::pending
+        SK1["🤖 AI (11 ✅)"]:::complete
+        SK2["📡 INFRAESTRUCTURA (9 ✅)"]:::complete
+        SK3["🗄️ BASE DE DATOS-RAG (12 ✅)"]:::complete
+        SK4["📱 WHATSAPP-RAG (3 🆕 + 1 🆕)"]:::mixed
+        SK5["📸 INSTAGRAM (6 🆕)"]:::pending
+        SK6["🦷 ODONTOLOGÍA (5 🆕 + 1 🆕)"]:::mixed
+        SK7["🏨 HOTELES (7 🆕)"]:::pending
+        SK8["🍕 RESTAURANTES (10 🆕)"]:::pending
+        SK9["📧 CORPORATE-KB (5 🆕)"]:::pending
+        SK10["📧 COMUNICACIÓN (4 ✅ + 2 🆕)"]:::mixed
+        SK11["🔒 SEGURIDAD (3 ✅)"]:::complete
+        SK12["🧠 N8N-PATTERNS (1 🆕 + 2 🆕)"]:::pending
+        SK13["🧠 AGENTIC-ASSISTANCE (1 ✅)"]:::complete
+        SK14["🧠 DEPLOYMENT (1 ✅)"]:::complete
     end
 
-    subgraph CONFIG["📁 05-CONFIGURATIONS\nMotor de Validación"]
-        direction TB
-        CF1["🔍 validation/ (10 ✅)"]:::complete
-        CF2["🏗️ terraform/ (10 ✅ + 9 🆕)"]:::mixed
-        CF3["🛠️ scripts/ (7 ✅ + 1 🆕)"]:::mixed
-        CF4["🐳 docker-compose/ (4 ✅)"]:::complete
+    subgraph AGENTS["📁 03-AGENTS\nAgentes Autónomos"]
+        direction LR
+        A1["🏗️ infrastructure (4 🆕)"]:::pending
+        A2["👥 clients (3 🆕)"]:::pending
     end
 
-    subgraph PROGRAMMING["📁 06-PROGRAMMING\nPatrones por Lenguaje"]
-        direction TB
-        P1["🐚 bash/ (10 🆕)"]:::pending
-        P2["🐍 python/ (4 🆕)"]:::pending
-        P3["🗄️ sql/ (4 🆕)"]:::pending
-        P4["🌐 javascript/ (3 🆕)"]:::pending
+    subgraph WORKFLOWS["📁 04-WORKFLOWS\nFlujos de Trabajo"]
+        direction LR
+        W1["🔄 sdd-assisted-generation-loop.json (✅)"]:::complete
+        W2["⚙️ n8n (5 🆕)"]:::pending
+        W3["📊 diagrams (3 🆕)"]:::pending
     end
 
-    subgraph SANDBOX["📁 09-TEST-SANDBOX\nPruebas por Modelo"]
+    subgraph CONFIG["📁 05-CONFIGURATIONS\nMotor de Validación y Despliegue"]
         direction TB
-        SB1["🔷 qwen/ (3 ✅)"]:::complete
-        SB2["🔶 deepseek/ (3 ✅)"]:::complete
-        SB3["🟡 gemini/ (3 ✅)"]:::complete
-        SB4["🔴 minimax/ (3 ✅)"]:::complete
+        CF1["📑 00-INDEX.md (✅)"]:::complete
+        CF2["🐳 docker-compose (4 ✅)"]:::complete
+        CF3["🔍 validation (10 ✅)"]:::complete
+        CF4["🏗️ terraform (mix ✅/🆕)"]:::mixed
+        CF5["🔄 pipelines (mix ✅/🆕)"]:::mixed
+        CF6["📋 templates (mix ✅/🆕)"]:::mixed
+        CF7["🛠️ scripts (7 ✅ + 1 🆕)"]:::mixed
+    end
+
+    subgraph PROGRAMMING["📁 06-PROGRAMMING\nPatrones por Lenguaje (todos 🆕)"]
+        direction LR
+        P1["🐚 bash (10 🆕)"]:::pending
+        P2["🐍 python (4 🆕)"]:::pending
+        P3["🗄️ sql (4 🆕)"]:::pending
+        P4["🌐 javascript (3 🆕)"]:::pending
+    end
+
+    subgraph PROCEDURES["📁 07-PROCEDURES\nProcedimientos Operativos (9 🆕)"]
+        direction LR
+        PR1["🖥️ vps-initial-setup.md"]:::pending
+        PR2["👥 onboarding-client.md"]:::pending
+        PR3["🚨 incident-response-checklist.md"]:::pending
+    end
+
+    subgraph LOGS["📁 08-LOGS\nRegistros y Auditoría"]
+        direction LR
+        L1["📑 00-INDEX.md (🆕)"]:::pending
+        L2["📁 validation/ (🆕)"]:::pending
+        L3["📁 generation/ (🆕)"]:::pending
+        L4[".gitkeep (✅)"]:::complete
     end
 
     %% CONEXIONES DE NAVEGACIÓN
-    ROOT -->|Cargar primero | CONTEXT
-    ROOT -->|Consultar reglas | RULES
-    ROOT -->|Navegar skills | SKILLS
-    ROOT -->|Validar con | CONFIG
-    ROOT -->|Generar patrones | PROGRAMMING
-    ROOT -->|Probar en | SANDBOX
+    ROOT --> CONTEXT
+    ROOT --> RULES
+    ROOT --> SKILLS
+    ROOT --> AGENTS
+    ROOT --> WORKFLOWS
+    ROOT --> CONFIG
+    ROOT --> PROGRAMMING
+    ROOT --> PROCEDURES
+    ROOT --> LOGS
 
-    %% FLUJO DE VALIDACIÓN
-    CONFIG -->|orchestrator-engine.sh| VALIDATION["✅ Validación Binaria\nstatus: passed/failed\nscore: 0-50"]:::validation
+    %% FLUJO DE VALIDACIÓN (orchestrator-engine.sh en CONFIG)
+    CONFIG --> VALIDATION["✅ Validación Binaria\norchestrator-engine.sh\nC1-C8 + tenant + hardening"]:::validation
 
     %% FLUJO DE GENERACIÓN
-    SKILLS -->|SDD-COLLABORATIVE-GENERATION.md| GENERATION["🤝 Generación Asistida\nHumano + IA + Constraints"]:::generation
-
-    %% FLUJO DE PRUEBAS
-    PROGRAMMING -->|sync-to-sandbox.sh| SANDBOX
-    SANDBOX -.->|NUNCA merge a main| ROOT
+    SKILLS --> GENERATION["🤝 Generación Asistida\nSDD-COLLABORATIVE-GENERATION.md\nIA + Humano + Constraints"]:::generation
 
     %% LEYENDA DE ESTADOS
     subgraph LEGEND["🔑 Leyenda de Estados"]
         direction LR
-        L1["✅ Completado"]:::complete
-        L2["🆕 Pendiente"]:::pending
-        L3["🔄 Mixed"]:::mixed
+        LG1["✅ Completado"]:::complete
+        LG2["🆕 Pendiente"]:::pending
+        LG3["📝 En Progreso"]:::progress
+        LG4["🔄 Mixed"]:::mixed
     end
 
     %% ESTILOS DE NODOS
     classDef root fill:#2d1b69,stroke:#8a7cfb,stroke-width:3px,color:#fff
     classDef complete fill:#1a472a,stroke:#4ade80,stroke-width:2px,color:#fff
     classDef pending fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+    classDef progress fill:#473a1a,stroke:#fbbf24,stroke-width:2px,color:#fff
     classDef mixed fill:#473a1a,stroke:#fbbf24,stroke-width:2px,color:#fff
     classDef validation fill:#1a3a47,stroke:#67e8f9,stroke-width:2px,color:#fff
     classDef generation fill:#3a1a47,stroke:#d8b4fe,stroke-width:2px,color:#fff
 
     %% CONEXIONES ESTILIZADAS
     linkStyle default stroke:#6a6a8a,stroke-width:1px
-    linkStyle 5 stroke:#f87171,stroke-width:2px,stroke-dasharray:5 5
-```
-    
+```  
 ---
 
 
