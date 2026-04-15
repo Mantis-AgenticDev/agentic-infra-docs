@@ -23,7 +23,7 @@ navigation_protocol:
 
 > **Propósito**: Este documento es la **fuente de verdad para resolución de rutas y estado de artefactos**.  
 > **Regla de oro**: Si un archivo no está listado aquí con su `canonical_path`, NO EXISTE para efectos de generación o validación. No inventes, no asumas, no extrapoles.  
-> **Actualización**: Este árbol se regenera tras cada merge a `main`. Última sincronización: `$(date -Iseconds)`.
+> **Actualización**: Este árbol se regenera tras cada merge a `main`. Última sincronización: `2026-04-15T23:59:59Z`.
 
 ---
 
@@ -70,7 +70,7 @@ filter_policy:
 ================================================================================
 # Propósito: Visualización jerárquica del repositorio para navegación humana
 # Constraints: C4 (tenant-aware paths), C5 (checksum integrity), C8 (observability)
-# Generación: $(date -Iseconds) | Validación: check-wikilinks.sh
+# Generación: 2026-04-15 | Validación: check-wikilinks.sh
 ================================================================================
 
 agentic-infra-docs/
@@ -401,10 +401,10 @@ agentic-infra-docs/
 5. Para IA: usar RAW_URLS_INDEX.md para fetch automático de URLs raw
 
 ================================================================================
-🔐 INTEGRIDAD Y VALIDACIÓN
+🔐 INTEGRIDAD Y VALIDACIÓN (VALORES ESTÁTICOS - ACTUALIZAR MANUALMENTE)
 ================================================================================
-Checksum SHA-256: $(sha256sum PROJECT_TREE.md | awk '{print $1}')
-Última validación: $(bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file PROJECT_TREE.md --json | jq -r '.validation_timestamp // "pending"')
+Checksum SHA-256: [ACTUALIZAR_CON: sha256sum PROJECT_TREE.md | awk '{print $1}']
+Última validación: [ACTUALIZAR_CON: orchestrator-engine.sh --file PROJECT_TREE.md --json]
 Próxima actualización: Tras merge de 06-PROGRAMMING/bash/ artefactos completados
 
 # ⚠️ ADVERTENCIA: Esta gráfica ASCII es representativa. Para resolución exacta
@@ -414,6 +414,7 @@ Próxima actualización: Tras merge de 06-PROGRAMMING/bash/ artefactos completad
 
 ---
 
+```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a1a2e', 'primaryTextColor': '#eee', 'primaryBorderColor': '#4a4a6a', 'lineColor': '#6a6a8a', 'secondaryColor': '#16213e', 'tertiaryColor': '#0f3460', 'fontSize': '14px'}}}%%
 
 flowchart TD
@@ -485,7 +486,7 @@ flowchart TD
 
     %% FLUJO DE PRUEBAS
     PROGRAMMING -->|sync-to-sandbox.sh| SANDBOX
-    SANDBOX -->|NUNCA merge a main| ROOT
+    SANDBOX -.->|NUNCA merge a main| ROOT
 
     %% LEYENDA DE ESTADOS
     subgraph LEGEND["🔑 Leyenda de Estados"]
@@ -498,14 +499,15 @@ flowchart TD
     %% ESTILOS DE NODOS
     classDef root fill:#2d1b69,stroke:#8a7cfb,stroke-width:3px,color:#fff
     classDef complete fill:#1a472a,stroke:#4ade80,stroke-width:2px,color:#fff
-    classDef pending fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,dashed
+    classDef pending fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
     classDef mixed fill:#473a1a,stroke:#fbbf24,stroke-width:2px,color:#fff
     classDef validation fill:#1a3a47,stroke:#67e8f9,stroke-width:2px,color:#fff
     classDef generation fill:#3a1a47,stroke:#d8b4fe,stroke-width:2px,color:#fff
 
     %% CONEXIONES ESTILIZADAS
     linkStyle default stroke:#6a6a8a,stroke-width:1px
-    linkStyle 5 stroke:#f87171,stroke-width:2px,stroke-dasharray:5 5  %% Sandbox → Main (prohibido)
+    linkStyle 5 stroke:#f87171,stroke-width:2px,stroke-dasharray:5 5
+```
     
 ---
 
@@ -1000,5 +1002,5 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file PROJECT_TREE.md 
 ---
 
 *Documento generado bajo contrato SDD v2.1.0. Validado contra `norms-matrix.json`.  
-Última sincronización: `$(date -Iseconds)`.  
+Última sincronización: `2026-04-15T23:59:59Z`.  
 MANTIS AGENTIC – Gobernanza ejecutable para inteligencia colaborativa humano-IA.* 🔐🌱
