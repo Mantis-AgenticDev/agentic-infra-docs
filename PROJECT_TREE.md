@@ -572,6 +572,9 @@ agentic-infra-docs/
 │   │   ├── health-check.sh                   ✅ COMPLETADO
 │   │   │   └── Script de health check para VPS (cada 5 min)
 │   │   │
+│   │   ├── generate-repo-validation-report.sh ✅ COMPLETADO
+│   │   │   └── Validador de documentos de toda la estructura con log en /08-LOGS
+│   │   │
 │   │   ├── backup-mysql.sh                   ✅ COMPLETADO
 │   │   │   └── Script de backup de MySQL (diario 4 AM)
 │   │   │
