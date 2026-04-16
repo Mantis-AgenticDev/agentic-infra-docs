@@ -22,7 +22,6 @@ raw_urls_integrated: true
 ---
 
 # 🗺️ PROJECT_TREE – Mapa Canónico MANTIS AGENTIC
-
 > **Propósito**: Este documento es la **fuente de verdad para resolución de rutas y estado de artefactos**.  
 > **Regla de oro**: Si un archivo no está listado aquí con su `canonical_path`, NO EXISTE para efectos de generación o validación. No inventes, no asumas, no extrapoles.  
 > **Actualización**: Este árbol se regenera tras cada merge a `main`. Última sincronización: `2026-04-16T00:30:00Z`.  
