@@ -478,4 +478,4 @@ set -e
 ```
 
 --- END OF ARTIFACT: hardening-verification.md ---
-[SPACE FOR NEXT ARTIFACT]
+
