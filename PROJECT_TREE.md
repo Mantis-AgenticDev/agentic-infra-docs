@@ -569,8 +569,24 @@ agentic-infra-docs/
 │   │      └── Índice de todos los patrones de programación.
 │   │
 │   ├── 📁 [[python/]]
-│   │ ├── 📑 [[00-INDEX.md]] 🆕 PENDIENTE
-│   │ │      └── Índice de patrones Python.
+│   | ├── 📑 [[00-INDEX.md]] 🆕 PENDIENTE
+│   | │      └── Índice de patrones Python (enlaces, nivel de madurez, constraints aplicados).
+│   | ├── [[robust-error-handling.md]] ✅ COMPLETADO
+│   | │   └── 
+│   | ├── [[filesystem-sandboxing.md]] ✅ COMPLETADO
+│   | │   └── Rutas canónicas, chmod/chattr, límites de escritura, verificación de integridad. Constraints: C3, C4, C5.
+│   | ├── [[git-disaster-recovery.md]] ✅ COMPLETADO
+│   | │   └── Snapshots preventivos, git stash/archive, rollback con checksum, validación pre/post. Constraints: C5, C7.
+│   | ├── [[orchestrator-routing.md]] ✅ COMPLETADO
+│   | │   └── Modo headless, dispatch de validadores, routing JSON, scoring umbral ≥30. Constraints: C5, C8.
+│   | ├── [[context-compaction-utils.md]] ✅ COMPLETADO
+│   | │   └── Extracción de contexto crítico, generación de dossiers handoff, logging estructurado. Constraints: C5, C7.
+│   | ├── [[hardening-verification.md]] ✅ COMPLETADO
+│   | │   └── Protocolo de pre-vuelo para evitar desastres en despliegue o aplicación de código. C4, C5, C7, C8.
+│   | ├── [[fix-sintaxis-code.md]] ✅ COMPLETADO
+│   | │   └── Control sistemático de errores sintácticos y anti-patrones en Bash. Constraints: C3, C5.
+│   | ├── [[yaml-frontmatter-parser.md]] ✅ COMPLETADO
+│   | |     └── Parsing seguro con awk/grep, validación de campos obligatorios, extracción sin yq/python. Constraints: C3, C4.
 │   │ ├── [[api-call-patterns.md]] 🆕 PENDIENTE
 │   │ │   └── Patrones para llamadas API con requests.
 │   │ ├── [[telegram-bot-integration.md]] 🆕 PENDIENTE
@@ -597,23 +613,23 @@ agentic-infra-docs/
 │   │     └── Manejo de errores asíncronos en JavaScript.
 │   │
 │   └── 📁 [[bash/]]
-│     ├── 📑 [[00-INDEX.md]] 🆕 PENDIENTE
+│     ├── 📑 [[00-INDEX.md]] ✅ COMPLETADO
 │     │      └── Índice de patrones Bash (enlaces, nivel de madurez, constraints aplicados).
-│     ├── [[robust-error-handling.md]] 🆕 PENDIENTE
+│     ├── [[robust-error-handling.md]] ✅ COMPLETADO
 │     │   └── set -euo pipefail, trap, fallbacks explícitos ${VAR:?missing}, idempotencia. Constraints: C3, C7.
-│     ├── [[filesystem-sandboxing.md]] 🆕 PENDIENTE
+│     ├── [[filesystem-sandboxing.md]] ✅ COMPLETADO
 │     │   └── Rutas canónicas, chmod/chattr, límites de escritura, verificación de integridad. Constraints: C3, C4, C5.
-│     ├── [[git-disaster-recovery.md]] 🆕 PENDIENTE
+│     ├── [[git-disaster-recovery.md]] ✅ COMPLETADO
 │     │   └── Snapshots preventivos, git stash/archive, rollback con checksum, validación pre/post. Constraints: C5, C7.
-│     ├── [[orchestrator-routing.md]] 🆕 PENDIENTE
+│     ├── [[orchestrator-routing.md]] ✅ COMPLETADO
 │     │   └── Modo headless, dispatch de validadores, routing JSON, scoring umbral ≥30. Constraints: C5, C8.
-│     ├── [[context-compaction-utils.md]] 🆕 PENDIENTE
+│     ├── [[context-compaction-utils.md]] ✅ COMPLETADO
 │     │   └── Extracción de contexto crítico, generación de dossiers handoff, logging estructurado. Constraints: C5, C7.
-│     ├── [[hardening-verification.md]] 🆕 PENDIENTE
+│     ├── [[hardening-verification.md]] ✅ COMPLETADO
 │     │   └── Protocolo de pre-vuelo para evitar desastres en despliegue o aplicación de código. C4, C5, C7, C8.
-│     ├── [[fix-sintaxis-code.md]] 🆕 PENDIENTE
+│     ├── [[fix-sintaxis-code.md]] ✅ COMPLETADO
 │     │   └── Control sistemático de errores sintácticos y anti-patrones en Bash. Constraints: C3, C5.
-│     └── [[yaml-frontmatter-parser.md]] 🆕 PENDIENTE
+│     └── [[yaml-frontmatter-parser.md]] ✅ COMPLETADO
 │         └── Parsing seguro con awk/grep, validación de campos obligatorios, extracción sin yq/python. Constraints: C3, C4.
 │
 ├──  [[07-PROCEDURES/]]
