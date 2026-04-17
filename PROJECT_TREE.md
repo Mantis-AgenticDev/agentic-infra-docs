@@ -179,8 +179,19 @@ agentic-infra-docs/
 │   ├── 🔗 [[08-SKILLS-REFERENCE.md]] ✅ COMPLETADO
 │   │      └── Pointer a skills reutilizables en 02-SKILLS/.
 │   │
-│   └──  [[09-AGENTIC-OUTPUT-RULES.md]] ✅ COMPLETADO
-│          └── Asistente de salidas para producción SDD.
+│   ├── 🔗 [[harness-norms-v2.0.md]] ✅ COMPLETADO
+│   │      └── normas obligatorias para toda generación de código asistida por IA
+│   │
+│   ├── 🔗 [[09-AGENTIC-OUTPUT-RULES.md]] ✅ COMPLETADO
+│   │      └── Asistente de salidas para producción SDD.
+│   │
+│   ├── 🔗 [[language-lock-protocol.md]] ✅ COMPLETADO
+│   │      └── Protocolo obligatorio para prevenir "context bleed" o 
+|   |          deriva sintáctica durante la generación de código asistida por IA
+│   │
+│   └──  [[10-SDD-CONSTRAINTS.md]] ✅ COMPLETADO
+│          └── Documento fundacional que define la semántica técnica, mecanismos de 
+|              enforcement y patrones de validación para los 8 constraints del marco SDD.
 │
 ├── 📁 [[02-SKILLS/]]
 │   ├── 📑 [[00-INDEX.md]] ✅ COMPLETADO

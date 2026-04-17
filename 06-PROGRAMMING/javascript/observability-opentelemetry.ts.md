@@ -31,6 +31,7 @@ const exporter = new OTLPTraceExporter({ timeoutMillis: 5000 });
 ```typescript
 // ✅ C8: Span con tenant_id extraído de AsyncLocalStorage
 import { trace } from '@opentelemetry/api';
+// C6: optional dependency, fallback provided if package not installed
 const span = trace.getActiveSpan();
 span?.setAttribute('tenant.id', ctx.getStore()?.tenantId ?? 'unknown');
 ```
@@ -68,6 +69,7 @@ const result = await tracedOp('db.query', () => db.query(sql), 3000);
 ```typescript
 // ✅ C8: Propagación de tenant_id en contexto de OpenTelemetry
 import { context, propagation } from '@opentelemetry/api';
+// C6: optional dependency, fallback provided if package not installed
 const carrier = {};
 propagation.inject(context.active(), carrier);
 (carrier as any)['x-tenant-id'] = ctx.getStore()?.tenantId;

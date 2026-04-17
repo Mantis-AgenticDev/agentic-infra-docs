@@ -28,10 +28,11 @@ const env = z.object({ OPENAI_API_KEY: z.string().startsWith('sk-') }).parse(pro
 ```
 
 ```typescript
-// ✅ C4/C6: Import opcional de @langchain/core con fallback
+// ✅ C6: Optional dependency @langchain/openai with graceful fallback
 let ChatOpenAI: any;
-try { ChatOpenAI = (await import('@langchain/openai')).ChatOpenAI; }
+try { ({ ChatOpenAI } = await import('@langchain/openai')); }
 catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ERR_MODULE_NOT_FOUND') throw e; }
+if (!ChatOpenAI) logger.warn('langchain/openai unavailable; using fallback provider');
 ```
 
 ```typescript
