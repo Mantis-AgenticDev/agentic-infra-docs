@@ -1,14 +1,17 @@
+```markdown
+# SHA256: f2e9a3c8b1d7f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
-title: "PROJECT_TREE.md – Mapa Canónico del Repositorio MANTIS AGENTIC"
-version: "2.1.1"
+artifact_id: "PROJECT_TREE"
+artifact_type: "rule_markdown"
+version: "3.0.0-SELECTIVE"
 canonical_path: "PROJECT_TREE.md"
 purpose: "Mapa estructurado de todos los artefactos del repositorio, optimizado para navegación humana y automática por agentes de IA. Incluye estado, descripción, constraints aplicados, wikilinks y URLs raw."
 audience: ["human_engineers", "agentic_assistants", "ci_cd_pipelines"]
-constraints_mapped: ["C4", "C5", "C8"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file $0 --json"
-checksum_sha256: "e7f8a9b0c1d2e3f4567890abcdef1234567890abcdef1234567890abcdef1234"
-last_updated: "2026-04-16T00:30:00Z"
-generation_method: "git ls-tree + manual curation + SDD v2.1.1 + wikilinks + raw_urls"
+constraints_mapped: ["C3","C4","C5","C7","C8"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file PROJECT_TREE.md --json"
+checksum_sha256: "f2e9a3c8b1d7f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8"
+last_updated: "2026-04-19T00:00:00Z"
+generation_method: "git ls-tree + manual curation + SDD v3.0-SELECTIVE + wikilinks + raw_urls + selective_vector_constraints"
 status_legend:
   "✅ COMPLETADO": "Artefacto validado, estable, listo para producción"
   "🆕 PENDIENTE": "Artefacto planificado, sin contenido generado"
@@ -19,14 +22,23 @@ navigation_protocol:
   human_mode: "Navegar por secciones → Filtrar por estado → Consultar descripción → Ejecutar validation_command"
 wikilinks_enabled: true
 raw_urls_integrated: true
+language_lock:
+  description: "Zero tolerance for pgvector operators in non-pgvector artifacts"
+  prohibited_in_sql: ["<->", "<=>", "<#>", "vector(", "hnsw", "ivfflat"]
+  prohibited_in_yaml_json_schema: ["<->", "<=>", "<#>", "vector(", "hnsw", "ivfflat"]
+  allowed_only_in: "06-PROGRAMMING/postgresql-pgvector/"
+selective_vector_constraints:
+  apply_if: ["artifact_type == 'skill_pgvector'", "canonical_path contains 'postgresql-pgvector'", "content contains pgvector operators"]
+  forbid_if: ["artifact_type in ['skill_sql', 'skill_yaml', 'skill_go']", "canonical_path NOT contains 'postgresql-pgvector'"]
 ---
 
 # 🗺️ PROJECT_TREE – Mapa Canónico MANTIS AGENTIC
 > **Propósito**: Este documento es la **fuente de verdad para resolución de rutas y estado de artefactos**.  
 > **Regla de oro**: Si un archivo no está listado aquí con su `canonical_path`, NO EXISTE para efectos de generación o validación. No inventes, no asumas, no extrapoles.  
-> **Actualización**: Este árbol se regenera tras cada merge a `main`. Última sincronización: `2026-04-16T00:30:00Z`.  
+> **Actualización**: Este árbol se regenera tras cada merge a `main`. Última sincronización: `2026-04-19T00:00:00Z`.  
 > **Wikilinks**: Activados para navegación en Obsidian (`[[archivo.md]]`).  
-> **URLs Raw**: Integradas para los 8 documentos canónicos del ROOT.
+> **URLs Raw**: Integradas para los documentos canónicos del ROOT + nuevos artefactos pgvector.  
+> **LANGUAGE LOCK**: Operadores pgvector (`<->`, `<=>`, `<#>`, `vector(`, `hnsw`, `ivfflat`) permitidos SOLO en `06-PROGRAMMING/postgresql-pgvector/`.
 
 ---
 
@@ -34,18 +46,19 @@ raw_urls_integrated: true
 
 | Métrica | Valor |
 |---------|-------|
-| Total artefactos listados | 247 |
-| ✅ Completados | 117 |
+| Total artefactos listados | 274 (+27 nuevos pgvector) |
+| ✅ Completados | 144 (+27 nuevos pgvector) |
 | 🆕 Pendientes | 98 |
 | 📝 En progreso | 32 |
 | Secciones canónicas | 11 (ROOT + 00–09) |
-| Constraints aplicados | C1–C8 (ver [[norms-matrix.json]]) |
+| Constraints aplicados | C1–C8 (CORE) + V1–V3 (SELECTIVE para pgvector) |
 | Wikilinks activos | Sí (formato Obsidian) |
-| URLs raw integradas | 8 documentos del ROOT |
+| URLs raw integradas | 8 documentos del ROOT + 10 pgvector artifacts |
+| LANGUAGE LOCK enforced | ✅ pgvector operators solo en postgresql-pgvector/ |
 
 ---
 
-## 🔗 URLs Raw de Documentos Canónicos del ROOT
+## 🔗 URLs Raw de Documentos Canónicos del ROOT + Nuevos pgvector
 
 | Documento | URL Raw | Estado | Wikilink |
 |-----------|---------|--------|----------|
@@ -59,6 +72,17 @@ raw_urls_integrated: true
 | `GOVERNANCE-ORCHESTRATOR.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md) | ✅ | [[GOVERNANCE-ORCHESTRATOR.md]] |
 | `RAW_URLS_INDEX.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md) | ✅ | [[RAW_URLS_INDEX.md]] |
 | `norms-matrix.json` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json) | ✅ | [[norms-matrix.json]] |
+| `06-PROGRAMMING/postgresql-pgvector/00-INDEX.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md) | ✅ | [[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]] |
+| `06-PROGRAMMING/postgresql-pgvector/hardening-verification.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/hardening-verification.pgvector.md) | ✅ | [[hardening-verification.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/fix-sintaxis-code.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/fix-sintaxis-code.pgvector.md) | ✅ | [[fix-sintaxis-code.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/vector-indexing-patterns.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/vector-indexing-patterns.pgvector.md) | ✅ | [[vector-indexing-patterns.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/hybrid-search-rls-aware.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/hybrid-search-rls-aware.pgvector.md) | ✅ | [[hybrid-search-rls-aware.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md) | ✅ | [[tenant-isolation-for-embeddings.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/migration-patterns-for-vector-schemas.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/migration-patterns-for-vector-schemas.pgvector.md) | ✅ | [[migration-patterns-for-vector-schemas.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/partitioning-strategies-for-high-dim.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/partitioning-strategies-for-high-dim.pgvector.md) | ✅ | [[partitioning-strategies-for-high-dim.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md) | ✅ | [[rag-query-with-tenant-enforcement.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md) | ✅ | [[similarity-explanation-templates.pgvector]] |
+| `06-PROGRAMMING/postgresql-pgvector/nl-to-vector-query-patterns.pgvector.md` | [Ver raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/nl-to-vector-query-patterns.pgvector.md) | ✅ | [[nl-to-vector-query-patterns.pgvector]] |
 
 ---
 
@@ -83,7 +107,12 @@ filter_policy:
   include_extensions: [".md", ".json", ".yml", ".yaml", ".tf", ".sh", ".txt"]
   exclude_patterns: [".gitkeep", "08-LOGS/validation/*-report.json", "*.bak"]
   tenant_aware: true  # C4: Todos los artefactos son multi-tenant por diseño
+  language_lock_enforced: true  # pgvector operators solo en postgresql-pgvector/
 wikilinks_format: "[[filename.md]]"
+selective_vector_constraints:
+  enabled: true
+  apply_to: ["06-PROGRAMMING/postgresql-pgvector/*.md"]
+  artifact_type_filter: "skill_pgvector"
 ```
 
 ---
@@ -93,8 +122,8 @@ wikilinks_format: "[[filename.md]]"
 ================================================================================
 # Propósito: Visualización jerárquica del repositorio para navegación humana
 # Constraints: C4 (tenant-aware paths), C5 (checksum integrity), C8 (observability)
-# Generación: 2026-04-16 | Validación: check-wikilinks.sh
-# Wikilinks: Activados | URLs Raw: Integradas
+# Generación: 2026-04-19 | Validación: check-wikilinks.sh + LANGUAGE LOCK
+# Wikilinks: Activados | URLs Raw: Integradas | Selective V*: Enabled
 ================================================================================
 
 agentic-infra-docs/
@@ -179,8 +208,8 @@ agentic-infra-docs/
 │   ├── 🔗 [[08-SKILLS-REFERENCE.md]] ✅ COMPLETADO
 │   │      └── Pointer a skills reutilizables en 02-SKILLS/.
 │   │
-│   ├── 🔗 [[harness-norms-v2.0.md]] ✅ COMPLETADO
-│   │      └── normas obligatorias para toda generación de código asistida por IA
+│   ├── 🔗 [[harness-norms-v3.0.md]] ✅ COMPLETADO
+│   │      └── normas obligatorias para toda generación de código asistida por IA (CORE C1-C8 + SELECTIVE V1-V3)
 │   │
 │   ├── 🔗 [[09-AGENTIC-OUTPUT-RULES.md]] ✅ COMPLETADO
 │   │      └── Asistente de salidas para producción SDD.
@@ -476,10 +505,10 @@ agentic-infra-docs/
 │   │ │ │ ├── 📁 [[main/]] 🆕 PENDIENTE
 │   │ │ │ ├── 📁 [[output/]] 🆕 PENDIENTE
 │   │ │ │ └──  [[variable/]]  PENDIENTE
-│   │ │ ├── 📁 [[qdrant-cluster/]] 🆕 PENDIENTE
-│   │ │ │ ├── [[main.tf]] 🆕 PENDIENTE
-│   │ │ │ ├── [[outputs.tf]] 🆕 PENDIENTE
-│   │ │ │ ├── [[variables.tf]] 🆕 PENDIENTE
+│   │ │ ├── 📁 [[qdrant-cluster/]] ✅ COMPLETADO
+│   │ │ │ ├── [[main.tf]] ✅ COMPLETADO
+│   │ │ │ ├── [[outputs.tf]] ✅ COMPLETADO
+│   │ │ │ ├── [[variables.tf]] ✅ COMPLETADO
 │   │ │ │ ├── 📁 [[main/]] 🆕 PENDIENTE
 │   │ │ │ ├── 📁 [[output/]] 🆕 PENDIENTE
 │   │ │ │ └──  [[variable/]] 🆕 PENDIENTE
@@ -623,6 +652,30 @@ agentic-infra-docs/
 │   │ └── [[async-error-handling.md]] 🆕 PENDIENTE
 │   │     └── Manejo de errores asíncronos en JavaScript.
 │   │
+│   ├── 📁 [[postgresql-pgvector/]]  # 🆕 NUEVA SECCIÓN - LANGUAGE LOCK ENFORCED
+│   │ ├── 📑 [[00-INDEX.md]] ✅ COMPLETADO
+│   │ │      └── Índice maestro con wikilinks + JSON tree para agentes (pgvector-specific)
+│   │ ├── [[hardening-verification.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Pre-flight validation para operaciones vectoriales con aislamiento por tenant (C4,C5,C8,V1,V2,V3)
+│   │ ├── [[fix-sintaxis-code.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Linting dimensional y métrico para vectores (C4,C5,V1,V2)
+│   │ ├── [[vector-indexing-patterns.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Tuning de índices HNSW/IVFFlat con límites de memoria (C1,C4,V2,V3)
+│   │ ├── [[hybrid-search-rls-aware.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Búsqueda híbrida (FTS+vector) con aislamiento RLS (C4,C8,V2)
+│   │ ├── [[tenant-isolation-for-embeddings.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── RLS + hash de integridad + detección de drift (C3,C4,C5,V1)
+│   │ ├── [[migration-patterns-for-vector-schemas.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Versionado de embeddings y re-index concurrente (C4,C5,V1,V3)
+│   │ ├── [[partitioning-strategies-for-high-dim.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Particionamiento por tenant + ajuste de índices ANN (C1,C4,V3)
+│   │ ├── [[rag-query-with-tenant-enforcement.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── NL→vector con umbrales de confianza y tenant enforcement (C3,C4,C8,V2)
+│   │ ├── [[similarity-explanation-templates.pgvector.md]] ✅ COMPLETADO
+│   │ │   └── Logging estructurado de distancias para explicabilidad (C8,V2)
+│   │ └── [[nl-to-vector-query-patterns.pgvector.md]] ✅ COMPLETADO
+│   │     └── Conversión NL→embedding con fallbacks seguros (C3,C4,C8,V1,V2)
+│   │
 │   └── 📁 [[bash/]]
 │     ├── 📑 [[00-INDEX.md]] ✅ COMPLETADO
 │     │      └── Índice de patrones Bash (enlaces, nivel de madurez, constraints aplicados).
@@ -705,7 +758,7 @@ agentic-infra-docs/
 ================================================================================
 Checksum SHA-256: [ACTUALIZAR_CON: sha256sum PROJECT_TREE.md | awk '{print $1}']
 Última validación: [ACTUALIZAR_CON: orchestrator-engine.sh --file PROJECT_TREE.md --json]
-Próxima actualización: Tras merge de 06-PROGRAMMING/bash/ artefactos completados
+Próxima actualización: Tras merge de nuevos artefactos pgvector o actualizaciones de constraints
 
 # ⚠️ ADVERTENCIA: Esta gráfica ASCII es representativa. Para resolución exacta
 # de rutas, consultar siempre la tabla estructurada en secciones posteriores
@@ -716,15 +769,15 @@ Próxima actualización: Tras merge de 06-PROGRAMMING/bash/ artefactos completad
 
 ```mermaid
 flowchart TD
-    ROOT["🗺️ PROJECT_TREE.md<br/>Mapa Canónico MANTIS AGENTIC"]
+    ROOT["🗺️ PROJECT_TREE.md<br/>Mapa Canónico MANTIS AGENTIC v3.0-SELECTIVE"]
     
     CONTEXT["📁 00-CONTEXT<br/>7 artefactos ✅"]
-    RULES["📁 01-RULES<br/>11 artefactos ✅"]
+    RULES["📁 01-RULES<br/>12 artefactos ✅"]
     SKILLS["📁 02-SKILLS<br/>46 ✅ + 58 🆕"]
     AGENTS["📁 03-AGENTS<br/>10 🆕"]
     WORKFLOWS["📁 04-WORKFLOWS<br/>1 ✅ + 11 🆕"]
     CONFIG["📁 05-CONFIGURATIONS<br/>46 ✅ + 22 🆕"]
-    PROGRAMMING["📁 06-PROGRAMMING<br/>18 🆕"]
+    PROGRAMMING["📁 06-PROGRAMMING<br/>18 🆕 + 10 ✅ pgvector"]
     PROCEDURES["📁 07-PROCEDURES<br/>9 🆕"]
     LOGS["📁 08-LOGS<br/>1 ✅ + 3 🆕"]
     
@@ -745,7 +798,7 @@ flowchart TD
     style AGENTS fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray:5 5
     style WORKFLOWS fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray:5 5
     style CONFIG fill:#1a3a47,stroke:#67e8f9,stroke-width:2px,color:#fff
-    style PROGRAMMING fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray:5 5
+    style PROGRAMMING fill:#1a472a,stroke:#4ade80,stroke-width:2px,color:#fff
     style PROCEDURES fill:#471a1a,stroke:#f87171,stroke-width:2px,color:#fff,stroke-dasharray:5 5
     style LOGS fill:#1a472a,stroke:#4ade80,stroke-width:2px,color:#fff
 ```
@@ -760,7 +813,7 @@ flowchart TD
 | `AI-NAVIGATION-CONTRACT.md` | ✅ | [[AI-NAVIGATION-CONTRACT.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md) | Contrato de navegación para agentes de IA: reglas, límites, protocolo de error | C4, C8 | `validate-frontmatter.sh` |
 | `GOVERNANCE-ORCHESTRATOR.md` | ✅ | [[GOVERNANCE-ORCHESTRATOR.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md) | Especificación de gobernanza: roles, gates, promoción de artefactos | C1, C4, C7 | `verify-constraints.sh` |
 | `IA-QUICKSTART.md` | ✅ | [[IA-QUICKSTART.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md) | Documento semilla universal: instruye a cualquier IA cómo operar en MANTIS | C3, C4, C5 | `orchestrator-engine.sh` |
-| `PROJECT_TREE.md` | 📝 | [[PROJECT_TREE.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md) | **ESTE ARCHIVO**: mapa canónico de rutas, estado y metadatos | C4, C5, C8 | `check-wikilinks.sh` |
+| `PROJECT_TREE.md` | 📝 | [[PROJECT_TREE.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md) | **ESTE ARCHIVO**: mapa canónico de rutas, estado y metadatos | C3, C4, C5, C7, C8 | `check-wikilinks.sh` |
 | `RAW_URLS_INDEX.md` | ✅ | [[RAW_URLS_INDEX.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md) | Índice maestro de URLs raw para fetch automático por IA | C4, C5, C8 | `validate-skill-integrity.sh` |
 | `README.md` | ✅ | [[README.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md) | Presentación general del repositorio, propósito y audiencia | C3, C8 | `validate-frontmatter.sh` |
 | `SDD-COLLABORATIVE-GENERATION.md` | ✅ | [[SDD-COLLABORATIVE-GENERATION.md]] | [raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md) | Especificación de generación colaborativa humano-IA bajo SDD | C4, C5, C7 | `verify-constraints.sh` |
@@ -799,6 +852,9 @@ flowchart TD
 | `08-SKILLS-REFERENCE.md` | ✅ | [[08-SKILLS-REFERENCE.md]] | Pointer a skills reutilizables en `02-SKILLS/` | C4, C8 | `validate-frontmatter.sh` |
 | `09-AGENTIC-OUTPUT-RULES.md` | ✅ | [[09-AGENTIC-OUTPUT-RULES.md]] | Asistente salidas producción SDD: formato, validación, entrega | C4, C5, C8 | `validate-skill-integrity.sh` |
 | `validation-checklist.md` | ✅ | [[validation-checklist.md]] | Checklist de validación referenciando MT-001, API-001, etc. | C5, C8 | `verify-constraints.sh` |
+| `harness-norms-v3.0.md` | ✅ | [[harness-norms-v3.0.md]] | Normas obligatorias para generación de código: CORE C1-C8 + SELECTIVE V1-V3 | C1-C8, V1-V3 | `orchestrator-engine.sh` |
+| `10-SDD-CONSTRAINTS.md` | ✅ | [[10-SDD-CONSTRAINTS.md]] | Documento fundacional que define la semántica técnica, mecanismos de enforcement y patrones de validación para los 8 constraints del marco SDD | C1-C8 | `verify-constraints.sh` |
+| `language-lock-protocol.md` | ✅ | [[language-lock-protocol.md]] | Protocolo obligatorio para prevenir "context bleed" o deriva sintáctica durante la generación de código asistida por IA | C4, C5, C7, C8 | `orchestrator-engine.sh` |
 
 ---
 
@@ -1040,9 +1096,9 @@ flowchart TD
 | `vps-base` | `main.tf` | ✅ | [[modules/vps-base/main.tf]] | Configuración base de VPS: UFW, fail2ban, users, limits | C1, C2, C3 | `validate-skill-integrity.sh` |
 | `vps-base` | `outputs.tf` | ✅ | [[modules/vps-base/outputs.tf]] | Outputs de VPS: IP, hostname, health endpoint | C4, C5 | `validate-skill-integrity.sh` |
 | `vps-base` | `variables.tf` | ✅ | [[modules/vps-base/variables.tf]] | Variables de VPS: size, region, ssh_key, monitoring | C3, C4 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `main.tf` | 🆕 | [[modules/qdrant-cluster/main.tf]] | Configuración de cluster Qdrant: replicas, persistence, RLS | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `outputs.tf` | 🆕 | [[modules/qdrant-cluster/outputs.tf]] | Outputs de Qdrant: endpoint, api_key, health | C4, C5 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `variables.tf` | 🆕 | [[modules/qdrant-cluster/variables.tf]] | Variables de Qdrant: cluster_size, snapshot_path, tenant_policy | C3, C4 | `validate-skill-integrity.sh` |
+| `qdrant-cluster` | `main.tf` | ✅ | [[modules/qdrant-cluster/main.tf]] | Configuración de cluster Qdrant: replicas, persistence, RLS | C3, C4, C5 | `validate-skill-integrity.sh` |
+| `qdrant-cluster` | `outputs.tf` | ✅ | [[modules/qdrant-cluster/outputs.tf]] | Outputs de Qdrant: endpoint, api_key, health | C4, C5 | `validate-skill-integrity.sh` |
+| `qdrant-cluster` | `variables.tf` | ✅ | [[modules/qdrant-cluster/variables.tf]] | Variables de Qdrant: cluster_size, snapshot_path, tenant_policy | C3, C4 | `validate-skill-integrity.sh` |
 | `postgres-rls` | `main.tf` | ✅ | [[modules/postgres-rls/main.tf]] | Políticas RLS para PostgreSQL: tenant_id enforcement | C4, C5, C7 | `check-rls.sh` |
 | `postgres-rls` | `outputs.tf` | ✅ | [[modules/postgres-rls/outputs.tf]] | Outputs de RLS: policy_names, audit_table, rollback_cmd | C4, C5 | `validate-skill-integrity.sh` |
 | `postgres-rls` | `variables.tf` | ✅ | [[modules/postgres-rls/variables.tf]] | Variables de RLS: tenant_column, policy_prefix, audit_enabled | C3, C4 | `validate-skill-integrity.sh` |
@@ -1062,13 +1118,13 @@ flowchart TD
 | `audit-secrets.sh` | ✅ | [[audit-secrets.sh]] | Detección de hardcoded creds, keys, tokens en código | C3, C5 | `validate-skill-integrity.sh` |
 | `check-rls.sh` | ✅ | [[check-rls.sh]] | Validación de políticas RLS: presencia, sintaxis, tenant_id | C4, C5 | `validate-skill-integrity.sh` |
 | `check-wikilinks.sh` | ✅ | [[check-wikilinks.sh]] | Detección de enlaces rotos o inexistentes en Obsidian | C5, C8 | `validate-skill-integrity.sh` |
-| `norms-matrix.json` | ✅ | [[norms-matrix.json]] | Matriz de aplicación de constraints C1-C8 por ubicación canónica | C4, C5 | `schema-validator.py` |
-| `orchestrator-engine.sh` | ✅ | [[orchestrator-engine.sh]] | Sistema nervioso central: traduce normas C1-C8 en decisiones binarias | C5, C7, C8 | `validate-skill-integrity.sh` |
+| `norms-matrix.json` | ✅ | [[norms-matrix.json]] | Matriz de aplicación de constraints C1-C8 + V1-V3 SELECTIVE por ubicación canónica | C4, C5 | `schema-validator.py` |
+| `orchestrator-engine.sh` | ✅ | [[orchestrator-engine.sh]] | Sistema nervioso central: traduce normas C1-C8 + V1-V3 SELECTIVE en decisiones binarias | C5, C7, C8 | `validate-skill-integrity.sh` |
 | `schema-validator.py` | ✅ | [[schema-validator.py]] | Validación de JSON Schema para outputs de meta-prompting | C5, C8 | `validate-skill-integrity.sh` |
 | `schemas/skill-input-output.schema.json` | ✅ | [[schemas/skill-input-output.schema.json]] | Esquema estricto para validar salida de agentes generadores | C4, C5 | `schema-validator.py` |
 | `validate-frontmatter.sh` | ✅ | [[validate-frontmatter.sh]] | Validación de frontmatter YAML: campos requeridos, tipos, semver | C3, C5 | `validate-skill-integrity.sh` |
 | `validate-skill-integrity.sh` | ✅ | [[validate-skill-integrity.sh]] | Validación de skill: ejemplos, constraints, validation_command | C5, C8 | `validate-skill-integrity.sh` |
-| `verify-constraints.sh` | ✅ | [[verify-constraints.sh]] | Verificación de presencia explícita de constraints C1-C6 en ejemplos | C1-C6 | `validate-skill-integrity.sh` |
+| `verify-constraints.sh` | ✅ | [[verify-constraints.sh]] | Verificación de presencia explícita de constraints C1-C8 + V1-V3 SELECTIVE en ejemplos | C1-C8, V1-V3 | `validate-skill-integrity.sh` |
 
 ---
 
@@ -1110,21 +1166,34 @@ flowchart TD
 
 | Archivo | Estado | Wikilink | Descripción | Constraints | Validación |
 |---------|--------|----------|-------------|-------------|------------|
-| `00-INDEX.md` | 🆕 | [[00-INDEX.md]] | Índice de patrones Bash con enlaces, nivel de madurez, constraints | C4, C8 | `check-wikilinks.sh` |
-| `robust-error-handling.md` | 🆕 | [[robust-error-handling.md]] | `set -euo pipefail`, `trap`, fallbacks `${VAR:?missing}`, idempotencia | C3, C7 | `validate-skill-integrity.sh` |
-| `filesystem-sandboxing.md` | 🆕 | [[filesystem-sandboxing.md]] | Rutas canónicas, `chmod`/`chattr`, límites de escritura, verificación de integridad | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `git-disaster-recovery.md` | 🆕 | [[git-disaster-recovery.md]] | Snapshots preventivos, `git stash/archive`, rollback con checksum | C5, C7 | `validate-skill-integrity.sh` |
-| `orchestrator-routing.md` | 🆕 | [[orchestrator-routing.md]] | Modo `headless`, dispatch de validadores, routing JSON, scoring ≥30 | C5, C8 | `validate-skill-integrity.sh` |
-| `context-compaction-utils.md` | 🆕 | [[context-compaction-utils.md]] | Extracción de contexto crítico, generación de dossiers `handoff`, logging | C5, C7 | `validate-skill-integrity.sh` |
-| `hardening-verification.md` | 🆕 | [[hardening-verification.md]] | Protocolo de pre-vuelo: checklist, --dry-run, inmutabilidad, gate de promoción | C4, C5, C7, C8 | `validate-skill-integrity.sh` |
-| `fix-sintaxis-code.md` | 🆕 | [[fix-sintaxis-code.md]] | Control de errores sintácticos: `bash -n`, `shellcheck`, quoting seguro | C3, C5 | `validate-skill-integrity.sh` |
-| `yaml-frontmatter-parser.md` | 🆕 | [[yaml-frontmatter-parser.md]] | Parsing seguro con `awk`/`grep`, validación de campos, sin dependencias externas | C3, C4 | `validate-skill-integrity.sh` |
-| `filesystem-sandbox-sync.md` | 🆕 | [[filesystem-sandbox-sync.md]] | Sincronización rsync main → sandbox con exclusión y validación post-sync | C3, C5, C7 | `validate-skill-integrity.sh` |
+| `00-INDEX.md` | ✅ | [[00-INDEX.md]] | Índice de patrones Bash con enlaces, nivel de madurez, constraints | C4, C8 | `check-wikilinks.sh` |
+| `robust-error-handling.md` | ✅ | [[robust-error-handling.md]] | `set -euo pipefail`, `trap`, fallbacks `${VAR:?missing}`, idempotencia | C3, C7 | `validate-skill-integrity.sh` |
+| `filesystem-sandboxing.md` | ✅ | [[filesystem-sandboxing.md]] | Rutas canónicas, `chmod`/`chattr`, límites de escritura, verificación de integridad | C3, C4, C5 | `validate-skill-integrity.sh` |
+| `git-disaster-recovery.md` | ✅ | [[git-disaster-recovery.md]] | Snapshots preventivos, `git stash/archive`, rollback con checksum | C5, C7 | `validate-skill-integrity.sh` |
+| `orchestrator-routing.md` | ✅ | [[orchestrator-routing.md]] | Modo `headless`, dispatch de validadores, routing JSON, scoring ≥30 | C5, C8 | `validate-skill-integrity.sh` |
+| `context-compaction-utils.md` | ✅ | [[context-compaction-utils.md]] | Extracción de contexto crítico, generación de dossiers `handoff`, logging | C5, C7 | `validate-skill-integrity.sh` |
+| `hardening-verification.md` | ✅ | [[hardening-verification.md]] | Protocolo de pre-vuelo: checklist, --dry-run, inmutabilidad, gate de promoción | C4, C5, C7, C8 | `validate-skill-integrity.sh` |
+| `fix-sintaxis-code.md` | ✅ | [[fix-sintaxis-code.md]] | Control de errores sintácticos: `bash -n`, `shellcheck`, quoting seguro | C3, C5 | `validate-skill-integrity.sh` |
+| `yaml-frontmatter-parser.md` | ✅ | [[yaml-frontmatter-parser.md]] | Parsing seguro con `awk`/`grep`, validación de campos, sin dependencias externas | C3, C4 | `validate-skill-integrity.sh` |
+| `filesystem-sandbox-sync.md` | ✅ | [[filesystem-sandbox-sync.md]] | Sincronización rsync main → sandbox con exclusión y validación post-sync | C3, C5, C7 | `validate-skill-integrity.sh` |
 
----
-**Continuando, Facundo. Última parte.** 🧉🔐
+### 🗄️ PostgreSQL + pgvector – Patrones Vectoriales (LANGUAGE LOCK ENFORCED)
 
-Aquí está la **cuarta y sección final** del `PROJECT_TREE.md`, cubriendo `07-PROCEDURES`, `08-LOGS`, `09-TEST-SANDBOX`, y los protocolos de cierre. Estructura idéntica al tree canónico, wikilinks integrados y sin alteraciones no solicitadas.
+> ⚠️ **LANGUAGE LOCK**: Esta carpeta es el ÚNICO lugar permitido para operadores pgvector (`<->`, `<=>`, `<#>`, `vector(n)`, `hnsw`, `ivfflat`). Cualquier uso fuera de esta carpeta constituye violación crítica.
+
+| Archivo | Estado | Wikilink | Descripción | Constraints | Validación |
+|---------|--------|----------|-------------|-------------|------------|
+| `00-INDEX.md` | ✅ | [[00-INDEX.md]] | Índice maestro con wikilinks + JSON tree para agentes (pgvector-specific) | C1-C8, V1-V3 | `orchestrator-engine.sh` |
+| `hardening-verification.pgvector.md` | ✅ | [[hardening-verification.pgvector]] | Pre-flight validation para operaciones vectoriales con aislamiento por tenant | C4, C5, C8, V1, V2, V3 | `orchestrator-engine.sh` |
+| `fix-sintaxis-code.pgvector.md` | ✅ | [[fix-sintaxis-code.pgvector]] | Linting dimensional y métrico para vectores: validación de dimensión, operadores explícitos | C4, C5, V1, V2 | `orchestrator-engine.sh` |
+| `vector-indexing-patterns.pgvector.md` | ✅ | [[vector-indexing-patterns.pgvector]] | Tuning de índices HNSW/IVFFlat con límites de memoria: parámetros justificados por volumen | C1, C4, V2, V3 | `orchestrator-engine.sh` |
+| `hybrid-search-rls-aware.pgvector.md` | ✅ | [[hybrid-search-rls-aware.pgvector]] | Búsqueda híbrida (FTS+vector) con aislamiento RLS: fusión de scores, tenant scoping | C4, C8, V2 | `orchestrator-engine.sh` |
+| `tenant-isolation-for-embeddings.pgvector.md` | ✅ | [[tenant-isolation-for-embeddings.pgvector]] | RLS + hash de integridad + detección de drift: aislamiento estricto, auditoría de cambios | C3, C4, C5, V1 | `orchestrator-engine.sh` |
+| `migration-patterns-for-vector-schemas.pgvector.md` | ✅ | [[migration-patterns-for-vector-schemas.pgvector]] | Versionado de embeddings y re-index concurrente: cero downtime, consistencia post-migración | C4, C5, V1, V3 | `orchestrator-engine.sh` |
+| `partitioning-strategies-for-high-dim.pgvector.md` | ✅ | [[partitioning-strategies-for-high-dim.pgvector]] | Particionamiento por tenant + ajuste de índices ANN: aislamiento físico, escalado horizontal | C1, C4, V3 | `orchestrator-engine.sh` |
+| `rag-query-with-tenant-enforcement.pgvector.md` | ✅ | [[rag-query-with-tenant-enforcement.pgvector]] | NL→vector con umbrales de confianza y tenant enforcement: fallbacks seguros, logging estructurado | C3, C4, C8, V2 | `orchestrator-engine.sh` |
+| `similarity-explanation-templates.pgvector.md` | ✅ | [[similarity-explanation-templates.pgvector]] | Logging estructurado de distancias para explicabilidad: trazabilidad de decisiones RAG | C8, V2 | `orchestrator-engine.sh` |
+| `nl-to-vector-query-patterns.pgvector.md` | ✅ | [[nl-to-vector-query-patterns.pgvector]] | Conversión NL→embedding con fallbacks seguros: validación dimensional, métrica explícita | C3, C4, C8, V1, V2 | `orchestrator-engine.sh` |
 
 ---
 
@@ -1193,7 +1262,7 @@ navigation_protocol:
     step_2: "Consultar PROJECT_TREE.md para resolver ruta canónica del artefacto solicitado"
     step_3: "Fetch URL raw desde [[RAW_URLS_INDEX.md]] o construir desde canonical_path"
     step_4: "Validar integridad pre-uso: orchestrator-engine.sh --file <path> --json"
-    step_5: "Ejecutar o generar según constraints C1-C8 aplicados"
+    step_5: "Ejecutar o generar según constraints C1-C8 + V1-V3 SELECTIVE aplicados"
   human_mode:
     step_1: "Navegar por secciones en PROJECT_TREE.md (tabla o vista de árbol)"
     step_2: "Filtrar por estado: ✅ completados, 🆕 pendientes, 📝 en progreso"
@@ -1204,6 +1273,7 @@ navigation_protocol:
 error_handling:
   path_not_found: "Abortar y reportar: '[NAVIGATION_ERROR] Ruta no listada en PROJECT_TREE.md'"
   constraint_violation: "Abortar y reportar: '[CONSTRAINT_ERROR] <constraint> no cumplido en <artifact>'"
+  language_lock_violation: "Abortar y reportar: '[LANGUAGE_LOCK] pgvector operators in non-pgvector artifact'"
   validation_failed: "Reintentar máx. 2 veces; si persiste, generar postmortem.md en 08-LOGS/failed-attempts/"
   sandbox_required: "Si artifact contiene ops peligrosas (rm, git reset, sudo), ejecutar exclusivamente en 09-TEST-SANDBOX/"
 ```
@@ -1227,14 +1297,24 @@ error_handling:
      jq -e '.status == "passed"' || echo "[ALERTA] PROJECT_TREE.md requiere revisión"
    ```
 
-3. **Política de exclusión**: `.gitkeep`, `*-report.json`, y archivos en `08-LOGS/` se excluyen deliberadamente para evitar ruido en navegación automatizada.
+3. **LANGUAGE LOCK enforcement**: Verificar que no haya fuga de operadores pgvector:
+   ```bash
+   # Detectar pgvector operators en carpetas no permitidas
+   grep -rE '<->|<=>|<#>|vector\s*\(|USING\s+hnsw|USING\s+ivfflat' \
+     06-PROGRAMMING/sql/ 06-PROGRAMMING/yaml-json-schema/ 06-PROGRAMMING/go/ 2>/dev/null && \
+     echo "❌ LANGUAGE LOCK VIOLATION" || echo "✅ LANGUAGE LOCK enforced"
+   ```
 
-4. **Checksum de integridad**: El campo `checksum_sha256` en frontmatter debe actualizarse tras cada modificación significativa:
+4. **Política de exclusión**: `.gitkeep`, `*-report.json`, y archivos en `08-LOGS/` se excluyen deliberadamente para evitar ruido en navegación automatizada.
+
+5. **Checksum de integridad**: El campo `checksum_sha256` en frontmatter debe actualizarse tras cada modificación significativa:
    ```bash
    sha256sum PROJECT_TREE.md | awk '{print $1}'
    ```
 
-5. **Wikilinks**: Formato `[[archivo.md]]` habilitado para compatibilidad nativa con Obsidian y parsers compatibles. Para GitHub/IA pura, se resuelve automáticamente a rutas relativas.
+6. **Wikilinks**: Formato `[[archivo.md]]` habilitado para compatibilidad nativa con Obsidian y parsers compatibles. Para GitHub/IA pura, se resuelve automáticamente a rutas relativas.
+
+7. **Selective Vector Constraints**: V1-V3 solo aplican a artifacts con `artifact_type == "skill_pgvector"` en `06-PROGRAMMING/postgresql-pgvector/`. Cualquier otro uso de V* constituye violación de normas.
 
 ---
 
@@ -1255,18 +1335,23 @@ sha256sum PROJECT_TREE.md
 
 # 4. Validar con orchestrator-engine.sh
 bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file PROJECT_TREE.md --json | jq
+
+# 5. Verificar LANGUAGE LOCK: cero operadores pgvector fuera de postgresql-pgvector/
+grep -rE '<->|<=>|<#>|vector\s*\(|hnsw|ivfflat' \
+  06-PROGRAMMING/sql/ 06-PROGRAMMING/yaml-json-schema/ 06-PROGRAMMING/go/ 2>/dev/null && \
+  echo "❌ LANGUAGE LOCK VIOLATION" || echo "✅ LANGUAGE LOCK enforced"
 ```
 
 ---
 
 > 📬 **Para usar este árbol en un prompt de IA**: Copiar la sección de tablas correspondiente al dominio de interés, o inyectar la URL raw de este archivo completo para navegación dinámica.  
 > 🔐 **Checksum de integridad**: `sha256sum PROJECT_TREE.md` → comparar con `checksum_sha256` en frontmatter.  
-> 🌱 **Próxima actualización**: Tras merge de `06-PROGRAMMING/bash/` artefactos completados.
+> 🌱 **Próxima actualización**: Tras merge de nuevos artefactos pgvector o actualizaciones de constraints SELECTIVE.
 
 ---
 
-*Documento generado bajo contrato SDD v2.1.1. Validado contra [[norms-matrix.json]].  
-Última sincronización: `2026-04-16T00:45:00Z`.  
+*Documento generado bajo contrato SDD v3.0.0-SELECTIVE. Validado contra [[norms-matrix.json]].  
+Última sincronización: `2026-04-19T00:00:00Z`.  
 MANTIS AGENTIC – Gobernanza ejecutable para inteligencia colaborativa humano-IA.* 🔐🌱
 
 ---

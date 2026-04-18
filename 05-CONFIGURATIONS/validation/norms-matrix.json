@@ -8,12 +8,12 @@
     "description": "V1/V2/V3 apply ONLY when artifact explicitly handles vector dimensions or pgvector operators. Never apply to non-vector artifacts.",
     "trigger_conditions": [
       "artifact_type == 'skill_pgvector'",
-      "canonical_path contains '06-PROGRAMMING/postgres-pgvector/'",
+      "canonical_path contains '06-PROGRAMMING/postgresql-pgvector/'",
       "file content contains pgvector operators (<->, <#>, <=>) WITH explicit vector(n) dimension declaration",
       "schema includes embedding dimension validation (e.g., vector(1536), hnsw, ivfflat)"
     ],
     "exclusion_conditions": [
-      "artifact_type in ['skill_yaml', 'skill_json_schema', 'skill_sql', 'skill_go'] AND canonical_path NOT contains 'postgres-pgvector/'",
+      "artifact_type in ['skill_yaml', 'skill_json_schema', 'skill_sql', 'skill_go'] AND canonical_path NOT contains 'postgresql-pgvector/'",
       "file content mentions 'vector' only as generic term (e.g., 'feature vector', 'state vector') without pgvector context",
       "LANGUAGE LOCK violation detected: pgvector operators in yaml-json-schema/, sql/, go/ folders"
     ],
@@ -28,7 +28,7 @@
       "name": "Vector Dimension Declaration",
       "description": "Explicit declaration of embedding dimensions (e.g., vector(1536), vector(768)) with validation of supported sizes",
       "applicable_extensions": [".sql", ".md (with inline SQL)", ".yaml (with schema validation)"],
-      "validator": "verify-vector-dims.sh --check-dims 1536,768,384",
+      "validator": "verify-constraints.sh --check-vector-dims 1536,768,384",
       "blocking_if_missing": true,
       "checks": [
         "explicit vector(dim) declaration in CREATE TABLE or column definition",
@@ -40,7 +40,7 @@
       "name": "Distance Metric Explicit",
       "description": "Validation of pgvector distance operator (<->, <#>, <=>) alignment with index opclass and documentation",
       "applicable_extensions": [".sql", ".md (with inline SQL)"],
-      "validator": "check-vector-metric.sh --validate-alignment",
+      "validator": "verify-constraints.sh --check-vector-metric",
       "blocking_if_missing": false,
       "checks": [
         "operator documented in comment (e.g., '-- <=> = cosine distance')",
@@ -52,7 +52,7 @@
       "name": "Index-Type Match Justified",
       "description": "Ensures pgvector index type (hnsw/ivfflat) and parameters are justified by dataset size and query pattern",
       "applicable_extensions": [".sql", ".md (with inline SQL)"],
-      "validator": "verify-vector-index.sh --check-justification",
+      "validator": "verify-constraints.sh --check-vector-index",
       "blocking_if_missing": true,
       "checks": [
         "index type (hnsw/ivfflat) justified by comment (e.g., 'hnsw for <100k vectors')",
@@ -62,19 +62,16 @@
       ]
     }
   },
-  "validation_command": "./05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file 05-CONFIGURATIONS/validation/norms-matrix.json --json",
+  "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 05-CONFIGURATIONS/validation/norms-matrix.json --json",
   "canonical_path": "05-CONFIGURATIONS/validation/norms-matrix.json",
   "ai_optimized": true,
   "related_files": [
     "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]",
     "[[05-CONFIGURATIONS/validation/verify-constraints.sh]]",
-    "[[05-CONFIGURATIONS/validation/verify-vector-dims.sh]]",
-    "[[05-CONFIGURATIONS/validation/check-vector-metric.sh]]",
-    "[[05-CONFIGURATIONS/validation/verify-vector-index.sh]]",
     "[[01-RULES/harness-norms-v3.0.md]]",
     "[[01-RULES/10-SDD-CONSTRAINTS.md]]",
     "[[01-RULES/language-lock-protocol.md]]",
-    "[[06-PROGRAMMING/postgres-pgvector/00-INDEX.md]]",
+    "[[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]]",
     "[[06-PROGRAMMING/yaml-json-schema/00-INDEX.md]]",
     "[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]",
     "[[05-CONFIGURATIONS/pipelines/promptfoo/config.yaml]]"
@@ -83,7 +80,7 @@
     "description": "Rule of precedence for norm application based on canonical location + selective vector logic",
     "logic": [
       {
-        "condition": "file_path contains '06-PROGRAMMING/postgres-pgvector/' AND content matches pgvector operators",
+        "condition": "file_path contains '06-PROGRAMMING/postgresql-pgvector/' AND content matches pgvector operators",
         "action": "Apply C1-C8 COMPLETE + V1-V3 SELECTIVE (if trigger conditions met)"
       },
       {
@@ -108,12 +105,12 @@
     "mandatory": {
       "symbol": "🔴",
       "behavior": "Automatic failure if not met. Blocks tier certification. Exit code 2.",
-      "example_validators": ["audit-secrets.sh", "check-rls.sh --strict", "verify-vector-dims.sh", "verify-vector-index.sh"]
+      "example_validators": ["audit-secrets.sh", "check-rls.sh --strict", "verify-constraints.sh --check-vector-dims"]
     },
     "applicable": {
       "symbol": "🟢",
       "behavior": "Must be present and verifiable. Warning for Tier 2-3 if missing, allows Tier 1 with correction.",
-      "example_validators": ["verify-constraints.sh", "validate-frontmatter.sh", "check-vector-metric.sh"]
+      "example_validators": ["verify-constraints.sh", "validate-frontmatter.sh", "check-vector-metric"]
     },
     "contextual": {
       "symbol": "🟡",
@@ -243,12 +240,12 @@
             "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
           },
           "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "verify-vector-dims.sh", "condition": "if inline SQL declares vector(dim) columns", "blocking": true},
-            "V2": {"intensity": "contextual", "validator": "check-vector-metric.sh", "condition": "if file uses <->/<=>/<#> operators"},
-            "V3": {"intensity": "contextual", "validator": "verify-vector-index.sh", "condition": "if file creates hnsw/ivfflat indexes", "blocking": true}
+            "V1": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-dims", "condition": "if inline SQL declares vector(dim) columns", "blocking": true},
+            "V2": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-metric", "condition": "if file uses <->/<=>/<#> operators"},
+            "V3": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-index", "condition": "if file creates hnsw/ivfflat indexes", "blocking": true}
           },
           "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "c4_blocking": true},
-          "active_validators": ["check-rls.sh", "audit-secrets.sh", "schema-validator.py", "verify-constraints.sh", "verify-vector-dims.sh"]
+          "active_validators": ["check-rls.sh", "audit-secrets.sh", "schema-validator.py", "verify-constraints.sh"]
         }
       }
     },
@@ -493,7 +490,7 @@
             "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
           },
           "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector dimensions", "checks": ["script name contains 'vector' OR 'embedding'", "script calls verify-vector-dims.sh or similar"]},
+            "V1": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector dimensions", "checks": ["script name contains 'vector' OR 'embedding'", "script calls verify-constraints.sh --check-vector-dims"]},
             "V2": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector metrics"},
             "V3": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector index safety"}
           },
@@ -692,7 +689,7 @@
         }
       }
     },
-    "06-PROGRAMMING/postgres-pgvector/": {
+    "06-PROGRAMMING/postgresql-pgvector/": {
       "description": "pgvector-specific patterns: indexing, querying, migration - ONLY location for vector operators",
       "extensions": {
         ".md": {
@@ -708,12 +705,12 @@
             "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
           },
           "vector_constraints": {
-            "V1": {"intensity": "mandatory", "validator": "verify-vector-dims.sh --check-dims 1536,768,384", "blocking": true, "checks": ["explicit vector(dim) declaration", "supported dimension values only", "comment explaining embedding model source"]},
-            "V2": {"intensity": "applicable", "validator": "check-vector-metric.sh --validate-alignment", "checks": ["operator documented in comment", "operator matches index opclass", "no ambiguous ORDER BY vec"]},
-            "V3": {"intensity": "mandatory", "validator": "verify-vector-index.sh --check-justification", "blocking": true, "checks": ["index type justified by comment", "parameters explicit (m/ef/lists)", "CONCURRENTLY for production", "tenant_id in WHERE clause"]}
+            "V1": {"intensity": "mandatory", "validator": "verify-constraints.sh --check-vector-dims 1536,768,384", "blocking": true, "checks": ["explicit vector(dim) declaration", "supported dimension values only", "comment explaining embedding model source"]},
+            "V2": {"intensity": "applicable", "validator": "verify-constraints.sh --check-vector-metric", "checks": ["operator documented in comment", "operator matches index opclass", "no ambiguous ORDER BY vec"]},
+            "V3": {"intensity": "mandatory", "validator": "verify-constraints.sh --check-vector-index", "blocking": true, "checks": ["index type justified by comment", "parameters explicit (m/ef/lists)", "CONCURRENTLY for production", "tenant_id in WHERE clause"]}
           },
           "tier_requirements": {"min": 3, "examples_min": 25, "validation_command_required": true, "c4_blocking": true, "v1_v3_blocking": true},
-          "active_validators": ["check-rls.sh", "verify-vector-dims.sh", "check-vector-metric.sh", "verify-vector-index.sh", "audit-secrets.sh", "validate-frontmatter.sh"]
+          "active_validators": ["check-rls.sh", "verify-constraints.sh", "audit-secrets.sh", "validate-frontmatter.sh"]
         }
       }
     },
@@ -882,7 +879,7 @@
           ]
         },
         {
-          "condition": "file_path contains 'postgres-pgvector/'",
+          "condition": "file_path contains 'postgresql-pgvector/'",
           "actions": [
             "V1/V3 MANDATORY if pgvector operators present",
             "V2 APPLICABLE for distance metric documentation",
@@ -940,10 +937,10 @@
       "description": "Decision rules for SQL files - LANGUAGE LOCK enforcement",
       "rules": [
         "If in sql/: PROHIBIT vector(n), <->, <#>, <=>, hnsw, ivfflat",
-        "If in postgres-pgvector/: REQUIRE V1/V3 mandatory, V2 applicable",
+        "If in postgresql-pgvector/: REQUIRE V1/V3 mandatory, V2 applicable",
         "C4: tenant_id in all WHERE clauses (RLS defense in depth)",
         "C1: LIMIT + resource hints on all SELECT queries",
-        "Validator: check-rls.sh + verify-vector-dims.sh (if pgvector path)"
+        "Validator: check-rls.sh + verify-constraints.sh --check-vector-dims (if pgvector path)"
       ]
     }
   },
@@ -955,7 +952,7 @@
       "2. Extension → apply validation rules by type (see C1-C8 + V* matrix)",
       "3. Function → determine target tier (1/2/3) and required examples (5/10/25)",
       "4. Dominant constraints → C4 mandatory if path contains 'DB-RAG', 'INFRA', 'VERTICAL'",
-      "5. Vector constraints → V1/V3 mandatory ONLY if path is postgres-pgvector/ AND uses pgvector operators",
+      "5. Vector constraints → V1/V3 mandatory ONLY if path is postgresql-pgvector/ AND uses pgvector operators",
       "6. LANGUAGE LOCK → NEVER use vector(n), <->, hnsw in sql/, yaml-json-schema/, go/",
       "7. Frontmatter → commented if .sh, pure YAML if .md/.yaml/.tf/.json",
       "8. Zero hardcode → use ${VAR:?missing} or sensitive = true",
@@ -987,7 +984,7 @@
     }
   },
   "validated_examples": [
-    "✅ Should see: '06-PROGRAMMING/postgres-pgvector/vector-indexing.md' → applies C1-C8 + V1-V3 (trigger: pgvector path + operators)",
+    "✅ Should see: '06-PROGRAMMING/postgresql-pgvector/vector-indexing.md' → applies C1-C8 + V1-V3 (trigger: pgvector path + operators)",
     "❌ If you see: V1 applied to '06-PROGRAMMING/yaml-json-schema/schema-validation.md' → 🔧 Fix: Enforce hard_block on V* for yaml-json-schema/",
     "✅ Should see: '02-SKILLS/BASE DE DATOS-RAG/rag-ingestion.md' with inline SQL using vector(1536) → V1 contextual, V3 contextual",
     "❌ If you see: V3 blocking on file with 'vector' as generic term (no pgvector operators) → 🔧 Fix: Improve trigger condition to require explicit pgvector context",
@@ -995,7 +992,7 @@
     "❌ If you see: orchestrator applies V2 to validation script that doesn't handle indexes → 🔧 Fix: Check self-check condition in vector_constraints",
     "✅ Should see: LANGUAGE LOCK violation (pgvector in yaml-json-schema/) → exit 2 with clear error message",
     "❌ If you see: constraints_mapped in frontmatter includes V1 for artifact_type: skill_yaml → 🔧 Fix: validate-frontmatter.sh must enforce selective logic",
-    "✅ Should see: tier_requirements for postgres-pgvector/ includes v1_v3_blocking: true",
+    "✅ Should see: tier_requirements for postgresql-pgvector/ includes v1_v3_blocking: true",
     "✅ Should see: json output includes vector_constraints_applied: false for non-vector artifacts",
     "✅ Should see: sql/ files with vector(1536) → ABORT with LANGUAGE LOCK violation",
     "✅ Should see: BASE DE DATOS-RAG/ with pure SQL (no pgvector) → V* not_applicable, only C1-C8"
@@ -1006,14 +1003,16 @@
       "Added vector_constraints_mapped: [V1, V2, V3] at root level",
       "Implemented selective_application_logic with trigger/exclusion conditions for vector constraints",
       "Added vector_constraints_definitions with validator specs, blocking rules, and checks",
-      "Updated matrix_by_location entries for postgres-pgvector/, yaml-json-schema/, sql/, BASE DE DATOS-RAG/",
+      "Updated matrix_by_location entries for postgresql-pgvector/, yaml-json-schema/, sql/, BASE DE DATOS-RAG/",
       "Added LANGUAGE LOCK enforcement: hard_block on V* for non-pgvector folders",
       "Enhanced orchestrator_integration_notes with vector constraint resolution and language_lock_enforcement",
       "Updated json_output_schema to include vector_constraints_applied and language_lock_status fields",
       "Added validated_examples for selective V* application and LANGUAGE LOCK scenarios",
       "Updated extension_decision_rules to include SQL language lock and vector trigger conditions",
-      "Enhanced ai_generation_prompt_checklist with vector constraint and LANGUAGE LOCK guidance"
+      "Enhanced ai_generation_prompt_checklist with vector constraint and LANGUAGE LOCK guidance",
+      "Fixed directory name: postgresql-pgvector/ (not postgres-pgvector/)",
+      "Updated validator references to use verify-constraints.sh with flags instead of separate scripts"
     ]}
   ],
-  "footer_validation": "# 🟢 VALIDATION: ./05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file 05-CONFIGURATIONS/validation/norms-matrix.json --json && jq '.vector_constraints_applied, .language_lock_status' skill-validation-report.json"
+  "footer_validation": "# 🟢 VALIDATION: bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 05-CONFIGURATIONS/validation/norms-matrix.json --json && jq '.vector_constraints_applied, .language_lock_status' skill-validation-report.json"
 }
