@@ -1,5 +1,30 @@
-# Dueños por carpeta (ajusta @tu-usuario-github)
-/01-RULES/ @tu-usuario-github
-/05-CONFIGURATIONS/ @tu-usuario-github
-/06-PROGRAMMING/ @tu-usuario-github
-*.md @tu-usuario-github
+# MANTIS AGENTIC - Code Owners
+# Format: path_pattern @owner_or_team
+
+# Root documentation
+/README.md @tu-usuario-github
+/PROJECT_TREE.md @Mantis-AgenticDev
+/IA-QUICKSTART.md @Mantis-AgenticDev
+/SECURITY.md @Mantis-AgenticDev
+
+# Rules and constraints (CRITICAL)
+/01-RULES/ @Mantis-AgenticDev
+/05-CONFIGURATIONS/validation/ @Mantis-AgenticDev
+
+# Skills by domain
+/02-SKILLS/AI/ @Mantis-AgenticDev
+/02-SKILLS/BASE\ DE\ DATOS-RAG/ @tu-usuario-github
+/02-SKILLS/INFRAESTRUCTURA/ @Mantis-AgenticDev
+
+# Programming patterns
+/06-PROGRAMMING/python/ @Mantis-AgenticDev
+/06-PROGRAMMING/bash/ @Mantis-AgenticDev
+/06-PROGRAMMING/postgresql-pgvector/ @Mantis-AgenticDev
+
+# Security-sensitive paths
+/05-CONFIGURATIONS/environment/ @Mantis-AgenticDev
+/05-CONFIGURATIONS/scripts/backup-*.sh @Mantis-AgenticDev
+/05-CONFIGURATIONS/terraform/ @Mantis-AgenticDev
+
+# Workflows and CI/CD
+/.github/workflows/ @Mantis-AgenticDev

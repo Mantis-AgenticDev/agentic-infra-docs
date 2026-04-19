@@ -4,6 +4,19 @@
 - [ ] Ejemplos ≤5 líneas ejecutables
 - [ ] Cero operadores pgvector fuera de `postgresql-pgvector/` (LANGUAGE LOCK)
 - [ ] Validación local pasada: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --json`
+
 ## 🎯 Constraints Aplicados
 - [ ] C1-C8 (CORE)
 - [ ] V1-V3 (SELECTIVE, si aplica)
+
+## Descripción
+<!-- Breve descripción de los cambios y su propósito -->
+
+## Tipo de Cambio
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature
+- [ ] 📚 Documentation update
+- [ ] 🔐 Security improvement
+
+## Related Issues
+Closes #
