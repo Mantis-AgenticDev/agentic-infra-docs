@@ -1,0 +1,74 @@
+name: 🔐 MANTIS Norms & Frontmatter Validator
+
+on:
+  pull_request:
+    paths: ['**/*.md', '**/*.json', '**/*.sh', '**/*.yml', '**/*.yaml']
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  validate:
+    name: HARNESS NORMS v3.0-SELECTIVE Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect changed files
+        id: changes
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }} -- '*.md' '*.json' | grep -v '08-LOGS/' || true)
+          else
+            CHANGED=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} -- '*.md' '*.json' | grep -v '08-LOGS/' || true)
+          fi
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+          echo "Changed files: $CHANGED"
+
+      - name: 🛠️ Make validators executable
+        run: chmod +x 05-CONFIGURATIONS/validation/*.sh
+
+      - name: 🧪 Run HARNESS NORMS Validation
+        if: steps.changes.outputs.files != ''
+        env:
+          CHANGED_FILES: ${{ steps.changes.outputs.files }}
+        run: |
+          FAILURES=0
+          echo "$CHANGED_FILES" | while read -r file; do
+            [[ -z "$file" ]] && continue
+            echo "🔍 Validando: $file"
+            if bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file "$file" --json 2>/dev/null | jq -e '.passed == true' >/dev/null 2>&1; then
+              echo "✅ $file PASSED"
+            else
+              echo "❌ $file FAILED"
+              FAILURES=$((FAILURES + 1))
+            fi
+          done
+          if [[ $FAILURES -gt 0 ]]; then
+            echo "::error:: $FAILURES archivo(s) no pasaron la validación de normas HARNESS v3.0-SELECTIVE"
+            exit 1
+          fi
+
+      - name: 🔒 LANGUAGE LOCK Enforcement
+        run: |
+          VIOLATION=$(grep -rlE '<->|<=>|<#>|vector\s*\(|USING\s+hnsw|USING\s+ivfflat' 06-PROGRAMMING/sql/ 06-PROGRAMMING/yaml-json-schema/ 06-PROGRAMMING/go/ 2>/dev/null || true)
+          if [[ -n "$VIOLATION" ]]; then
+            echo "::error::LANGUAGE LOCK VIOLATION: pgvector operators found in non-pgvector directories: $VIOLATION"
+            exit 1
+          fi
+
+      - name: 📊 Generate Summary Report
+        if: always()
+        run: |
+          echo "### 🛡️ Reporte de Validación MANTIS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Archivos revisados**: ${{ steps.changes.outputs.files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Normas aplicadas**: HARNESS NORMS v3.0-SELECTIVE (C1-C8 + V1-V3 condicionales)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Estado**: ${{ job.status == 'success' && '✅ APROBADO' || '❌ BLOQUEADO' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **LANGUAGE LOCK**: ${{ job.status == 'success' && '✅ ENFORCED' || '⚠️ REVISAR' }}" >> $GITHUB_STEP_SUMMARY

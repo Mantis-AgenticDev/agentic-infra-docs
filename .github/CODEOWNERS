@@ -1,0 +1,5 @@
+# Dueños por carpeta (ajusta @tu-usuario-github)
+/01-RULES/ @tu-usuario-github
+/05-CONFIGURATIONS/ @tu-usuario-github
+/06-PROGRAMMING/ @tu-usuario-github
+*.md @tu-usuario-github
