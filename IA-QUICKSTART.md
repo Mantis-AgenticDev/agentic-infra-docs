@@ -1,794 +1,745 @@
 ---
-title: "IA QuickStart – Universal Seed Prompt for Agentic Workflows"
-version: "3.1.0"
-canonical_path: "IA-QUICKSTART.md"
-ai_optimized: true
-purpose: "Documento semilla universal que instruye a cualquier IA (DeepSeek, Qwen, MiniMax, GPT, Claude, Gemini) sobre cómo navegar, validar y generar artefactos en el ecosistema MANTIS AGENTIC, cubriendo desarrollo interno y producción externa con tres niveles de autonomía."
-audience: ["human_engineers", "agentic_assistants", "ci_cd_pipelines", "client_teams"]
-language_policy: "Prompts lógicos en inglés para precisión técnica; contenido de artefactos en español/portugués según audiencia."
-constraints_mapped: ["C3","C4","C5","C7","C8"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file IA-QUICKSTART.md --json"
+canonical_path: "/IA-QUICKSTART.md"
+artifact_id: "ia-quickstart-seed"
+artifact_type: "governance_seed"
+version: "3.0.0-SELECTIVE"
+mode_gate_required: true
+supported_llms: ["qwen", "deepseek", "minimax", "claude", "gemini", "gpt"]
+llm_oriental_optimized: true
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file IA-QUICKSTART.md --mode headless --json"
+tier: 1
+immutable: false
+requires_human_approval_for_changes: true
+expansion_points: ["modes", "stacks", "validation_profiles", "integrations", "llm_adapters"]
 related_files:
-  - "PROJECT_TREE.md"
-  - "AI-NAVIGATION-CONTRACT.md"
-  - "SDD-COLLABORATIVE-GENERATION.md"
-  - "GOVERNANCE-ORCHESTRATOR.md"
-  - "knowledge-graph.json"
-  - "README.md"
-  - "RAW_URLS_INDEX.md"
-  - "TOOLCHAIN-REFERENCE.md"
-  - "05-CONFIGURATIONS/templates/skill-template.md"
+  - "[[00-STACK-SELECTOR.md]]"
+  - "[[AI-NAVIGATION-CONTRACT.md]]"
+  - "[[GOVERNANCE-ORCHESTRATOR.md]]"
+  - "[[PROJECT_TREE.md]]"
+  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
+  - "[[01-RULES/harness-norms-v3.0.md]]"
+  - "[[06-PROGRAMMING/00-INDEX.md]]"
+checksum_sha256: "PENDING_GENERATION"
 ---
 
-# 🤖 IA-QUICKSTART.md
+# 🌱 MANTIS AGENTIC – Semilla de Gobernanza Ejecutable
+
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es tu "llave de entrada" al proyecto. 
+No es código. Es un contrato de gobernanza que:
+• Te guía paso a paso para interactuar con el sistema
+• Previene errores antes de que ocurran
+• Funciona con cualquier IA (Qwen, DeepSeek, MiniMax, Claude, etc.)
+
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
+
+> **Instrucción crítica para la IA:** 
+> Este documento es tu contrato operativo. 
+> **NO generes código, NO propongas soluciones, NO asumas contexto** hasta completar el 【Paso 0】.
+
 ---
 
-## 🎯 Propósito y Alcance
+## 【0】🔒 GATE DE MODO OPERATIVO (OBLIGATORIO – NO SALTAR)
 
-Este documento es el **punto de entrada canónico** para cualquier agente de IA que interactúe con el repositorio `agentic-infra-docs`. Su función es triple:
+<!-- 
+【EDUCATIVO】El sistema opera en 6 modos. 
+Cada modo combina: 
+- CONTEXTO: ¿Es para el proyecto interno (A) o para un cliente (B)?
+- AUTONOMÍA: ¿La IA asiste (1), genera código (2) o despliega automático (3)?
 
-1.  **Bootstrapping**: Instruir a la IA sobre cómo cargar contexto, navegar el árbol de archivos y aplicar el contrato SDD.
-2.  **Enrutamiento**: Clasificar la solicitud del usuario en uno de los 6 modos operativos (Interno/Externo × Asistido/Auto-generación/Auto-deploy).
-3.  **Ejecución**: Proveer prompts específicos, validaciones y guardrails para cada escenario, garantizando coherencia arquitectónica.
+Esto no es opcional. Cada modo tiene reglas de validación diferentes.
+-->
 
-> 🔐 **Regla de Oro para IA**: Si una ruta, constraint o patrón no está documentado en los archivos canónicos listados abajo, **NO EXISTE**. No inventes, no asumas, no extrapoles. Pregunta al usuario o detén la ejecución.
+Antes de cualquier acción, **DEBES** solicitar al humano que seleccione **exactamente uno** de los siguientes modos:
+
+```
+【SELECCIÓN DE MODO – RESPONDE CON EL CÓDIGO】
+[A1] Interno + Asistido    → Documentación, planos, configuración
+[A2] Interno + Auto-gen    → Código validable, scripts, tooling
+[A3] Interno + Auto-deploy → Binarios, Docker, CI/CD listo
+[B1] Externo + Asistido    → Propuestas, esquemas para cliente
+[B2] Externo + Auto-gen    → Código fuente integrable por cliente
+[B3] Externo + Auto-deploy → ZIP completo con manifiesto y scripts
+
+⚠️  Sin selección explícita → DETENER EJECUCIÓN y solicitar confirmación.
+⚠️  Respuesta inválida → Listar opciones nuevamente y esperar.
+✅  Respuesta válida → Proceder al 【Paso 1】 y registrar: mode_selected=<CÓDIGO>
+```
+
+> **Regla de contención:** Si el humano no responde en **3 turnos de conversación**, asumir `A1` con `AUDIT_FLAG=human_timeout` y notificar explícitamente antes de continuar:
+> ```
+> ⚠️  Timeout de selección de modo. Fallback a A1 (Interno + Asistido) con AUDIT_FLAG=human_timeout.
+> ¿Desea cambiar de modo antes de proceder? [S/N]
+> ```
+
+### 0.1 Tabla de Referencia Rápida de Modos
+
+<!-- 
+【PARA PRINCIPIANTES】¿Cuál modo elegir? Esta tabla te ayuda a decidir.
+-->
+
+| Modo | ¿Cuándo usarlo? | Ejemplo de tarea | Formato de entrega |
+|------|----------------|-----------------|-------------------|
+| **A1** | Quieres ayuda para escribir documentación o planos | "Ayúdame a documentar la arquitectura del agente RAG" | Texto en pantalla, requiere revisión humana |
+| **A2** | Quieres que la IA genere código para el proyecto interno | "Genera un script de backup para los VPS internos" | Código fuente + comando de validación |
+| **A3** | Quieres un paquete listo para desplegar en infra interna | "Empaqueta el orquestador en Docker para producción" | ZIP con Dockerfile, manifest, deploy.sh |
+| **B1** | Quieres ayuda para preparar una propuesta para un cliente | "Ayúdame a escribir una propuesta técnica para cliente agrícola" | Documento en pantalla, cliente revisa |
+| **B2** | Quieres código que el cliente pueda integrar en su sistema | "Genera un webhook de WhatsApp para cliente X" | Código fuente + instrucciones de integración |
+| **B3** | Quieres un paquete completo que el cliente pueda desplegar | "Entrega un ZIP con el agente RAG listo para producción del cliente" | ZIP con manifest, deploy.sh, rollback.sh, README |
 
 ---
 
-## 📚 Carga de Contexto Canónico (OBLIGATORIO)
+## 【1】📋 CARGA DE CONTEXTO CANÓNICO (SÓLO DESPUÉS DE MODO CONFIRMADO)
 
-**Antes de ejecutar cualquier tarea, DEBES leer y memorizar los siguientes archivos en este orden EXACTO.** Usa las URLs raw para acceso directo desde cualquier entorno.
+<!-- 
+【EDUCATIVO】Una vez confirmado el modo, la IA debe cargar estos archivos en orden estricto. 
+Si alguno no está disponible, NOTIFICAR y DETENER. No asumir, no inventar.
+-->
 
-| Orden | Archivo | Propósito Clave | URL Raw |
-|-------|---------|----------------|---------|
-| 1 | `PROJECT_TREE.md` | Mapa canónico de rutas. Si no está aquí, no existe. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md |
-| 2 | `AI-NAVIGATION-CONTRACT.md` | Contrato de interacción: cómo preguntar, cómo confirmar, cómo reportar. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md |
-| 3 | `SDD-COLLABORATIVE-GENERATION.md` | Especificación de artefactos: frontmatter, ejemplos, constraints, validation_command. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md |
-| 4 | `GOVERNANCE-ORCHESTRATOR.md` | Motor de validación: scoring, tiering, blocking_issues, next_step. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md |
-| 5 | `knowledge-graph.json` | Grafo de dependencias entre skills, configs y agentes. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json |
-| 6 | `README.md` | Visión general, quickstart humano, enlaces a documentación. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md |
-| 7 | `TOOLCHAIN-REFERENCE.md` | Comandos exactos para validadores y scripts operativos. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/TOOLCHAIN-REFERENCE.md |
-| 8 | `RAW_URLS_INDEX.md` | Índice actualizado de URLs raw para todos los documentos. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md |
-| 9 | `05-CONFIGURATIONS/templates/skill-template.md` | Plantilla base para generar nuevos skills. | https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/skill-template.md |
+Una vez confirmado el modo, cargar en **orden estricto**:
 
-**Instrucción de memoria para IA**:
-```text
-[SYSTEM] After loading the above files, store in working memory:
-- The canonical path resolution logic from PROJECT_TREE.md
-- The SDD frontmatter schema and required fields
-- The constraint definitions C1-C8 and their validation patterns
-- The tier certification criteria (1=review, 2=auto-merge, 3=auto-deploy)
-- The output format expectations for each mode (code block, JSON payload, ZIP manifest)
+```
+1. [[PROJECT_TREE]] → Resolver ruta canónica de destino
+2. [[00-STACK-SELECTOR]] → Determinar lenguaje y framework permitido
+3. [[05-CONFIGURATIONS/validation/norms-matrix.json]] → Extraer constraints aplicables
+4. [[GOVERNANCE-ORCHESTRATOR]] → Aplicar Tier de certificación y formato de entrega
+5. [[06-PROGRAMMING/00-INDEX]] → Cargar índices de patrones por lenguaje
+```
+
+> **Nota de contención:** Si alguno de estos archivos no está disponible en el contexto, notificar:
+> ```
+> ⚠️  Archivo [[X]] no disponible en contexto actual.
+> ¿Desea: [1] Proceder con validación reducida (riesgo de deriva) | [2] Esperar sincronización de contexto?
+> ```
+> **Default seguro:** Opción [2] → Detener ejecución hasta que el contexto esté completo.
+
+---
+
+## 【2】🔄 PROTOCOLO DE GENERACIÓN (MODULAR – EXPANSIBLE)
+
+<!-- 
+【PARA PRINCIPIANTES】Este es el flujo que sigue la IA para generar artefactos. 
+Es determinista: mismos inputs → mismos outputs. 
+Si algo no está claro, DETENER y preguntar.
+-->
+
+### 【2.1】Validación Pre-Generación (Obligatoria)
+
+Antes de generar cualquier contenido, verificar:
+
+```
+✅ ¿La ruta destino existe en [[PROJECT_TREE]]?
+✅ ¿El lenguaje asignado coincide con LANGUAGE LOCK en [[00-STACK-SELECTOR]]?
+✅ ¿Las constraints declaradas ⊆ norms-matrix[carpeta].allowed?
+✅ ¿No hay operadores prohibidos para este lenguaje (LANGUAGE LOCK)?
+```
+
+Si **cualquiera** falla → Error estructurado:
+```
+❌ BLOCKING_ISSUE: <descripción específica>
+Sugerencia: <acción correctiva>
+Referencia: [[wikilink a norma relevante]]
+```
+
+### 【2.2】Generación con Patrones (Según Tier)
+
+<!-- 
+【EDUCATIVO】El formato de salida depende del Tier derivado del modo.
+-->
+
+| Tier | Modos | Formato de Salida | Requisitos Mínimos |
+|------|-------|------------------|-------------------|
+| **Tier 1** | A1, B1 | Texto en pantalla + nota "Requiere revisión humana" | Frontmatter válido, wikilinks canónicos |
+| **Tier 2** | A2, B2 | Código fuente + `validation_command` + checksum SHA256 | ≥10 ejemplos ✅/❌/🔧, constraints_mapped explícitos |
+| **Tier 3** | A3, B3 | ZIP simulado con `manifest.json` + `deploy.sh` + `rollback.sh` | Healthcheck, checksums, audit trail, prompt_hash |
+
+### 【2.3】Plantilla de Frontmatter Canónico
+
+Todo artefacto generado **DEBE** incluir este frontmatter al inicio:
+
+```yaml
+---
+canonical_path: "/ruta/canónica/exacta/desde/raíz.md"
+artifact_id: "identificador-único-del-artefacto"
+artifact_type: "skill_go|skill_python|documentation|etc"
+version: "1.0.0"
+constraints_mapped: ["C3", "C4", "C5"]  # Según norms-matrix.json
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --json"
+tier: 2  # Derivado del modo seleccionado
+mode_selected: "A2"  # Registrado en Paso 0
+prompt_hash: "sha256-del-prompt-original"  # Para auditoría
+generated_at: "2026-04-19T12:00:00Z"  # RFC3339 UTC
+---
+```
+
+> 💡 **Consejo para principiantes:** Copia y pega esta plantilla. Luego reemplaza los valores entre `< >`. No inventes campos nuevos sin aprobación humana.
+
+---
+
+## 【3】🛡️ CAPAS DE CONTENCIÓN (NO NEGOCIABLES)
+
+<!-- 
+【EDUCATIVO】Estas reglas previenen que la IA "alucine" o se desvíe del protocolo. 
+Son inamovibles. Si algo las viola, DETENER y notificar.
+-->
+
+| Capa | Regla | Implementación en esta Semilla |
+|------|-------|-------------------------------|
+| **Modo** | No proceder sin selección explícita | Gate 【0】con stop condition y timeout auditado |
+| **Stack** | Lenguaje dictado por ubicación, no por preferencia | Referencia obligatoria a `[[00-STACK-SELECTOR]]` antes de generar |
+| **Constraints** | Aplicar solo las permitidas por carpeta | Carga de `[[norms-matrix.json]]` post-modo, validación cruzada |
+| **LANGUAGE LOCK** | Operadores vectoriales SOLO en pgvector | Bloqueo explícito: `<->`, `<=>`, `<#>` prohibidos fuera de `postgresql-pgvector/` |
+| **Validación** | Todo artefacto debe ser validable | Incluir `validation_command` ejecutable en frontmatter |
+| **Auditoría** | Registrar cada decisión humana | Log estructurado con `mode_selected`, `prompt_hash`, `timestamp` |
+
+### 3.1 Anti-Patrones Críticos (Prohibidos)
+
+<!-- 
+【PARA PRINCIPIANTES】Estos errores son comunes. Evítalos desde el inicio.
+-->
+
+| Anti-patrón | Por qué está prohibido | Consecuencia |
+|------------|----------------------|-------------|
+| **Generar sin confirmar modo (A1-B3)** | Deriva de gobernanza, validación inconsistente | ❌ Bloqueo inmediato: "MODE_NOT_SPECIFIED" |
+| **Elegir lenguaje antes que ruta** | Viola LANGUAGE LOCK, genera inconsistencias | ❌ Error: "LANGUAGE_MISMATCH" con sugerencia de ruta correcta |
+| **Usar operadores pgvector en go/ o sql/** | Violación crítica de LANGUAGE LOCK | ❌ Bloqueo: "LANGUAGE_LOCK_VIOLATION" + referencia a norma |
+| **Hardcodear secrets o tenant_id** | Viola C3/C4, fuga de datos entre clientes | ❌ Bloqueo crítico: "C3_VIOLATION" o "C4_VIOLATION" |
+| **Omitir frontmatter o validation_command** | Rompe validación automática, Tier 1 imposible | ❌ Error: "STRUCTURAL_CONTRACT_INVALID" |
+| **Inventar constraints no mapeadas** | Falsa sensación de seguridad, auditoría imposible | ❌ Error: "CONSTRAINT_NOT_ALLOWED" + lista de válidas |
+| **Usar wikilinks relativos (`[[../otra]]`)** | Rompe resolución canónica, imposible auditar | ❌ Advertencia: "WIKILINK_NOT_CANONICAL" + corrección sugerida |
+
+---
+
+## 【4】🧭 PROTOCOLO DE NAVEGACIÓN PARA IA (PASO A PASO)
+
+<!-- 
+【EDUCATIVO】Este es el flujo determinista que DEBE seguir cualquier IA. 
+Mismos inputs → mismos outputs. Si algo no está claro, DETENER y preguntar.
+-->
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 0】CONFIRMACIÓN DE MODO (GATE HUMANO)            │
+├─────────────────────────────────────────────────────────┤
+│ Si el humano no especificó modo (A1/A2/A3/B1/B2/B3):    │
+│ 1. Mostrar menú de 6 opciones con descripciones claras  │
+│ 2. Esperar respuesta explícita (ej: "B2")               │
+│ 3. Si timeout (3 turnos) → fallback a A1 con AUDIT_FLAG │
+│ 4. Registrar: mode_selected=<CÓDIGO>, prompt_hash=<SHA> │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 1】CARGA DE CONTEXTO CANÓNICO                    │
+├─────────────────────────────────────────────────────────┤
+│ Leer en orden estricto:                                  │
+│ 1. [[PROJECT_TREE]] → resolver ruta destino             │
+│ 2. [[00-STACK-SELECTOR]] → lenguaje permitido           │
+│ 3. [[norms-matrix.json]] → constraints aplicables       │
+│ 4. [[GOVERNANCE-ORCHESTRATOR]] → tier y validación      │
+│ Si algún archivo no está disponible → NOTIFICAR y DETENER │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 2】VALIDACIÓN PRE-GENERACIÓN                     │
+├─────────────────────────────────────────────────────────┤
+│ Verificar:                                               │
+│ • ¿La ruta destino existe en PROJECT_TREE?              │
+│ • ¿El lenguaje asignado coincide con LANGUAGE LOCK?     │
+│ • ¿constraints_mapped ⊆ norms-matrix[carpeta].allowed? │
+│ • ¿No hay operadores prohibidos para este lenguaje?     │
+│ Si NO → Error estructurado: "blocking_issue: X"         │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 3】GENERACIÓN CON PATRONES                       │
+├─────────────────────────────────────────────────────────┤
+│ 1. Cargar plantilla desde 05-CONFIGURATIONS/templates/  │
+│ 2. Aplicar frontmatter canónico (ver 【2.3】)           │
+│ 3. Generar cuerpo con ≥10 ejemplos ✅/❌/🔧 (Tier 2-3)  │
+│ 4. Incluir comentarios educativos si artifact_type lo permite │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 4】VALIDACIÓN POST-GENERACIÓN                    │
+├─────────────────────────────────────────────────────────┤
+│ Ejecutar (mental o real):                                │
+│   bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \ │
+│     --file <ruta> --mode headless --json                │
+│ Esperar:                                                │
+│   • score >= 30                                         │
+│   • blocking_issues == []                               │
+│   • language_lock_violations == 0                       │
+│ Si falla → Iterar corrección (máx 3 intentos)           │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 5】ENTREGA SEGÚN TIER                            │
+├─────────────────────────────────────────────────────────┤
+│ Tier 1 (A1/B1): Pantalla + nota "Requiere revisión humana" │
+│ Tier 2 (A2/B2): Código + validation_command + checksum  │
+│ Tier 3 (A3/B3): ZIP con manifest.json + deploy.sh + rollback.sh │
+└─────────────────────────────────────────────────────────┘
+```
+
+> 💡 **Consejo para principiantes**: Si te pierdes en algún paso, vuelve al inicio. Este protocolo está diseñado para ser repetible y auditable.
+
+---
+
+## 【5】📚 GLOSARIO PARA PRINCIPIANTES
+
+<!-- 
+【EDUCATIVO】Términos técnicos explicados en lenguaje simple.
+-->
+
+| Término | Significado simple | Ejemplo |
+|---------|-------------------|---------|
+| **Canonical Path** | La ruta "oficial" donde debe vivir un archivo en el proyecto | `/06-PROGRAMMING/go/orchestrator-engine.go.md` |
+| **Frontmatter** | Metadatos al inicio de un archivo Markdown (entre `---`) | `version: "1.0.0"`, `constraints_mapped: ["C1","C3"]` |
+| **LANGUAGE LOCK** | Regla que prohíbe ciertos operadores en ciertas carpetas | No usar `<->` en `go/`, solo en `postgresql-pgvector/` |
+| **Tenant Isolation (C4)** | Aislar datos de cada cliente para que no se mezclen | `WHERE tenant_id = $1` en cada query |
+| **Tier 1/2/3** | Niveles de madurez: 1=borrador, 2=código listo, 3=desplegable | Tier 3 incluye healthcheck, rollback, checksums |
+| **Validation Command** | Comando que cualquiera puede ejecutar para verificar el artefacto | `bash orchestrator-engine.sh --file mi-archivo.md --json` |
+| **Wikilink** | Enlace interno al proyecto con doble corchete | `[[PROJECT_TREE.md]]` se resuelve a la ruta real |
+| **Constraint** | Regla de calidad que debe cumplirse | C3: "Nunca escribas contraseñas en el código" |
+| **Prompt Hash** | SHA256 del prompt original del humano | Para auditoría: saber qué solicitud generó este artefacto |
+| **AUDIT_FLAG** | Marca que indica cómo se tomó una decisión | `human_confirmed`, `human_timeout`, `fallback_applied` |
+
+---
+
+## 【6】🧪 SANDBOX DE PRUEBA (OPCIONAL)
+
+<!-- 
+【PARA DESARROLLADORES】Pega esta sección en un chat nuevo para validar que la IA sigue el protocolo sin contexto previo.
+-->
+
+```
+【TEST MODE: IA-QUICKSTART VALIDATION】
+Prompt de prueba: "Generar agente RAG multi-tenant con webhook de WhatsApp para cliente agrícola"
+
+Respuesta esperada de la IA:
+1. 【GATE MODO】Solicitar selección: [A1]...[B3] con descripciones claras
+2. Si humano responde "B3":
+   - Registrar: mode_selected=B3, prompt_hash=<SHA256 del prompt>
+   - Cargar PROJECT_TREE → ruta: services/rag/whatsapp-agent/
+   - Consultar 00-STACK-SELECTOR → lenguaje: Python + postgresql-pgvector
+   - Cargar norms-matrix.json → constraints: C3🔴, C4🔴, C5🔴, V1🔴, V3🔴
+   - Aplicar LANGUAGE LOCK → Python: cero operadores pgvector en código, solo en queries
+3. Cargar índices: [[06-PROGRAMMING/python/00-INDEX]], [[06-PROGRAMMING/postgresql-pgvector/00-INDEX]]
+4. Seleccionar plantillas: langchain-integration.md + rag-query-with-tenant-enforcement.pgvector.md
+5. Generar artefacto con:
+   - Frontmatter canónico con mode_selected, constraints_mapped, validation_command
+   - Cuerpo: agente LangGraph con tenant_id propagation, queries vectoriales con V1/V3 documentadas
+   - ≥10 ejemplos ✅/❌/🔧
+   - Bloque de validación: orchestrator-engine.sh --file ... --mode headless --json
+6. Entregar: ZIP simulado con manifest.json, deploy.sh, rollback.sh, README-DEPLOY.md
+
+Si la IA omite el Paso 1 o usa lenguaje incorrecto → FALLA DE GOBERNANZA.
 ```
 
 ---
 
-## 🧭 Matriz de Modos Operativos
+## 【7】🔗 REFERENCIAS CANÓNICAS (WIKILINKS)
 
-Identifica el **contexto** y el **nivel de autonomía** solicitado. Luego, ejecuta **EXACTAMENTE** el prompt correspondiente.
+<!-- 
+【PARA IA】Estos enlaces deben resolverse usando PROJECT_TREE.md. 
+No uses rutas relativas. Usa siempre la forma canónica [[RUTA]].
+-->
 
-```mermaid
-graph TD
-    A[Solicitud del Usuario] --> B{¿Contexto?}
-    B -->|Interno| C[Desarrollo del repositorio agentic-infra-docs]
-    B -->|Externo| D[Generación para cliente/producción SaaS]
-    
-    C --> E{¿Nivel de Autonomía?}
-    D --> F{¿Nivel de Autonomía?}
-    
-    E -->|Asistido| G[1A: IA Asistida - Tier 1]
-    E -->|Auto-generación| H[1B: Auto-generación con entrega - Tier 2]
-    E -->|Auto-deploy| I[1C: Auto-deploy con ZIP - Tier 3]
-    
-    F -->|Asistido| J[2A: IA Asistida Cliente - Tier 1]
-    F -->|Auto-generación| K[2B: Auto-generación Cliente - Tier 2]
-    F -->|Auto-deploy| L[2C: Auto-deploy Cliente - Tier 3]
-```
+- `[[00-STACK-SELECTOR]]` → Motor de decisión de stack (ruta → lenguaje → constraints)
+- `[[PROJECT_TREE]]` → Mapa maestro de rutas del repositorio
+- `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` → Matriz de aplicación de constraints por carpeta
+- `[[01-RULES/harness-norms-v3.0.md]]` → Definición textual de C1-C8
+- `[[01-RULES/language-lock-protocol.md]]` → Reglas de exclusión de operadores por lenguaje
+- `[[GOVERNANCE-ORCHESTRATOR]]` → Tiers, validación y certificación
+- `[[AI-NAVIGATION-CONTRACT]]` → Reglas de interacción y navegación
+- `[[06-PROGRAMMING/00-INDEX]]` → Índice agregador de patrones por lenguaje
+- `[[05-CONFIGURATIONS/templates/skill-template.md]]` → Plantilla base para nuevos artefactos
+- `[[SDD-COLLABORATIVE-GENERATION]]` → Especificación de formato de artefactos
 
 ---
 
-## 🔵 CONTEXTO 1: INTERNO (Desarrollo del repositorio `agentic-infra-docs`)
+## 【8】📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
 
-### 📋 1A. IA Asistida (Tier 1 – Revisión Humana)
-
-**Objetivo**: Generar un artefacto estructurado para revisión humana, sin validación automática.
-
-**Prompt específico para la IA**:
-```text
-[MODE: INTERNAL_ASSISTED_TIER1]
-You are generating a new artifact for the agentic-infra-docs repository.
-
-STEP 1 – PATH RESOLUTION:
-- Ask the user for the functional domain (e.g., "database-rag", "infra-monitoring", "ai-provider-integration").
-- Use PROJECT_TREE.md to resolve the canonical destination folder.
-- If the folder does not exist in PROJECT_TREE.md, STOP and ask the user to define it first.
-
-STEP 2 – TEMPLATE APPLICATION:
-- Load 05-CONFIGURATIONS/templates/skill-template.md.
-- Fill the frontmatter with:
-  * canonical_path: "<resolved_path>/<filename>.md"
-  * ai_optimized: true
-  * constraints_mapped: [list of C1-C8 that apply]
-  * validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file <canonical_path> --json"
-  * related_files: [list of canonical paths this skill depends on]
-
-STEP 3 – CONTENT GENERATION:
-- Write the body following SDD-COLLABORATIVE-GENERATION.md structure:
-  * ## 🎯 Purpose (1-2 sentences)
-  * ## 🏗️ Architecture (diagram or bullet list)
-  * ## 🔧 Implementation Steps (numbered, with code blocks)
-  * ## ✅ Examples (minimum 5, with ✅/❌/🔧 format)
-  * ## 🔍 Human Review Checklist (bullet list of items to validate)
-- Apply constraints C1-C8 where relevant (e.g., use ${VAR:?missing} for C3, include tenant_id filters for C4).
-
-STEP 4 – OUTPUT:
-- Deliver the artifact as a Markdown code block.
-- Do NOT execute validation commands.
-- Append a final note: "⚠️ Requires human review before merge. Run validation_command to certify."
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````markdown
-```markdown
-[Contenido del artefacto con frontmatter YAML]
-```
-⚠️ Requires human review before merge. Run validation_command to certify.
-````
-
----
-
-### 📋 1B. Auto-generación con Entrega (Tier 2 – Merge Automático)
-
-**Objetivo**: Generar un artefacto que pase validación automática (`tier_certified: 2`) y esté listo para merge sin intervención humana.
-
-**Prompt específico para la IA**:
-```text
-[MODE: INTERNAL_AUTOGEN_TIER2]
-You are generating a production-ready artifact for auto-merge in agentic-infra-docs.
-
-STEP 1 – PATH & TEMPLATE (same as Tier 1):
-- Resolve canonical path via PROJECT_TREE.md.
-- Apply skill-template.md with complete frontmatter.
-
-STEP 2 – ZERO-PLACEHOLDER POLICY:
-- Eliminate ALL TODO, FIXME, ${VAR} without default values.
-- For variables, use ${VAR:?missing} pattern (C3 compliance).
-- For secrets, reference environment variables or secret managers ONLY.
-
-STEP 3 – CONSTRAINT ENFORCEMENT:
-- C1: Include resource limits (mem_limit, timeout, concurrency) or document exemption.
-- C2: Add CPU isolation patterns (cpus:, nice, rate_limit) or document exemption.
-- C3: Use ${VAR:?missing} for all sensitive values; NO hardcoded secrets.
-- C4: Include tenant_id filters in queries, labels, or environment; document global exceptions.
-- C5: Add checksum/audit patterns (sha256sum, age -r, backup verification).
-- C6: Use cloud endpoints (openrouter.ai, api.openai.com) or document local inference exception.
-- C7: Include retry/backoff/healthcheck patterns for resilience.
-- C8: Add observability hooks (logging, metrics, tracing) where applicable.
-
-STEP 4 – EXAMPLES & VALIDATION:
-- Include ≥10 examples with ✅/❌/🔧 format.
-- Ensure all wikilinks [[...]] resolve to canonical paths in PROJECT_TREE.md.
-- Add a working validation_command that returns exit 0 when run.
-
-STEP 5 – AUTO-VALIDATION LOOP:
-- Construct a JSON payload for the orchestrator:
-  {
-    "file_path": "<canonical_path>",
-    "file_type": "markdown",
-    "target_folder": "<folder>",
-    "function": "<function_type>",
-    "constraints_declared": ["C1","C3","C4",...],
-    "examples_count": <number>,
-    "wikilinks_resolved": true
-  }
-- Simulate execution of:
-  bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file <canonical_path> --json
-- If output contains blocking_issues OR score < 30:
-  * Analyze the failure reason.
-  * Correct the artifact.
-  * Repeat validation (max 3 iterations).
-- If output contains tier_certified: 2 (or higher):
-  * Proceed to delivery.
-
-STEP 6 – OUTPUT:
-- Deliver the final artifact as a Markdown code block.
-- Append the validation JSON report as a separate code block.
-- Include a merge instruction: "✅ Certified for auto-merge. Run: git add <path> && git commit -m 'feat: <description>'".
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````markdown
-```markdown
-[Contenido final del artefacto]
-```
+<!-- 
+【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
+-->
 
 ```json
 {
-  "orchestrator_version": "1.1.0",
-  "status": "passed",
-  "tier_certified": 2,
-  "score": 45,
-  "blocking_issues": [],
-  "next_step": "auto_merge_approved"
-}
-```
-
-✅ Certified for auto-merge. Run: git add <path> && git commit -m 'feat: <description>'
-````
-
----
-
-### 📋 1C. Auto-Deploy con ZIP (Tier 3 – Despliegue Autónomo)
-
-**Objetivo**: Generar un artefacto empaquetado, firmado y listo para despliegue autónomo en infraestructura objetivo.
-
-**Prompt específico para la IA**:
-```text
-[MODE: INTERNAL_AUTODEPLOY_TIER3]
-You are generating a deploy-ready package for autonomous execution in target infrastructure.
-
-STEP 1 – TIER 2 COMPLIANCE:
-- Fulfill ALL requirements from mode 1B first.
-
-STEP 2 – PRODUCTION HARDENING:
-- Add explicit idempotency guarantees: "Same input → same output, no side effects on re-run".
-- Include healthcheck endpoint/command: "curl -f http://<service>/health || exit 1".
-- Document rollback procedure: "To rollback: <command_or_steps>".
-- Ensure namespace isolation: prefix resources with mantis-<env>-<tenant>- pattern.
-
-STEP 3 – MULTI-TENANT SAFEGUARDS:
-- For database queries: ALWAYS include WHERE tenant_id = ? or RLS policy.
-- For API calls: ALWAYS include X-Tenant-ID header or context propagation.
-- For file paths: ALWAYS use tenant-scoped directories (/data/<tenant_id>/...).
-
-STEP 4 – PACKAGING PREPARATION:
-- Generate a manifest.json with:
-  {
-    "artifact_name": "<filename>",
-    "version": "<semver>",
-    "sha256": "<checksum_of_artifact>",
-    "dependencies": ["list_of_canonical_paths"],
-    "deployment_target": ["vps1", "vps2", "k8s", ...],
-    "healthcheck_command": "<command>",
-    "rollback_command": "<command>"
-  }
-- Simulate packaging command:
-  bash 05-CONFIGURATIONS/scripts/packager-assisted.sh --input <artifact> --output <artifact>.zip
-
-STEP 5 – FINAL VALIDATION:
-- Run orchestrator validation expecting tier_certified: 3.
-- If validation fails, iterate correction (max 3 attempts).
-- If validation passes, proceed to delivery.
-
-STEP 6 – OUTPUT:
-- Deliver a ZIP manifest as a JSON code block (simulated, since actual ZIP generation requires filesystem access).
-- Include deployment instructions:
-  ```bash
-  # Deploy
-  unzip <artifact>.zip -d /opt/mantis/<tenant_id>/
-  cd /opt/mantis/<tenant_id>/
-  ./healthcheck.sh && ./deploy.sh
-  
-  # Rollback (if needed)
-  ./rollback.sh
-  ```
-- Append certification note: "✅ Tier 3 certified. Ready for autonomous deployment."
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````json
-{
-  "package_name": "qdrant-cluster-v1.2.0.zip",
-  "sha256": "a1b2c3d4...",
-  "manifest": {
-    "artifact_name": "qdrant-cluster/variables.tf",
-    "version": "1.2.0",
-    "dependencies": ["05-CONFIGURATIONS/terraform/backend.tf", ...],
-    "healthcheck": "terraform validate && curl -f http://qdrant:6333/ready",
-    "rollback": "terraform destroy -auto-approve && terraform apply -auto-approve"
+  "expansion_registry": {
+    "modes": {
+      "current": ["A1", "A2", "A3", "B1", "B2", "B3"],
+      "extensible": true,
+      "schema": "enum[A1..B3]",
+      "addition_requires": [
+        "Update this file: add mode description to table in 【0.1】",
+        "Update 00-STACK-SELECTOR.md: add mode to decision matrix",
+        "Update GOVERNANCE-ORCHESTRATOR.md: add tier mapping",
+        "Update norms-matrix.json: add validation_profile",
+        "Human approval required: true"
+      ]
+    },
+    "llm_adapters": {
+      "current": ["qwen", "deepseek", "minimax", "claude", "gemini", "gpt"],
+      "extensible": true,
+      "optimization_notes": {
+        "oriental_models": "Use delimiters 【】, numbered sequences, explicit stop conditions",
+        "western_models": "Use clear headings, bullet points, code fences",
+        "all_models": "Always include prompt_hash for auditability"
+      }
+    }
   },
-  "deployment_instructions": "unzip qdrant-cluster-v1.2.0.zip -d /opt/mantis/ && cd /opt/mantis/ && ./deploy.sh"
+  "compatibility_rule": "Nuevas secciones deben usar formato ## 【N】<TÍTULO> y declarar EXPANSION_POINT en comentario HTML. La IA debe ignorar secciones desconocidas sin fallar."
 }
 ```
-✅ Tier 3 certified. Ready for autonomous deployment.
-````
 
 ---
 
-## 🔴 CONTEXTO 2: EXTERNO (Generación para clientes / producción SaaS)
+<!-- 
+═══════════════════════════════════════════════════════════
+🤖 SECCIÓN PARA IA: ÁRBOL JSON ENRIQUECIDO
+═══════════════════════════════════════════════════════════
+Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
+No está diseñada para lectura humana directa. Los humanos deben usar las secciones 【1】-【8】.
 
-### 📋 2A. IA Asistida Cliente (Tier 1 – Personalización Humana)
-
-**Objetivo**: Generar un artefacto base con placeholders seguros para que el equipo del cliente lo revise y complete.
-
-**Prompt específico para la IA**:
-```text
-[MODE: EXTERNAL_ASSISTED_TIER1]
-You are generating a client-ready artifact template for customization by the client's team.
-
-STEP 1 – CLIENT CONTEXT:
-- Ask the user for:
-  * client_name: "Acme Corp"
-  * tenant_id: "acme-prod-01"
-  * functional_domain: "database-rag", "ai-routing", etc.
-- Use PROJECT_TREE.md to map to equivalent client folder structure (e.g., clients/acme-prod-01/02-SKILLS/...).
-
-STEP 2 – TEMPLATE WITH PLACEHOLDERS:
-- Load skill-template.md and adapt with client-specific placeholders:
-  * {{CLIENT_NAME}} → "Acme Corp"
-  * {{TENANT_ID}} → "acme-prod-01"
-  * {{DB_ENDPOINT}} → "postgres://{{DB_USER}}:{{DB_PASS}}@{{DB_HOST}}:5432/{{DB_NAME}}"
-  * {{AI_PROVIDER_ENDPOINT}} → "https://{{AI_PROVIDER}}.api.example.com/v1"
-- Ensure placeholders follow C3: use {{VAR}} syntax (not ${VAR}) to avoid shell expansion.
-
-STEP 3 – FRONTMATTER & CONSTRAINTS:
-- Fill frontmatter with:
-  * canonical_path: "clients/{{TENANT_ID}}/02-SKILLS/<domain>/<filename>.md"
-  * ai_optimized: true
-  * constraints_mapped: [list of C1-C8 that apply]
-  * validation_command: "bash clients/{{TENANT_ID}}/05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file <canonical_path> --json"
-- Document constraint exemptions if needed (e.g., "C6: local inference allowed per client agreement").
-
-STEP 4 – EXAMPLES WITH FICTIONAL DATA:
-- Include ≥5 examples using realistic but fictional data:
-  * ✅ "Query with tenant_id='acme-prod-01' returns 200 OK"
-  * ❌ "Query without tenant_id returns 403 Forbidden"
-  * 🔧 "Add WHERE tenant_id=? to fix isolation breach"
-- Use {{VAR}} placeholders in code blocks, never real credentials.
-
-STEP 5 – CLIENT INSTRUCTIONS:
-- Append a section:
-  ```markdown
-  ## 📋 Instrucciones para el Cliente
-  
-  1. Reemplazar todos los {{PLACEHOLDERS}} con valores reales de su entorno.
-  2. Ejecutar el validation_command en su entorno para certificar el artefacto.
-  3. Para secrets, usar su secret manager (Vault, AWS Secrets, etc.) y NO hardcodear.
-  4. Para multi-tenant, asegurar que tenant_id se propaga en todas las capas.
-  ```
-
-STEP 6 – OUTPUT:
-- Deliver the artifact as a Markdown code block with placeholders intact.
-- Do NOT execute validation (client will do it in their environment).
-- Append note: "⚠️ Requires client customization and validation before deployment."
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````markdown
-```markdown
----
-canonical_path: "clients/{{TENANT_ID}}/02-SKILLS/database-rag/rag-ingestion.md"
-ai_optimized: true
-constraints_mapped: ["C3","C4","C5"]
-validation_command: "bash clients/{{TENANT_ID}}/05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file clients/{{TENANT_ID}}/02-SKILLS/database-rag/rag-ingestion.md --json"
----
-
-# RAG Ingestion Pipeline for {{CLIENT_NAME}}
-
-## 🔧 Implementation
-```bash
-export DB_URL="postgres://{{DB_USER}}:{{DB_PASS}}@{{DB_HOST}}:5432/{{DB_NAME}}"
-```
-
-## ✅ Examples
-✅ Query with tenant_id='{{TENANT_ID}}' returns 200 OK
-❌ Query without tenant_id returns 403 Forbidden
-🔧 Add WHERE tenant_id=? to fix isolation breach
-
-## 📋 Instrucciones para el Cliente
-1. Reemplazar todos los {{PLACEHOLDERS}} con valores reales...
-```
-⚠️ Requires client customization and validation before deployment.
-````
-
----
-
-### 📋 2B. Auto-generación Cliente (Tier 2 – Integración Directa)
-
-**Objetivo**: Entregar un artefacto completamente funcional que el cliente pueda integrar directamente en su CI/CD, sin placeholders.
-
-**Prompt específico para la IA**:
-```text
-[MODE: EXTERNAL_AUTOGEN_TIER2]
-You are generating a production-ready artifact for direct client integration.
-
-STEP 1 – CLIENT VALUES COLLECTION:
-- Obtain from user:
-  * tenant_id: "acme-prod-01"
-  * db_endpoint: "postgres://user:pass@host:5432/db"
-  * ai_provider_endpoint: "https://api.openrouter.ai/v1"
-  * resource_limits: { memory: "512Mi", cpu: "0.5", timeout: "30s" }
-  * any other environment-specific values
-
-STEP 2 – ZERO-PLACEHOLDER GENERATION:
-- Generate the artifact with ALL values resolved (no {{VAR}} or ${VAR} left).
-- Apply C3 compliance: use environment variable references for secrets ONLY:
-  * DB_URL: "${DB_URL:?missing}" (not hardcoded credentials)
-  * API_KEY: "${OPENROUTER_KEY:?missing}"
-- For non-sensitive config, use resolved values directly.
-
-STEP 3 – CONSTRAINT ENFORCEMENT (CLIENT CONTEXT):
-- C1: Include client-specific resource limits in config.
-- C2: Add CPU isolation patterns appropriate for client's infra (K8s limits, Docker cpus, etc.).
-- C3: Zero hardcoded secrets; all sensitive values via env vars or secret manager references.
-- C4: Ensure tenant_id is enforced in ALL queries, headers, and file paths.
-- C5: Include checksum/audit commands client can run in their environment.
-- C6: Use client-approved AI endpoints (cloud or local per agreement).
-- C7: Add retry/backoff patterns compatible with client's monitoring stack.
-- C8: Include logging/metrics hooks that integrate with client's observability.
-
-STEP 4 – CLIENT VALIDATION COMMAND:
-- Provide the exact command the client must run to validate:
-  ```bash
-  bash clients/{{TENANT_ID}}/05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-    --mode headless \
-    --file clients/{{TENANT_ID}}/02-SKILLS/<domain>/<filename>.md \
-    --json
-  ```
-- Document expected output: "Look for tier_certified: 2 and status: passed".
-
-STEP 5 – SIMULATED AUTO-VALIDATION:
-- Construct orchestrator payload with client values.
-- Simulate validation expecting tier_certified: 2.
-- If validation would fail, correct and retry (max 3 iterations).
-
-STEP 6 – CI/CD INTEGRATION INSTRUCTIONS:
-- Append a section:
-  ```markdown
-  ## 🚀 Integración en CI/CD del Cliente
-  
-  ### GitHub Actions Example
-  ```yaml
-  - name: Validate SDD Artifact
-    run: |
-      bash clients/acme-prod-01/05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-        --mode headless \
-        --file clients/acme-prod-01/02-SKILLS/database-rag/rag-ingestion.md \
-        --json > report.json
-      jq -e '.status == "passed" and .tier_certified >= 2' report.json
-  ```
-  
-  ### GitLab CI Example
-  ```yaml
-  validate_sdd:
-    script:
-      - bash clients/acme-prod-01/05-CONFIGURATIONS/validation/orchestrator-engine.sh --json > report.json
-      - 'jq -e '"'"'.status == "passed" and .tier_certified >= 2'"'"' report.json'
-  ```
-  ```
-
-STEP 7 – OUTPUT:
-- Deliver the final artifact as a Markdown code block (all values resolved).
-- Append the simulated validation JSON report.
-- Include CI/CD integration instructions.
-- Append certification note: "✅ Certified for client integration. Run validation_command in your environment to confirm."
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````markdown
-```markdown
----
-canonical_path: "clients/acme-prod-01/02-SKILLS/database-rag/rag-ingestion.md"
-ai_optimized: true
-constraints_mapped: ["C1","C3","C4","C5","C6"]
-validation_command: "bash clients/acme-prod-01/05-CONFIGURATIONS/validation/orchestrator-engine.sh --mode headless --file clients/acme-prod-01/02-SKILLS/database-rag/rag-ingestion.md --json"
----
-
-# RAG Ingestion Pipeline for Acme Corp
-
-## 🔧 Implementation
-```bash
-export DB_URL="${DB_URL:?missing}"
-export OPENROUTER_KEY="${OPENROUTER_KEY:?missing}"
-```
-
-## ✅ Examples
-✅ Query with tenant_id='acme-prod-01' returns 200 OK
-❌ Query without tenant_id returns 403 Forbidden
-🔧 Add WHERE tenant_id=? to fix isolation breach
-```
+Formato: JSON válido, con comentarios explicativos en claves "doc_*".
+Prioridad de ejecución: Las normas se aplican en el orden definido en "norm_execution_order".
+Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
+═══════════════════════════════════════════════════════════
+-->
 
 ```json
 {
-  "orchestrator_version": "1.1.0",
-  "status": "passed",
-  "tier_certified": 2,
-  "score": 42,
-  "blocking_issues": [],
-  "next_step": "client_integration_approved"
-}
-```
-
-## 🚀 Integración en CI/CD del Cliente
-[GitHub Actions / GitLab CI examples]
-
-✅ Certified for client integration. Run validation_command in your environment to confirm.
-````
-
----
-
-### 📋 2C. Auto-Deploy Cliente (Tier 3 – Paquete Desplegable)
-
-**Objetivo**: Proporcionar un paquete ZIP firmado que el cliente pueda desplegar en su infraestructura sin modificaciones.
-
-**Prompt específico para la IA**:
-```text
-[MODE: EXTERNAL_AUTODEPLOY_TIER3]
-You are generating a client-deployable package for autonomous execution in client infrastructure.
-
-STEP 1 – TIER 2 COMPLIANCE:
-- Fulfill ALL requirements from mode 2B first.
-
-STEP 2 – CLIENT INFRASTRUCTURE ADAPTATION:
-- Ask for client's deployment target: [k8s, docker-compose, terraform, bare-metal].
-- Adapt artifact format accordingly:
-  * k8s: Generate Deployment, Service, ConfigMap YAMLs with tenant labels.
-  * docker-compose: Generate docker-compose.yml with env_file references.
-  * terraform: Generate module with variables.tf, outputs.tf, and backend config.
-  * bare-metal: Generate systemd unit + config file + deploy script.
-
-STEP 3 – MULTI-TENANT HARDENING:
-- Ensure ALL resources are tenant-scoped:
-  * Database: WHERE tenant_id = ? or RLS policy per tenant.
-  * Storage: /data/<tenant_id>/... paths.
-  * Networking: X-Tenant-ID header propagation.
-  * Logging: tenant_id in every log entry.
-- Document tenant isolation guarantees in README.
-
-STEP 4 – PRODUCTION OPERATIONS:
-- Include healthcheck endpoint/command compatible with client's monitoring.
-- Document rollback procedure with exact commands.
-- Add idempotency guarantee: "Re-running deploy.sh has no side effects".
-- Include resource limits appropriate for client's infra (C1/C2 compliance).
-
-STEP 5 – PACKAGING & SIGNING:
-- Generate manifest.json with:
-  {
-    "client_name": "Acme Corp",
-    "tenant_id": "acme-prod-01",
-    "artifact_version": "1.2.0",
-    "deployment_target": "k8s",
-    "sha256_artifact": "<checksum>",
-    "sha256_manifest": "<checksum>",
-    "dependencies": ["list_of_canonical_paths"],
-    "healthcheck": "<command>",
-    "rollback": "<command>",
-    "multi_tenant_guarantees": ["tenant_id_in_queries", "namespace_isolation", ...]
-  }
-- Simulate packaging:
-  bash 05-CONFIGURATIONS/scripts/packager-assisted.sh \
-    --input clients/acme-prod-01/02-SKILLS/database-rag/rag-ingestion.md \
-    --output acme-rag-ingestion-v1.2.0.zip
-
-STEP 6 – FINAL VALIDATION:
-- Run orchestrator validation expecting tier_certified: 3.
-- If validation fails, iterate correction (max 3 attempts).
-- If validation passes, proceed to delivery.
-
-STEP 7 – CLIENT DEPLOYMENT GUIDE:
-- Append a comprehensive README-DEPLOY.md section:
-  ```markdown
-  # 🚀 Guía de Despliegue para {{CLIENT_NAME}}
-  
-  ## Requisitos Previos
-  - Kubernetes 1.24+ / Docker 24+ / Terraform 1.5+
-  - Access to secret manager (Vault/AWS Secrets/...)
-  - Network policies allowing tenant isolation
-  
-  ## Despliegue
-  ```bash
-  # 1. Extraer paquete
-  unzip acme-rag-ingestion-v1.2.0.zip -d /opt/mantis/acme-prod-01/
-  cd /opt/mantis/acme-prod-01/
-  
-  # 2. Configurar secrets (ejemplo para Vault)
-  export DB_URL=$(vault kv get -field=url secret/acme-prod-01/db)
-  export OPENROUTER_KEY=$(vault kv get -field=key secret/acme-prod-01/ai)
-  
-  # 3. Desplegar
-  ./deploy.sh
-  
-  # 4. Verificar
-  ./healthcheck.sh
-  ```
-  
-  ## Rollback
-  ```bash
-  ./rollback.sh
-  ```
-  
-  ## Soporte
-  - Documentación: https://docs.mantis.agentic.dev
-  - Issue tracker: https://github.com/Mantis-AgenticDev/agentic-infra-docs/issues
-  ```
-
-STEP 8 – OUTPUT:
-- Deliver a ZIP manifest as a JSON code block (simulated).
-- Include the full README-DEPLOY.md content.
-- Append certification note: "✅ Tier 3 certified. Ready for client autonomous deployment."
-
-[END MODE]
-```
-
-**Formato de entrega**:
-````json
-{
-  "package_name": "acme-rag-ingestion-v1.2.0.zip",
-  "client": "Acme Corp",
-  "tenant_id": "acme-prod-01",
-  "sha256_artifact": "a1b2c3d4...",
-  "sha256_manifest": "e5f6g7h8...",
-  "deployment_target": "k8s",
-  "manifest": {
-    "artifact_version": "1.2.0",
-    "dependencies": ["05-CONFIGURATIONS/terraform/backend.tf", ...],
-    "healthcheck": "kubectl exec -n acme-prod-01 rag-pod -- curl -f http://localhost:8080/health",
-    "rollback": "kubectl rollout undo deployment/rag-pod -n acme-prod-01",
-    "multi_tenant_guarantees": ["tenant_id_in_queries", "namespace_isolation", "header_propagation"]
+  "quickstart_metadata": {
+    "version": "3.0.0-SELECTIVE",
+    "canonical_path": "/IA-QUICKSTART.md",
+    "artifact_type": "governance_seed",
+    "mode_gate_required": true,
+    "supported_llms": ["qwen", "deepseek", "minimax", "claude", "gemini", "gpt"],
+    "llm_optimizations": {
+      "oriental_models_friendly": true,
+      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
+      "numbered_sequences": true,
+      "stop_conditions_explicit": true,
+      "response_format_examples": true
+    }
   },
-  "deployment_guide": "See README-DEPLOY.md section below"
-}
-```
-
-```markdown
-# 🚀 Guía de Despliegue para Acme Corp
-[Contenido completo de README-DEPLOY.md]
-```
-
-✅ Tier 3 certified. Ready for client autonomous deployment.
-````
-
----
-
-## 🌐 Guía de Idioma para Modelos Orientales
-
-Para maximizar la precisión en tareas técnicas y de código:
-
-| Modelo | Recomendación de Idioma | Notas |
-|--------|-------------------------|-------|
-| **DeepSeek** | Inglés para prompts lógicos; contenido en español/portugués | Mejor rendimiento en inglés para JSON Schema, HCL, YAML. |
-| **Qwen** | Inglés para lógica; contenido bilingüe aceptable | Soporte sólido en español, pero validar formatos estrictos. |
-| **MiniMax** | Inglés para instrucciones; contenido localizado | Priorizar inglés en prompts de sistema para consistencia. |
-| **GPT-4/Claude/Gemini** | Flexible; usar idioma del usuario | Excelente soporte multilingüe; validar output con orchestrator. |
-
-**Regla práctica**:
-```text
-[SYSTEM PROMPT LANGUAGE]
-- Use English for: logical instructions, JSON schemas, code generation, validation commands.
-- Use Spanish/Portuguese for: user-facing content, comments, examples, documentation body.
-- Never mix languages within the same logical block (e.g., don't write English comments in Spanish code).
-```
-
----
-
-## 🔄 Flujo de Trabajo Estándar para IA
-
-```mermaid
-sequenceDiagram
-    participant U as Usuario/Humano
-    participant IA as Agente IA
-    participant V as Validadores
-    participant R as Repositorio
-    
-    U->>IA: Solicitud de artefacto + contexto (Interno/Externo, Tier)
-    IA->>IA: Cargar archivos canónicos (PROJECT_TREE, SDD, etc.)
-    IA->>IA: Clasificar modo (1A/1B/1C/2A/2B/2C)
-    IA->>IA: Ejecutar prompt específico del modo
-    IA->>V: (Opcional) Simular validación con orchestrator-engine.sh
-    alt Validación falla
-        V->>IA: blocking_issues o score insuficiente
-        IA->>IA: Corregir artefacto (máx. 3 intentos)
-        IA->>V: Re-validar
-    else Validación pasa
-        V->>IA: tier_certified: N, status: passed
-        IA->>R: Entregar artefacto + reporte JSON
-    end
-    IA->>U: Confirmación + instrucciones de siguiente paso
-```
-
----
-
-## 🛡️ Guardrails Críticos para IA
-
-1.  **Nunca modificar archivos existentes**: Todos los validadores son `READ-ONLY`. Si necesitas contexto, lee en memoria; nunca escribas sobre fuentes.
-2.  **Resolución de rutas canónicas**: Usa `PROJECT_TREE.md` como única fuente de verdad. Si una ruta no está allí, no existe.
-3.  **Cero placeholders en Tier 2/3**: Elimina `TODO`, `FIXME`, `{{VAR}}`, `${VAR}` sin valor por defecto antes de entregar.
-4.  **Validación antes de entrega**: Siempre simula o ejecuta `orchestrator-engine.sh --json` y verifica `tier_certified` y `blocking_issues`.
-5.  **Manejo de secretos**: Nunca hardcodees credenciales. Usa `${VAR:?missing}` para interno, `{{VAR}}` para externo, o referencias a secret managers.
-6.  **Aislamiento multi-tenant**: Incluye `tenant_id` en queries, headers, paths y logs. Documenta excepciones explícitamente.
-7.  **Idempotencia y rollback**: En Tier 3, garantiza que re-ejecutar el deploy no tenga side effects y documenta el procedimiento de rollback.
-
----
-
-## 📞 Instrucción Final para la IA
-
-**Una vez leído este documento, responde ÚNICAMENTE con:**
-```
-QUICKSTART v3.1 RECIBIDO. Contexto: [INTERNO/EXTERNO]. Modo: [ASISTIDO/AUTOGEN/DEPLOY]. Esperando solicitud de artefacto.
-```
-
-*A partir de ese momento, espera el prompt del usuario con la solicitud concreta. No generes contenido hasta recibir la instrucción específica del artefacto a crear.*
-
-## Inferencia con Metadatos para IA
-```json
-{
-  "metadata_inference_graph": {
-    "version": "2.1.0",
-    "scope": ["ROOT", "00-CONTEXT", "01-RULES", "02-SKILLS", "05-CONFIGURATIONS"],
-    "inference_type": "causal_dependency",
-    "generated_for": "PROJECT_TREE.md_headless_mode + IA-QUICKSTART.md_routing",
-    "artifacts": [
-      {"canonical_path": "IA-QUICKSTART.md", "depends_on": [], "required_by": ["PROJECT_TREE.md", "AI-NAVIGATION-CONTRACT.md", "GOVERNANCE-ORCHESTRATOR.md", "05-CONFIGURATIONS/validation/orchestrator-engine.sh"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "README.md", "depends_on": ["IA-QUICKSTART.md"], "required_by": [], "constraints": ["C3", "C8"]},
-      {"canonical_path": "PROJECT_TREE.md", "depends_on": ["IA-QUICKSTART.md", "05-CONFIGURATIONS/validation/norms-matrix.json"], "required_by": ["05-CONFIGURATIONS/scripts/validate-against-specs.sh", ".github/workflows/integrity-check.yml"], "constraints": ["C4", "C5", "C8"]},
-      {"canonical_path": "knowledge-graph.json", "depends_on": ["PROJECT_TREE.md", "00-CONTEXT/facundo-core-context.md"], "required_by": ["05-CONFIGURATIONS/validation/schema-validator.py"], "constraints": ["C4", "C5"]},
-      {"canonical_path": "SDD-COLLABORATIVE-GENERATION.md", "depends_on": ["GOVERNANCE-ORCHESTRATOR.md", "01-RULES/09-AGENTIC-OUTPUT-RULES.md"], "required_by": ["02-SKILLS/GENERATION-MODELS.md", "05-CONFIGURATIONS/templates/skill-template.md"], "constraints": ["C4", "C5", "C7"]},
-      {"canonical_path": "TOOLCHAIN-REFERENCE.md", "depends_on": ["05-CONFIGURATIONS/validation/orchestrator-engine.sh"], "required_by": ["01-RULES/validation-checklist.md"], "constraints": ["C5", "C8"]},
-      {"canonical_path": "AI-NAVIGATION-CONTRACT.md", "depends_on": ["GOVERNANCE-ORCHESTRATOR.md"], "required_by": ["IA-QUICKSTART.md", "02-SKILLS/AI/qwen-integration.md"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "GOVERNANCE-ORCHESTRATOR.md", "depends_on": ["01-RULES/09-AGENTIC-OUTPUT-RULES.md"], "required_by": ["AI-NAVIGATION-CONTRACT.md", "SDD-COLLABORATIVE-GENERATION.md", "05-CONFIGURATIONS/validation/orchestrator-engine.sh"], "constraints": ["C1", "C4", "C7"]},
-      {"canonical_path": "RAW_URLS_INDEX.md", "depends_on": ["PROJECT_TREE.md"], "required_by": ["IA-QUICKSTART.md", "05-CONFIGURATIONS/pipelines/provider-router.yml"], "constraints": ["C4", "C5", "C8"]},
-      {"canonical_path": "00-CONTEXT/00-INDEX.md", "depends_on": ["PROJECT_TREE.md", "RAW_URLS_INDEX.md"], "required_by": ["05-CONFIGURATIONS/scripts/validate-against-specs.sh"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "00-CONTEXT/PROJECT_OVERVIEW.md", "depends_on": ["00-CONTEXT/facundo-core-context.md"], "required_by": [], "constraints": ["C3", "C4"]},
-      {"canonical_path": "00-CONTEXT/README.md", "depends_on": ["01-RULES/01-ARCHITECTURE-RULES.md"], "required_by": ["IA-QUICKSTART.md"], "constraints": ["C3", "C8"]},
-      {"canonical_path": "00-CONTEXT/facundo-core-context.md", "depends_on": [], "required_by": ["00-CONTEXT/facundo-infrastructure.md", "00-CONTEXT/PROJECT_OVERVIEW.md", "knowledge-graph.json"], "constraints": ["C3", "C4", "C8"]},
-      {"canonical_path": "00-CONTEXT/facundo-infrastructure.md", "depends_on": ["01-RULES/01-ARCHITECTURE-RULES.md", "00-CONTEXT/facundo-core-context.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml", "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf", "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "00-CONTEXT/facundo-business-model.md", "depends_on": ["00-CONTEXT/facundo-core-context.md"], "required_by": ["01-RULES/07-SCALABILITY-RULES.md"], "constraints": ["C3", "C4"]},
-      {"canonical_path": "00-CONTEXT/documentation-validation-cheklist.md", "depends_on": ["01-RULES/validation-checklist.md", "TOOLCHAIN-REFERENCE.md"], "required_by": ["05-CONFIGURATIONS/validation/validate-skill-integrity.sh"], "constraints": ["C5", "C8"]},
-      {"canonical_path": "01-RULES/00-INDEX.md", "depends_on": ["PROJECT_TREE.md"], "required_by": ["05-CONFIGURATIONS/validation/check-wikilinks.sh"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "01-RULES/01-ARCHITECTURE-RULES.md", "depends_on": ["00-CONTEXT/facundo-infrastructure.md"], "required_by": ["05-CONFIGURATIONS/terraform/modules/vps-base/main.tf", "02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md", "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "01-RULES/02-RESOURCE-GUARDRAILS.md", "depends_on": ["00-CONTEXT/facundo-infrastructure.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml", "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md", "05-CONFIGURATIONS/pipelines/provider-router.yml"], "constraints": ["C1", "C2"]},
-      {"canonical_path": "01-RULES/03-SECURITY-RULES.md", "depends_on": ["00-CONTEXT/facundo-infrastructure.md"], "required_by": ["02-SKILLS/SEGURIDAD/security-hardening-vps.md", "05-CONFIGURATIONS/scripts/audit-secrets.sh", "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "01-RULES/04-API-RELIABILITY-RULES.md", "depends_on": ["00-CONTEXT/facundo-infrastructure.md"], "required_by": ["05-CONFIGURATIONS/pipelines/provider-router.yml", "02-SKILLS/AI/openrouter-api-integration.md", "02-SKILLS/COMUNICACIÓN/telegram-bot-integration.md"], "constraints": ["C4", "C6", "C7"]},
-      {"canonical_path": "01-RULES/05-CODE-PATTERNS-RULES.md", "depends_on": [], "required_by": ["02-SKILLS/AI/qwen-integration.md", "06-PROGRAMMING/bash/robust-error-handling.md", "05-CONFIGURATIONS/templates/skill-template.md"], "constraints": ["C3", "C5", "C8"]},
-      {"canonical_path": "01-RULES/06-MULTITENANCY-RULES.md", "depends_on": ["01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md", "05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf", "03-AGENTS/clients/rag-knowledge-agent.md"], "constraints": ["C4", "C5", "C7"]},
-      {"canonical_path": "01-RULES/07-SCALABILITY-RULES.md", "depends_on": ["00-CONTEXT/facundo-business-model.md", "01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["04-WORKFLOWS/n8n/INFRA-003-Alert-Dispatcher.json", "07-PROCEDURES/scaling-decision-matrix.md"], "constraints": ["C1", "C2", "C7"]},
-      {"canonical_path": "01-RULES/08-SKILLS-REFERENCE.md", "depends_on": ["02-SKILLS/00-INDEX.md"], "required_by": ["02-SKILLS/GENERATION-MODELS.md"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "01-RULES/09-AGENTIC-OUTPUT-RULES.md", "depends_on": ["GOVERNANCE-ORCHESTRATOR.md"], "required_by": ["05-CONFIGURATIONS/validation/orchestrator-engine.sh", "SDD-COLLABORATIVE-GENERATION.md", "02-SKILLS/GENERATION-MODELS.md"], "constraints": ["C4", "C5", "C8"]},
-      {"canonical_path": "01-RULES/validation-checklist.md", "depends_on": ["05-CONFIGURATIONS/validation/norms-matrix.json", "TOOLCHAIN-REFERENCE.md"], "required_by": ["00-CONTEXT/documentation-validation-cheklist.md", ".github/workflows/integrity-check.yml"], "constraints": ["C5", "C8"]},
-      {"canonical_path": "02-SKILLS/00-INDEX.md", "depends_on": ["PROJECT_TREE.md", "01-RULES/08-SKILLS-REFERENCE.md"], "required_by": ["05-CONFIGURATIONS/templates/skill-template.md", "02-SKILLS/skill-domains-mapping.md"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "02-SKILLS/skill-domains-mapping.md", "depends_on": ["02-SKILLS/00-INDEX.md"], "required_by": ["knowledge-graph.json", "05-CONFIGURATIONS/pipelines/provider-router.yml"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "02-SKILLS/GENERATION-MODELS.md", "depends_on": ["SDD-COLLABORATIVE-GENERATION.md", "01-RULES/09-AGENTIC-OUTPUT-RULES.md"], "required_by": ["05-CONFIGURATIONS/templates/skill-template.md", "IA-QUICKSTART.md"], "constraints": ["C4", "C5", "C7"]},
-      {"canonical_path": "02-SKILLS/AI/qwen-integration.md", "depends_on": ["01-RULES/05-CODE-PATTERNS-RULES.md", "AI-NAVIGATION-CONTRACT.md"], "required_by": ["02-SKILLS/WHATSAPP-RAG AGENTS/whatsapp-rag-openrouter.md", "02-SKILLS/COMUNICACIÓN/whatsapp-rag-openRouter.md"], "constraints": ["C3", "C4", "C6"]},
-      {"canonical_path": "02-SKILLS/AI/openrouter-api-integration.md", "depends_on": ["01-RULES/04-API-RELIABILITY-RULES.md"], "required_by": ["02-SKILLS/AI/qwen-integration.md", "02-SKILLS/COMUNICACIÓN/whatsapp-rag-openRouter.md", "05-CONFIGURATIONS/pipelines/provider-router.yml"], "constraints": ["C3", "C4", "C6", "C7"]},
-      {"canonical_path": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md", "depends_on": ["01-RULES/06-MULTITENANCY-RULES.md", "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml"], "required_by": ["02-SKILLS/WHATSAPP-RAG AGENTS/whatsapp-rag-openrouter.md", "03-AGENTS/clients/rag-knowledge-agent.md", "05-CONFIGURATIONS/terraform/modules/qdrant-cluster/main.tf"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md", "depends_on": ["01-RULES/06-MULTITENANCY-RULES.md"], "required_by": ["05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf", "03-AGENTS/clients/rag-knowledge-agent.md"], "constraints": ["C4", "C5", "C7"]},
-      {"canonical_path": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md", "depends_on": ["01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml", "07-PROCEDURES/vps-initial-setup.md"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md", "depends_on": ["01-RULES/01-ARCHITECTURE-RULES.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml", "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml", "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml"], "constraints": ["C1", "C3", "C4"]},
-      {"canonical_path": "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md", "depends_on": ["01-RULES/01-ARCHITECTURE-RULES.md", "00-CONTEXT/facundo-infrastructure.md"], "required_by": ["04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json", "05-CONFIGURATIONS/scripts/health-check.sh"], "constraints": ["C3", "C4", "C7"]},
-      {"canonical_path": "02-SKILLS/SEGURIDAD/security-hardening-vps.md", "depends_on": ["01-RULES/03-SECURITY-RULES.md"], "required_by": ["03-AGENTS/infrastructure/security-hardening-agent.md", "04-WORKFLOWS/n8n/INFRA-004-Security-Hardening.json", "07-PROCEDURES/vps-initial-setup.md"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "02-SKILLS/COMUNICACIÓN/telegram-bot-integration.md", "depends_on": ["01-RULES/04-API-RELIABILITY-RULES.md"], "required_by": ["03-AGENTS/infrastructure/alert-dispatcher-agent.md", "04-WORKFLOWS/n8n/INFRA-003-Alert-Dispatcher.json"], "constraints": ["C3", "C4", "C6"]},
-      {"canonical_path": "02-SKILLS/WHATSAPP-RAG AGENTS/whatsapp-rag-openrouter.md", "depends_on": ["02-SKILLS/AI/qwen-integration.md", "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md", "01-RULES/04-API-RELIABILITY-RULES.md"], "required_by": ["03-AGENTS/clients/whatsapp-attention-agent.md", "04-WORKFLOWS/n8n/CLIENT-001-WhatsApp-RAG.json"], "constraints": ["C3", "C4", "C6", "C7"]},
-      {"canonical_path": "05-CONFIGURATIONS/00-INDEX.md", "depends_on": ["PROJECT_TREE.md", "01-RULES/08-SKILLS-REFERENCE.md"], "required_by": ["05-CONFIGURATIONS/validation/validate-skill-integrity.sh"], "constraints": ["C4", "C8"]},
-      {"canonical_path": "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml", "depends_on": ["02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md", "01-RULES/02-RESOURCE-GUARDRAILS.md", "00-CONTEXT/facundo-infrastructure.md"], "required_by": ["04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml", "depends_on": ["02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md", "02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md", "01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["04-WORKFLOWS/n8n/INFRA-002-Backup-Manager.json", "03-AGENTS/clients/rag-knowledge-agent.md"], "constraints": ["C1", "C3", "C4"]},
-      {"canonical_path": "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml", "depends_on": ["05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml", "01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["04-WORKFLOWS/n8n/CLIENT-001-WhatsApp-RAG.json"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "depends_on": ["05-CONFIGURATIONS/validation/norms-matrix.json", "01-RULES/09-AGENTIC-OUTPUT-RULES.md", "GOVERNANCE-ORCHESTRATOR.md"], "required_by": ["PROJECT_TREE.md", "05-CONFIGURATIONS/scripts/validate-against-specs.sh", ".github/workflows/integrity-check.yml", "05-CONFIGURATIONS/templates/skill-template.md"], "constraints": ["C5", "C7", "C8"]},
-      {"canonical_path": "05-CONFIGURATIONS/validation/norms-matrix.json", "depends_on": ["01-RULES/validation-checklist.md"], "required_by": ["05-CONFIGURATIONS/validation/orchestrator-engine.sh", "05-CONFIGURATIONS/validation/verify-constraints.sh", "PROJECT_TREE.md", "05-CONFIGURATIONS/scripts/validate-against-specs.sh"], "constraints": ["C4", "C5"]},
-      {"canonical_path": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh", "depends_on": ["05-CONFIGURATIONS/validation/norms-matrix.json", "01-RULES/09-AGENTIC-OUTPUT-RULES.md"], "required_by": ["05-CONFIGURATIONS/templates/skill-template.md", ".github/workflows/validate-skill.yml"], "constraints": ["C5", "C8"]},
-      {"canonical_path": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf", "depends_on": ["01-RULES/01-ARCHITECTURE-RULES.md", "01-RULES/03-SECURITY-RULES.md"], "required_by": ["05-CONFIGURATIONS/terraform/modules/qdrant-cluster/main.tf", "05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf"], "constraints": ["C1", "C2", "C3"]},
-      {"canonical_path": "05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf", "depends_on": ["01-RULES/06-MULTITENANCY-RULES.md", "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml", "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md"], "constraints": ["C4", "C5", "C7"]},
-      {"canonical_path": "05-CONFIGURATIONS/terraform/modules/qdrant-cluster/main.tf", "depends_on": ["05-CONFIGURATIONS/terraform/modules/vps-base/main.tf", "01-RULES/06-MULTITENANCY-RULES.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "05-CONFIGURATIONS/pipelines/provider-router.yml", "depends_on": ["01-RULES/04-API-RELIABILITY-RULES.md", "01-RULES/02-RESOURCE-GUARDRAILS.md"], "required_by": ["02-SKILLS/AI/openrouter-api-integration.md", "04-WORKFLOWS/sdd-assisted-generation-loop.json"], "constraints": ["C4", "C6", "C7"]},
-      {"canonical_path": "05-CONFIGURATIONS/templates/skill-template.md", "depends_on": ["01-RULES/09-AGENTIC-OUTPUT-RULES.md", "05-CONFIGURATIONS/validation/validate-skill-integrity.sh"], "required_by": ["02-SKILLS/GENERATION-MODELS.md", "IA-QUICKSTART.md"], "constraints": ["C3", "C4", "C5"]},
-      {"canonical_path": "05-CONFIGURATIONS/scripts/validate-against-specs.sh", "depends_on": ["05-CONFIGURATIONS/validation/orchestrator-engine.sh", "01-RULES/validation-checklist.md"], "required_by": [".github/workflows/integrity-check.yml"], "constraints": ["C3", "C5", "C8"]},
-      {"canonical_path": "05-CONFIGURATIONS/scripts/health-check.sh", "depends_on": ["01-RULES/02-RESOURCE-GUARDRAILS.md", "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md"], "required_by": ["03-AGENTS/infrastructure/health-monitor-agent.md", "04-WORKFLOWS/n8n/INFRA-001-Monitor-Salud-VPS.json"], "constraints": ["C1", "C2", "C8"]},
-      {"canonical_path": "05-CONFIGURATIONS/environment/.env.example", "depends_on": ["01-RULES/03-SECURITY-RULES.md"], "required_by": ["05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml", "05-CONFIGURATIONS/terraform/environments/variables.tf"], "constraints": ["C3", "C5"]}
+  
+  "mode_definitions": {
+    "A1": {
+      "context": "internal",
+      "autonomy": "assisted",
+      "tier": 1,
+      "delivery_format": "screen_editor",
+      "validation_profile": "tier1-doc",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C5,C6 --mode headless --json",
+      "human_approval_required": true,
+      "auto_merge_allowed": false,
+      "doc_description": "Documentación interna, planos, configuración. Revisión humana obligatoria."
+    },
+    "A2": {
+      "context": "internal",
+      "autonomy": "auto_generation",
+      "tier": 2,
+      "delivery_format": "code_block_with_validation",
+      "validation_profile": "tier2-code",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --lint --mode headless --json",
+      "human_approval_required": false,
+      "auto_merge_allowed": true,
+      "ci_gate_required": true,
+      "doc_description": "Código validable para el proyecto interno. Merge automático tras gate CI."
+    },
+    "A3": {
+      "context": "internal",
+      "autonomy": "auto_deploy",
+      "tier": 3,
+      "delivery_format": "zip_with_manifest",
+      "validation_profile": "tier3-deploy",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --bundle --checksum --mode headless --json",
+      "human_approval_required": false,
+      "auto_merge_allowed": true,
+      "auto_deploy_allowed": true,
+      "requires_packager": true,
+      "doc_description": "Binarios, Docker, CI/CD listo para despliegue interno autónomo."
+    },
+    "B1": {
+      "context": "external",
+      "autonomy": "assisted",
+      "tier": 1,
+      "delivery_format": "screen_editor",
+      "validation_profile": "tier1-doc",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C5,C6 --mode headless --json",
+      "human_approval_required": true,
+      "client_customization_allowed": true,
+      "doc_description": "Propuestas, esquemas para cliente. El humano es responsable final de la entrega."
+    },
+    "B2": {
+      "context": "external",
+      "autonomy": "auto_generation",
+      "tier": 2,
+      "delivery_format": "integrable_code",
+      "validation_profile": "tier2-code",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --lint --mode headless --json",
+      "human_approval_required": false,
+      "client_integration_ready": true,
+      "doc_description": "Código fuente listo para que el cliente lo integre en su entorno."
+    },
+    "B3": {
+      "context": "external",
+      "autonomy": "auto_deploy",
+      "tier": 3,
+      "delivery_format": "production_zip",
+      "validation_profile": "tier3-deploy",
+      "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --bundle --checksum --mode headless --json",
+      "human_approval_required": false,
+      "client_deploy_ready": true,
+      "requires_packager": true,
+      "doc_description": "ZIP completo con manifiesto, scripts de despliegue y rollback, listo para producción del cliente."
+    }
+  },
+  
+  "protocol_steps": {
+    "step_0_mode_gate": {
+      "trigger": "mode not specified in user prompt",
+      "action": "present 6-mode menu with descriptions",
+      "timeout_turns": 3,
+      "fallback_mode": "A1",
+      "fallback_audit_flag": "human_timeout",
+      "required_response_format": "single code: A1|A2|A3|B1|B2|B3",
+      "invalid_response_action": "re-prompt with validation error",
+      "audit_fields": ["mode_selected", "source:human_confirmed|human_timeout", "prompt_sha256", "timestamp_rfc3339"]
+    },
+    "step_1_context_load": {
+      "load_order": [
+        {"file": "PROJECT_TREE.md", "purpose": "resolve canonical path", "required": true},
+        {"file": "00-STACK-SELECTOR.md", "purpose": "determine language by path", "required": true},
+        {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "map constraints by folder", "required": true},
+        {"file": "GOVERNANCE-ORCHESTRATOR.md", "purpose": "apply tier and validation profile", "required": true},
+        {"file": "06-PROGRAMMING/00-INDEX.md", "purpose": "load language-specific patterns", "required": false}
+      ],
+      "missing_file_action": "notify_user_with_options",
+      "default_action": "wait_for_context_sync"
+    },
+    "step_2_pre_generation_validation": {
+      "checks": [
+        {"check": "path_exists_in_project_tree", "blocking": true},
+        {"check": "language_matches_stack_selector", "blocking": true},
+        {"check": "constraints_subset_of_norms_matrix", "blocking": true},
+        {"check": "no_language_lock_violations", "blocking": true}
+      ],
+      "error_format": "❌ BLOCKING_ISSUE: {description}\nSugerencia: {corrective_action}\nReferencia: [[{wikilink}]]"
+    },
+    "step_3_generation_with_patterns": {
+      "template_source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "frontmatter_required_fields": [
+        "canonical_path", "artifact_id", "artifact_type", "version",
+        "constraints_mapped", "validation_command", "tier", "mode_selected",
+        "prompt_hash", "generated_at"
+      ],
+      "examples_minimum": {"tier_1": 0, "tier_2": 10, "tier_3": 10},
+      "example_format": "✅ Good | ❌ Bad | 🔧 Fix"
+    },
+    "step_4_post_generation_validation": {
+      "command_template": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {path} --mode headless --json",
+      "acceptance_criteria": {
+        "score_minimum": 30,
+        "blocking_issues_empty": true,
+        "language_lock_violations_zero": true
+      },
+      "retry_policy": {"max_attempts": 3, "backoff": "linear"}
+    },
+    "step_5_delivery_by_tier": {
+      "tier_1": {"format": "screen_editor", "note": "Requiere revisión humana"},
+      "tier_2": {"format": "code_block", "includes": ["validation_command", "checksum_sha256"]},
+      "tier_3": {"format": "zip_simulated", "includes": ["manifest.json", "deploy.sh", "rollback.sh", "README-DEPLOY.md", "checksums.sha256"]}
+    }
+  },
+  
+  "constraint_execution_order": {
+    "description": "Orden de aplicación de constraints durante validación. Críticas primero para fail-fast.",
+    "fail_fast_sequence": [
+      {"constraint": "C3", "reason": "Zero Hardcode Secrets - bloqueo crítico inmediato si falla"},
+      {"constraint": "C4", "reason": "Tenant Isolation - fuga de datos es inaceptable"},
+      {"constraint": "C5", "reason": "Structural Contract - sin frontmatter válido, no hay validación posible"}
+    ],
+    "standard_sequence": [
+      {"constraint": "C1", "reason": "Resource Limits - previene DoS por configuración"},
+      {"constraint": "C6", "reason": "Verifiable Execution - auditabilidad de comandos"},
+      {"constraint": "C2", "reason": "Concurrency Control - estabilidad del sistema"},
+      {"constraint": "C7", "reason": "Resilience - tolerancia a fallos operativos"},
+      {"constraint": "C8", "reason": "Observability - trazabilidad post-mortem"}
+    ],
+    "vector_sequence": [
+      {"constraint": "V1", "reason": "Vector Dimensions - declaración obligatoria para pgvector"},
+      {"constraint": "V2", "reason": "Distance Metric - documentación semántica del operador"},
+      {"constraint": "V3", "reason": "Index Justification - optimización basada en evidencia"}
+    ],
+    "evaluation_logic": "1) Ejecutar fail_fast_sequence. Si alguna falla → bloqueo inmediato. 2) Ejecutar standard_sequence según lenguaje. 3) Si language=postgresql-pgvector, ejecutar vector_sequence."
+  },
+  
+  "dependency_graph": {
+    "critical_infrastructure": [
+      {"file": "PROJECT_TREE.md", "purpose": "Resolver rutas canónicas", "load_order": 1},
+      {"file": "00-STACK-SELECTOR.md", "purpose": "Determinar lenguaje por ruta", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "Mapear constraints por carpeta", "load_order": 3},
+      {"file": "01-RULES/harness-norms-v3.0.md", "purpose": "Definición textual de constraints", "load_order": 4},
+      {"file": "01-RULES/language-lock-protocol.md", "purpose": "Reglas de exclusión de operadores", "load_order": 5}
+    ],
+    "navigation_contracts": [
+      {"file": "AI-NAVIGATION-CONTRACT.md", "purpose": "Reglas de interacción IA-humano", "load_order": 1},
+      {"file": "GOVERNANCE-ORCHESTRATOR.md", "purpose": "Tiers, validación y certificación", "load_order": 2}
+    ],
+    "pattern_indices": [
+      {"file": "06-PROGRAMMING/00-INDEX.md", "purpose": "Agregador de patrones por lenguaje", "load_order": 1},
+      {"file": "06-PROGRAMMING/go/00-INDEX.md", "purpose": "Patrones específicos de Go", "load_order": 2},
+      {"file": "06-PROGRAMMING/python/00-INDEX.md", "purpose": "Patrones específicos de Python", "load_order": 2},
+      {"file": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md", "purpose": "Patrones específicos de pgvector", "load_order": 2}
+    ],
+    "validation_toolchain": [
+      {"file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "purpose": "Motor principal de validación", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/verify-constraints.sh", "purpose": "Validación de constraints y LANGUAGE LOCK", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/audit-secrets.sh", "purpose": "Detección de secrets hardcodeados", "load_order": 3}
     ]
+  },
+  
+  "language_lock_enforcement": {
+    "global_deny_list": {
+      "operators": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+      "constraints": ["V1", "V2", "V3"],
+      "applies_to_languages": ["go", "bash", "python", "javascript", "typescript", "sql", "yaml"],
+      "exception_language": "postgresql-pgvector"
+    },
+    "validation_command_template": "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/<language>/",
+    "failure_action": "orchestrator-engine.sh returns blocking_issues: ['LANGUAGE_LOCK_VIOLATION'] with specific operator/constraint details"
+  },
+  
+  "human_readable_errors": {
+    "mode_invalid": "Modo '{value}' no reconocido. Use uno de: A1, A2, A3, B1, B2, B3. Ver 【0】para descripciones.",
+    "path_not_canonical": "Ruta '{value}' no es canónica. Consulte [[PROJECT_TREE]] para rutas válidas.",
+    "language_mismatch": "Lenguaje '{language}' no permitido para ruta '{path}'. Según [[00-STACK-SELECTOR]], esta ruta requiere: '{expected_language}'.",
+    "constraint_not_allowed": "Constraint '{constraint}' no aplicable para ruta '{path}'. Consulte [[05-CONFIGURATIONS/validation/norms-matrix.json]].",
+    "language_lock_violation_operator": "Violación de LANGUAGE LOCK: operador '{operator}' prohibido en lenguaje '{language}'. Ver [[01-RULES/language-lock-protocol]].",
+    "missing_frontmatter_field": "Campo obligatorio '{field}' faltante en frontmatter. Consulte plantilla en 【2.3】.",
+    "validation_failed": "Validación fallida: score={score}, blocking_issues={issues}. Ejecute: {validation_command}"
+  },
+  
+  "audit_requirements": {
+    "required_log_fields": [
+      "timestamp_rfc3339",
+      "mode_selected",
+      "canonical_path",
+      "language",
+      "constraints_mapped",
+      "validation_profile",
+      "prompt_sha256",
+      "validation_result",
+      "blocking_issues",
+      "language_lock_violations",
+      "audit_flag"
+    ],
+    "pii_scrubbing_rules": {
+      "enabled": true,
+      "fields_to_scrub": ["password", "secret", "token", "api_key", "credential", "tenant_data"],
+      "scrub_method": "replace_with_***REDACTED***",
+      "compliance": "C3 (Zero Hardcode Secrets) + C8 (Observabilidad)"
+    },
+    "retention_policy": {
+      "debug_logs": "90_days",
+      "audit_logs": "7_years",
+      "compliance_logs": "permanent_if_tier3",
+      "rotation": "daily_with_checksum"
+    },
+    "export_formats": ["JSON Lines", "CSV for SIEM", "OpenTelemetry OTLP"]
+  },
+  
+  "expansion_hooks": {
+    "new_mode_addition": {
+      "requires_files_update": [
+        "IA-QUICKSTART.md (this file): add mode to table in 【0.1】",
+        "00-STACK-SELECTOR.md: add mode to decision matrix",
+        "GOVERNANCE-ORCHESTRATOR.md: add tier mapping",
+        "norms-matrix.json: add validation_profile"
+      ],
+      "requires_schema_update": "stack-selection.schema.json",
+      "requires_human_approval": true,
+      "backward_compatibility": "new modes must not break existing A1-B3 flows"
+    },
+    "new_llm_adapter": {
+      "requires_optimization_notes": "Add entry to llm_adapters.optimization_notes with model-specific tips",
+      "requires_testing": "Validate protocol steps with new model in sandbox mode",
+      "requires_human_approval": false,
+      "backward_compatibility": "new adapters must support all existing protocol steps"
+    }
+  },
+  
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "quickstart-seed.v1.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C8 compliance)"
   }
 }
 ```
+
 ---
 
-> ✅ **Documento generado bajo contrato SDD v1.0.0**. Validado contra `norms-matrix.json`.  
-> 🔐 Para actualizar este documento, modificar `05-CONFIGURATIONS/templates/skill-template.md` y re-ejecutar `orchestrator-engine.sh --mode headless --file IA-QUICKSTART.md --json`.  
-> 🌱 Próxima iteración: Incluir ejemplos de payloads JSON para cada modo y agregar soporte para validación offline con `jq` fallback.
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+<!-- 
+【PARA PRINCIPIANTES】Antes de guardar este archivo, verifica estos puntos.
+-->
+
+````markdown
+```bash
+# 1. Verificar que el frontmatter es YAML válido
+yq eval '.canonical_path' IA-QUICKSTART.md
+# Esperado: "/IA-QUICKSTART.md"
+
+# 2. Verificar que constraints_mapped solo contiene C1-C8 (este archivo no es pgvector)
+yq eval '.constraints_mapped | .[]' IA-QUICKSTART.md | grep -E '^C[1-8]$' | wc -l
+# Esperado: 8 líneas
+
+# 3. Verificar que el gate de modo está presente y bien formado
+grep -q "【0】.*GATE DE MODO" IA-QUICKSTART.md && echo "✅ Gate de modo presente"
+
+# 4. Verificar que todos los wikilinks apuntan a archivos existentes
+for link in $(grep -oE '\[\[[^]]+\]\]' IA-QUICKSTART.md | tr -d '[]' | sort -u); do
+  if [ ! -f "${link#//}" ] && [ ! -f "${link}" ]; then
+    echo "⚠️  Wikilink roto: $link"
+  fi
+done
+
+# 5. Validar que la sección JSON final es parseable
+tail -n +$(grep -n '```json' IA-QUICKSTART.md | tail -1 | cut -d: -f1) IA-QUICKSTART.md | \
+  sed -n '/```json/,/```/p' | sed '1d;$d' | jq empty && echo "✅ JSON válido"
+
+# 6. Validar con orchestrator (simulación mental)
+# - ¿El archivo está en raíz? → SÍ
+# - ¿El lenguaje es markdown con seed de gobernanza? → SÍ
+# - ¿Constraints aplicables según norms-matrix.json? → C5 mandatory → SÍ
+# - ¿validation_command es ejecutable? → SÍ, apunta a orchestrator-engine.sh
+```
+````
+
+**Criterio de aceptación:**  
+- ✅ Frontmatter válido con `canonical_path: "/IA-QUICKSTART.md"`  
+- ✅ `constraints_mapped` contiene solo C1-C8 (este archivo no es pgvector)  
+- ✅ Gate de modo 【0】presente con timeout y fallback auditado  
+- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
+- ✅ Todos los wikilinks apuntan a archivos existentes en `PROJECT_TREE.md`  
+- ✅ `validation_command` es ejecutable y apunta al orchestrator correcto  
+
+---
+
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este documento es tu contrato. No es opcional.  
+> **Modo → Ruta → Lenguaje → Constraints → Validación**.  
+> Si sigues ese flujo, nunca generarás un artefacto fuera de norma.  
+> La gobernanza no es una carga. Es la libertad de crear sin miedo a romper.  
+

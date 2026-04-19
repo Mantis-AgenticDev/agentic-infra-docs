@@ -1,0 +1,354 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mantis-agentic.dev/schemas/stack-selection.v1.json",
+  "title": "Stack Selection Validation Schema",
+  "description": "【EDUCATIVO】Esquema para validar decisiones de stack tecnológico en MANTIS AGENTIC. Define: modo operativo (A1-B3), ruta canónica, lenguaje permitido, constraints aplicables y reglas de LANGUAGE LOCK. Usado por orchestrator-engine.sh para bloqueo pre-generación.",
+  "version": "1.0.0",
+  "compatibility": {
+    "orchestrator_min_version": "3.0.0-SELECTIVE",
+    "norms_matrix_required": true,
+    "project_tree_required": true
+  },
+  "type": "object",
+  "required": [
+    "mode",
+    "canonical_path",
+    "language",
+    "constraints_mapped"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "B1",
+        "B2",
+        "B3"
+      ],
+      "description": "【EDUCATIVO】Modo operativo seleccionado. Combina contexto (A=Interno, B=Externo) + autonomía (1=Asistido, 2=Auto-gen, 3=Auto-deploy). Debe ser explícito: sin modo, no hay generación. Ver [[IA-QUICKSTART.md]] para descripciones completas."
+    },
+    "canonical_path": {
+      "type": "string",
+      "pattern": "^/(0[0-9]|06-PROGRAMMING|05-CONFIGURATIONS|04-WORKFLOWS|deploy)/[a-zA-Z0-9/_\\-\\.]+$",
+      "description": "【EDUCATIVO】Ruta absoluta canónica donde debe vivir el artefacto. Debe coincidir con una entrada en [[PROJECT_TREE.md]]. Ejemplo: '/06-PROGRAMMING/go/orchestrator-engine.go.md'. No usar rutas relativas ni inventar carpetas."
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "markdown",
+        "bash",
+        "python",
+        "javascript",
+        "typescript",
+        "sql",
+        "sql_pgvector",
+        "go",
+        "yaml",
+        "json",
+        "hcl_terraform"
+      ],
+      "description": "【EDUCATIVO】Lenguaje primario del artefacto. NO se elige libremente: se deriva de canonical_path según la tabla de enrutamiento en [[00-STACK-SELECTOR.md]]. Ejemplo: si canonical_path contiene '06-PROGRAMMING/go/', language DEBE ser 'go'."
+    },
+    "constraints_mapped": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8",
+          "V1",
+          "V2",
+          "V3"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "【EDUCATIVO】Lista de constraints aplicables a este artefacto. Debe ser subconjunto de las permitidas para canonical_path según [[05-CONFIGURATIONS/validation/norms-matrix.json]]. C1-C8 son generales; V1-V3 son EXCLUSIVAS para búsqueda vectorial (pgvector)."
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "skill_go",
+        "skill_python",
+        "skill_bash",
+        "skill_js",
+        "skill_sql",
+        "skill_pgvector",
+        "skill_yaml",
+        "documentation",
+        "workflow_n8n",
+        "config_docker",
+        "config_terraform",
+        "skill_index"
+      ],
+      "description": "【EDUCATIVO】Tipo de artefacto para clasificación interna. Usado por el orchestrator para aplicar plantillas específicas. Ejemplo: 'skill_pgvector' requiere validación adicional de operadores vectoriales."
+    },
+    "validation_profile": {
+      "type": "string",
+      "enum": [
+        "tier1-doc",
+        "tier2-code",
+        "tier3-deploy"
+      ],
+      "description": "【EDUCATIVO】Perfil de validación derivado del modo. Tier1=validación ligera (C5,C6), Tier2=validación completa (C1-C8), Tier3=validación + empaquetado. Definido en [[GOVERNANCE-ORCHESTRATOR.md]]."
+    },
+    "language_lock_enforced": {
+      "type": "boolean",
+      "const": true,
+      "description": "【EDUCATIVO】Campo de seguridad: siempre debe ser true. Indica que las reglas de LANGUAGE LOCK fueron verificadas. Si es false o falta, el orchestrator rechaza la validación."
+    },
+    "denied_operators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "【EDUCATIVO】Lista de operadores/prohibiciones aplicables por LANGUAGE LOCK. Ejemplo: para 'go', debe incluir ['<->', '<=>', '<#>', 'vector(n)', 'USING hnsw', 'USING ivfflat']. Generado automáticamente por el selector, no editar manualmente."
+    },
+    "prompt_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "【EDUCATIVO】SHA256 del prompt original del humano. Para auditoría forense: permite rastrear qué solicitud generó este artefacto. Generado automáticamente por el orchestrator."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "【EDUCATIVO】Timestamp RFC3339 de generación. Para trazabilidad temporal y rotación de claves."
+    }
+  },
+  "if": {
+    "properties": {
+      "constraints_mapped": {
+        "contains": {
+          "enum": [
+            "C3"
+          ]
+        }
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "canonical_path": {
+        "not": {
+          "pattern": ".*\\.env.*|.*secrets.*|.*credentials.*"
+        },
+        "description": "【C3 ENFORCEMENT】Si se declara C3 (Zero Hardcode Secrets), el archivo NO puede tener nombres que sugieran almacenamiento de secretos. Los secrets van en variables de entorno o secret managers, nunca en código."
+      }
+    }
+  },
+  "definitions": {
+    "constraint_definitions": {
+      "C1": {
+        "description": "Límites de recursos (memoria, CPU, pids)",
+        "applicable_to": [
+          "bash",
+          "python",
+          "go",
+          "yaml",
+          "hcl_terraform"
+        ]
+      },
+      "C2": {
+        "description": "Timeouts y concurrencia controlada",
+        "applicable_to": [
+          "python",
+          "go",
+          "javascript",
+          "yaml"
+        ]
+      },
+      "C3": {
+        "description": "Gestión segura de secretos (zero hardcode)",
+        "applicable_to": [
+          "ALL"
+        ],
+        "priority": "critical"
+      },
+      "C4": {
+        "description": "Aislamiento estricto por tenant",
+        "applicable_to": [
+          "sql",
+          "sql_pgvector",
+          "python",
+          "go",
+          "javascript"
+        ],
+        "priority": "critical"
+      },
+      "C5": {
+        "description": "Validación estructural y de contratos",
+        "applicable_to": [
+          "ALL"
+        ],
+        "priority": "critical"
+      },
+      "C6": {
+        "description": "Ejecución verificable y commands auditables",
+        "applicable_to": [
+          "bash",
+          "python",
+          "go"
+        ]
+      },
+      "C7": {
+        "description": "Seguridad operativa y resiliencia",
+        "applicable_to": [
+          "bash",
+          "python",
+          "go",
+          "yaml",
+          "hcl_terraform"
+        ]
+      },
+      "C8": {
+        "description": "Logging estructurado y observabilidad",
+        "applicable_to": [
+          "python",
+          "go",
+          "javascript",
+          "yaml"
+        ]
+      },
+      "V1": {
+        "description": "Declaración explícita de dimensiones vectoriales",
+        "applicable_to": [
+          "sql_pgvector"
+        ],
+        "priority": "critical_if_vector"
+      },
+      "V2": {
+        "description": "Métrica de distancia documentada",
+        "applicable_to": [
+          "sql_pgvector"
+        ]
+      },
+      "V3": {
+        "description": "Justificación de tipo de índice vectorial",
+        "applicable_to": [
+          "sql_pgvector"
+        ]
+      }
+    },
+    "language_routing_table": {
+      "description": "【EDUCATIVO】Tabla de enrutamiento: canonical_path pattern → language obligatorio. Usada por el orchestrator para validar coherencia ruta/lenguaje.",
+      "rules": [
+        {
+          "path_pattern": "^/06-PROGRAMMING/go/",
+          "language": "go",
+          "lock": "deny_pgvector_operators"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/python/",
+          "language": "python",
+          "lock": "none"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/bash/",
+          "language": "bash",
+          "lock": "none"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/sql/",
+          "language": "sql",
+          "lock": "deny_pgvector_operators"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/postgresql-pgvector/",
+          "language": "sql_pgvector",
+          "lock": "require_vector_constraints"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/javascript/",
+          "language": "typescript",
+          "lock": "none"
+        },
+        {
+          "path_pattern": "^/06-PROGRAMMING/yaml-json-schema/",
+          "language": "yaml",
+          "lock": "require_json_schema_validation"
+        },
+        {
+          "path_pattern": "^/05-CONFIGURATIONS/docker-compose/",
+          "language": "yaml",
+          "lock": "require_docker_schema"
+        },
+        {
+          "path_pattern": "^/05-CONFIGURATIONS/terraform/",
+          "language": "hcl_terraform",
+          "lock": "require_terraform_validation"
+        },
+        {
+          "path_pattern": "^/04-WORKFLOWS/n8n/",
+          "language": "json",
+          "lock": "require_n8n_schema"
+        },
+        {
+          "path_pattern": "^/(00-CONTEXT|01-RULES|02-SKILLS)/",
+          "language": "markdown",
+          "lock": "require_frontmatter"
+        }
+      ]
+    },
+    "expansion_hooks": {
+      "description": "【PARA MANTENEDORES】Puntos de extensión para añadir nuevos modos/lenguajes sin romper compatibilidad.",
+      "new_mode_addition": {
+        "requires": [
+          "Update this schema: add enum value to 'mode'",
+          "Update IA-QUICKSTART.md: add mode description",
+          "Update GOVERNANCE-ORCHESTRATOR.md: add tier mapping",
+          "Update norms-matrix.json: add validation_profile",
+          "Human approval required: true"
+        ]
+      },
+      "new_language_addition": {
+        "requires": [
+          "Update this schema: add enum value to 'language'",
+          "Update PROJECT_TREE.md: add canonical path pattern",
+          "Update 00-STACK-SELECTOR.md: add routing rule",
+          "Define LANGUAGE LOCK rules (deny_operators/require_constraints)",
+          "Update norms-matrix.json: add constraint mapping",
+          "Human approval required: true"
+        ]
+      }
+    }
+  },
+  "validation_metadata": {
+    "orchestrator_integration": {
+      "command_template": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --schema stack-selection.v1.json --file {target_file} --json",
+      "expected_output": {
+        "score": ">=30",
+        "blocking_issues": "[]",
+        "language_lock_violations": 0
+      },
+      "failure_action": "reject_generation_with_structured_error"
+    },
+    "human_readable_errors": {
+      "mode_invalid": "Modo '{value}' no reconocido. Use uno de: A1, A2, A3, B1, B2, B3. Ver [[IA-QUICKSTART.md]].",
+      "path_not_canonical": "Ruta '{value}' no es canónica. Consulte [[PROJECT_TREE.md]] para rutas válidas.",
+      "language_mismatch": "Lenguaje '{language}' no permitido para ruta '{path}'. Según [[00-STACK-SELECTOR.md]], esta ruta requiere: {expected_language}.",
+      "constraint_not_allowed": "Constraint '{constraint}' no aplicable para ruta '{path}'. Consulte [[05-CONFIGURATIONS/validation/norms-matrix.json]].",
+      "language_lock_violation": "Violación de LANGUAGE LOCK: operador '{operator}' prohibido en lenguaje '{language}'. Ver [[01-RULES/language-lock-protocol.md]]."
+    },
+    "audit_requirements": {
+      "log_fields": [
+        "mode",
+        "canonical_path",
+        "language",
+        "constraints_mapped",
+        "prompt_hash",
+        "generated_at",
+        "validation_result"
+      ],
+      "pii_scrubbing": "enabled",
+      "retention_policy": "90_days_for_debug, 7_years_for_compliance"
+    }
+  }
+}

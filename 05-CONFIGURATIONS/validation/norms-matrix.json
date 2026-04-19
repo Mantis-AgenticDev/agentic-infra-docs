@@ -1,1018 +1,1204 @@
 {
-  "title": "Norms Application Matrix by Canonical Location",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mantis-agentic.dev/schemas/norms-matrix.v1.json",
+  "title": "Mantis Agentic - Norms Matrix",
+  "description_doc": "【EDUCATIVO】Matriz maestra de gobernanza: mapea carpetas del repositorio → constraints aplicables → perfiles de validación. Fuente de verdad para orchestrator-engine.sh. Si una regla no está aquí, NO APLICA.",
   "version": "3.0.0-SELECTIVE",
-  "last_updated": "2026-04-19T00:00:00Z",
-  "constraints_mapped": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-  "vector_constraints_mapped": ["V1", "V2", "V3"],
-  "selective_application_logic": {
-    "description": "V1/V2/V3 apply ONLY when artifact explicitly handles vector dimensions or pgvector operators. Never apply to non-vector artifacts.",
-    "trigger_conditions": [
-      "artifact_type == 'skill_pgvector'",
-      "canonical_path contains '06-PROGRAMMING/postgresql-pgvector/'",
-      "file content contains pgvector operators (<->, <#>, <=>) WITH explicit vector(n) dimension declaration",
-      "schema includes embedding dimension validation (e.g., vector(1536), hnsw, ivfflat)"
-    ],
-    "exclusion_conditions": [
-      "artifact_type in ['skill_yaml', 'skill_json_schema', 'skill_sql', 'skill_go'] AND canonical_path NOT contains 'postgresql-pgvector/'",
-      "file content mentions 'vector' only as generic term (e.g., 'feature vector', 'state vector') without pgvector context",
-      "LANGUAGE LOCK violation detected: pgvector operators in yaml-json-schema/, sql/, go/ folders"
-    ],
-    "validation_behavior": {
-      "if_triggers_met": "Apply V1/V2/V3 with same intensity rules as C-constraints (mandatory/applicable/contextual)",
-      "if_exclusions_met": "Treat V1/V2/V3 as 'not_applicable' - omit from validation report entirely, do not check",
-      "if_ambiguous": "Default to exclusion + emit warning for human review in orchestrator log"
-    }
+  "last_updated": "2026-04-19",
+  "compatibility": {
+    "orchestrator_min_version": "3.0.0-SELECTIVE",
+    "stack_selector_required": "00-STACK-SELECTOR.md >=1.0.0",
+    "harness_norms_reference": "01-RULES/harness-norms-v3.0.md"
   },
-  "vector_constraints_definitions": {
+  "constraints_definitions": {
+    "description_doc": "【EDUCATIVO】Definición completa de cada constraint. Incluye: qué es, cuándo aplica, ejemplos de cumplimiento y prioridad de validación.",
+    "C1": {
+      "name": "Resource Limits",
+      "description": "Límites explícitos de memoria, CPU, pids y tamaño de archivo para prevenir DoS y garantizar estabilidad.",
+      "applies_to_languages": [
+        "bash",
+        "python",
+        "go",
+        "yaml",
+        "hcl_terraform"
+      ],
+      "applies_to_folders": [
+        "05-CONFIGURATIONS/scripts/",
+        "05-CONFIGURATIONS/docker-compose/",
+        "06-PROGRAMMING/go/",
+        "06-PROGRAMMING/python/"
+      ],
+      "examples_compliance": [
+        "docker-compose: mem_limit: 512M, cpus: 0.5",
+        "go: debug.SetMemoryLimit(512 << 20)",
+        "bash: ulimit -v 524288 antes de ejecutar proceso"
+      ],
+      "examples_violation": [
+        "docker-compose sin mem_limit",
+        "script bash que procesa archivo >1GB sin streaming"
+      ],
+      "priority": "high",
+      "fail_fast": false,
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C1]]"
+    },
+    "C2": {
+      "name": "Concurrency & Timeout Control",
+      "description": "Gestión explícita de concurrencia (goroutines, async, workers) y timeouts para prevenir bloqueos y resource leaks.",
+      "applies_to_languages": [
+        "go",
+        "python",
+        "javascript",
+        "yaml"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/go/",
+        "06-PROGRAMMING/python/",
+        "06-PROGRAMMING/javascript/",
+        "05-CONFIGURATIONS/docker-compose/"
+      ],
+      "examples_compliance": [
+        "go: context.WithTimeout(ctx, 30*time.Second)",
+        "python: asyncio.wait_for(coro, timeout=30)",
+        "docker-compose: healthcheck con timeout e interval"
+      ],
+      "examples_violation": [
+        "goroutine sin canal de cancelación",
+        "bucle while True sin sleep o condición de salida"
+      ],
+      "priority": "high",
+      "fail_fast": false,
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C2]]"
+    },
+    "C3": {
+      "name": "Zero Hardcode Secrets",
+      "description": "NUNCA escribir secrets, API keys, credenciales o tokens en código. Usar variables de entorno, secret managers o inyección runtime.",
+      "applies_to_languages": [
+        "ALL"
+      ],
+      "applies_to_folders": [
+        "ALL"
+      ],
+      "examples_compliance": [
+        "bash: ${DB_PASSWORD:?Missing DB_PASSWORD env var}",
+        "go: os.LookupEnv(\"API_KEY\") con fallback a error",
+        "terraform: sensitive = true en outputs, variables sin default"
+      ],
+      "examples_violation": [
+        "password = \"supersecret123\" en cualquier archivo",
+        "API_KEY=sk-xxx hardcodeado en script",
+        "commit con .env en el repositorio"
+      ],
+      "priority": "critical",
+      "fail_fast": true,
+      "validator_script": "05-CONFIGURATIONS/validation/audit-secrets.sh",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C3]]"
+    },
+    "C4": {
+      "name": "Tenant Isolation",
+      "description": "Aislamiento estricto de datos por tenant_id. Ninguna query, log o respuesta puede filtrar datos entre tenants.",
+      "applies_to_languages": [
+        "sql",
+        "sql_pgvector",
+        "python",
+        "go",
+        "javascript"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/sql/",
+        "06-PROGRAMMING/postgresql-pgvector/",
+        "06-PROGRAMMING/python/",
+        "06-PROGRAMMING/go/",
+        "06-PROGRAMMING/javascript/"
+      ],
+      "examples_compliance": [
+        "SQL: WHERE tenant_id = $1 en TODAS las queries",
+        "go: claims.TenantID inyectado vía context.Context",
+        "logging: incluir tenant_id pero nunca datos sensibles del tenant"
+      ],
+      "examples_violation": [
+        "SELECT * FROM users sin WHERE tenant_id",
+        "log.Info(\"User data\", user.Email) sin filtrar por tenant",
+        "API que devuelve lista de tenants sin autorización"
+      ],
+      "priority": "critical",
+      "fail_fast": true,
+      "validator_script": "05-CONFIGURATIONS/validation/check-rls.sh",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C4]]"
+    },
+    "C5": {
+      "name": "Structural Contract Validation",
+      "description": "Todo artefacto debe tener frontmatter YAML válido, canonical_path correcto y schema de salida definido.",
+      "applies_to_languages": [
+        "ALL"
+      ],
+      "applies_to_folders": [
+        "ALL"
+      ],
+      "examples_compliance": [
+        "Frontmatter con canonical_path, version, constraints_mapped",
+        "JSON output que valida contra skill-input-output.schema.json",
+        "Markdown con wikilinks canónicos [[RUTA]] no relativos"
+      ],
+      "examples_violation": [
+        "Archivo .md sin frontmatter o con YAML inválido",
+        "canonical_path que no coincide con ubicación real del archivo",
+        "wikilink [[../otra-carpeta]] en lugar de [[RUTA-CANÓNICA]]"
+      ],
+      "priority": "critical",
+      "fail_fast": true,
+      "validator_script": "05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C5]]"
+    },
+    "C6": {
+      "name": "Verifiable Execution & Auditability",
+      "description": "Todo comando o proceso debe ser reproducible, con dry-run opcional, exit codes significativos y trazas de auditoría.",
+      "applies_to_languages": [
+        "bash",
+        "python",
+        "go"
+      ],
+      "applies_to_folders": [
+        "05-CONFIGURATIONS/scripts/",
+        "06-PROGRAMMING/bash/",
+        "06-PROGRAMMING/python/",
+        "06-PROGRAMMING/go/"
+      ],
+      "examples_compliance": [
+        "bash: set -euo pipefail + trap para cleanup + log de cada comando",
+        "go: ValidationCmd() method que retorna exit code y mensaje estructurado",
+        "python: argparse con --dry-run y logging estructurado JSON"
+      ],
+      "examples_violation": [
+        "script bash sin set -e que ignora errores",
+        "comando que modifica estado sin opción de rollback",
+        "log con print() en lugar de logger estructurado"
+      ],
+      "priority": "medium",
+      "fail_fast": false,
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C6]]"
+    },
+    "C7": {
+      "name": "Operational Resilience",
+      "description": "Manejo explícito de fallos: retry con backoff, fallback degradado, graceful shutdown y health checks.",
+      "applies_to_languages": [
+        "bash",
+        "python",
+        "go",
+        "yaml",
+        "hcl_terraform"
+      ],
+      "applies_to_folders": [
+        "05-CONFIGURATIONS/scripts/",
+        "05-CONFIGURATIONS/docker-compose/",
+        "06-PROGRAMMING/go/",
+        "06-PROGRAMMING/python/"
+      ],
+      "examples_compliance": [
+        "go: retry.ExponentialBackoff con max_attempts y jitter",
+        "docker-compose: healthcheck + restart: unless-stopped",
+        "bash: trap 'cleanup' EXIT para liberar recursos"
+      ],
+      "examples_violation": [
+        "servicio que crashea sin reinicio automático",
+        "script que deja archivos temporales tras error",
+        "API sin timeout en llamadas externas"
+      ],
+      "priority": "medium",
+      "fail_fast": false,
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C7]]"
+    },
+    "C8": {
+      "name": "Structured Logging & Observability",
+      "description": "Logs en JSON estructurado a stderr, con trace_id, timestamp RFC3339, y scrubbing de PII. Integración con OpenTelemetry opcional.",
+      "applies_to_languages": [
+        "python",
+        "go",
+        "javascript",
+        "yaml"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/python/",
+        "06-PROGRAMMING/go/",
+        "06-PROGRAMMING/javascript/",
+        "05-CONFIGURATIONS/observability/"
+      ],
+      "examples_compliance": [
+        "go: slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{...}))",
+        "python: logging.basicConfig(format='%(message)s', handlers=[JSONHandler()])",
+        "yaml: logging.driver: json + logging.options: tag=true"
+      ],
+      "examples_violation": [
+        "print(\"Error:\", msg) en lugar de logger.error()",
+        "log que incluye password o token en texto plano",
+        "timestamp en formato local en lugar de RFC3339 UTC"
+      ],
+      "priority": "medium",
+      "fail_fast": false,
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#C8]]"
+    },
     "V1": {
       "name": "Vector Dimension Declaration",
-      "description": "Explicit declaration of embedding dimensions (e.g., vector(1536), vector(768)) with validation of supported sizes",
-      "applicable_extensions": [".sql", ".md (with inline SQL)", ".yaml (with schema validation)"],
-      "validator": "verify-constraints.sh --check-vector-dims 1536,768,384",
-      "blocking_if_missing": true,
-      "checks": [
-        "explicit vector(dim) declaration in CREATE TABLE or column definition",
-        "supported dimension values only (1536|768|384|512|256)",
-        "comment explaining embedding model source (e.g., 'text-embedding-3-small')"
-      ]
+      "description": "【SOLO pgvector】Declaración explícita de dimensiones del embedding (ej: vector(1536)) y modelo generador (ej: text-embedding-3-small).",
+      "applies_to_languages": [
+        "sql_pgvector"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/postgresql-pgvector/"
+      ],
+      "examples_compliance": [
+        "CREATE INDEX ON docs USING hnsw (embedding vector_cosine_ops) WITH (dim=1536, model='text-embedding-3-small')",
+        "Comentario: -- embedding: 1536d, model: bge-m3, normalized: true"
+      ],
+      "examples_violation": [
+        "CREATE INDEX sin especificar dimensiones",
+        "Usar vector(768) pero el modelo genera 1536d",
+        "Operador <-> sin documentar si es cosine o L2"
+      ],
+      "priority": "critical_if_vector",
+      "fail_fast": true,
+      "requires_artifact_type": "skill_pgvector",
+      "validator_script": "05-CONFIGURATIONS/validation/verify-constraints.sh --check-vector-dims",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#V1]]"
     },
     "V2": {
-      "name": "Distance Metric Explicit",
-      "description": "Validation of pgvector distance operator (<->, <#>, <=>) alignment with index opclass and documentation",
-      "applicable_extensions": [".sql", ".md (with inline SQL)"],
-      "validator": "verify-constraints.sh --check-vector-metric",
-      "blocking_if_missing": false,
-      "checks": [
-        "operator documented in comment (e.g., '-- <=> = cosine distance')",
-        "operator matches index opclass (l2_ops↔<->, cosine_ops↔<=>, ip_ops↔<#>)",
-        "no ambiguous ORDER BY vec without explicit operator"
-      ]
+      "name": "Distance Metric Documentation",
+      "description": "【SOLO pgvector】Documentar explícitamente la métrica de distancia usada: cosine (<=>), L2 (<->), o inner product (<#>).",
+      "applies_to_languages": [
+        "sql_pgvector"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/postgresql-pgvector/"
+      ],
+      "examples_compliance": [
+        "Query: WHERE embedding <=> $1 -- cosine distance, embeddings normalizados",
+        "Comentario: -- metric: L2 (<->), no requiere normalización"
+      ],
+      "examples_violation": [
+        "Usar <-> sin aclarar si los embeddings están normalizados",
+        "Mezclar <=> y <-> en la misma tabla sin justificación"
+      ],
+      "priority": "high_if_vector",
+      "fail_fast": false,
+      "validator_script": "05-CONFIGURATIONS/validation/verify-constraints.sh --check-vector-metric",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#V2]]"
     },
     "V3": {
-      "name": "Index-Type Match Justified",
-      "description": "Ensures pgvector index type (hnsw/ivfflat) and parameters are justified by dataset size and query pattern",
-      "applicable_extensions": [".sql", ".md (with inline SQL)"],
-      "validator": "verify-constraints.sh --check-vector-index",
-      "blocking_if_missing": true,
+      "name": "Vector Index Justification",
+      "description": "【SOLO pgvector】Justificar elección de índice (hnsw vs ivfflat) con parámetros (m, ef_construction, lists) basados en benchmarks o documentación oficial.",
+      "applies_to_languages": [
+        "sql_pgvector"
+      ],
+      "applies_to_folders": [
+        "06-PROGRAMMING/postgresql-pgvector/"
+      ],
+      "examples_compliance": [
+        "USING hnsw WITH (m=16, ef_construction=100) -- pgvector docs: m=16 para 1536d, ef_construction=100 para balance recall/speed",
+        "Comentario: -- ivfflat con lists=1000 para dataset >1M rows, basado en benchmark interno"
+      ],
+      "examples_violation": [
+        "USING hnsw sin parámetros o con valores por defecto sin justificación",
+        "Elegir ivfflat para dataset <10k rows sin explicar por qué no hnsw"
+      ],
+      "priority": "medium_if_vector",
+      "fail_fast": false,
+      "validator_script": "05-CONFIGURATIONS/validation/verify-constraints.sh --check-vector-index",
+      "wikilink": "[[01-RULES/harness-norms-v3.0.md#V3]]"
+    }
+  },
+  "validation_profiles": {
+    "description_doc": "【EDUCATIVO】Perfiles de validación derivados de modos operativos (A1-B3). Cada perfil define: qué constraints verificar, severidad del fallo, y si requiere empaquetado.",
+    "tier1-doc": {
+      "description": "Validación ligera para documentación y propuestas. Enfocado en estructura (C5) y trazabilidad (C6).",
+      "applicable_modes": [
+        "A1",
+        "B1"
+      ],
       "checks": [
-        "index type (hnsw/ivfflat) justified by comment (e.g., 'hnsw for <100k vectors')",
-        "parameters explicit (m=16, ef_construction=100 for hnsw; lists=100 for ivfflat)",
-        "CONCURRENTLY used for production index creation",
-        "tenant_id included in WHERE clause of vector queries"
-      ]
+        "C5",
+        "C6"
+      ],
+      "severity": "warning",
+      "blocking_on_fail": false,
+      "requires_bundle": false,
+      "delivery_format": "screen_editor",
+      "human_approval_required": true,
+      "orchestrator_flags": "--checks C5,C6 --mode headless"
+    },
+    "tier2-code": {
+      "description": "Validación completa para código integrable. Todas las constraints C1-C8 aplican según carpeta.",
+      "applicable_modes": [
+        "A2",
+        "B2"
+      ],
+      "checks": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8"
+      ],
+      "severity": "error",
+      "blocking_on_fail": true,
+      "requires_bundle": false,
+      "delivery_format": "code_block_with_validation_command",
+      "human_approval_required": false,
+      "ci_gate_required": true,
+      "orchestrator_flags": "--checks C1-C8 --lint --mode headless"
+    },
+    "tier3-deploy": {
+      "description": "Validación + empaquetado para despliegue autónomo. Incluye checksums, manifest y scripts de rollback.",
+      "applicable_modes": [
+        "A3",
+        "B3"
+      ],
+      "checks": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8"
+      ],
+      "severity": "error",
+      "blocking_on_fail": true,
+      "requires_bundle": true,
+      "bundle_requirements": {
+        "manifest_json": true,
+        "checksum_sha256": true,
+        "deploy_script": true,
+        "rollback_script": true,
+        "healthcheck": true
+      },
+      "delivery_format": "zip_with_manifest",
+      "human_approval_required": false,
+      "ci_gate_required": true,
+      "auto_deploy_allowed": true,
+      "orchestrator_flags": "--checks C1-C8 --bundle --checksum --mode headless"
     }
   },
-  "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 05-CONFIGURATIONS/validation/norms-matrix.json --json",
-  "canonical_path": "05-CONFIGURATIONS/validation/norms-matrix.json",
-  "ai_optimized": true,
-  "related_files": [
-    "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]",
-    "[[05-CONFIGURATIONS/validation/verify-constraints.sh]]",
-    "[[01-RULES/harness-norms-v3.0.md]]",
-    "[[01-RULES/10-SDD-CONSTRAINTS.md]]",
-    "[[01-RULES/language-lock-protocol.md]]",
-    "[[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]]",
-    "[[06-PROGRAMMING/yaml-json-schema/00-INDEX.md]]",
-    "[[05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json]]",
-    "[[05-CONFIGURATIONS/pipelines/promptfoo/config.yaml]]"
-  ],
-  "master_precedence_rule": {
-    "description": "Rule of precedence for norm application based on canonical location + selective vector logic",
-    "logic": [
+  "folder_routing_table": {
+    "description_doc": "【EDUCATIVO】Tabla maestra: patrón de ruta → lenguaje obligatorio → constraints permitidas/denegadas → reglas de LANGUAGE LOCK. El orchestrator usa esto para validar coherencia ruta/lenguaje/constraints.",
+    "rules": [
       {
-        "condition": "file_path contains '06-PROGRAMMING/postgresql-pgvector/' AND content matches pgvector operators",
-        "action": "Apply C1-C8 COMPLETE + V1-V3 SELECTIVE (if trigger conditions met)"
+        "path_pattern": "^/00-CONTEXT/|^/01-RULES/|^/02-SKILLS/[^/]+/[^/]+\\.md$",
+        "language": "markdown",
+        "extension": ".md",
+        "artifact_type": "documentation",
+        "constraints_allowed": [
+          "C5",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C5"
+        ],
+        "constraints_denied": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C6",
+          "C7",
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier1-doc",
+        "wikilink": "[[PROJECT_TREE.md#00-CONTEXT]]"
       },
       {
-        "condition": "file_path contains '05-CONFIGURATIONS/' OR '04-WORKFLOWS/'",
-        "action": "Apply C1-C8 COMPLETE (Tier 2-3 target); V* excluded unless explicit vector schema"
+        "path_pattern": "^/05-CONFIGURATIONS/scripts/.*\\.sh$",
+        "language": "bash",
+        "extension": ".sh",
+        "artifact_type": "skill_bash",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true,
+          "validator": "shellcheck --severity=error"
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[PROJECT_TREE.md#05-CONFIGURATIONS]]"
       },
       {
-        "condition": "file_path contains 'yaml-json-schema/' OR artifact_type contains 'yaml'",
-        "action": "Apply C1-C8 COMPLETE; HARD BLOCK on V* application + pgvector operators (LANGUAGE LOCK)"
+        "path_pattern": "^/06-PROGRAMMING/bash/.*\\.go\\.md$",
+        "language": "bash",
+        "extension": ".go.md",
+        "artifact_type": "skill_bash",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C8"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/bash/00-INDEX.md]]"
       },
       {
-        "condition": "file_path contains '02-SKILLS/BASE DE DATOS-RAG/' AND inline SQL uses pgvector",
-        "action": "C4 MANDATORY + V1-V3 CONTEXTUAL (only if embedding dimensions declared)"
+        "path_pattern": "^/06-PROGRAMMING/python/.*\\.md$",
+        "language": "python",
+        "extension": ".md",
+        "artifact_type": "skill_python",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C8"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/python/00-INDEX.md]]"
       },
       {
-        "condition": "default fallback",
-        "action": "C1-C8 minimum validation; V* explicitly excluded"
+        "path_pattern": "^/06-PROGRAMMING/javascript/.*\\.md$",
+        "language": "typescript",
+        "extension": ".md",
+        "artifact_type": "skill_js",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C8"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/javascript/00-INDEX.md]]"
+      },
+      {
+        "path_pattern": "^/06-PROGRAMMING/sql/.*\\.md$",
+        "language": "sql",
+        "extension": ".md",
+        "artifact_type": "skill_sql",
+        "constraints_allowed": [
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "constraints_mandatory": [
+          "C4",
+          "C5"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [
+            "<->",
+            "<=>",
+            "<#",
+            "vector(n)",
+            "USING hnsw",
+            "USING ivfflat"
+          ],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true,
+          "validator": "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/sql/"
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/sql/00-INDEX.md]]"
+      },
+      {
+        "path_pattern": "^/06-PROGRAMMING/postgresql-pgvector/.*\\.md$",
+        "language": "sql_pgvector",
+        "extension": ".md",
+        "artifact_type": "skill_pgvector",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8",
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "V1",
+          "V3"
+        ],
+        "constraints_denied": [],
+        "language_lock": {
+          "require_artifact_type": "skill_pgvector",
+          "require_vector_declaration": true,
+          "require_distance_metric_doc": true,
+          "validator": "verify-constraints.sh --check-vector-dims --check-vector-metric --check-vector-index"
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]]"
+      },
+      {
+        "path_pattern": "^/06-PROGRAMMING/go/.*\\.go\\.md$",
+        "language": "go",
+        "extension": ".go.md",
+        "artifact_type": "skill_go",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C8"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "deny_operators": [
+            "<->",
+            "<=>",
+            "<#",
+            "vector(n)",
+            "USING hnsw",
+            "USING ivfflat"
+          ],
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true,
+          "validator": "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/go/"
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/go/00-INDEX.md]]"
+      },
+      {
+        "path_pattern": "^/06-PROGRAMMING/yaml-json-schema/.*\\.md$",
+        "language": "yaml",
+        "extension": ".md",
+        "artifact_type": "skill_yaml",
+        "constraints_allowed": [
+          "C1",
+          "C3",
+          "C4",
+          "C5",
+          "C7"
+        ],
+        "constraints_mandatory": [
+          "C5"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "require_json_schema_validation": true,
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true,
+          "validator": "check-jsonschema --schemafile"
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[06-PROGRAMMING/yaml-json-schema/00-INDEX.md]]"
+      },
+      {
+        "path_pattern": "^/05-CONFIGURATIONS/docker-compose/.*\\.yml$",
+        "language": "yaml",
+        "extension": ".yml",
+        "artifact_type": "config_docker",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C7",
+          "C8"
+        ],
+        "constraints_mandatory": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C7",
+          "C8"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "require_docker_schema_validation": true,
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier3-deploy",
+        "wikilink": "[[PROJECT_TREE.md#05-CONFIGURATIONS]]"
+      },
+      {
+        "path_pattern": "^/05-CONFIGURATIONS/terraform/.*\\.tf$",
+        "language": "hcl_terraform",
+        "extension": ".tf",
+        "artifact_type": "config_terraform",
+        "constraints_allowed": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C7"
+        ],
+        "constraints_mandatory": [
+          "C3",
+          "C4",
+          "C5",
+          "C7"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "require_terraform_validation": true,
+          "sensitive_variables_required": true,
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier3-deploy",
+        "wikilink": "[[PROJECT_TREE.md#05-CONFIGURATIONS]]"
+      },
+      {
+        "path_pattern": "^/04-WORKFLOWS/n8n/.*\\.json$",
+        "language": "json",
+        "extension": ".json",
+        "artifact_type": "workflow_n8n",
+        "constraints_allowed": [
+          "C3",
+          "C4",
+          "C5",
+          "C7"
+        ],
+        "constraints_mandatory": [
+          "C4",
+          "C5"
+        ],
+        "constraints_denied": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "language_lock": {
+          "require_n8n_schema_validation": true,
+          "deny_constraints": [
+            "V1",
+            "V2",
+            "V3"
+          ],
+          "hard_block_violation": true
+        },
+        "validation_profile_default": "tier2-code",
+        "wikilink": "[[PROJECT_TREE.md#04-WORKFLOWS]]"
       }
     ]
   },
-  "intensity_legend": {
-    "mandatory": {
-      "symbol": "🔴",
-      "behavior": "Automatic failure if not met. Blocks tier certification. Exit code 2.",
-      "example_validators": ["audit-secrets.sh", "check-rls.sh --strict", "verify-constraints.sh --check-vector-dims"]
-    },
-    "applicable": {
-      "symbol": "🟢",
-      "behavior": "Must be present and verifiable. Warning for Tier 2-3 if missing, allows Tier 1 with correction.",
-      "example_validators": ["verify-constraints.sh", "validate-frontmatter.sh", "check-vector-metric"]
-    },
-    "contextual": {
-      "symbol": "🟡",
-      "behavior": "Applies only if file function requires it. Checked conditionally based on inline content analysis.",
-      "example_validators": ["check-rls.sh --inline-sql", "grep -q 'vector('", "yq eval '.embedding_dim'"]
-    },
-    "not_applicable": {
-      "symbol": "⚪",
-      "behavior": "Norm irrelevant for this file type. Omitted from validation report entirely. V* ALWAYS not_applicable unless trigger conditions met.",
-      "example_validators": []
-    }
+  "constraint_execution_order": {
+    "description_doc": "【EDUCATIVO】Orden de evaluación de constraints durante validación. Las críticas (fail_fast) se evalúan primero para detener generación temprana si hay violación grave.",
+    "fail_fast_sequence": [
+      {
+        "constraint": "C3",
+        "reason": "Zero Hardcode Secrets: fuga de credenciales es inaceptable"
+      },
+      {
+        "constraint": "C4",
+        "reason": "Tenant Isolation: mezcla de datos entre clientes es crítica"
+      },
+      {
+        "constraint": "C5",
+        "reason": "Structural Contract: sin frontmatter válido, no hay validación posible"
+      }
+    ],
+    "standard_sequence": [
+      {
+        "constraint": "C1",
+        "reason": "Resource Limits: previene DoS por configuración"
+      },
+      {
+        "constraint": "C6",
+        "reason": "Verifiable Execution: auditabilidad de comandos"
+      },
+      {
+        "constraint": "C2",
+        "reason": "Concurrency Control: estabilidad del sistema"
+      },
+      {
+        "constraint": "C7",
+        "reason": "Resilience: tolerancia a fallos operativos"
+      },
+      {
+        "constraint": "C8",
+        "reason": "Observability: trazabilidad post-mortem"
+      }
+    ],
+    "vector_sequence": [
+      {
+        "constraint": "V1",
+        "reason": "Vector Dimensions: declaración obligatoria para pgvector"
+      },
+      {
+        "constraint": "V2",
+        "reason": "Distance Metric: documentación semántica del operador"
+      },
+      {
+        "constraint": "V3",
+        "reason": "Index Justification: optimización basada en evidencia"
+      }
+    ],
+    "evaluation_logic": "1) Ejecutar fail_fast_sequence. Si alguna falla → bloqueo inmediato. 2) Ejecutar standard_sequence según lenguaje. 3) Si language=sql_pgvector, ejecutar vector_sequence."
   },
-  "matrix_by_location": {
-    "00-CONTEXT/": {
-      "description": "Base documentation, user/project context files",
-      "extensions": {
-        ".md": {
-          "function": "documentation_base",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "not_applicable", "validator": null},
-            "C4": {"intensity": "not_applicable", "validator": null},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions logging/observability"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "examples_min": 5, "validation_command_required": false},
-          "active_validators": ["check-wikilinks.sh", "validate-frontmatter.sh"]
-        }
-      }
+  "language_lock_enforcement": {
+    "description_doc": "【EDUCATIVO】Reglas de LANGUAGE LOCK: operadores y constraints prohibidos por lenguaje. Violaciones son bloqueantes (hard_block_violation: true).",
+    "global_deny_list": {
+      "operators": [
+        "<->",
+        "<=>",
+        "<#",
+        "vector(n)",
+        "USING hnsw",
+        "USING ivfflat"
+      ],
+      "constraints": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "applies_to_languages": [
+        "go",
+        "bash",
+        "python",
+        "javascript",
+        "typescript",
+        "sql",
+        "yaml",
+        "hcl_terraform"
+      ],
+      "exception_language": "sql_pgvector"
     },
-    "01-RULES/": {
-      "description": "Canonical norms, C1-C8 constraint definitions",
-      "extensions": {
-        ".md": {
-          "function": "canonical_rules",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "not_applicable", "validator": null}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 5, "validation_command_required": true},
-          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "validate-frontmatter.sh"]
-        }
-      }
-    },
-    "02-SKILLS/AI/": {
-      "description": "AI model integration patterns (OpenRouter, Qwen, etc.)",
-      "extensions": {
-        ".md": {
-          "function": "ai_integration_pattern",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "not_applicable", "validator": null},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions structured logging"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "max": 2, "examples_min": 5, "validation_command_required": true},
-          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
-        }
-      }
-    },
-    "02-SKILLS/INFRAESTRUCTURA/": {
-      "description": "Infrastructure patterns: Docker, SSH, UFW, monitoring",
-      "extensions": {
-        ".md": {
-          "function": "infrastructure_pattern",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["verify-constraints.sh", "check-wikilinks.sh", "audit-secrets.sh"]
-        }
-      }
-    },
-    "02-SKILLS/BASE DE DATOS-RAG/": {
-      "description": "Database schemas, RAG ingestion, multi-tenant queries",
-      "extensions": {
-        ".md": {
-          "function": "database_schema_with_inline_sql",
-          "constraints": {
-            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions resource limits"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if file mentions concurrency/timeout"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --strict", "blocking": true, "checks": ["tenant_id in all WHERE clauses", "tenant_id as second field in tables", "composite indexes start with tenant_id", "FK references tenants table"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-dims", "condition": "if inline SQL declares vector(dim) columns", "blocking": true},
-            "V2": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-metric", "condition": "if file uses <->/<=>/<#> operators"},
-            "V3": {"intensity": "contextual", "validator": "verify-constraints.sh --check-vector-index", "condition": "if file creates hnsw/ivfflat indexes", "blocking": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "c4_blocking": true},
-          "active_validators": ["check-rls.sh", "audit-secrets.sh", "schema-validator.py", "verify-constraints.sh"]
-        }
-      }
-    },
-    "02-SKILLS/WHATSAPP-RAG AGENTS/": {
-      "description": "WhatsApp agents with RAG + multi-tenant awareness",
-      "extensions": {
-        ".md": {
-          "function": "whatsapp_rag_agent_pattern",
-          "constraints": {
-            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
-        }
-      }
-    },
-    "02-SKILLS/VERTICALES/": {
-      "description": "Industry-specific skills (restaurant, dental, hotel, etc.)",
-      "extensions": {
-        ".md": {
-          "function": "vertical_skill_pattern",
-          "constraints": {
-            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --if-db", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "max": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["check-rls.sh --if-db", "audit-secrets.sh", "verify-constraints.sh"]
-        }
-      }
-    },
-    "03-AGENTS/infrastructure/": {
-      "description": "Infrastructure agent definitions (monitoring, backup, alerts)",
-      "extensions": {
-        ".md": {
-          "function": "infrastructure_agent_definition",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "check-wikilinks.sh"]
-        }
-      }
-    },
-    "03-AGENTS/clients/": {
-      "description": "Client-facing agents (WhatsApp, RAG, analytics)",
-      "extensions": {
-        ".md": {
-          "function": "client_agent_definition",
-          "constraints": {
-            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"]
-        }
-      }
-    },
-    "04-WORKFLOWS/": {
-      "description": "Exported n8n workflows (executable JSON)",
-      "extensions": {
-        ".json": {
-          "function": "n8n_workflow_executable",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C2": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true, "checks": ["tenant_id in node parameters", "tenant_id in filters", "tenant_id in metadata"]},
-            "C5": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C6": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C7": {"intensity": "applicable", "validator": "schema-validator.py", "checks": ["error handling nodes", "retry configuration", "timeout settings"]},
-            "C8": {"intensity": "applicable", "validator": "schema-validator.py"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_packager": true},
-          "active_validators": ["schema-validator.py", "packager-assisted.sh", "audit-secrets.sh", "jq empty"]
-        }
-      }
-    },
-    "04-WORKFLOWS/n8n/": {
-      "description": "Function-specific n8n workflows",
-      "extensions": {
-        ".json": {
-          "function": "n8n_workflow_functional",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C2": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C6": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C7": {"intensity": "applicable", "validator": "schema-validator.py"},
-            "C8": {"intensity": "applicable", "validator": "schema-validator.py"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_packager": true},
-          "active_validators": ["schema-validator.py", "packager-assisted.sh", "audit-secrets.sh"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/docker-compose/": {
-      "description": "Container configuration for VPS deployment",
-      "extensions": {
-        ".yml": {
-          "function": "docker_compose_config",
-          "constraints": {
-            "C1": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["mem_limit declared", "memswap_limit equals mem_limit", "no swap usage"]},
-            "C2": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["cpus declared", "pids_limit declared", "timeout settings"]},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["${VAR:?missing} syntax", "no hardcoded credentials", "sensitive ports on 127.0.0.1"]},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in labels", "tenant_id in networks", "tenant_id in volumes", "tenant_id in environment"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "mandatory", "validator": "docker_compose_check", "blocking": true, "checks": ["healthcheck present", "restart: unless-stopped", "retry/backoff config"]},
-            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh", "checks": ["logging driver json-file", "structured log context", "tenant_id in logs"]}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "yq eval", "condition": "if service uses pgvector image or declares VECTOR_DIM env var", "checks": ["VECTOR_DIM declared in environment", "value matches supported dimensions (1536|768|384)"]},
-            "V2": {"intensity": "not_applicable", "validator": null},
-            "V3": {"intensity": "not_applicable", "validator": null}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_healthcheck": true, "requires_namespace_isolation": true},
-          "active_validators": ["docker compose config --quiet", "audit-secrets.sh", "verify-constraints.sh", "yq eval"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/terraform/modules/": {
-      "description": "Reusable IaC modules (vps-base, postgres-rls, etc.)",
-      "extensions": {
-        ".tf": {
-          "function": "terraform_module_reusable",
-          "constraints": {
-            "C1": {"intensity": "mandatory", "validator": "terraform_validate", "blocking": true, "checks": ["validation {} blocks for resource ranges", "mem_limit/cpus constraints"]},
-            "C2": {"intensity": "mandatory", "validator": "terraform_validate", "blocking": true},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["sensitive = true on secret outputs", "default = null + TF_VAR_* pattern", "no hardcoded values"]},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id as required variable", "regex validation on tenant_id format", "tenant_id propagated to outputs"]},
-            "C5": {"intensity": "mandatory", "validator": "terraform_validate", "checks": ["checksums in backup outputs", "validation_checklist output"]},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh", "checks": ["validation prohibiting localhost in inference endpoints"]},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "yq eval", "condition": "if module declares vector-related resources", "checks": ["embedding_dim variable with validation"]},
-            "V2": {"intensity": "not_applicable", "validator": null},
-            "V3": {"intensity": "not_applicable", "validator": null}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_terraform_fmt": true},
-          "active_validators": ["terraform fmt -check", "terraform validate -no-color -json", "audit-secrets.sh", "verify-constraints.sh"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/pipelines/promptfoo/": {
-      "description": "Prompt evaluation configuration and test cases",
-      "extensions": {
-        ".yaml": {
-          "function": "prompt_evaluation_config",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "applicable", "validator": "yamllint", "checks": ["timeout settings in provider config"]},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "promptfoo_dry_run", "checks": ["assertions present", "test cases ≥5 per model"]},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "max": 3, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["yamllint", "promptfoo eval --dry-run", "audit-secrets.sh", "yq eval"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/validation/": {
-      "description": "Validation and integrity scripts",
-      "extensions": {
-        ".sh": {
-          "function": "validation_script_executable",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "bash_syntax_check", "checks": ["set -euo pipefail", "executable validation command"]},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "applicable", "validator": "shellcheck", "checks": ["timeout in curl/wget", "error handling"]},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector dimensions", "checks": ["script name contains 'vector' OR 'embedding'", "script calls verify-constraints.sh --check-vector-dims"]},
-            "V2": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector metrics"},
-            "V3": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector index safety"}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_shellcheck": true},
-          "active_validators": ["shellcheck", "bash -n", "python3 -m py_compile", "audit-secrets.sh"]
-        },
-        ".py": {
-          "function": "validation_script_python",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "python_compile_check"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates embedding dimensions"},
-            "V2": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector metrics"},
-            "V3": {"intensity": "contextual", "validator": "self-check", "condition": "if script validates vector index safety"}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["python3 -m py_compile", "audit-secrets.sh", "verify-constraints.sh"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/scripts/": {
-      "description": "Operational scripts (backup, health-check, deploy)",
-      "extensions": {
-        ".sh": {
-          "function": "operational_script",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh", "checks": ["resource limit comments or enforcement"]},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["${VAR:?missing} in all credentials", "no echo of secrets"]},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in logs", "tenant_id in paths", "tenant_id in queries"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "mandatory", "validator": "shellcheck", "checks": ["timeout in curl/wget", "retry with backoff if applicable", "error trapping"]},
-            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh", "checks": ["JSON output via heredoc", "trace_id in logs", "structured context"]}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "max": 3, "examples_min": 10, "validation_command_required": true, "requires_heredoc_json": true},
-          "active_validators": ["shellcheck", "bash -n", "audit-secrets.sh", "verify-constraints.sh"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/environment/": {
-      "description": "Environment variable templates",
-      "extensions": {
-        ".example": {
-          "function": "env_template",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true, "checks": ["placeholders use replace_with_... OR ${VAR:?missing} pattern", "no real values"]},
-            "C4": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "checks": ["TENANT_ID placeholder present"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "not_applicable", "validator": null}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "audit-secrets.sh", "condition": "if template includes VECTOR_DIM variable", "checks": ["VECTOR_DIM uses ${VAR:?missing} pattern", "allowed values documented in comment"]},
-            "V2": {"intensity": "not_applicable", "validator": null},
-            "V3": {"intensity": "not_applicable", "validator": null}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 5, "validation_command_required": true, "accepts_placeholder_patterns": ["replace_with_...", "${VAR:?missing}"]},
-          "active_validators": ["audit-secrets.sh", "validate-frontmatter.sh"]
-        }
-      }
-    },
-    "05-CONFIGURATIONS/templates/": {
-      "description": "Templates for auto-generation",
-      "extensions": {
-        ".md": {
-          "function": "generation_template_markdown",
-          "constraints": {
-            "C1": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["validate-frontmatter.sh", "verify-constraints.sh", "audit-secrets.sh"]
-        },
-        ".tf": {
-          "function": "generation_template_terraform",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "terraform_validate"},
-            "C2": {"intensity": "applicable", "validator": "terraform_validate"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "terraform_validate"},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "terraform_validate", "condition": "if template includes vector resources"},
-            "V2": {"intensity": "not_applicable", "validator": null},
-            "V3": {"intensity": "not_applicable", "validator": null}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["terraform fmt -check", "terraform validate", "audit-secrets.sh"]
-        },
-        ".yml": {
-          "function": "generation_template_yaml",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "yq_eval"},
-            "C2": {"intensity": "applicable", "validator": "yq_eval"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["yq eval", "yamllint", "audit-secrets.sh"]
-        }
-      }
-    },
-    "06-PROGRAMMING/": {
-      "description": "Code patterns by language",
-      "extensions": {
-        ".md": {
-          "function": "code_pattern_documentation",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if code snippet mentions concurrency"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id in inline queries"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 5},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "contextual", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "max": 2, "examples_min": 5, "validation_command_required": true},
-          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "check-wikilinks.sh"]
-        }
-      }
-    },
-    "06-PROGRAMMING/sql/": {
-      "description": "Pure PostgreSQL patterns - LANGUAGE LOCK: NO pgvector operators",
-      "extensions": {
-        ".md": {
-          "function": "sql_pattern_postgresql_pure",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --strict", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true, "reason": "LANGUAGE LOCK: sql/ handles pure PostgreSQL, no pgvector extension"},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "language_lock_enforced": true},
-          "active_validators": ["check-rls.sh", "audit-secrets.sh", "verify-constraints.sh"],
-          "anti_drift_checks": [
-            "grep -qE 'vector\\(|<->|<#>|<=>|hnsw|ivfflat' file && exit 2",
-            "constraints_mapped must NOT include V1/V2/V3",
-            "examples must be pure PostgreSQL 14+ syntax"
-          ]
-        }
-      }
-    },
-    "06-PROGRAMMING/postgresql-pgvector/": {
-      "description": "pgvector-specific patterns: indexing, querying, migration - ONLY location for vector operators",
-      "extensions": {
-        ".md": {
-          "function": "pgvector_skill_pattern",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "check-rls.sh --strict", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 25},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "mandatory", "validator": "verify-constraints.sh --check-vector-dims 1536,768,384", "blocking": true, "checks": ["explicit vector(dim) declaration", "supported dimension values only", "comment explaining embedding model source"]},
-            "V2": {"intensity": "applicable", "validator": "verify-constraints.sh --check-vector-metric", "checks": ["operator documented in comment", "operator matches index opclass", "no ambiguous ORDER BY vec"]},
-            "V3": {"intensity": "mandatory", "validator": "verify-constraints.sh --check-vector-index", "blocking": true, "checks": ["index type justified by comment", "parameters explicit (m/ef/lists)", "CONCURRENTLY for production", "tenant_id in WHERE clause"]}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 25, "validation_command_required": true, "c4_blocking": true, "v1_v3_blocking": true},
-          "active_validators": ["check-rls.sh", "verify-constraints.sh", "audit-secrets.sh", "validate-frontmatter.sh"]
-        }
-      }
-    },
-    "06-PROGRAMMING/yaml-json-schema/": {
-      "description": "YAML/JSON Schema validation patterns - LANGUAGE LOCK: NO pgvector operators",
-      "extensions": {
-        ".md": {
-          "function": "yaml_json_schema_pattern",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if schema includes timeout/resource fields"},
-            "C3": {"intensity": "applicable", "validator": "audit-secrets.sh"},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true, "checks": ["tenant_id validation in schema properties", "pattern/length constraints on tenant_id", "required fields include tenant_id where applicable"]},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true, "reason": "LANGUAGE LOCK: yaml-json-schema/ handles config schemas, not vector dimensions"},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "language_lock_enforced": true},
-          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "validate-frontmatter.sh", "yamllint", "check-jsonschema"],
-          "anti_drift_checks": [
-            "grep -qE '<->|<=>|<#>|vector\\(|hnsw|ivfflat' file && exit 2",
-            "constraints_mapped must NOT include V1/V2/V3",
-            "examples must be pure YAML/JSON, zero SQL"
-          ]
-        }
-      }
-    },
-    "06-PROGRAMMING/go/": {
-      "description": "Go services for MCP - LANGUAGE LOCK: NO SQL/pgvector operators",
-      "extensions": {
-        ".md": {
-          "function": "go_service_pattern",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 10},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true, "reason": "LANGUAGE LOCK: go/ handles MCP services, not vector DB operations"},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 2, "examples_min": 10, "validation_command_required": true, "language_lock_enforced": true},
-          "active_validators": ["verify-constraints.sh", "audit-secrets.sh", "gofmt -l", "go vet"]
-        }
-      }
-    },
-    "07-PROCEDURES/": {
-      "description": "Operational procedures, checklists, SOPs",
-      "extensions": {
-        ".md": {
-          "function": "operational_procedure",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "not_applicable", "validator": null},
-            "C4": {"intensity": "not_applicable", "validator": null},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh", "min_examples": 3},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "contextual", "validator": "verify-constraints.sh", "condition": "if procedure mentions retry/fallback"},
-            "C8": {"intensity": "not_applicable", "validator": null}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "examples_min": 3, "validation_command_required": false, "note": "Procedures prioritize clarity over technical exhaustiveness"},
-          "active_validators": ["check-wikilinks.sh", "validate-frontmatter.sh"]
-        }
-      }
-    },
-    "08-LOGS/": {
-      "description": "Audit logs, reports, traces",
-      "extensions": {
-        ".json": {
-          "function": "audit_log_output",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "schema-validator.py", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "schema-validator.py"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "mandatory", "validator": "schema-validator.py", "checks": ["tenant_id field", "trace_id field", "timestamp ISO8601", "severity level"]}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "contextual", "validator": "schema-validator.py", "condition": "if log schema includes embedding fields", "checks": ["embedding_dim field with enum validation"]},
-            "V2": {"intensity": "not_applicable", "validator": null},
-            "V3": {"intensity": "not_applicable", "validator": null}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true, "requires_schema_validation": true},
-          "active_validators": ["schema-validator.py", "jq empty", "audit-secrets.sh"]
-        },
-        ".log": {
-          "function": "raw_log_output",
-          "constraints": {
-            "C1": {"intensity": "not_applicable", "validator": null},
-            "C2": {"intensity": "not_applicable", "validator": null},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "mandatory", "validator": "verify-constraints.sh"},
-            "C6": {"intensity": "not_applicable", "validator": null},
-            "C7": {"intensity": "not_applicable", "validator": null},
-            "C8": {"intensity": "mandatory", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 3, "examples_min": 10, "validation_command_required": true},
-          "active_validators": ["audit-secrets.sh", "verify-constraints.sh"]
-        }
-      }
-    },
-    "09-TEST-SANDBOX/": {
-      "description": "Isolated testing space for multi-IA generation comparison",
-      "extensions": {
-        "*": {
-          "function": "test_artifact",
-          "constraints": {
-            "C1": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C2": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C3": {"intensity": "mandatory", "validator": "audit-secrets.sh", "blocking": true},
-            "C4": {"intensity": "mandatory", "validator": "verify-constraints.sh", "blocking": true},
-            "C5": {"intensity": "applicable", "validator": "validate-frontmatter.sh"},
-            "C6": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C7": {"intensity": "applicable", "validator": "verify-constraints.sh"},
-            "C8": {"intensity": "applicable", "validator": "verify-constraints.sh"}
-          },
-          "vector_constraints": {
-            "V1": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V2": {"intensity": "not_applicable", "validator": null, "hard_block": true},
-            "V3": {"intensity": "not_applicable", "validator": null, "hard_block": true}
-          },
-          "tier_requirements": {"min": 1, "max": 1, "examples_min": 5, "validation_command_required": true, "note": "Tier max is 1; promotion to production requires explicit re-certification"},
-          "active_validators": ["audit-secrets.sh", "verify-constraints.sh", "check-wikilinks.sh"],
-          "promotion_rule": "Files in sandbox cannot be merged to production without explicit promotion workflow and re-validation against target folder matrix"
-        }
+    "language_specific_rules": {
+      "go": {
+        "deny_operators": [
+          "<->",
+          "<=>",
+          "<#",
+          "vector(n)",
+          "USING hnsw",
+          "USING ivfflat"
+        ],
+        "deny_constraints": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "deny_imports": [
+          "github.com/pgvector/pgvector-go"
+        ],
+        "reason": "Go es para microservicios de alta concurrencia, no para queries vectoriales crudas. Usar Python/SQL para RAG.",
+        "validator": "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/go/"
+      },
+      "sql": {
+        "deny_operators": [
+          "<->",
+          "<=>",
+          "<#",
+          "vector(n)",
+          "USING hnsw",
+          "USING ivfflat"
+        ],
+        "deny_constraints": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "reason": "SQL genérico no incluye extensiones pgvector. Para búsqueda vectorial, usar carpeta postgresql-pgvector.",
+        "validator": "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/sql/"
+      },
+      "sql_pgvector": {
+        "require_artifact_type": "skill_pgvector",
+        "require_vector_declaration": true,
+        "require_distance_metric_doc": true,
+        "require_index_justification": true,
+        "allowed_operators": [
+          "<->",
+          "<=>",
+          "<#"
+        ],
+        "allowed_constraints": [
+          "V1",
+          "V2",
+          "V3"
+        ],
+        "reason": "ÚNICA carpeta permitida para búsqueda vectorial. Requiere documentación explícita de dimensiones, métrica e índice.",
+        "validator": "verify-constraints.sh --check-vector-dims --check-vector-metric --check-vector-index"
       }
     }
   },
-  "extension_decision_rules": {
-    ".md": {
-      "description": "Decision rules for Markdown files (documentation/skills)",
-      "rules": [
-        {
-          "condition": "file_path contains 'BASE DE DATOS-RAG' OR 'INFRAESTRUCTURA' OR 'VERTICALES'",
-          "actions": [
-            "C4 (tenant_id) MANDATORY in all inline code examples",
-            "C3 (secrets) applies to any credential placeholder",
-            "C5 (examples) requires ≥10 with format ✅/❌/🔧"
-          ]
-        },
-        {
-          "condition": "file_path contains 'postgresql-pgvector/'",
-          "actions": [
-            "V1/V3 MANDATORY if pgvector operators present",
-            "V2 APPLICABLE for distance metric documentation",
-            "examples_min: 25 for skill_pgvector type"
-          ]
-        },
-        {
-          "condition": "default",
-          "actions": [
-            "C5 requires ≥5 examples",
-            "C4 applies only if file mentions queries or payloads",
-            "V* explicitly excluded unless trigger conditions met"
-          ]
-        }
-      ]
-    },
-    ".yaml": {
-      "description": "Decision rules for YAML files (Docker, Promptfoo, CI/CD)",
-      "rules": [
-        "C1/C2: mem_limit, cpus, pids_limit, timeout declared explicitly",
-        "C3: ZERO hardcode; use ${VAR:?missing} or env_file references",
-        "C4: tenant_id in labels, networks, volumes, environment",
-        "C7: healthcheck + restart policy on critical services",
-        "C8: logging driver json-file + structured context",
-        "V1: contextual only if VECTOR_DIM env var declared with validation",
-        "Validator: yq eval + docker compose config --quiet (if applicable)"
-      ]
-    },
-    ".tf": {
-      "description": "Decision rules for Terraform files",
-      "rules": [
-        "C1/C2: validation {} blocks for resource ranges",
-        "C3: sensitive = true on secret outputs; default = null + TF_VAR_*",
-        "C4: tenant_id as required variable with regex validation",
-        "C5: checksums in backup/artifact outputs",
-        "C6: validation prohibiting localhost in inference endpoints",
-        "V1: contextual only if module declares vector-related resources",
-        "Validator: terraform fmt -check + terraform validate -no-color -json"
-      ]
-    },
-    ".sh": {
-      "description": "Decision rules for Bash scripts",
-      "rules": [
-        "Frontmatter COMMENTED with # (for bash compatibility)",
-        "Shebang #!/bin/bash + set -euo pipefail mandatory",
-        "C3: ${VAR:?missing} in all credentials",
-        "C4: tenant_id injected in logs, paths, queries",
-        "C7: timeout in curl/wget, retry with backoff if applicable",
-        "C8: JSON output via heredoc (cat <<EOF)",
-        "V*: contextual only if script name contains 'vector' or calls vector validators",
-        "Validator: shellcheck + bash -n + audit-secrets.sh"
-      ]
-    },
-    ".sql": {
-      "description": "Decision rules for SQL files - LANGUAGE LOCK enforcement",
-      "rules": [
-        "If in sql/: PROHIBIT vector(n), <->, <#>, <=>, hnsw, ivfflat",
-        "If in postgresql-pgvector/: REQUIRE V1/V3 mandatory, V2 applicable",
-        "C4: tenant_id in all WHERE clauses (RLS defense in depth)",
-        "C1: LIMIT + resource hints on all SELECT queries",
-        "Validator: check-rls.sh + verify-constraints.sh --check-vector-dims (if pgvector path)"
-      ]
-    }
-  },
-  "ai_generation_prompt_checklist": {
-    "description": "Mandatory checklist to include in ALL AI generation prompts",
-    "items": [
-      "Before generating, read PROJECT_TREE.md and resolve:",
-      "1. Exact canonical path of file to create",
-      "2. Extension → apply validation rules by type (see C1-C8 + V* matrix)",
-      "3. Function → determine target tier (1/2/3) and required examples (5/10/25)",
-      "4. Dominant constraints → C4 mandatory if path contains 'DB-RAG', 'INFRA', 'VERTICAL'",
-      "5. Vector constraints → V1/V3 mandatory ONLY if path is postgresql-pgvector/ AND uses pgvector operators",
-      "6. LANGUAGE LOCK → NEVER use vector(n), <->, hnsw in sql/, yaml-json-schema/, go/",
-      "7. Frontmatter → commented if .sh, pure YAML if .md/.yaml/.tf/.json",
-      "8. Zero hardcode → use ${VAR:?missing} or sensitive = true",
-      "9. tenant_id → present in queries, labels, logs, payloads if applicable",
-      "10. Examples → ≥5 (Tier 1) or ≥10 (Tier 2-3) or ≥25 (skill_pgvector) with format ✅/❌/🔧",
-      "11. Validation command → executable and specific to this file type",
-      "12. If context missing: '⚠️ BLOCKED: missing [X]. Awaiting context.' and STOP."
+  "dependency_graph": {
+    "description_doc": "【EDUCATIVO】Mapa de dependencias entre archivos de gobernanza. El orchestrator carga estos archivos en este orden para validación cruzada.",
+    "critical_infrastructure": [
+      {
+        "file": "PROJECT_TREE.md",
+        "purpose": "Resolver rutas canónicas",
+        "load_order": 1
+      },
+      {
+        "file": "00-STACK-SELECTOR.md",
+        "purpose": "Determinar lenguaje por ruta",
+        "load_order": 2
+      },
+      {
+        "file": "05-CONFIGURATIONS/validation/norms-matrix.json",
+        "purpose": "Mapear constraints por carpeta",
+        "load_order": 3
+      },
+      {
+        "file": "01-RULES/harness-norms-v3.0.md",
+        "purpose": "Definición textual de constraints",
+        "load_order": 4
+      },
+      {
+        "file": "01-RULES/language-lock-protocol.md",
+        "purpose": "Reglas de exclusión de operadores",
+        "load_order": 5
+      }
+    ],
+    "navigation_contracts": [
+      {
+        "file": "IA-QUICKSTART.md",
+        "purpose": "Definir modos A1-B3 y gate humano",
+        "load_order": 1
+      },
+      {
+        "file": "AI-NAVIGATION-CONTRACT.md",
+        "purpose": "Reglas de interacción IA-humano",
+        "load_order": 2
+      },
+      {
+        "file": "GOVERNANCE-ORCHESTRATOR.md",
+        "purpose": "Tiers, validación y certificación",
+        "load_order": 3
+      }
+    ],
+    "pattern_indices": [
+      {
+        "file": "06-PROGRAMMING/00-INDEX.md",
+        "purpose": "Agregador de patrones por lenguaje",
+        "load_order": 1
+      },
+      {
+        "file": "06-PROGRAMMING/go/00-INDEX.md",
+        "purpose": "Patrones específicos de Go",
+        "load_order": 2
+      },
+      {
+        "file": "06-PROGRAMMING/python/00-INDEX.md",
+        "purpose": "Patrones específicos de Python",
+        "load_order": 2
+      },
+      {
+        "file": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
+        "purpose": "Patrones específicos de pgvector",
+        "load_order": 2
+      }
+    ],
+    "validation_toolchain": [
+      {
+        "file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh",
+        "purpose": "Motor principal de validación",
+        "load_order": 1
+      },
+      {
+        "file": "05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "purpose": "Validación de constraints y LANGUAGE LOCK",
+        "load_order": 2
+      },
+      {
+        "file": "05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "purpose": "Detección de secrets hardcodeados",
+        "load_order": 3
+      },
+      {
+        "file": "05-CONFIGURATIONS/validation/check-rls.sh",
+        "purpose": "Validación de tenant isolation en SQL",
+        "load_order": 4
+      },
+      {
+        "file": "05-CONFIGURATIONS/validation/schema-validator.py",
+        "purpose": "Validación de JSON/YAML contra schemas",
+        "load_order": 5
+      }
     ]
   },
-  "orchestrator_integration_notes": {
-    "matrix_lookup_strategy": "Use longest prefix match on file_path to find most specific matrix entry",
-    "vector_constraint_resolution": "Before applying V1/V2/V3, evaluate selective_application_logic.trigger_conditions AND exclusion_conditions. If excluded, treat as not_applicable regardless of content.",
-    "language_lock_enforcement": "If file_path contains 'yaml-json-schema/' OR 'sql/' OR 'go/' AND content matches pgvector operators (<->, <#>, <=>, vector(n), hnsw, ivfflat), ABORT with exit code 2 and message 'LANGUAGE LOCK VIOLATION: pgvector operators not permitted in <folder>'",
-    "validator_execution": "Only execute validators marked as applicable/mandatory for the resolved profile. Skip vector validators if V* excluded by LANGUAGE LOCK or trigger conditions.",
-    "tier_calculation": "Calculate achieved tier based on passed C-constraints + (V-constraints if applicable) + examples count + functional requirements",
-    "blocking_behavior": "If any mandatory check fails (C or V), return exit code 2 immediately without tier calculation",
-    "json_output_schema": {
-      "file": "string (canonical path)",
-      "tier_certified": "integer (1|2|3) or null if blocked",
-      "constraints_verified": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-      "vector_constraints_verified": ["V1", "V2", "V3"],
-      "vector_constraints_applied": "boolean (true only if selective_application_logic triggers met)",
-      "blocking_issues": [{"constraint": "C4|V1|V3", "message": "specific error description"}],
-      "warnings": [{"constraint": "C8|V2", "message": "recommendation for improvement"}],
-      "language_lock_status": "string ('enforced'|'not_applicable'|'violation_detected')",
-      "next_action": "string ('review_human'|'merge_auto'|'trigger_deploy'|'correct_and_retry')",
-      "sha256": "string (for tier 3 artifacts)",
-      "timestamp": "ISO8601 string"
+  "human_readable_errors": {
+    "description_doc": "【EDUCATIVO】Mensajes de error legibles para humanos cuando la validación falla. El orchestrator usa estas plantillas para generar feedback claro.",
+    "mode_invalid": "Modo '{value}' no reconocido. Use uno de: A1, A2, A3, B1, B2, B3. Ver [[IA-QUICKSTART.md]] para descripciones.",
+    "path_not_canonical": "Ruta '{value}' no es canónica. Consulte [[PROJECT_TREE.md]] para rutas válidas. Ejemplo correcto: '/06-PROGRAMMING/go/mi-archivo.go.md'.",
+    "language_mismatch": "Lenguaje '{language}' no permitido para ruta '{path}'. Según [[00-STACK-SELECTOR.md]], esta ruta requiere: '{expected_language}'.",
+    "constraint_not_allowed": "Constraint '{constraint}' no aplicable para ruta '{path}'. Consulte [[05-CONFIGURATIONS/validation/norms-matrix.json]] para constraints permitidas.",
+    "constraint_missing_mandatory": "Constraint '{constraint}' es obligatoria para ruta '{path}' pero no fue declarada. Agregue '{constraint}' a constraints_mapped.",
+    "language_lock_violation_operator": "Violación de LANGUAGE LOCK: operador '{operator}' prohibido en lenguaje '{language}'. Ver [[01-RULES/language-lock-protocol.md]].",
+    "language_lock_violation_constraint": "Violación de LANGUAGE LOCK: constraint '{constraint}' prohibida en lenguaje '{language}'. Solo aplican en 'sql_pgvector'.",
+    "vector_missing_declaration": "【pgvector】Falta declaración de dimensiones (V1). Agregue comentario: '-- embedding: NNNd, model: nombre-modelo' o use vector(NNN) en CREATE INDEX.",
+    "vector_missing_metric_doc": "【pgvector】Falta documentación de métrica de distancia (V2). Especifique si usa cosine (<=>), L2 (<->) o inner product (<#>).",
+    "vector_missing_index_justification": "【pgvector】Falta justificación de tipo de índice (V3). Explique por qué eligió hnsw vs ivfflat con parámetros y referencia a benchmark o docs oficiales."
+  },
+  "audit_requirements": {
+    "description_doc": "【EDUCATIVO】Campos obligatorios para logs de auditoría. Cumple con C8 (Observabilidad) y permite trazabilidad forense.",
+    "required_log_fields": [
+      "timestamp_rfc3339",
+      "mode_selected",
+      "canonical_path",
+      "language",
+      "constraints_mapped",
+      "validation_profile",
+      "prompt_sha256",
+      "validation_result",
+      "blocking_issues",
+      "language_lock_violations"
+    ],
+    "pii_scrubbing_rules": {
+      "enabled": true,
+      "fields_to_scrub": [
+        "password",
+        "secret",
+        "token",
+        "api_key",
+        "credential"
+      ],
+      "scrub_method": "replace_with_***REDACTED***",
+      "compliance": "C3 (Zero Hardcode Secrets) + C8 (Observabilidad)"
+    },
+    "retention_policy": {
+      "debug_logs": "90_days",
+      "audit_logs": "7_years",
+      "compliance_logs": "permanent_if_tier3",
+      "rotation": "daily_with_checksum"
+    },
+    "export_formats": [
+      "JSON Lines",
+      "CSV for SIEM",
+      "OpenTelemetry OTLP"
+    ]
+  },
+  "expansion_hooks": {
+    "description_doc": "【PARA MANTENEDORES】Puntos de extensión para añadir nuevos modos, lenguajes o constraints sin romper compatibilidad con versiones anteriores.",
+    "adding_new_mode": {
+      "steps": [
+        "1. Añadir nuevo enum value a validation_profiles.applicable_modes",
+        "2. Definir validation_profile con checks, severity y delivery_format",
+        "3. Actualizar IA-QUICKSTART.md con descripción del nuevo modo",
+        "4. Actualizar GOVERNANCE-ORCHESTRATOR.md con mapeo tier",
+        "5. Actualizar este archivo: folder_routing_table.validation_profile_default",
+        "6. Requiere aprobación humana: true"
+      ],
+      "backward_compatibility": "Nuevos modos no deben cambiar validación de modos existentes (A1-B3)."
+    },
+    "adding_new_language": {
+      "steps": [
+        "1. Añadir nuevo enum value a folder_routing_table.rules[].language",
+        "2. Definir path_pattern, extension y artifact_type",
+        "3. Mapear constraints_allowed/denied según norms-matrix.json",
+        "4. Definir language_lock rules (deny_operators, deny_constraints)",
+        "5. Actualizar PROJECT_TREE.md con nueva carpeta canónica",
+        "6. Actualizar 00-STACK-SELECTOR.md con regla de enrutamiento",
+        "7. Requiere aprobación humana: true"
+      ],
+      "backward_compatibility": "Nuevos lenguajes no deben modificar LANGUAGE LOCK de lenguajes existentes."
+    },
+    "adding_new_constraint": {
+      "steps": [
+        "1. Añadir definición completa a constraints_definitions con name, description, examples",
+        "2. Definir applies_to_languages y applies_to_folders",
+        "3. Establecer priority y fail_fast según impacto",
+        "4. Actualizar harness-norms-v3.0.md con definición canónica",
+        "5. Actualizar folder_routing_table.rules[].constraints_allowed para carpetas afectadas",
+        "6. Actualizar validation_profiles.checks si aplica",
+        "7. Requiere aprobación humana: true + actualización de orchestrator-engine.sh"
+      ],
+      "backward_compatibility": "Nuevas constraints no deben invalidar artefactos existentes que no las usen (aplicar solo a nuevas generaciones)."
     }
   },
-  "validated_examples": [
-    "✅ Should see: '06-PROGRAMMING/postgresql-pgvector/vector-indexing.md' → applies C1-C8 + V1-V3 (trigger: pgvector path + operators)",
-    "❌ If you see: V1 applied to '06-PROGRAMMING/yaml-json-schema/schema-validation.md' → 🔧 Fix: Enforce hard_block on V* for yaml-json-schema/",
-    "✅ Should see: '02-SKILLS/BASE DE DATOS-RAG/rag-ingestion.md' with inline SQL using vector(1536) → V1 contextual, V3 contextual",
-    "❌ If you see: V3 blocking on file with 'vector' as generic term (no pgvector operators) → 🔧 Fix: Improve trigger condition to require explicit pgvector context",
-    "✅ Should see: docker-compose with VECTOR_DIM=1536 → V1 contextual applies, validates dimension value",
-    "❌ If you see: orchestrator applies V2 to validation script that doesn't handle indexes → 🔧 Fix: Check self-check condition in vector_constraints",
-    "✅ Should see: LANGUAGE LOCK violation (pgvector in yaml-json-schema/) → exit 2 with clear error message",
-    "❌ If you see: constraints_mapped in frontmatter includes V1 for artifact_type: skill_yaml → 🔧 Fix: validate-frontmatter.sh must enforce selective logic",
-    "✅ Should see: tier_requirements for postgresql-pgvector/ includes v1_v3_blocking: true",
-    "✅ Should see: json output includes vector_constraints_applied: false for non-vector artifacts",
-    "✅ Should see: sql/ files with vector(1536) → ABORT with LANGUAGE LOCK violation",
-    "✅ Should see: BASE DE DATOS-RAG/ with pure SQL (no pgvector) → V* not_applicable, only C1-C8"
-  ],
-  "version_history": [
-    {"version": "1.0.0", "date": "2026-04-14", "changes": ["Initial matrix definition", "All canonical locations mapped", "C1-C8 intensity rules defined", "Validator routing logic specified"]},
-    {"version": "3.0.0-SELECTIVE", "date": "2026-04-19", "changes": [
-      "Added vector_constraints_mapped: [V1, V2, V3] at root level",
-      "Implemented selective_application_logic with trigger/exclusion conditions for vector constraints",
-      "Added vector_constraints_definitions with validator specs, blocking rules, and checks",
-      "Updated matrix_by_location entries for postgresql-pgvector/, yaml-json-schema/, sql/, BASE DE DATOS-RAG/",
-      "Added LANGUAGE LOCK enforcement: hard_block on V* for non-pgvector folders",
-      "Enhanced orchestrator_integration_notes with vector constraint resolution and language_lock_enforcement",
-      "Updated json_output_schema to include vector_constraints_applied and language_lock_status fields",
-      "Added validated_examples for selective V* application and LANGUAGE LOCK scenarios",
-      "Updated extension_decision_rules to include SQL language lock and vector trigger conditions",
-      "Enhanced ai_generation_prompt_checklist with vector constraint and LANGUAGE LOCK guidance",
-      "Fixed directory name: postgresql-pgvector/ (not postgres-pgvector/)",
-      "Updated validator references to use verify-constraints.sh with flags instead of separate scripts"
-    ]}
-  ],
-  "footer_validation": "# 🟢 VALIDATION: bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 05-CONFIGURATIONS/validation/norms-matrix.json --json && jq '.vector_constraints_applied, .language_lock_status' skill-validation-report.json"
+  "validation_metadata": {
+    "orchestrator_integration": {
+      "load_command": "jq -r '.folder_routing_table.rules[] | select(.path_pattern | test($PATH))' norms-matrix.json",
+      "validation_flow": [
+        "1. Cargar PROJECT_TREE.md para resolver canonical_path",
+        "2. Cargar 00-STACK-SELECTOR.md para determinar language",
+        "3. Cargar este archivo para obtener constraints y language_lock",
+        "4. Ejecutar constraint_execution_order según language",
+        "5. Si fail_fast constraint falla → bloqueo inmediato",
+        "6. Si todas pasan → score calculado, artefacto válido"
+      ],
+      "expected_output_schema": {
+        "score": "integer >= 0",
+        "passed": "boolean",
+        "blocking_issues": "array of strings",
+        "language_lock_violations": "integer",
+        "constraints_applied": "array of constraint IDs",
+        "validation_profile_used": "tier1-doc|tier2-code|tier3-deploy"
+      }
+    },
+    "schema_versioning": {
+      "current_version": "3.0.0-SELECTIVE",
+      "breaking_changes_require": [
+        "major version bump",
+        "migration guide",
+        "human approval"
+      ],
+      "non_breaking_changes_allow": [
+        "minor version bump",
+        "backward compatible additions"
+      ]
+    },
+    "checksum_and_integrity": {
+      "algorithm": "SHA256",
+      "checksum_field": "file_checksum_sha256",
+      "verification_command": "sha256sum 05-CONFIGURATIONS/validation/norms-matrix.json",
+      "integrity_check_in_orchestrator": "verify-constraints.sh --check-file-integrity"
+    }
+  }
 }
