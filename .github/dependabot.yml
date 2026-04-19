@@ -1,82 +1,28 @@
----
-
-### 2️⃣ DEPENDABOT – Configurar `dependabot.yml`
-
-**Ruta**: `.github/dependabot.yml`
-
-```yaml
 version: 2
 updates:
-  # Python dependencies
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
-      timezone: "America/Sao_Paulo"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "python"
-      - "security"
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
-    # Ignore non-critical updates for stability
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-
-  # npm dependencies (for n8n/frontend)
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
-      timezone: "America/Sao_Paulo"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "javascript"
-      - "security"
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
-
-  # GitHub Actions
+  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
-      timezone: "America/Sao_Paulo"
-    open-pull-requests-limit: 3
+      interval: "monthly"
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
-      - "github-actions"
-      - "ci-cd"
-    commit-message:
-      prefix: "chore(ci)"
+      - "security"
+      - "report-only"
 
-  # Docker images
-  - package-ecosystem: "docker"
-    directory: "/05-CONFIGURATIONS/docker-compose/"
+  # Python dependencies (if any)
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
-      timezone: "America/Sao_Paulo"
-    open-pull-requests-limit: 3
+      interval: "monthly"
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
-      - "docker"
-      - "infrastructure"
-    commit-message:
-      prefix: "chore(docker)"
-    # Pin to specific digests for reproducibility
+      - "security"
+      - "report-only"
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
