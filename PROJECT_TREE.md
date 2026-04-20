@@ -343,6 +343,9 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │
 │   └── 📁 validation/                         # ✅ Toolchain de validación de gobernanza
 │       ├── 📄 .gitkeep
+|       ├──    VALIDATOR_DEV_NORMS.md ✅         # Normas de validacion para herramientas internas 
+|              test-audit-secrets-contract.sh ✅ 
+
 │       ├── 🧰 audit-secrets.sh                # Detección de secrets hardcodeados (C3)
 │       ├── 🧰 check-rls.sh                    # Validación de tenant isolation en SQL (C4)
 │       ├── 🧰 check-wikilinks.sh              # Validación de wikilinks canónicos (C5)
