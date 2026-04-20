@@ -1,444 +1,5267 @@
-# 📄 knowledge-graph.json – GRAFO DE CONOCIMIENTO CANÓNICO (REGENERADO)
-
-> **Nota para humanos (Obsidian)**: Este archivo tiene dos secciones:
-> 1. `human_notes`: Explicaciones educativas, guías de uso, troubleshooting para Obsidian
-> 2. `graph`: Estructura JSON válida para consumo automático por agentes de IA
->
-> **Para IAs**: Ignorar `human_notes`. Procesar solo `graph.nodes` y `graph.edges`.
-
-
 {
-  "human_notes": {
-    "version": "3.0.0-SELECTIVE",
-    "purpose": "Grafo de conocimiento para sincronización de agentes y navegación en Obsidian",
-    "obsidian_compatibility": {
-      "wikilink_format": "[[RUTA/CANÓNICA/DESDE/RAÍZ.md]]",
-      "avoid_section_anchors": "No usar #anclas en wikilinks principales; Obsidian no las resuelve consistentemente",
-      "refresh_command": "Ctrl/Cmd + P → 'Obsidian: Reload graph' después de cambios grandes",
-      "broken_links_fix": "Si ves enlaces rotos: 1) Verificar que el archivo existe, 2) Usar ruta absoluta desde raíz, 3) Ejecutar 'Rebuild graph cache' en settings"
+  "version": "1.0",
+  "generated_at": "2026-04-14T06:59:05.939973+00:00",
+  "source": "/home/ricardo/obsidian-vaults/saas-backend",
+  "nodes": [
+    {
+      "id": "README.md",
+      "title": "README",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
     },
-    "critical_infrastructure_nodes": [
-      "00-STACK-SELECTOR.md",
-      "IA-QUICKSTART.md",
-      "AI-NAVIGATION-CONTRACT.md",
-      "GOVERNANCE-ORCHESTRATOR.md",
-      "SDD-COLLABORATIVE-GENERATION.md",
-      "TOOLCHAIN-REFERENCE.md",
-      "PROJECT_TREE.md",
-      "05-CONFIGURATIONS/validation/norms-matrix.json",
-      "01-RULES/language-lock-protocol.md"
-    ],
-    "language_lock_summary": {
-      "go_sql_bash_js_python_yaml": "Cero operadores pgvector (<->, <=>, <#), cero constraints V1-V3",
-      "postgresql-pgvector": "ÚNICO lugar para búsqueda vectorial; V1/V3 obligatorias"
+    {
+      "id": "05-CONFIGURATIONS/00-INDEX.md",
+      "title": "00-INDEX: Master Configuration Registry",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": "2025-04-14T00:00:00Z",
+      "wikilinks": [
+        "AI-NAVIGATION-CONTRACT.md",
+        "GOVERNANCE-ORCHESTRATOR.md",
+        "norms-matrix.json"
+      ]
     },
-    "troubleshooting_obsidian": [
-      "Si los enlaces no se actualizan: File → Reload vault",
-      "Si ves 'unresolved links': verificar que el archivo tiene extensión .md y ruta canónica",
-      "Si el grafo se ve vacío: Settings → Graph view → Clear cache → Rebuild",
-      "Para navegación rápida: Ctrl/Cmd + O → escribir nombre del archivo"
-    ]
-  },
-  
-  "graph": {
-    "metadata": {
-      "version": "3.0.0-SELECTIVE",
-      "generated_at": "2026-04-19T00:00:00Z",
-      "source": "Mantis-AgenticDev/agentic-infra-docs",
-      "total_nodes": 293,
-      "total_edges": 1247,
-      "critical_nodes": 9,
-      "programming_artifacts": 137
+    {
+      "id": "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
+      "title": "VALIDATOR_DOCUMENTATION",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
     },
-    
-    "nodes": [
-      {
-        "id": "00-STACK-SELECTOR.md",
-        "title": "Stack Selector: Motor de Decisión Canónico",
-        "category": "governance",
-        "domain": ["stack-selection", "routing", "language-lock"],
-        "constraints": ["C5", "C6"],
-        "tags": ["critical", "immutable", "routing", "llm-agnostic"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "PROJECT_TREE.md",
-          "IA-QUICKSTART.md",
-          "AI-NAVIGATION-CONTRACT.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json",
-          "01-RULES/harness-norms-v3.0.md",
-          "01-RULES/language-lock-protocol.md",
-          "06-PROGRAMMING/00-INDEX.md"
-        ]
-      },
-      {
-        "id": "IA-QUICKSTART.md",
-        "title": "Semilla de Gobernanza Ejecutable",
-        "category": "governance",
-        "domain": ["mode-gate", "interaction-protocol", "llm-entrypoint"],
-        "constraints": ["C1", "C4", "C6"],
-        "tags": ["critical", "immutable", "oriental-llm-optimized", "seed"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "AI-NAVIGATION-CONTRACT.md",
-          "GOVERNANCE-ORCHESTRATOR.md",
-          "PROJECT_TREE.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json"
-        ]
-      },
-      {
-        "id": "AI-NAVIGATION-CONTRACT.md",
-        "title": "Contrato de Navegación Ejecutable",
-        "category": "governance",
-        "domain": ["navigation-rules", "anti-patterns", "containment"],
-        "constraints": ["C1", "C4", "C6"],
-        "tags": ["critical", "immutable", "rules", "anti-hallucination"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "IA-QUICKSTART.md",
-          "GOVERNANCE-ORCHESTRATOR.md",
-          "PROJECT_TREE.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json",
-          "01-RULES/language-lock-protocol.md"
-        ]
-      },
-      {
-        "id": "GOVERNANCE-ORCHESTRATOR.md",
-        "title": "Motor de Certificación Ejecutable",
-        "category": "governance",
-        "domain": ["tiers", "validation-profiles", "delivery-formats"],
-        "constraints": ["C2", "C7", "C8"],
-        "tags": ["critical", "immutable", "certification", "tier-1-2-3"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "IA-QUICKSTART.md",
-          "AI-NAVIGATION-CONTRACT.md",
-          "SDD-COLLABORATIVE-GENERATION.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json",
-          "05-CONFIGURATIONS/validation/orchestrator-engine.sh"
-        ]
-      },
-      {
-        "id": "SDD-COLLABORATIVE-GENERATION.md",
-        "title": "Especificación de Formato para Generación Colaborativa",
-        "category": "governance",
-        "domain": ["artifact-format", "frontmatter", "structural-contract"],
-        "constraints": ["C5", "C6"],
-        "tags": ["critical", "immutable", "format-spec", "sdd"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "GOVERNANCE-ORCHESTRATOR.md",
-          "05-CONFIGURATIONS/templates/skill-template.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "PROJECT_TREE.md"
-        ]
-      },
-      {
-        "id": "TOOLCHAIN-REFERENCE.md",
-        "title": "Catálogo Completo del Toolchain de Gobernanza",
-        "category": "governance",
-        "domain": ["validation-tools", "ci-cd", "hooks"],
-        "constraints": ["C5", "C8"],
-        "tags": ["critical", "immutable", "toolchain", "executable-examples"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "05-CONFIGURATIONS/validation/orchestrator-engine.sh",
-          "05-CONFIGURATIONS/validation/verify-constraints.sh",
-          "05-CONFIGURATIONS/validation/audit-secrets.sh",
-          "05-CONFIGURATIONS/validation/check-rls.sh",
-          "05-CONFIGURATIONS/validation/validate-frontmatter.sh",
-          "05-CONFIGURATIONS/validation/check-wikilinks.sh",
-          "05-CONFIGURATIONS/validation/schema-validator.py",
-          "05-CONFIGURATIONS/scripts/packager-assisted.sh"
-        ]
-      },
-      {
-        "id": "PROJECT_TREE.md",
-        "title": "Mapa Canónico del Repositorio",
-        "category": "governance",
-        "domain": ["repository-map", "canonical-paths", "wikilink-resolution"],
-        "constraints": ["C5"],
-        "tags": ["critical", "immutable", "navigation", "obsidian-compatible"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json",
-          "knowledge-graph.json"
-        ]
-      },
-      {
-        "id": "05-CONFIGURATIONS/validation/norms-matrix.json",
-        "title": "Matriz de Constraints por Carpeta",
-        "category": "validation",
-        "domain": ["constraint-mapping", "validation-profiles", "language-lock"],
-        "constraints": ["C4", "C5"],
-        "tags": ["critical", "immutable", "machine-readable", "orchestrator-input"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "GOVERNANCE-ORCHESTRATOR.md",
-          "01-RULES/harness-norms-v3.0.md",
-          "01-RULES/language-lock-protocol.md"
-        ]
-      },
-      {
-        "id": "01-RULES/language-lock-protocol.md",
-        "title": "Protocolo LANGUAGE LOCK: Operadores Prohibidos por Lenguaje",
-        "category": "security",
-        "domain": ["language-isolation", "operator-restriction", "vector-lock"],
-        "constraints": ["C4", "C5"],
-        "tags": ["critical", "immutable", "security", "pgvector-exclusive"],
-        "priority": "critical",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "00-STACK-SELECTOR.md",
-          "05-CONFIGURATIONS/validation/norms-matrix.json",
-          "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md"
-        ]
-      },
-      
-      {
-        "id": "06-PROGRAMMING/00-INDEX.md",
-        "title": "Índice Agregador Maestro de Patrones por Lenguaje",
-        "category": "index",
-        "domain": ["programming", "aggregator", "language-routing"],
-        "constraints": ["C5", "C6"],
-        "tags": ["index", "master", "language-registry"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/go/00-INDEX.md",
-          "06-PROGRAMMING/python/00-INDEX.md",
-          "06-PROGRAMMING/bash/00-INDEX.md",
-          "06-PROGRAMMING/sql/00-INDEX.md",
-          "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
-          "06-PROGRAMMING/javascript/00-INDEX.md",
-          "06-PROGRAMMING/yaml-json-schema/00-INDEX.md",
-          "00-STACK-SELECTOR.md"
-        ]
-      },
-      
-      {
-        "id": "06-PROGRAMMING/go/00-INDEX.md",
-        "title": "Índice de Patrones Go (35 artifacts)",
-        "category": "index",
-        "domain": ["go", "microservices", "high-concurrency"],
-        "constraints": ["C3", "C4", "C5", "C8"],
-        "tags": ["go", "language-lock-active", "no-pgvector"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/go/orchestrator-engine.go.md",
-          "06-PROGRAMMING/go/secrets-management-c3.go.md",
-          "06-PROGRAMMING/go/microservices-tenant-isolation.go.md",
-          "06-PROGRAMMING/go/structured-logging-c8.go.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "01-RULES/language-lock-protocol.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/python/00-INDEX.md",
-        "title": "Índice de Patrones Python (24 artifacts)",
-        "category": "index",
-        "domain": ["python", "ai-ml", "langchain"],
-        "constraints": ["C3", "C4", "C5", "C8"],
-        "tags": ["python", "langchain", "no-vector-ops-in-code"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/python/langchain-integration.md",
-          "06-PROGRAMMING/python/secrets-management-patterns.md",
-          "06-PROGRAMMING/python/testing-multi-tenant-patterns.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/bash/00-INDEX.md",
-        "title": "Índice de Patrones Bash (12 artifacts)",
-        "category": "index",
-        "domain": ["bash", "scripts", "orchestration"],
-        "constraints": ["C3", "C4", "C5", "C6"],
-        "tags": ["bash", "scripts", "validation"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/bash/orchestrator-routing.md",
-          "06-PROGRAMMING/bash/robust-error-handling.md",
-          "06-PROGRAMMING/bash/yaml-frontmatter-parser.md",
-          "06-PROGRAMMING/00-INDEX.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/sql/00-INDEX.md",
-        "title": "Índice de Patrones SQL Estándar (25 artifacts)",
-        "category": "index",
-        "domain": ["sql", "relational", "rls"],
-        "constraints": ["C4", "C5"],
-        "tags": ["sql", "rls", "language-lock-active", "no-vector-ops"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/sql/row-level-security-policies.sql.md",
-          "06-PROGRAMMING/sql/crud-with-tenant-enforcement.sql.md",
-          "06-PROGRAMMING/sql/audit-logging-triggers.sql.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "01-RULES/language-lock-protocol.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
-        "title": "Índice de Patrones pgvector (10 artifacts) - ÚNICO para búsqueda vectorial",
-        "category": "index",
-        "domain": ["postgresql", "pgvector", "rag", "embeddings"],
-        "constraints": ["C3", "C4", "C5", "V1", "V3"],
-        "tags": ["pgvector", "vector-search", "v1-v3-mandatory", "rag"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md",
-          "06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md",
-          "06-PROGRAMMING/postgresql-pgvector/vector-indexing-patterns.pgvector.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "01-RULES/language-lock-protocol.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/javascript/00-INDEX.md",
-        "title": "Índice de Patrones TypeScript/JavaScript (22 artifacts)",
-        "category": "index",
-        "domain": ["typescript", "javascript", "webhooks", "n8n"],
-        "constraints": ["C3", "C4", "C5", "C8"],
-        "tags": ["typescript", "webhooks", "frontend", "no-vector-ops"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/javascript/webhook-validation-patterns.ts.md",
-          "06-PROGRAMMING/javascript/n8n-webhook-handler.ts.md",
-          "06-PROGRAMMING/javascript/secrets-management-patterns.ts.md",
-          "06-PROGRAMMING/00-INDEX.md"
-        ]
-      },
-      {
-        "id": "06-PROGRAMMING/yaml-json-schema/00-INDEX.md",
-        "title": "Índice de Patrones YAML + JSON Schema (9 artifacts)",
-        "category": "index",
-        "domain": ["yaml", "json-schema", "validation", "config"],
-        "constraints": ["C5"],
-        "tags": ["yaml", "schema", "validation", "config-management"],
-        "priority": "high",
-        "last_updated": "2026-04-19",
-        "wikilinks": [
-          "06-PROGRAMMING/yaml-json-schema/schema-validation-patterns.yaml.md",
-          "06-PROGRAMMING/yaml-json-schema/environment-config-schema-patterns.yaml.md",
-          "06-PROGRAMMING/00-INDEX.md",
-          "05-CONFIGURATIONS/validation/schema-validator.py"
-        ]
-      }
-    ],
-    
-    "edges": [
-      {"source": "IA-QUICKSTART.md", "target": "00-STACK-SELECTOR.md", "type": "depends_on", "weight": 10},
-      {"source": "IA-QUICKSTART.md", "target": "AI-NAVIGATION-CONTRACT.md", "type": "depends_on", "weight": 10},
-      {"source": "AI-NAVIGATION-CONTRACT.md", "target": "00-STACK-SELECTOR.md", "type": "references", "weight": 9},
-      {"source": "AI-NAVIGATION-CONTRACT.md", "target": "01-RULES/language-lock-protocol.md", "type": "enforces", "weight": 10},
-      {"source": "GOVERNANCE-ORCHESTRATOR.md", "target": "05-CONFIGURATIONS/validation/norms-matrix.json", "type": "configures", "weight": 10},
-      {"source": "GOVERNANCE-ORCHESTRATOR.md", "target": "SDD-COLLABORATIVE-GENERATION.md", "type": "specifies_format_for", "weight": 9},
-      {"source": "SDD-COLLABORATIVE-GENERATION.md", "target": "05-CONFIGURATIONS/templates/skill-template.md", "type": "uses_template", "weight": 8},
-      {"source": "TOOLCHAIN-REFERENCE.md", "target": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "type": "documents_tool", "weight": 10},
-      {"source": "PROJECT_TREE.md", "target": "06-PROGRAMMING/00-INDEX.md", "type": "lists_artifacts_in", "weight": 9},
-      {"source": "00-STACK-SELECTOR.md", "target": "06-PROGRAMMING/00-INDEX.md", "type": "routes_to_language_index", "weight": 10},
-      {"source": "06-PROGRAMMING/00-INDEX.md", "target": "06-PROGRAMMING/go/00-INDEX.md", "type": "aggregates", "weight": 8},
-      {"source": "06-PROGRAMMING/00-INDEX.md", "target": "06-PROGRAMMING/python/00-INDEX.md", "type": "aggregates", "weight": 8},
-      {"source": "06-PROGRAMMING/00-INDEX.md", "target": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md", "type": "aggregates", "weight": 8},
-      {"source": "06-PROGRAMMING/go/00-INDEX.md", "target": "01-RULES/language-lock-protocol.md", "type": "enforces_lock", "weight": 10},
-      {"source": "06-PROGRAMMING/sql/00-INDEX.md", "target": "01-RULES/language-lock-protocol.md", "type": "enforces_lock", "weight": 10},
-      {"source": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md", "target": "01-RULES/language-lock-protocol.md", "type": "exception_to_lock", "weight": 10},
-      {"source": "06-PROGRAMMING/python/langchain-integration.md", "target": "06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md", "type": "calls_vector_query", "weight": 7},
-      {"source": "06-PROGRAMMING/javascript/webhook-validation-patterns.ts.md", "target": "06-PROGRAMMING/go/orchestrator-engine.go.md", "type": "calls_backend", "weight": 6},
-      {"source": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "target": "05-CONFIGURATIONS/validation/verify-constraints.sh", "type": "invokes", "weight": 9},
-      {"source": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "target": "05-CONFIGURATIONS/validation/audit-secrets.sh", "type": "invokes", "weight": 9},
-      {"source": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "target": "05-CONFIGURATIONS/validation/check-rls.sh", "type": "invokes", "weight": 9}
-    ],
-    
-    "obsidian_metadata": {
-      "graph_view_settings": {
-        "group_by_category": true,
-        "color_by_priority": {"critical": "#ff4444", "high": "#ffaa00", "medium": "#44aa44", "low": "#888888"},
-        "hide_unresolved": true,
-        "minimum_node_degree": 1
-      },
-      "search_boost": {
-        "critical_infrastructure": 10,
-        "governance_documents": 8,
-        "programming_indices": 6,
-        "validation_tools": 7
-      },
-      "backlink_priority": {
-        "00-STACK-SELECTOR.md": ["IA-QUICKSTART.md", "AI-NAVIGATION-CONTRACT.md", "06-PROGRAMMING/00-INDEX.md"],
-        "GOVERNANCE-ORCHESTRATOR.md": ["SDD-COLLABORATIVE-GENERATION.md", "TOOLCHAIN-REFERENCE.md"],
-        "01-RULES/language-lock-protocol.md": ["06-PROGRAMMING/go/00-INDEX.md", "06-PROGRAMMING/sql/00-INDEX.md", "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md"]
-      }
+    {
+      "id": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "title": "00-INDEX: Docker Compose — Red Inter-VPS MANTIS AGENTIC",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": "2026-04-13",
+      "wikilinks": [
+        "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml",
+        "05-CONFIGURATIONS/00-INDEX.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+        "02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+        "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+        "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml",
+        "05-CONFIGURATIONS/00-INDEX.md",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+        "02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+        "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+        "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/INFRAESTRUCTURA/espocrm-setup.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/07-SCALABILITY-RULES.md"
+      ]
     },
-    
-    "validation_rules": {
-      "wikilink_format": "Must be [[RUTA/CANÓNICA/DESDE/RAÍZ.ext]] with absolute path from root",
-      "forbidden_in_wikilinks": ["../", "./", "#section-anchors", "code_snippets", "bash_variables"],
-      "required_fields_per_node": ["id", "title", "category", "constraints", "priority", "wikilinks"],
-      "edge_types_allowed": ["depends_on", "references", "enforces", "configures", "specifies_format_for", "uses_template", "documents_tool", "lists_artifacts_in", "routes_to_language_index", "aggregates", "enforces_lock", "exception_to_lock", "calls_vector_query", "calls_backend", "invokes"],
-      "priority_values": ["critical", "high", "medium", "low"]
+    {
+      "id": "05-CONFIGURATIONS/templates/example-template.md",
+      "title": "example-template",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "example",
+        "troubleshooting",
+        "validation"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "05-CONFIGURATIONS/templates/skill-template.md",
+      "title": "skill-template",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "template",
+        "sdd",
+        "validation",
+        "multi-tenant",
+        "hardened"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "01-RULES/00-INDEX.md",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "05-CONFIGURATIONS/validation/check-rls.sh",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json"
+      ]
+    },
+    {
+      "id": "05-CONFIGURATIONS/templates/terraform-module-template/README.md",
+      "title": "README",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "01-RULES/00-INDEX.md",
+      "title": "Rules Index - Agentic Infra Docs",
+      "category": "Reglas",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "index",
+        "navigation",
+        "rules-reference",
+        "sdd-compliance"
+      ],
+      "priority": "Siempre",
+      "last_updated": "2026-04-05",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/03-SECURITY-RULES.md"
+      ]
+    },
+    {
+      "id": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "title": "ARCHITECTURE RULES - Agentic Infra Docs",
+      "category": "Infraestructura",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "architecture",
+        "vps",
+        "docker",
+        "infrastructure",
+        "constraints"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-08",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md"
+      ]
+    },
+    {
+      "id": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "title": "Resource Guardrails - Agentic Infra Docs",
+      "category": "Reglas",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "resource-limits",
+        "docker",
+        "monitoring",
+        "tenant-id",
+        "C1",
+        "C2"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-05",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/03-SECURITY-RULES.md"
+      ]
+    },
+    {
+      "id": "01-RULES/03-SECURITY-RULES.md",
+      "title": "SECURITY RULES - Agentic Infra Docs",
+      "category": "Seguridad",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "security",
+        "firewall",
+        "ssh",
+        "fail2ban",
+        "secrets"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-03",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "title": "API RELIABILITY RULES - Agentic Infra Docs",
+      "category": "APIs",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "api",
+        "reliability",
+        "timeout",
+        "openrouter",
+        "error-handling"
+      ],
+      "priority": "Media",
+      "last_updated": "2026-03",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "title": "05-CODE-PATTERNS-RULES",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/06-MULTITENANCY-RULES.md",
+      "title": "MULTITENANCY RULES - Agentic Infra Docs",
+      "category": "Datos",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "multitenancy",
+        "data-isolation",
+        "tenant-id",
+        "mysql",
+        "qdrant"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-03",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/07-SCALABILITY-RULES.md",
+      "title": "SCALABILITY RULES - Agentic Infra Docs",
+      "category": "Escalabilidad",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "scalability",
+        "growth",
+        "capacity",
+        "phases",
+        "criteria"
+      ],
+      "priority": "Baja",
+      "last_updated": "2026-04-08",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/08-SKILLS-REFERENCE.md",
+      "title": "SKILLS REFERENCE - Agentic Infra Docs",
+      "category": "Skills",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "skills",
+        "reference",
+        "patterns",
+        "reusable",
+        "index"
+      ],
+      "priority": "Baja",
+      "last_updated": "2026-04-08",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/00-INDEX.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "01-RULES/09-AGENTIC-OUTPUT-RULES.md",
+      "title": "ai-agentic-generation.md",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "01-RULES/validation-checklist.md",
+      "title": "Checklist de Validación SDD para MANTIS AGENTIC",
+      "category": "validation",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/00-INDEX.md",
+      "title": "00-INDEX",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "index",
+        "navigation",
+        "sdd",
+        "skills",
+        "human-readable",
+        "ai-parsable"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "AI-NAVIGATION-CONTRACT.md",
+        "../AI-NAVIGATION-CONTRACT.md",
+        "/GOVERNANCE-ORCHESTRATOR.md",
+        "AI-NAVIGATION-CONTRACT.md",
+        "skill-domains-mapping.md",
+        "GENERATION-MODELS.md",
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../05-CONFIGURATIONS/validation/",
+        "GENERATION-MODELS.md",
+        "../../SDD-COLLABORATIVE-GENERATION.md",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/validation/"
+      ]
+    },
+    {
+      "id": "02-SKILLS/GENERATION-MODELS.md",
+      "title": "GENERATION-MODELS",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "generation",
+        "sdd",
+        "workflow",
+        "terraform",
+        "validation",
+        "human-ai",
+        "deployment",
+        "hardening"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../README.md",
+        "../PROJECT_TREE.md",
+        "../../README.md",
+        "../../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../../01-RULES/00-INDEX.md",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+        "../../05-CONFIGURATIONS/validation/check-wikilinks.sh",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../../05-CONFIGURATIONS/validation/schema-validator.py",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml",
+        "AI-NAVIGATION-CONTRACT.md",
+        "../../README.md",
+        "../PROJECT_TREE.md",
+        "../../knowledge-graph.json",
+        "skill-domains-mapping.md",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../../05-CONFIGURATIONS/validation/",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/terraform/",
+        "../RESTAURANTES/restaurant-order-chatbot.md",
+        "../RESTAURANTES/restaurant-booking-ai.md",
+        "../AI/qwen-integration.md",
+        "../ODONTOLOGÍA/dental-appointment-automation.md",
+        "../AI/gemini-integration.md",
+        "../HOTELES-POSADAS/hotel-booking-automation.md",
+        "../COMUNICACION/whatsapp-rag-openrouter.md",
+        "../BASE-DE-DATOS-RAG/google-sheets-as-database.md",
+        "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "../BASE-DE-DATOS-RAG/postgres-prisma-rag.md",
+        "../COMUNICACION/whatsapp-rag-openrouter.md",
+        "../INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+        "../COMUNICACION/telegram-bot-integration.md",
+        "../INFRAESTRUCTURA/fail2ban-configuration.md",
+        "../COMUNICACION/multi-channel-routing.md",
+        "../INFRAESTRUCTURA/docker-compose-networking.md",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../SEGURIDAD/backup-encryption.md",
+        "../SEGURIDAD/security-hardening-vps.md",
+        "../AI/llama-integration.md",
+        "../../01-RULES/06-MULTITENANCY-RULES.md",
+        "../AI/openrouter-api-integration.md",
+        "../AI/qwen-integration.md",
+        "../AI/gemini-integration.md",
+        "../PROJECT_TREE.md",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../INFRAESTRUCTURA/health-monitoring-vps.md",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../BASE-DE-DATOS-RAG/multi-tenant-data-isolation.md",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../SEGURIDAD/backup-encryption.md",
+        "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+        "../../05-CONFIGURATIONS/validation/check-wikilinks.sh",
+        "enlaces",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/validation/verify-constraints.sh",
+        "../../05-CONFIGURATIONS/validation/schema-validator.py",
+        "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
+        "../../00-CONTEXT/documentation-validation-cheklist.md",
+        "../../05-CONFIGURATIONS/terraform/",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/",
+        "../../05-CONFIGURATIONS/terraform/modules/vps-base/",
+        "../INFRAESTRUCTURA/health-monitoring-vps.md",
+        "../SEGURIDAD/rsync-automation.md",
+        "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "../INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "../INFRAESTRUCTURA/fail2ban-configuration.md",
+        "../INFRAESTRUCTURA/ssh-key-management.md",
+        "../INFRAESTRUCTURA/docker-compose-networking.md",
+        "GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform",
+        "../../05-CONFIGURATIONS/validation/",
+        "GENERATION-MODELS.md",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia",
+        "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
+      ]
+    },
+    {
+      "id": "02-SKILLS/README.md",
+      "title": "02-SKILLS README Maestro",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [],
+      "priority": "media",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "skill-domains-mapping.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "PROJECT_TREE.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+        "openrouter-api-integration.md",
+        "archivo.md",
+        "00-CONTEXT/facundo-core-context.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/skill-domains-mapping.md",
+      "title": "skill-domains-mapping",
+      "category": "",
+      "domain": "SKILLS-ROOT",
+      "constraints": [
+        "C2",
+        "C4",
+        "C5"
+      ],
+      "tags": [],
+      "priority": "Siempre",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "PROJECT_TREE.md",
+        "knowledge-graph.json",
+        "01-RULES/08-SKILLS-REFERENCE.md",
+        "PROJECT_TREE.md",
+        "knowledge-graph.json",
+        "01-RULES/08-SKILLS-REFERENCE.md",
+        "knowledge-graph.json",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "skill-domains-mapping.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "GENERATION-MODELS.md",
+        "../../SDD-COLLABORATIVE-GENERATION.md",
+        "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md",
+      "title": "Docker Compose Networking - Agentic Infra Docs",
+      "category": "Infrastructure",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "docker",
+        "compose",
+        "networking",
+        "containers",
+        "vps",
+        "hostinger",
+        "bridge",
+        "networks"
+      ],
+      "priority": "critical",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "README.md",
+        "01-RULES/01-ARCHITECTURE-RULES.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "title": "EspoCRM Setup and Integration - Agentic Infra Docs",
+      "category": "Infrastructure",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "espocrm",
+        "crm",
+        "vps",
+        "hostinger",
+        "mysql",
+        "api",
+        "integration",
+        "docker",
+        "multi-tenant"
+      ],
+      "priority": "high",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "README.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/fail2ban-configuration.md",
+      "title": "Fail2ban Configuration - Agentic Infra Docs",
+      "category": "Infrastructure",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "fail2ban",
+        "security",
+        "ssh-protection",
+        "brute-force",
+        "intrusion-prevention",
+        "vps",
+        "hostinger"
+      ],
+      "priority": "high",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "\"$TELEGRAM_BOT_TOKEN\" == \"YOUR_BOT_TOKEN_HERE\"",
+        "\"$TELEGRAM_CHAT_ID\" == \"YOUR_CHAT_ID_HERE\"",
+        "$bantime -ge 86400",
+        "$bantime -ge 3600"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+      "title": "health-monitoring-vps",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "\"${DEBUG:-0}\" == \"1\"",
+        "-z \"$TELEGRAM_BOT_TOKEN\"",
+        "-z \"$GMAIL_SMTP_USER\"",
+        "! -f \"$ALERT_STATE_FILE\"",
+        "-f \"$ALERT_STATE_FILE\"",
+        "\"$severity\" != \"CRITICAL\"",
+        "\"$severity\" == \"CRITICAL\"",
+        "-n \"$stuck_workflows\"",
+        "-z \"$workflow_id\"",
+        "\"$cpu_severity\" != \"OK\"",
+        "\"$cpu_severity\" == \"CRITICAL\"",
+        "\"$cpu_severity\" == \"CRITICAL\"",
+        "\"$ram_severity\" != \"OK\"",
+        "\"$ram_severity\" == \"CRITICAL\"",
+        "\"$ram_severity\" == \"CRITICAL\"",
+        "\"$disk_severity\" != \"OK\"",
+        "\"$disk_severity\" == \"CRITICAL\"",
+        "\"$disk_severity\" == \"CRITICAL\"",
+        "\"$n8n_status\" != \"running\"",
+        "\"$n8n_health_code\" != \"200\"",
+        "\"$n8n_memory_severity\" != \"OK\"",
+        "\"$n8n_memory_severity\" == \"CRITICAL\"",
+        "\"$n8n_memory_severity\" == \"CRITICAL\"",
+        "\"$redis_status\" != \"ok\"",
+        "\"$redis_memory_severity\" != \"OK\"",
+        "\"$redis_memory_severity\" == \"CRITICAL\"",
+        "\"$mysql_status\" != \"ok\"",
+        "\"$mysql_connections\" -gt 80",
+        "\"$mysql_connections\" -gt 100",
+        "\"$network_severity\" != \"OK\"",
+        "\"$network_severity\" == \"CRITICAL\"",
+        "\"$has_critical\" == \"true\"",
+        "\"$has_warning\" == \"true\"",
+        "\"$(check_ssh_connectivity \"$vps_name\" \"$vps_ip\")\" != \"ok\"",
+        "\"$(check_service_port \"$vps_ip\" \"$svc_port\")\" != \"ok\"",
+        "\"$remote_health\" != \"error\"",
+        "\"$status\" != \"ok\"",
+        "-n \"${TELEGRAM_BOT_TOKEN:-}\" && -n \"${TELEGRAM_CHAT_ID:-}\"",
+        "\"$vps_status\" != \"ok\"",
+        "\"$overall_status\" == \"error\"",
+        "\"${1:-}\" == \"--daemon\"",
+        "{\"node\": \"Execute Health Script\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Parse Log Output\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Check Alert Needed\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Compose Telegram Alert\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"No Alert\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Send Telegram Alert\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Store Health Metrics\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Store Health Metrics\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Get Service Config\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Loop Over Services\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Check Container Status\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Needs Restart?\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Restart Container\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Record Service Status\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Send Restart Alert\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Record Service Status\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Loop Continue\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Loop Over Services\", \"type\": \"main\", \"index\": 0}"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "title": "n8n-concurrency-limiting",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "{\"node\": \"Deduplicación\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Limitar Concurrencia\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Procesar Mensaje\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Validar Tenant\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Acquire Semaphore\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Enviar a OpenRouter\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Liberar Semaphore\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Responder WhatsApp\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Verificar Tipo Archivo\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Adquirir Slot\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Check Límite\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Esperar Slot\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"OCR con Mistral\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"OCR con Mistral\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Indexar en Qdrant\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Liberar Slot\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Check n8n Health\", \"type\": \"main\", \"index\": 0},\n        {\"node\": \"Check Redis\", \"type\": \"main\", \"index\": 0},\n        {\"node\": \"Check MySQL\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Agregar Métricas\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Agregar Métricas\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Agregar Métricas\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Alertar si Crítico\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Enviar Alerta Telegram\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Split Batch\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Loop Over Items\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Process Booking\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Wait Between Requests\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Loop Over Items\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Try Qdrant Primary\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Merge Results\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Catch Error\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Try Qdrant Secondary\", \"type\": \"main\", \"index\": 0}",
+        "{\"node\": \"Merge Results\", \"type\": \"main\", \"index\": 1}",
+        "{\"node\": \"Record Circuit State\", \"type\": \"main\", \"index\": 0}",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+        "04-WORKFLOWS/n8n/INFRA-001-Base-Workflow.json"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "title": "SSH Key Management",
+      "category": "Infraestructura",
+      "domain": [
+        "seguridad",
+        "infraestructura",
+        "comunicaciones"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C5"
+      ],
+      "tags": [
+        "sdd/config/ssh",
+        "sdd/security",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "#ejemplo-1-generar-par-de-claves-rsa-ed25519",
+        "#ejemplo-2-desplegar-clave-pública-en-vps",
+        "#ejemplo-3-configurar-trust-entre-vps",
+        "#ejemplo-5-script-de-rotación-de-claves",
+        "-f \"${KEY_DIR}/id_ed25519_mantis\"",
+        "$(stat -c %a ~/.ssh) != \"700\"",
+        "$(stat -c %a ~/.ssh/id_ed25519_mantis) != \"600\"",
+        "$ERRORS -eq 0",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+      "title": "SSH Tunnels for Remote Services - Agentic Infra Docs",
+      "category": "Infrastructure",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "ssh",
+        "tunneling",
+        "remote-services",
+        "vps",
+        "networking",
+        "security",
+        "mysql",
+        "qdrant"
+      ],
+      "priority": "critical",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "$EUID -eq 0",
+        "! -d \"${SOCKET_DIR}\"",
+        "! -d \"${LOG_DIR}\"",
+        "$# -gt 0",
+        "-z \"$name\"",
+        "-z \"$remote_host\"",
+        "-z \"$local_port\"",
+        "-z \"$remote_port\"",
+        "-z \"$monitor_port\"",
+        "-n \"$extra_forward\"",
+        "-f \"$service\"",
+        "$count -eq 0",
+        "-f \"$service_file\"",
+        "-n \"$local_port\"",
+        "$issues -gt 0",
+        "$# -eq 0",
+        "$failed -gt 0",
+        "\"$result\" == *\"$expected\"*",
+        "\"$command\" == \"systemctl is-active\"* && \"$result\" == \"active\"",
+        "$FAIL -gt 0"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "title": "UFW Firewall Configuration",
+      "category": "Infraestructura",
+      "domain": [
+        "seguridad",
+        "infraestructura",
+        "redes"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "tags": [
+        "sdd/config/ufw",
+        "sdd/security",
+        "sdd/network",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "#ejemplo-1-instalar-y-configurar-ufw-desde-cero",
+        "#ejemplo-2-abrir-y-cerrar-puertos",
+        "#ejemplo-3-configurar-para-vps-n8n-uazapi",
+        "#ejemplo-4-configurar-para-vps-con-db-interna",
+        "#ejemplo-5-restaurar-acceso-si-bloqueaste-ssh",
+        "#ejemplo-5-restaurar-acceso-si-bloqueaste-ssh",
+        "#troubleshooting-1-no-se-puede-habilitar-ufw",
+        "$ERRORS -eq 0",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+        "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "title": "VPS Interconnection",
+      "category": "Infraestructura",
+      "domain": [
+        "infraestructura",
+        "redes",
+        "cross-vps"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "tags": [
+        "sdd/config/vps",
+        "sdd/network",
+        "sdd/cross-vps",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "#ejemplo-1-configurar-cross-vps-trust",
+        "#ejemplo-2-crear-túneles-ssh-permanentes",
+        "#ejemplo-3-conectar-n8n-a-mysql-qdrant",
+        "#ejemplo-4-monitoreo-cross-vps",
+        "#ejemplo-5-troubleshooting",
+        "\"$QDRANT_RESPONSE\" == \"200\"",
+        "\"$TUNNEL_MYSQL\" == \"0\"",
+        "\"$TUNNEL_QDRANT\" == \"0\"",
+        "$ERRORS -eq 0",
+        "01-RULES/01-ARCHITECTURE-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "title": "backup-encryption",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "seguridad",
+        "infraestructura"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/seguridad",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "02-SKILLS/SEGURIDAD/rsync-automation.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/SEGURIDAD/rsync-automation.md",
+        "02-SKILLS/SEGURIDAD/rsync-automation.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "02-SKILLS/SEGURIDAD/rsync-automation.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "title": "rsync-automation",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "seguridad",
+        "infraestructura"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "tags": [
+        "sdd/skill/seguridad",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "title": "security-hardening-vps",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "seguridad",
+        "infraestructura"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/seguridad",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "00-CONTEXT/facundo-infrastructure.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "00-CONTEXT/facundo-core-context.md",
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
+        "01-RULES/03-SECURITY-RULES.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AGENTIC-ASSISTANCE/ide-cli-integration.md",
+      "title": "ide-cli-integration.md",
+      "category": "AGENTIC-ASSISTANCE",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": []
+    },
+    {
+      "id": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "title": "multi-channel-deploymen",
+      "category": "",
+      "domain": [],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "deployment",
+        "blue-green",
+        "canary",
+        "tenant-scoped",
+        "rollout",
+        "hardening",
+        "ci-cd"
+      ],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "../00-INDEX.md",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../01-RULES/06-MULTITENANCY-RULES.md",
+        "../../01-RULES/04-API-RELIABILITY-RULES.md",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "../../05-CONFIGURATIONS/validation/audit-secrets.sh",
+        "../../05-CONFIGURATIONS/validation/check-rls.sh",
+        "../../05-CONFIGURATIONS/templates/skill-template.md",
+        "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "../../01-RULES/01-ARCHITECTURE-RULES.md",
+        "../00-INDEX.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "title": "airtable-database-patterns",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database",
+        "multi-tenant",
+        "rag"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/airtable",
+        "sdd/skill/database",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/n8n",
+        "sdd/skill/restaurantes",
+        "sdd/skill/leads",
+        "sdd/skill/rag",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md",
+        "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "title": "db-selection-decision-tree",
+      "category": "Skill",
+      "domain": [
+        "database",
+        "decision",
+        "multi-tenant",
+        "rag",
+        "vertical"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/database",
+        "sdd/skill/decision-tree",
+        "sdd/skill/vertical",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": null,
+      "wikilinks": [
+        "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/environment/.env.example",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/07-SCALABILITY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "05-CONFIGURATIONS/environment/.env.example"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "title": "environment-variable-management",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "infraestructura",
+        "seguridad",
+        "backend"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/env-management",
+        "sdd/security",
+        "sdd/automation",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "01-RULES/03-SECURITY-RULES.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "title": "espocrm-api-analytics",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "crm"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/espocrm",
+        "sdd/skill/analytics",
+        "sdd/skill/reporting",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+        "02-SKILLS/COMUNICACION/telegram-bot-integration.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "title": "Sincronización Google Drive → Qdrant para RAG Multi-Tenant",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "automation"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/google-drive",
+        "sdd/skill/qdrant",
+        "sdd/skill/rag",
+        "sdd/skill/automation",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "title": "google-sheets-as-database",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database",
+        "rag",
+        "multi-tenant"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/google-sheets",
+        "sdd/skill/database",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/n8n",
+        "sdd/skill/hoteles",
+        "sdd/skill/restaurantes",
+        "sdd/skill/rag",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+        "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+        "02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "title": "Aislamiento Multi-Tenant de Datos",
+      "category": "Skill",
+      "domain": [
+        "security",
+        "backend",
+        "database"
+      ],
+      "constraints": [
+        "C4",
+        "C3"
+      ],
+      "tags": [
+        "sdd/skill/multi-tenant",
+        "sdd/skill/security",
+        "lang/es"
+      ],
+      "priority": "Crítica",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "validation-checklist.md",
+        "qdrant-rag-ingestion.md",
+        "mysql-optimization-4gb-ram.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "title": "mysql-optimization-4gb-ram",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "database"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/mysql",
+        "sdd/skill/optimization",
+        "sdd/skill/vps",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+        "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "title": "mysql-sql-rag-ingestion",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "backend",
+        "rag",
+        "database"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/mysql",
+        "sdd/skill/sql",
+        "sdd/skill/rag",
+        "sdd/skill/ingestion",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/vector",
+        "sdd/skill/qdrant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/05-CODE-PATTERNS-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+        "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "title": "PDF Processing con Mistral OCR para RAG Multi-Tenant",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "ocr"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/pdf",
+        "sdd/skill/ocr",
+        "sdd/skill/rag",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "title": "PostgreSQL + Prisma ORM para RAG Multi-Tenant",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "database"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "tags": [
+        "sdd/skill/postgresql",
+        "sdd/skill/prisma",
+        "sdd/skill/rag",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/05-CODE-PATTERNS-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "title": "Ingesta de Documentos en Qdrant con Multi-tenancy",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "vectordb"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/qdrant",
+        "sdd/skill/rag",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "validation-checklist.md",
+        "multi-tenant-data-isolation.md",
+        "whatsapp-rag-agents.md",
+        "google-drive-qdrant-sync.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "title": "rag-system-updates-all-engines",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "database",
+        "vector",
+        "multi-tenant"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/rag",
+        "sdd/skill/qdrant",
+        "sdd/skill/mysql",
+        "sdd/skill/postgresql",
+        "sdd/skill/prisma",
+        "sdd/skill/supabase",
+        "sdd/skill/chromadb",
+        "sdd/skill/vector-ingestion",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/chunk-update",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-10",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/05-CODE-PATTERNS-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+        "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "title": "redis-session-management",
+      "category": "Configuración",
+      "domain": [
+        "generico",
+        "infraestructura",
+        "comunicaciones"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/config/redis",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+        "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/SEGURIDAD/backup-encryption.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "title": "Supabase + RAG: Row Level Security para Multi-Tenancy",
+      "category": "Skill",
+      "domain": [
+        "rag",
+        "backend",
+        "cloud"
+      ],
+      "constraints": [
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/supabase",
+        "sdd/skill/rag",
+        "sdd/skill/rls",
+        "sdd/skill/multi-tenant",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "title": "vertical-db-schemas",
+      "category": "Skill",
+      "domain": [
+        "database",
+        "schema",
+        "vertical",
+        "multi-tenant",
+        "sql"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/schema",
+        "sdd/skill/vertical",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/sql",
+        "sdd/skill/restaurante",
+        "sdd/skill/hotel",
+        "sdd/skill/dental",
+        "sdd/skill/marketing",
+        "sdd/skill/corp-kb",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": null,
+      "wikilinks": [
+        "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml",
+        "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml"
+      ]
+    },
+    {
+      "id": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "title": "Gmail SMTP Integration",
+      "category": "Comunicación",
+      "domain": [
+        "comunicaciones",
+        "automatización",
+        "email"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/config/gmail",
+        "sdd/communication",
+        "sdd/email",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "#ejemplo-1-configurar-oauth2-y-smtp-básico",
+        "#ejemplo-2-enviar-email-desde-bash",
+        "#ejemplo-3-configurar-n8n-para-email",
+        "#ejemplo-4-configurar-dkim-y-dmarc",
+        "#ejemplo-5-solucionar-errores-comunes",
+        "\"Set Email Data\"",
+        "\"Email Node\"",
+        "\"Log to File\"",
+        "-z \"${GMAIL_USER:-}\"",
+        "-z \"${GMAIL_APP_PASSWORD:-}\"",
+        "-f /var/log/mantis/email.log",
+        "-f ~/.gmail-app-password.gpg",
+        "\"$PERMS\" == \"600\"",
+        "-z \"${GMAIL_USER:-}\"",
+        "-z \"${GMAIL_APP_PASSWORD:-}\"",
+        "-f /etc/msmtprc",
+        "\"$MSMTP_PERMS\" == \"600\"",
+        "-n \"${GMAIL_USER:-}\"",
+        "$? -eq 0",
+        "$ERRORS -eq 0",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/COMUNICACION/telegram-bot-integration.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "title": "google-calendar-api-integration",
+      "category": "Skill",
+      "domain": [
+        "generico",
+        "comunicaciones",
+        "backend"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/google-calendar",
+        "sdd/communication",
+        "sdd/api",
+        "lang/es"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-15",
+      "wikilinks": [
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "gmail-smtp-integration.md",
+        "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+        "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+        "05-CONFIGURATIONS/environment-variable-management.md",
+        "01-RULES/06-MULTITENANCY-RULES.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "title": "Telegram Bot Integration - RAG & Customer Service",
+      "category": "Skill",
+      "domain": [
+        "comunicaciones",
+        "rag",
+        "atencion-cliente",
+        "automatizacion"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/telegram",
+        "sdd/rag-integration",
+        "sdd/customer-service",
+        "sdd/n8n-workflow",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-09",
+      "wikilinks": [
+        "#ejemplo-1-crear-bot-para-rag-y-atencion-cliente",
+        "#ejemplo-2-integrar-qdrant-rag-con-tenant_id",
+        "#ejemplo-3-workflow-n8n-para-consulta-rag-via-telegram",
+        "#ejemplo-4-filtrar-conocimiento-por-tenant_id",
+        "#ejemplo-5-webhook-con-validacion-de-tenant",
+        "\"${HTTP_X_TELEGRAM_SIGNATURE:-}\" != \"$EXPECTED_SIG\"",
+        "-z \"$TENANT_ID\"",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "\"Extract & Validate\"",
+        "\"RAG Query Qdrant\"",
+        "\"LLM Generation (OpenRouter)\"",
+        "\"Send Telegram Response\", \"Audit Log (C4+C5)\"",
+        "\"Audit Log (C4+C5)\"",
+        "04-WORKFLOWS/n8n/RAG-001-Telegram-Customer-Service.json",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md#patrones-de-aislamiento",
+        "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+        "01-RULES/03-SECURITY-RULES.md#webhooks-seguros",
+        "02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+        "-z \"${!var:-}\"",
+        "-n \"$TENANT_ID\"",
+        "-n \"$TENANT_ID\"",
+        "-n \"${!TOKEN_VAR:-}\" && -n \"${!CHAT_VAR:-}\"",
+        "-f \"$LOG_FILE\"",
+        "$ERRORS -eq 0",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+        "04-WORKFLOWS/n8n/RAG-001-Telegram-Customer-Service.json",
+        "01-RULES/03-SECURITY-RULES.md#webhooks-seguros"
+      ]
+    },
+    {
+      "id": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "title": "whatsapp-rag-openrouter",
+      "category": "Skill",
+      "domain": [
+        "comunicacion",
+        "ai",
+        "base-de-datos-rag",
+        "iac",
+        "ci-cd",
+        "hardening"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/comunicacion",
+        "sdd/skill/ai",
+        "sdd/skill/rag",
+        "sdd/skill/multi-tenant",
+        "sdd/skill/iac",
+        "sdd/skill/ci-cd",
+        "sdd/skill/hardening",
+        "sdd/skill/whatsapp",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-12",
+      "wikilinks": [
+        "01-RULES/00-INDEX.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "00-CONTEXT/facundo-infrastructure.md",
+        "02-SKILLS/skill-domains-mapping.md",
+        "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+        "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+        "05-CONFIGURATIONS/templates/skill-template.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "SDD-COLLABORATIVE-GENERATION.md",
+        "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "\"$MISSING_TENANT\" -gt 0",
+        "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+        "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+        "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json",
+        "01-RULES/06-MULTITENANCY-RULES.md",
+        "01-RULES/02-RESOURCE-GUARDRAILS.md",
+        "01-RULES/03-SECURITY-RULES.md",
+        "01-RULES/04-API-RELIABILITY-RULES.md",
+        "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+        "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+        "02-SKILLS/AI/openrouter-api-integration.md",
+        "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+        "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+        "05-CONFIGURATIONS/templates/skill-template.md",
+        "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+        "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml",
+        "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf",
+        "SDD-COLLABORATIVE-GENERATION.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/deepseek-integration.md",
+      "title": "deepseek-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "qwen-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/gemini-integration.md",
+      "title": "gemini-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "llama-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/gpt-integration.md",
+      "title": "gpt-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "gemini-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/image-gen-api.md",
+      "title": "image-gen-api.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/llama-integration.md",
+      "title": "llama-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/minimax-integration.md",
+      "title": "minimax-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "gemini-integration.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "title": "mistral-ocr-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "base-de-datos-rag"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "sdd/skill/ocr",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "qdrant-rag-ingestion.md",
+        "pdf-mistralocr-processing.md",
+        "google-drive-qdrant-sync.md",
+        "openrouter-api-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/openrouter-api-integration.md",
+      "title": "openrouter-api-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "CRÍTICA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "qwen-integration.md",
+        "llama-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/qwen-integration.md",
+      "title": "qwen-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "whatsapp-rag-openrouter.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/video-gen-api.md",
+      "title": "video-gen-api.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "openrouter-api-integration.md",
+        "image-gen-api.md",
+        "whatsapp-rag-openrouter.md",
+        "gpt-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "02-SKILLS/AI/voice-agent-integration.md",
+      "title": "voice-agent-integration.md",
+      "category": "Skill",
+      "domain": [
+        "ai",
+        "comunicacion",
+        "generico"
+      ],
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "tags": [
+        "sdd/skill/ai",
+        "sdd/skill/comunicacion",
+        "lang/es"
+      ],
+      "priority": "ALTA",
+      "last_updated": "2026-04-11",
+      "wikilinks": [
+        "whatsapp-rag-openrouter.md",
+        "telegram-bot-integration.md",
+        "openrouter-api-integration.md",
+        "gpt-integration.md",
+        "deepseek-integration.md",
+        "environment-variable-management.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/00-INDEX.md",
+      "title": "00-INDEX",
+      "category": "CONTEXT_INDEX",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "index",
+        "sdd",
+        "openrouter",
+        "ai-navigation",
+        "context"
+      ],
+      "priority": "CRITICAL",
+      "last_updated": "2026-04-01",
+      "wikilinks": [
+        "README.md",
+        "00-CONTEXT/PROJECT_OVERVIEW.md",
+        "00-CONTEXT/facundo-business-model.md",
+        "00-CONTEXT/facundo-core-context.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/PROJECT_OVERVIEW.md",
+      "title": "PROJECT OVERVIEW - Agentic Infra Docs",
+      "category": "Contexto",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "overview",
+        "context",
+        "business-model",
+        "architecture",
+        "multi-tenant",
+        "scalability"
+      ],
+      "priority": "Siempre",
+      "last_updated": "2026-03-30",
+      "wikilinks": [
+        "README.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/documentation-validation-cheklist.md",
+      "title": "documentation-validation-cheklist",
+      "category": "",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "media",
+      "last_updated": null,
+      "wikilinks": [
+        "00-CONTEXT/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/facundo-business-model.md",
+      "title": "facundo-business-model",
+      "category": "BUSINESS",
+      "domain": [],
+      "constraints": [],
+      "tags": [],
+      "priority": "HIGH",
+      "last_updated": "2026-04-01",
+      "wikilinks": [
+        "README.md",
+        "00-CONTEXT/00-INDEX.md",
+        "00-CONTEXT/PROJECT_OVERVIEW.md",
+        "00-CONTEXT/facundo-core-context.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/facundo-core-context.md",
+      "title": "Facundo Core Context - Agentic Infra Docs",
+      "category": "Contexto",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "perfil-usuario",
+        "principios",
+        "constraints",
+        "tenant-id"
+      ],
+      "priority": "Siempre",
+      "last_updated": "2026-04-05",
+      "wikilinks": [
+        "README.md",
+        "00-CONTEXT/00-INDEX.md"
+      ]
+    },
+    {
+      "id": "00-CONTEXT/facundo-infrastructure.md",
+      "title": "Facundo Infrastructure Spec - Agentic Infra Docs",
+      "category": "Contexto",
+      "domain": [],
+      "constraints": [],
+      "tags": [
+        "vps",
+        "docker",
+        "mysql",
+        "qdrant",
+        "tenant-id",
+        "resource-limits"
+      ],
+      "priority": "Alta",
+      "last_updated": "2026-04-08",
+      "wikilinks": [
+        "README.md",
+        "00-CONTEXT/00-INDEX.md",
+        "00-CONTEXT/PROJECT_OVERVIEW.md",
+        "00-CONTEXT/facundo-business-model.md"
+      ]
     }
-  }
+  ],
+  "edges": [
+    {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "GOVERNANCE-ORCHESTRATOR.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/00-INDEX.md",
+      "target": "norms-matrix.json.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/docker-compose/00-INDEX.md",
+      "target": "01-RULES/07-SCALABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "05-CONFIGURATIONS/templates/skill-template.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/00-INDEX.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/00-INDEX.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/03-SECURITY-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/03-SECURITY-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/03-SECURITY-RULES.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/03-SECURITY-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/06-MULTITENANCY-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/06-MULTITENANCY-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/06-MULTITENANCY-RULES.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/06-MULTITENANCY-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/07-SCALABILITY-RULES.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/07-SCALABILITY-RULES.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/07-SCALABILITY-RULES.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/07-SCALABILITY-RULES.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/08-SKILLS-REFERENCE.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/08-SKILLS-REFERENCE.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/08-SKILLS-REFERENCE.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/08-SKILLS-REFERENCE.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "01-RULES/validation-checklist.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "/GOVERNANCE-ORCHESTRATOR.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/00-INDEX.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-wikilinks.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schema-validator.py.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "AI-NAVIGATION-CONTRACT.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../RESTAURANTES/restaurant-order-chatbot.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../ODONTOLOGÍA/dental-appointment-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../HOTELES-POSADAS/hotel-booking-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../COMUNICACION/multi-channel-routing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/docker-compose-networking.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../AI/gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-frontmatter.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-wikilinks.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "enlaces.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/verify-constraints.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schema-validator.py.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../00-CONTEXT/documentation-validation-cheklist.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/terraform/modules/vps-base/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../BASE-DE-DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../INFRAESTRUCTURA/docker-compose-networking.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "../../05-CONFIGURATIONS/validation/.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-1-sdd-colaborativo-humano-ia.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/GENERATION-MODELS.md",
+      "target": "02-SKILLS/GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "archivo.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/README.md",
+      "target": "00-CONTEXT/facundo-core-context.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/08-SKILLS-REFERENCE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "PROJECT_TREE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/08-SKILLS-REFERENCE.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "knowledge-graph.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "GENERATION-MODELS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "../../SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/skill-domains-mapping.md",
+      "target": "GENERATION-MODELS.md#-modelo-2-sdd-full-automated-hardened--terraform.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "target": "04-WORKFLOWS/n8n/INFRA-001-Base-Workflow.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "#ejemplo-1-generar-par-de-claves-rsa-ed25519.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "#ejemplo-2-desplegar-clave-pública-en-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "#ejemplo-3-configurar-trust-entre-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "#ejemplo-5-script-de-rotación-de-claves.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-1-instalar-y-configurar-ufw-desde-cero.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-2-abrir-y-cerrar-puertos.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-3-configurar-para-vps-n8n-uazapi.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-4-configurar-para-vps-con-db-interna.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-5-restaurar-acceso-si-bloqueaste-ssh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#ejemplo-5-restaurar-acceso-si-bloqueaste-ssh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "#troubleshooting-1-no-se-puede-habilitar-ufw.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "#ejemplo-1-configurar-cross-vps-trust.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "#ejemplo-2-crear-túneles-ssh-permanentes.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "#ejemplo-3-conectar-n8n-a-mysql-qdrant.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "#ejemplo-4-monitoreo-cross-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "#ejemplo-5-troubleshooting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-key-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "00-CONTEXT/facundo-core-context.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/fail2ban-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/audit-secrets.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/validation/check-rls.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../../01-RULES/01-ARCHITECTURE-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "target": "../00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-google-maps-leadgen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/environment/.env.example.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "01-RULES/07-SCALABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "target": "05-CONFIGURATIONS/environment/.env.example.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/RESTAURANTES/restaurant-booking-ai.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/HOTELES-POSADAS/hotel-receptionist-whatsapp.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "target": "validation-checklist.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "target": "mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "target": "02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "target": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "validation-checklist.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "whatsapp-rag-agents.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "01-RULES/05-CODE-PATTERNS-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ufw-firewall-configuration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/n8n-concurrency-limiting.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "target": "02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "target": "05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "#ejemplo-1-configurar-oauth2-y-smtp-básico.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "#ejemplo-2-enviar-email-desde-bash.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "#ejemplo-3-configurar-n8n-para-email.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "#ejemplo-4-configurar-dkim-y-dmarc.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "#ejemplo-5-solucionar-errores-comunes.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "-f /var/log/mantis/email.log.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "-f ~/.gmail-app-password.gpg.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "-f /etc/msmtprc.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "05-CONFIGURATIONS/environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "#ejemplo-1-crear-bot-para-rag-y-atencion-cliente.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "#ejemplo-2-integrar-qdrant-rag-con-tenant_id.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "#ejemplo-3-workflow-n8n-para-consulta-rag-via-telegram.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "#ejemplo-4-filtrar-conocimiento-por-tenant_id.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "#ejemplo-5-webhook-con-validacion-de-tenant.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "04-WORKFLOWS/n8n/RAG-001-Telegram-Customer-Service.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md#patrones-de-aislamiento.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/ssh-tunnels-remote-services.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "04-WORKFLOWS/n8n/RAG-001-Telegram-Customer-Service.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "target": "01-RULES/03-SECURITY-RULES.md#webhooks-seguros.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "00-CONTEXT/facundo-infrastructure.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/skill-domains-mapping.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/COMUNICACION/whatsapp-uazapi-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/06-MULTITENANCY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/02-RESOURCE-GUARDRAILS.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/03-SECURITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "01-RULES/04-API-RELIABILITY-RULES.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/AI/openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/templates/skill-template.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "target": "SDD-COLLABORATIVE-GENERATION.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/deepseek-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gemini-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/gpt-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/image-gen-api.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/llama-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "gemini-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/minimax-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "qdrant-rag-ingestion.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "pdf-mistralocr-processing.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "google-drive-qdrant-sync.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/mistral-ocr-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "qwen-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "llama-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/openrouter-api-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/qwen-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "image-gen-api.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/video-gen-api.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "whatsapp-rag-openrouter.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "telegram-bot-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "openrouter-api-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "gpt-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "deepseek-integration.md",
+      "type": "references"
+    },
+    {
+      "source": "02-SKILLS/AI/voice-agent-integration.md",
+      "target": "environment-variable-management.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/00-INDEX.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/00-INDEX.md",
+      "target": "00-CONTEXT/PROJECT_OVERVIEW.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/00-INDEX.md",
+      "target": "00-CONTEXT/facundo-business-model.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/00-INDEX.md",
+      "target": "00-CONTEXT/facundo-core-context.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/PROJECT_OVERVIEW.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/documentation-validation-cheklist.md",
+      "target": "00-CONTEXT/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-business-model.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-business-model.md",
+      "target": "00-CONTEXT/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-business-model.md",
+      "target": "00-CONTEXT/PROJECT_OVERVIEW.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-business-model.md",
+      "target": "00-CONTEXT/facundo-core-context.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-core-context.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-core-context.md",
+      "target": "00-CONTEXT/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-infrastructure.md",
+      "target": "README.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-infrastructure.md",
+      "target": "00-CONTEXT/00-INDEX.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-infrastructure.md",
+      "target": "00-CONTEXT/PROJECT_OVERVIEW.md",
+      "type": "references"
+    },
+    {
+      "source": "00-CONTEXT/facundo-infrastructure.md",
+      "target": "00-CONTEXT/facundo-business-model.md",
+      "type": "references"
+    }
+  ]
 }
-
-
----
-
-## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
-
-```bash
-# 1. Validar que es JSON válido
-jq empty knowledge-graph.json && echo "✅ JSON válido"
-
-# 2. Verificar que los 9 documentos críticos están como nodos
-jq '.graph.nodes[] | select(.tags | contains(["critical"])) | .id' knowledge-graph.json | wc -l
-# Esperado: 9
-
-# 3. Verificar que no hay wikilinks con anchors de sección (#)
-jq '.graph.nodes[].wikilinks[] | select(contains("#"))' knowledge-graph.json | wc -l
-# Esperado: 0
-
-# 4. Verificar que no hay rutas relativas (../ o ./)
-jq '.graph.nodes[].wikilinks[] | select(startswith("../") or startswith("./"))' knowledge-graph.json | wc -l
-# Esperado: 0
-
-# 5. Contar nodos de programación por lenguaje
-jq '.graph.nodes[] | select(.id | startswith("06-PROGRAMMING/")) | .id' knowledge-graph.json | wc -l
-# Esperado: 8 (7 índices de lenguaje + 1 agregador maestro)
-```
-
-**Criterio de aceptación:**  
-- ✅ JSON válido y parseable  
-- ✅ 9 documentos críticos marcados con `"priority": "critical"` y `"tags": ["critical"]`  
-- ✅ Cero wikilinks con anchors `#`, rutas relativas `../` o `./`  
-- ✅ Estructura `human_notes` separada de `graph` para compatibilidad Obsidian+agentes  
-- ✅ Edges con tipos semánticos (`depends_on`, `enforces_lock`, etc.) para navegación inteligente  
-
----
-
-> 🎯 **Mensaje final para Obsidian**:  
-> Este grafo es tu mapa de conocimiento.  
-> **Nodos críticos → Enlaces canónicos → Categorías por dominio → Prioridad visual**.  
-> Si un enlace aparece como "unresolved", verifica: 1) el archivo existe, 2) usa ruta absoluta desde raíz, 3) extensión `.md`.  
-> La gobernanza no es una carga. Es la libertad de navegar sin perderse.  
