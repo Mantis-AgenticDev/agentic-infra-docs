@@ -68,7 +68,8 @@ No es solo un árbol de archivos. Es un contrato de gobernanza que:
 | `📦` | Índice agregador de patrones | `📦 00-INDEX.md` |
 | `⚙️` | Archivo de configuración/schema | `⚙️ norms-matrix.json` |
 | `🗂️` | Carpeta con múltiples artefactos del mismo tipo | `🗂️ go/` |
-
+| `✅` | Completado y actualizado | `✅ go/` |
+| `❌` | No completado o sin acutalizacion | `❌ n8n/` |
 ### 0.2 Reglas Inamovibles de Rutas
 
 ```
@@ -97,23 +98,18 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 
 ```
 / (raíz del repositorio)
-├── 🔐 00-STACK-SELECTOR.md                    # Motor de decisión: ruta → lenguaje → constraints [[00-STACK-SELECTOR]]
-├── 🔐 IA-QUICKSTART.md                        # Semilla de gobernanza: gate de modo A1-B3 [[IA-QUICKSTART]]
-├── 🔐 AI-NAVIGATION-CONTRACT.md               # Contrato de navegación: reglas inamovibles para IA [[AI-NAVIGATION-CONTRACT]]
-├── 🔐 GOVERNANCE-ORCHESTRATOR.md              # Motor de certificación: Tiers 1/2/3 y validación [[GOVERNANCE-ORCHESTRATOR]]
-├── 🔐 SDD-COLLABORATIVE-GENERATION.md         # Especificación de formato: frontmatter, estructura, ejemplos [[SDD-COLLABORATIVE-GENERATION]]
-├── 🔐 TOOLCHAIN-REFERENCE.md                  # Catálogo de herramientas: validación, CI/CD, hooks [[TOOLCHAIN-REFERENCE]]
-├── 🔐 PROJECT_TREE.md                         # Este archivo: mapa canónico del repositorio [[PROJECT_TREE]]
-├── 📄 RAW_URLS_INDEX.md                       # Índices de URLs raw para acceso remoto de IAs
-├── 📄 knowledge-graph.json                    # Grafo de conocimiento para sincronización de agentes
-├── 📄 README.md                               # Punto de entrada humano: descripción del proyecto
-├── 📄 SECURITY.md                             # Políticas de seguridad y reporte de vulnerabilidades
-├── 📄 AI-NAVIGATION-CONTRACT.md               # (ver arriba)
-├── 📄 GOVERNANCE-ORCHESTRATOR.md              # (ver arriba)
-├── 📄 SDD-COLLABORATIVE-GENERATION.md         # (ver arriba)
-├── 📄 TOOLCHAIN-REFERENCE.md                  # (ver arriba)
-├── 📄 IA-QUICKSTART.md                        # (ver arriba)
-├── 📄 00-STACK-SELECTOR.md                    # (ver arriba)
+├── 🔐 00-STACK-SELECTOR.md ✅                    # Motor de decisión: ruta → lenguaje → constraints [[00-STACK-SELECTOR]]
+├── 🔐 IA-QUICKSTART.md ✅                       # Semilla de gobernanza: gate de modo A1-B3 [[IA-QUICKSTART]]
+├── 🔐 AI-NAVIGATION-CONTRACT.md ✅              # Contrato de navegación: reglas inamovibles para IA [[AI-NAVIGATION-CONTRACT]]
+├── 🔐 GOVERNANCE-ORCHESTRATOR.md ✅             # Motor de certificación: Tiers 1/2/3 y validación [[GOVERNANCE-ORCHESTRATOR]]
+├── 🔐 SDD-COLLABORATIVE-GENERATION.md✅         # Especificación de formato: frontmatter, estructura, ejemplos [[SDD-COLLABORATIVE-GENERATION]]
+├── 🔐 TOOLCHAIN-REFERENCE.md ✅                 # Catálogo de herramientas: validación, CI/CD, hooks [[TOOLCHAIN-REFERENCE]]
+├── 🔐 PROJECT_TREE.md ✅                        # Este archivo: mapa canónico del repositorio [[PROJECT_TREE]]
+├── 📄 RAW_URLS_INDEX.md ✅                       # Índices de URLs raw para acceso remoto de IAs
+├── 📄 knowledge-graph.json ✅                    # Grafo de conocimiento para sincronización de agentes
+├── 📄 README.md ✅                              # Punto de entrada humano: descripción del proyecto
+├── 📄 SECURITY.md ✅                             # Políticas de seguridad y reporte de vulnerabilidades
+|
 │
 ├── 📁 00-CONTEXT/                             # Documentación base: modelo de negocio, contexto técnico
 │   ├── 📄 .gitkeep
@@ -127,31 +123,31 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │
 ├── 📁 01-RULES/                               # Normas canónicas: HARNESS v3.0, constraints, LANGUAGE LOCK
 │   ├── 📄 .gitkeep
-│   ├── 📦 00-INDEX.md                         # Índice de reglas
-│   ├── 📄 01-ARCHITECTURE-RULES.md            # Reglas de arquitectura
-│   ├── 📄 02-RESOURCE-GUARDRAILS.md           # Límites de recursos (C1, C2)
-│   ├── 📄 03-SECURITY-RULES.md                # Reglas de seguridad (C3, C4)
-│   ├── 📄 04-API-RELIABILITY-RULES.md         # Confiabilidad de APIs (C6, C7)
-│   ├── 📄 05-CODE-PATTERNS-RULES.md           # Patrones de código (C5, C8)
-│   ├── 📄 06-MULTITENANCY-RULES.md            # Aislamiento multi-tenant (C4)
-│   ├── 📄 07-SCALABILITY-RULES.md             # Escalabilidad (C1, C2, C7)
-│   ├── 📄 08-SKILLS-REFERENCE.md              # Referencia de skills/patrones
-│   ├── 📄 09-AGENTIC-OUTPUT-RULES.md          # Reglas de salida de agentes
-│   ├── 📄 10-SDD-CONSTRAINTS.md               # Definición de constraints C1-C8, V1-V3
+│   ├── 📦 00-INDEX.md ✅                         # Índice de reglas
+│   ├── 📄 01-ARCHITECTURE-RULES.md ✅            # Reglas de arquitectura
+│   ├── 📄 02-RESOURCE-GUARDRAILS.md ✅           # Límites de recursos (C1, C2)
+│   ├── 📄 03-SECURITY-RULES.md ✅                # Reglas de seguridad (C3, C4)
+│   ├── 📄 04-API-RELIABILITY-RULES.md ✅         # Confiabilidad de APIs (C6, C7)
+│   ├── 📄 05-CODE-PATTERNS-RULES.md ✅           # Patrones de código (C5, C8)
+│   ├── 📄 06-MULTITENANCY-RULES.md ✅            # Aislamiento multi-tenant (C4)
+│   ├── 📄 07-SCALABILITY-RULES.md ✅             # Escalabilidad (C1, C2, C7)
+│   ├── 📄 08-SKILLS-REFERENCE.md ✅              # Referencia de skills/patrones
+│   ├── 📄 09-AGENTIC-OUTPUT-RULES.md ✅          # Reglas de salida de agentes
+│   ├── 📄 10-SDD-CONSTRAINTS.md ✅               # Definición de constraints C1-C8, V1-V3
 │   ├── 📄 harness-norms-v2.0.md               # Versión anterior de normas (referencia)
-│   ├── 📄 harness-norms-v3.0.md               # ✅ Normas vigentes: HARNESS v3.0-SELECTIVE
-│   ├── 📄 language-lock-protocol.md           # 🔐 Protocolo LANGUAGE LOCK: operadores prohibidos por lenguaje
-│   └── 📄 validation-checklist.md             # Checklist de validación de artefactos
+│   ├── 📄 harness-norms-v3.0.md ✅               # ✅ Normas vigentes: HARNESS v3.0-SELECTIVE
+│   ├── 📄 language-lock-protocol.md ✅           # 🔐 Protocolo LANGUAGE LOCK: operadores prohibidos por lenguaje
+│   └── 📄 validation-checklist.md ✅             # Checklist de validación de artefactos
 │
 ├── 📁 02-SKILLS/                              # Patrones reutilizables por dominio
 │   ├── 📄 .gitkeep
-│   ├── 📦 00-INDEX.md                         # Índice de skills
-│   ├── 📄 README.md                           # Guía de uso de skills
-│   ├── 📄 skill-domains-mapping.md            # Mapeo de dominios a skills
-│   ├── 📄 GENERATION-MODELS.md                # Modelos de generación soportados
+│   ├── 📦 00-INDEX.md ✅                         # Índice de skills
+│   ├── 📄 README.md ✅                           # Guía de uso de skills
+│   ├── 📄 skill-domains-mapping.md ✅            # Mapeo de dominios a skills
+│   ├── 📄 GENERATION-MODELS.md ✅                # Modelos de generación soportados
 │   │
 │   ├── 📁 AGENTIC-ASSISTANCE/                 # Skills para asistencia agéntica
-│   │   └── 📄 ide-cli-integration.md          # Integración IDE/CLI para agentes
+│   │   └── 📄 ide-cli-integration.md ✅           # Integración IDE/CLI para agentes
 │   │
 │   ├── 📁 AI/                                 # Skills de integración con LLMs
 │   │   ├── 📄 .gitkeep
@@ -256,10 +252,10 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   └── 📄 .gitkeep
 │   ├── 📁 n8n/                                # Workflows exportados de n8n
 │   │   └── 📄 .gitkeep
-│   └── 📄 sdd-universal-assistant.json        # Workflow SDD universal en JSON
+│   └── 📄 sdd-universal-assistant.json ✅        # Workflow SDD universal en JSON
 │
 ├── 📁 05-CONFIGURATIONS/                      # Configuración, scripts, validación, templates
-│   ├── 📦 00-INDEX.md                         # Índice de configuraciones
+│   ├── 📦 00-INDEX.md ✅                         # Índice de configuraciones
 │   │
 │   ├── 📁 docker-compose/                     # Configuraciones Docker Compose
 │   │   ├── 📄 .gitkeep
@@ -270,7 +266,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │
 │   ├── 📁 environment/                        # Variables de entorno y secretos
 │   │   ├── 📄 .gitkeep
-│   │   └── 📄 .env.example                    # Ejemplo de .env (sin valores reales)
+│   │   └── 📄 .env.example ✅                     # Ejemplo de .env (sin valores reales)
 │   │
 │   ├── 📁 observability/                      # Configuración de observabilidad
 │   │   └── 📄 otel-tracing-config.yaml        # Config de tracing OpenTelemetry
@@ -293,7 +289,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │
 │   ├── 📁 scripts/                            # Scripts operativos y de validación
 │   │   ├── 📄 .gitkeep
-│   │   ├── 📄 VALIDATOR_DOCUMENTATION.md      # Documentación del validador
+│   │   ├── 📄 VALIDATOR_DOCUMENTATION.md ✅      # Documentación del validador
 │   │   ├── 📄 backup-mysql.sh                 # Script de backup de MySQL
 │   │   ├── 📄 generate-repo-validation-report.sh  # Generar reporte de validación del repo
 │   │   ├── 📄 health-check.sh                 # Script de health check general
@@ -350,12 +346,12 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │       ├── 🧰 audit-secrets.sh                # Detección de secrets hardcodeados (C3)
 │       ├── 🧰 check-rls.sh                    # Validación de tenant isolation en SQL (C4)
 │       ├── 🧰 check-wikilinks.sh              # Validación de wikilinks canónicos (C5)
-│       ├── 🧰 norms-matrix.json               # ✅ Matriz de constraints por carpeta
+│       ├── 🧰 norms-matrix.json ✅               # ✅ Matriz de constraints por carpeta
 │       ├── 🧰 orchestrator-engine.sh          # ✅ Motor principal de validación y scoring
 │       ├── 🧰 schema-validator.py             # Validación de JSON/YAML contra schemas
 │       ├── 📁 schemas/
 │       │   ├── 📄 skill-input-output.schema.json  # Schema para input/output de skills
-│       │   └── 📄 stack-selection.schema.json     # ✅ Schema para decisiones de stack
+│       │   └── 📄 stack-selection.schema.json ✅     # ✅ Schema para decisiones de stack
 │       ├── 🧰 validate-frontmatter.sh         # Verificación de frontmatter YAML (C5)
 │       ├── 🧰 validate-skill-integrity.sh     # Validación de integridad de skills
 │       └── 🧰 verify-constraints.sh           # Validación de constraints y LANGUAGE LOCK
@@ -363,7 +359,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 ├── 📁 06-PROGRAMMING/                         # ✅ Patrones de código por lenguaje (LANGUAGE LOCK aplicado)
 │   ├── 📦 00-INDEX.md                         # ✅ Índice agregador maestro de todos los lenguajes
 │   │
-│   ├── 🗂️ bash/                              # Patrones para scripts Bash (C1-C8, cero V1-V3)
+│   ├── 🗂️ bash/✅                              # Patrones para scripts Bash (C1-C8, cero V1-V3)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones Bash
 │   │   ├── 📄 context-compaction-utils.md     # Utilidades de compactación de contexto
@@ -377,7 +373,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 scale-simulation-utils.md       # Utilidades de simulación de escala
 │   │   └── 📄 yaml-frontmatter-parser.md      # Parser de frontmatter YAML
 │   │
-│   ├── 🗂️ go/                                # ✅ Patrones para Go (C1-C8, 🔴 LANGUAGE LOCK: cero pgvector, cero V1-V3)
+│   ├── 🗂️ go/✅                                # ✅ Patrones para Go (C1-C8, 🔴 LANGUAGE LOCK: cero pgvector, cero V1-V3)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones Go
 │   │   ├── 📄 api-client-management.go.md     # Gestión de clientes API
@@ -416,7 +412,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 whatsapp-bot-integration.go.md  # Integración con bots de WhatsApp
 │   │   └── 📄 yaml-frontmatter-parser.go.md   # Parser de frontmatter YAML en Go
 │   │
-│   ├── 🗂️ javascript/                         # Patrones para TypeScript/JavaScript (C1-C8, cero V1-V3)
+│   ├── 🗂️ javascript/✅                         # Patrones para TypeScript/JavaScript (C1-C8, cero V1-V3)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones JS/TS
 │   │   ├── 📄 async-patterns-with-timeouts.ts.md  # Patrones async con timeouts
@@ -444,7 +440,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 whatsapp-bot-integration.ts.md  # Integración con bots de WhatsApp
 │   │   └── 📄 yaml-frontmatter-parser.ts.md   # Parser de frontmatter YAML
 │   │
-│   ├── 🗂️ postgresql-pgvector/                # ✅ ÚNICO lugar para búsqueda vectorial (C1-C8 + V1-V3 obligatorios)
+│   ├── 🗂️ postgresql-pgvector/✅                # ✅ ÚNICO lugar para búsqueda vectorial (C1-C8 + V1-V3 obligatorios)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones pgvector
 │   │   ├── 📄 fix-sintaxis-code.pgvector.md   # Corrección de sintaxis para pgvector
@@ -458,7 +454,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 tenant-isolation-for-embeddings.pgvector.md  # Aislamiento de tenant para embeddings (C4)
 │   │   └── 📄 vector-indexing-patterns.pgvector.md  # Patrones de indexación vectorial (V3)
 │   │
-│   ├── 🗂️ python/                             # Patrones para Python (C1-C8, cero V1-V3 excepto en imports controlados)
+│   ├── 🗂️ python/✅                             # Patrones para Python (C1-C8, cero V1-V3 excepto en imports controlados)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones Python
 │   │   ├── 📄 async-patterns-with-timeouts.md  # Patrones async con timeouts
@@ -485,7 +481,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 whatsapp-bot-integration.md     # Integración con bots de WhatsApp
 │   │   └── 📄 yaml-frontmatter-parser.md      # Parser de frontmatter YAML
 │   │
-│   ├── 🗂️ sql/                               # Patrones para SQL estándar (C1-C8, 🔴 LANGUAGE LOCK: cero operadores pgvector, cero V1-V3)
+│   ├── 🗂️ sql/✅                               # Patrones para SQL estándar (C1-C8, 🔴 LANGUAGE LOCK: cero operadores pgvector, cero V1-V3)
 │   │   ├── 📄 .gitkeep
 │   │   ├── 📦 00-INDEX.md                     # Índice de patrones SQL
 │   │   ├── 📄 aggregation-multi-tenant-safe.sql.md  # Agregaciones multi-tenant seguras (C4)
@@ -514,7 +510,7 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   │   ├── 📄 tenant-context-injection.sql.md # Inyección de contexto de tenant
 │   │   └── 📄 unit-test-patterns-for-sql.sql.md  # Patrones de unit testing para SQL
 │   │
-│   └── 🗂️ yaml-json-schema/                   # Patrones para YAML + JSON Schema (C1-C8, cero V1-V3)
+│   └── 🗂️ yaml-json-schema/✅                   # Patrones para YAML + JSON Schema (C1-C8, cero V1-V3)
 │       ├── 📄 .gitkeep
 │       ├── 📦 00-INDEX.md                     # Índice de patrones YAML/Schema
 │       ├── 📄 dynamic-schema-generation.yaml.md  # Generación dinámica de schemas

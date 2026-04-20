@@ -1,23 +1,96 @@
-# SHA256: c9f3e8a2b1d7f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
-artifact_id: "02-SKILLS-README"
-artifact_type: "rule_markdown"
+canonical_path: "/02-SKILLS/README.md"
+artifact_id: "skills-readme-canonical"
+artifact_type: "governance_readme"
 version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C3","C4","C5","C7","C8"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 02-SKILLS/README.md --json"
-canonical_path: "02-SKILLS/README.md"
+constraints_mapped: ["C5", "C6"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 02-SKILLS/README.md --mode headless --json"
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+related_files:
+  - "[[02-SKILLS/00-INDEX.md]]"
+  - "[[02-SKILLS/skill-domains-mapping.md]]"
+  - "[[02-SKILLS/GENERATION-MODELS.md]]"
+  - "[[01-RULES/08-SKILLS-REFERENCE.md]]"
+  - "[[PROJECT_TREE.md]]"
+checksum_sha256: "PENDING_GENERATION"
 ---
 
-# 🧠 02-SKILLS: DOCUMENTACIÓN TÉCNICA POR DOMINIO – MANTIS AGENTIC
+# 📄 02-SKILLS/README.md – REGENERADO COMPLETO v3.0-SELECTIVE
 
-> **Versión**: 3.0.0-SELECTIVE | **Estado**: HARDENED-SDD | **Última actualización**: 2026-04-19  
-> **Constraints**: C1-C8 (CORE) | **V1-V3**: ❌ NO APLICAN (rule_markdown, NO skill_pgvector)  
-> **Estilo**: Formal, directo, ejecutable | **LANGUAGE LOCK**: Markdown puro – cero operadores pgvector  
-> **Propósito**: Base de conocimiento técnico para autogeneración de agentes y código validado para deploy humano.
+> **Nota para principiantes:** Este documento es la **puerta de entrada** a la sección `02-SKILLS/` en MANTIS AGENTIC. Explica QUÉ son las skills, CÓMO navegar por el árbol estructural canónico, y CÓMO validar que una skill está lista para uso en producción. Si eres nuevo, lee en orden. Si eres experto, salta al JSON final.  
+>  
+> **Para IAs:** Este es tu mapa de bienvenida. **RECOMENDAR SKILL NO INDEXADA O SIN VALIDACIÓN = RIESGO DE INCONSISTENCIA**. No inventes, no asumas, no omitas.
+
+
+# 🧠 02-SKILLS/README: Puerta de Entrada al Catálogo de Habilidades MANTIS
+
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es la "bienvenida" a la sección 02-SKILLS/ en MANTIS AGENTIC.
+Te enseña:
+• QUÉ son las skills y por qué importan
+• CÓMO navegar por el mapa estructural canónico (ASCII tree)
+• CÓMO validar que una skill está lista para uso en producción
+• DÓNDE encontrar ayuda si tienes dudas
+
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
+
+> **Instrucción crítica para la IA:** 
+> Este documento es tu mapa de bienvenida. 
+> **RECOMENDAR SKILL NO INDEXADA O SIN VALIDACIÓN = RIESGO DE INCONSISTENCIA**. 
+> No inventes, no asumas, no omitas. Si algo no está claro, DETENER y preguntar.
+
+---
+
+## 【0】🎯 BIENVENIDA A 02-SKILLS/ (Explicado para humanos)
+
+<!-- 
+【EDUCATIVO】Este documento responde: "¿Dónde encuentro skills para resolver mi problema?"
+No es un manual técnico. Es una guía de navegación que:
+• Presenta la arquitectura de skills en MANTIS AGENTIC
+• Conecta necesidades de negocio con soluciones técnicas validadas
+• Proporciona flujos de descubrimiento: necesidad → skill → validación → integración
+• Sirve como punto de entrada para agents remotos que consumen `RAW_URLS_INDEX.md`
+-->
+
+### 0.1 ¿Qué es una Skill en MANTIS AGENTIC?
+
+```
+【DEFINICIÓN】
+Una skill es un patrón reutilizable que resuelve una necesidad específica de dominio.
+Puede ser:
+• Horizontal: Técnica, reutilizable en cualquier industria (ej: `qwen-integration.md`)
+• Vertical: Empaquetada para un negocio específico (ej: `restaurant-booking-ai.md`)
+
+【CARACTERÍSTICAS CANÓNICAS】
+• Frontmatter válido con `canonical_path`, `constraints_mapped`, `validation_command`
+• Estructura SDD: Propósito → Implementación → Ejemplos → Validación → Referencias
+• ≥10 ejemplos ✅/❌/🔧 para Tier ≥ 2
+• Wikilinks canónicos: `[[RUTA/DESDE/RAÍZ.md]]`, nunca relativos
+• JSON tree final parseable por `jq` para agents remotos
+
+【ESTADO DE UNA SKILL】
+| Estado | Significado | ¿Listo para producción? |
+|--------|------------|------------------------|
+| ✅ Listo | Validada con score >= umbral y blocking_issues == [] | Sí |
+| 🟡 En proceso | Validación pendiente o warnings menores | No, requiere revisión humana |
+| 🔧 Estructura lista | Carpeta con estructura base (.gitkeep) lista para poblar | No, falta contenido |
+| 🆕 Nuevo | Skill recién añadida, sin validación inicial | No, requiere validación completa |
+```
 
 ---
 
 ## 🗺️ MAPA ESTRUCTURAL CANÓNICO (ASCII TREE)
+
+<!-- 
+【PARA PRINCIPIANTES】Este es el mapa visual de toda la sección 02-SKILLS/.
+Usa este árbol para navegar: cada rama es un dominio, cada hoja es una skill.
+Los emojis indican tipo: 🤖 IA, 🗄️ DB/RAG, 🖥️ Infra, 🔐 Seguridad, 📡 Comunicación, 🚀 Deploy, 🏢 KB, 🎯 Vertical.
+-->
 
 ```text
 02-SKILLS/
@@ -103,522 +176,569 @@ canonical_path: "02-SKILLS/README.md"
     └── validation/                    # tests específicos del vertical
 ```
 
----
-
-## 🎯 PROPÓSITO DE ESTE ARCHIVO (RULE_MARKDOWN)
-
-Este README es un **índice canónico** para la carpeta `02-SKILLS/`. Establece:
-
-1. **Navegación estructurada**: Wikilinks `[[...]]` para resolución automatizada por agentes
-2. **Validación cruzada**: Cada skill debe referenciar las RULES aplicables (C1-C8)
-3. **LANGUAGE LOCK enforcement**: Zero tolerancia para operadores pgvector en archivos de referencia no-vectoriales
-4. **Flujo de autogeneración**: Template + validación determinista para IA
-
-> ⚠️ **Advertencia SELECTIVA**: Este artifact es `rule_markdown`, NO `skill_pgvector`. Las constraints V1-V3 **NO APLICAN** aquí. Cualquier mención de `vector`, `embedding`, o operadores `<->`/`<=>`/`<#>` debe ser como texto documental, NO como código ejecutable.
+> 💡 **Consejo para principiantes**: Usa este mapa ASCII como brújula. Cada rama es un dominio, cada hoja es una skill. Si buscas "WhatsApp + RAG", ve a `COMUNICACIÓN/whatsapp-rag-openrouter.md`. Si necesitas "aislar datos por cliente", ve a `BASE DE DATOS-RAG/multi-tenant-data-isolation.md`.
 
 ---
 
-## 🔐 CONSTRAINTS CORE – GUÍA DE APLICACIÓN EN SKILLS (C1-C8)
+## 【1】🧭 CÓMO NAVEGAR POR 02-SKILLS/
 
-### C1 – Resource Limits Enforcement
-**Propósito**: Prevenir agotamiento de memoria/CPU en queries u operaciones costosas.
+<!-- 
+【EDUCATIVO】Flujos de descubrimiento para encontrar la skill correcta.
+-->
+
+### 1.1 Flujo: Necesidad de Negocio → Skill Técnica
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 1】IDENTIFICAR NECESIDAD DE NEGOCIO             │
+├─────────────────────────────────────────────────────────┤
+│ Ejemplos:                                               │
+│ • "Quiero agente de reservas por WhatsApp"              │
+│ • "Necesito gestión de pacientes con privacidad"        │
+│ • "Quiero generar contenido para Instagram con IA"      │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 2】CONSULTAR MAPA ASCII + SKILL-DOMAINS-MAPPING │
+├─────────────────────────────────────────────────────────┤
+│ 1. Usar mapa ASCII arriba para ubicar dominio          │
+│ 2. Ir a: [[02-SKILLS/skill-domains-mapping.md]]        │
+│ 3. Buscar necesidad → identificar skills horizontales  │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 3】VALIDAR SKILLS REQUERIDAS                    │
+├─────────────────────────────────────────────────────────┤
+│ Para cada skill identificada:                          │
+│ • Verificar estado en [[02-SKILLS/00-INDEX.md]]        │
+│ • Ejecutar: orchestrator-engine.sh --file <skill> --json│
+│ • Confirmar: score >= umbral, blocking_issues == []    │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 4】INTEGRAR O ITERAR                            │
+├─────────────────────────────────────────────────────────┤
+│ Si validación pasa → integrar skill en tu flujo        │
+│ Si validación falla → iterar corrección (máx 3 intentos)│
+│ Registrar log de auditoría con tenant_id y trace_id    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 1.2 Flujo: Desarrollo Técnico → Skill Horizontal
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 1】IDENTIFICAR TAREA TÉCNICA                    │
+├─────────────────────────────────────────────────────────┤
+│ Ejemplos:                                               │
+│ • "Necesito integrar Qwen para generación de código"    │
+│ • "Quiero conectar Qdrant para búsqueda vectorial"      │
+│ • "Necesito validar secrets en mi código"               │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 2】USAR MAPA ASCII PARA UBICAR DOMINIO          │
+├─────────────────────────────────────────────────────────┤
+│ • Código/IA → Rama `AI/` en mapa ASCII                 │
+│ • DB/RAG → Rama `BASE DE DATOS-RAG/`                   │
+│ • Infra → Rama `INFRAESTRUCTURA/`                      │
+│ • Comunicación → Rama `COMUNICACIÓN/`                  │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 3】VALIDAR Y USAR SKILL                         │
+├─────────────────────────────────────────────────────────┤
+│ • Verificar constraints_mapped en frontmatter          │
+│ • Ejecutar validation_command de la skill              │
+│ • Confirmar que cumple LANGUAGE LOCK si genera código  │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 4】ADAPTAR A TU CONTEXTO                        │
+├─────────────────────────────────────────────────────────┤
+│ • Copiar skill a tu proyecto                           │
+│ • Adaptar tenant_id, secrets, timeouts según contexto  │
+│ • Validar adaptación con orchestrator-engine.sh        │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 【2】📚 DOMINIOS HORIZONTALES (Cimientos Técnicos)
+
+<!-- 
+【EDUCATIVO】Skills reutilizables en cualquier industria. Referencia rápida desde mapa ASCII.
+-->
+
+### 2.1 `AI/` – Modelos de Inteligencia Artificial 🤖
+
+```
+【PROPÓSITO】Catálogo de proveedores de IA, sus límites de coste, estrategias de fallback y modos de integración.
+
+【SKILLS DESTACADAS (desde mapa ASCII)】
+• `[[02-SKILLS/AI/qwen-integration.md]]` → Contexto 131K, JSON mode, cache semántica, fallback 32B
+• `[[02-SKILLS/AI/deepseek-integration.md]]` → Reasoning_content, rate-limit, fallback coder
+• `[[02-SKILLS/AI/openrouter-api-integration.md]]` → Proxy unificado, routing dinámico, balancing coste/latencia
+
+【CUÁNDO USAR】
+• "Necesito un agente conversacional barato" → qwen-integration.md
+• "Necesito razonamiento complejo" → deepseek-integration.md + fallback a qwen
+• "Quiero balancear coste/rendimiento" → openrouter-api-integration.md
+
+【CONSTRAINTS CRÍTICAS】
+• **C3 (Zero Secrets)**: API keys NUNCA en código. Usar variables de entorno.
+• **C4 (Tenant Isolation)**: Aislamiento de prompts y respuestas por tenant_id.
+• **C8 (Observability)**: Logging estructurado de costes, latencia y errores.
+```
+
+### 2.2 `BASE DE DATOS-RAG/` – Información y Búsqueda Semántica 🗄️
+
+```
+【PROPÓSITO】Gestión de información estructurada y no estructurada. Incluye RAG, aislamiento multi-tenant, optimización para servidores pequeños.
+
+【SKILLS DESTACADAS (desde mapa ASCII)】
+• `[[02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md]]` → search, scroll, recommend, delete, count, updateVectors
+• `[[02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md]]` → Estrategias: schema-per-tenant vs row-level
+• `[[02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md]]` → Transacciones, pool limitado, full-text, JSONB, RLS
+
+【CUÁNDO USAR】
+• "Necesito RAG para documentos PDF" → pdf-mistralocr-processing.md + qdrant-rag-ingestion.md
+• "Quiero sincronizar Google Drive con mi vector DB" → google-drive-qdrant-sync.md
+• "Necesito aislar datos de múltiples clientes" → multi-tenant-data-isolation.md
+
+【CONSTRAINTS CRÍTICAS】
+• **C4 (Tenant Isolation)**: TODO acceso a datos debe incluir `WHERE tenant_id = $1`.
+• **V1 (Vector Dimensions)**: Declarar dimensiones del embedding y modelo en queries vectoriales.
+• **C3 (Zero Secrets)**: Credenciales de DB NUNCA en código.
+```
+
+### 2.3 `INFRAESTRUCTURA/` – Servidores, Redes y Contenedores 🖥️
+
+```
+【PROPÓSITO】Configuración y mantenimiento de servidores VPS, redes, contenedores y monitoreo.
+
+【SKILLS DESTACADAS (desde mapa ASCII)】
+• `[[02-SKILLS/INFRAESTRUCTURA/vps-interconnection.md]]` → Comunicación segura entre VPS con WireGuard/túneles
+• `[[02-SKILLS/INFRAESTRUCTURA/docker-compose-networking.md]]` → Redes aisladas por tenant, healthchecks
+• `[[02-SKILLS/INFRAESTRUCTURA/health-monitoring-vps.md]]` → Métricas básicas: RAM, CPU, disco, con alertas
+
+【CUÁNDO USAR】
+• "Necesito conectar 3 VPS de forma segura" → vps-interconnection.md + ssh-tunnels-remote-services.md
+• "Quiero monitorear mis servidores" → health-monitoring-vps.md + fail2ban-configuration.md
+• "Necesito gestionar sesiones de agentes" → redis-session-management.md
+
+【CONSTRAINTS CRÍTICAS】
+• **C1 (Resource Limits)**: Definir límites de CPU/RAM por contenedor.
+• **C3 (Zero Secrets)**: Credenciales SSH, API keys NUNCA hardcodeadas.
+• **C7 (Resilience)**: Healthchecks y graceful shutdown para todos los servicios.
+```
+
+---
+
+## 【3】🏢 DOMINIOS VERTICALES (Soluciones por Industria)
+
+<!-- 
+【EDUCATIVO】Skills empaquetadas para negocios específicos. Se construyen sobre skills horizontales.
+-->
+
+> 📌 **Nota**: Estas carpetas contienen la estructura base (`prompts/`, `workflows/`, `validation/`) lista para ser poblada. Evita duplicar lógica horizontal; importa las skills técnicas y adapta solo los flujos de negocio.
+
+### 3.1 `RESTAURANTES/` – Pedidos, Reservas y Menús 🎯
+
+```
+【PROPÓSITO】Gestión de pedidos, reservas, menús dinámicos y fidelización mediante asistentes conversacionales.
+
+【ESTRUCTURA (desde mapa ASCII)】
+├── prompts/                       # Prompts específicos del dominio
+├── workflows/                     # Flujos n8n exportados
+└── validation/                    # Tests específicos del vertical
+
+【FLUJO RECOMENDADO】
+1. Consultar mapa ASCII → Rama `RESTAURANTES/`
+2. Importar skills horizontales: whatsapp-rag-openrouter.md, postgres-prisma-rag.md
+3. Adaptar prompts y workflows a flujos de restaurante
+4. Validar con orchestrator-engine.sh antes de desplegar
+
+【CONSTRAINTS CRÍTICAS】
+• **C3 (Zero Secrets)**: API keys de WhatsApp, POS y proveedores de IA protegidas.
+• **C4 (Tenant Isolation)**: Datos de pedidos y clientes separados por restaurante.
+• **C7 (Resilience)**: Fallback a pedido manual si el chatbot falla o el POS se cae.
+```
+
+### 3.2 `ODONTOLOGÍA/` – Citas, Pacientes y Privacidad 🎯
+
+```
+【PROPÓSITO】Gestión de agendas médicas, recordatorios automáticos y cumplimiento de privacidad de datos del paciente.
+
+【ESTRUCTURA (desde mapa ASCII)】
+├── prompts/                       # Prompts específicos del dominio
+├── workflows/                     # Flujos n8n exportados
+└── validation/                    # Tests específicos del vertical
+
+【FLUJO RECOMENDADO】
+1. Consultar mapa ASCII → Rama `ODONTOLOGÍA/`
+2. Importar skills horizontales: google-calendar-api-integration.md, multi-tenant-data-isolation.md
+3. Adaptar prompts a flujos clínicos y normativas de privacidad
+4. Validar con auditoría de seguridad antes de usar con datos reales
+
+【CONSTRAINTS CRÍTICAS】
+• **C4 (Tenant Isolation - CRÍTICO)**: Los datos de salud son sensibles. Aislamiento estricto obligatorio.
+• **C8 (Observability)**: Auditoría de quién accedió a los datos de qué paciente (logs con scrubbing).
+• **C3 (Zero Secrets)**: Credenciales de calendario, DB y email altamente protegidas.
+```
+
+---
+
+## 【4】🛠️ CÓMO VALIDAR UNA SKILL
+
+<!-- 
+【EDUCATIVO】Pasos para asegurar que una skill está lista para uso en producción.
+-->
+
+### 4.1 Checklist Rápido de Validación
 
 ```bash
-# ✅ C1: Verificar límites de memoria en contenedores Docker
-docker inspect n8n --format='{{.HostConfig.Memory}}'  # Esperado: ≤4294967296 (4GB)
+# 1. Verificar frontmatter válido
+yq eval '.canonical_path' skill.md | grep -q "^/" && echo "✅ canonical_path absoluto"
+
+# 2. Verificar constraints mapeadas
+yq eval '.constraints_mapped' skill.md | grep -q "C3\|C4\|C5" && echo "✅ Constraints declaradas"
+
+# 3. Ejecutar validación automática
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file skill.md --json > result.json
+
+# 4. Verificar resultado
+jq -e '.passed == true and .blocking_issues == []' result.json && echo "✅ Skill validada" || echo "❌ Skill requiere corrección"
+
+# 5. Verificar LANGUAGE LOCK si genera código
+bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file skill.md --check-language-lock --json
 ```
 
-```bash
-# ❌ Anti-pattern: Contenedor sin límite de memoria → riesgo de OOM
-docker run my-image  # Sin --memory flag
-# 🔧 Fix: Añadir --memory="1500m" o definir en docker-compose.yml
+### 4.2 Interpretación de Resultados
+
+| Campo en JSON | Significado | Acción Recomendada |
+|--------------|------------|-------------------|
+| `score` | Puntuación de calidad (0-100) | Tier 1: ≥15, Tier 2: ≥30, Tier 3: ≥45 |
+| `passed` | ¿La skill pasó validación? | Si `false`, revisar `blocking_issues` |
+| `blocking_issues` | Errores que impiden entrega | Corregir antes de integrar |
+| `warnings` | Advertencias no blocking | Considerar para mejora continua |
+| `language_lock_violations` | Operadores prohibidos usados | Mover a dominio canónico o corregir |
+
+---
+
+## 【5】🆘 CÓMO OBTENER AYUDA
+
+<!-- 
+【EDUCATIVO】Recursos para resolver dudas sobre skills.
+-->
+
+### 5.1 Recursos Internos
+
+```
+• [[02-SKILLS/00-INDEX.md]] → Índice maestro con estado de todas las skills
+• [[02-SKILLS/skill-domains-mapping.md]] → Mapeo de necesidades de negocio a skills técnicas
+• [[02-SKILLS/GENERATION-MODELS.md]] → Catálogo de modelos de IA para generación asistida
+• [[01-RULES/08-SKILLS-REFERENCE.md]] → Catálogo de habilidades por dominio
+• [[01-RULES/validation-checklist.md]] → Checklist ejecutable de validación
 ```
 
-```yaml
-# ✅ C1: Ejemplo docker-compose con límites explícitos
-services:
-  qdrant:
-    deploy:
-      resources:
-        limits:
-          memory: 1g  # C1: límite explícito
-          cpus: "0.5"  # C2: límite de CPU
+### 5.2 Herramientas de Validación
+
+```
+• `orchestrator-engine.sh` → Validación integral con scoring y reporte JSON
+• `verify-constraints.sh` → Validación de constraints y LANGUAGE LOCK
+• `audit-secrets.sh` → Detección de secrets hardcodeados (C3)
+• `check-rls.sh` → Validación de aislamiento multi-tenant en SQL (C4)
 ```
 
-```yaml
-# ❌ Anti-pattern: Servicio sin resource limits
-services:
-  qdrant:
-    image: qdrant/qdrant:latest  # Sin deploy.resources → consumo ilimitado
-# 🔧 Fix: Añadir deploy.resources con limits explícitos C1/C2
+### 5.3 Soporte Humano
+
 ```
-
-### C2 – Explicit Timeouts in All Operations
-**Propósito**: Garantizar que ninguna operación bloquee indefinidamente el sistema.
-
-```sql
--- ✅ C2: Timeout explícito en transacción PostgreSQL
-BEGIN;
-SET LOCAL statement_timeout = '30s';  -- C2: timeout por transacción
-UPDATE metrics SET last_run = now() WHERE tenant_id = current_setting('app.tenant_id');
-COMMIT;
-```
-
-```sql
--- ❌ Anti-pattern: Transacción larga sin timeout → bloqueo de locks
-BEGIN; UPDATE metrics SET ...; COMMIT;  -- Sin límite temporal
--- 🔧 Fix: SET LOCAL statement_timeout dentro de BEGIN/COMMIT
-```
-
-```python
-# ✅ C2: Timeout explícito en operación asíncrona Python
-import asyncio
-async def fetch_with_timeout(url: str, timeout: float = 10.0) -> dict:
-    async with asyncio.timeout(timeout):  # C2: timeout explícito
-        return await http_get(url)
-```
-
-```python
-# ❌ Anti-pattern: Operación sin timeout → bloqueo potencial indefinido
-async def fetch(url: str) -> dict:
-    return await http_get(url)  # ¿Qué pasa si el servidor no responde?
-# 🔧 Fix: Envolver en contexto con timeout explícito
-```
-
-### C3 – Secrets & Environment Validation
-**Propósito**: Fallar temprano si variables críticas de entorno no están configuradas.
-
-```bash
-# ✅ C3: Validación explícita de variable crítica en Bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-readonly API_KEY="${API_KEY:?API_KEY no configurada en entorno}"  # C3: fallo temprano
-```
-
-```bash
-# ❌ Anti-pattern: Variable opcional sin validación para valor crítico
-API_KEY="${API_KEY:-}"  # Silencioso: vacío si no existe
-# 🔧 Fix: Usar ${VAR:?mensaje} para valores obligatorios
-```
-
-```python
-# ✅ C3: Validación explícita con mensaje claro en Python
-import os
-TENANT_ID = os.environ["TENANT_ID"]  # KeyError si falta → fallo inmediato
-assert len(TENANT_ID) >= 3 and TENANT_ID.isalnum(), "TENANT_ID: ≥3 chars alfanuméricos"
-```
-
-```python
-# ❌ Anti-pattern: Default silencioso que oculta error de configuración
-TENANT_ID = os.environ.get("TENANT_ID", "default")  # ¿Es intencional o error?
-# 🔧 Fix: Acceso directo + assert con mensaje específico
-```
-
-### C4 – Multi-Tenant Isolation (CRÍTICO)
-**Propósito**: Garantizar que ningún tenant pueda acceder a datos de otro, ni por error ni por ataque.
-
-```sql
--- ✅ C4: Filtro explícito + RLS como defensa en profundidad
-SELECT id, data FROM documents
-WHERE tenant_id = current_setting('app.tenant_id')  -- C4: filtro explícito
-ORDER BY created_at DESC LIMIT 100;
--- + Política RLS: USING (tenant_id = current_setting('app.tenant_id'))
-```
-
-```sql
--- ❌ Anti-pattern: Query sin contexto de tenant → riesgo de fuga cross-tenant
-SELECT id, data FROM documents ORDER BY created_at DESC LIMIT 100;  -- Sin WHERE tenant_id
--- 🔧 Fix: Siempre incluir WHERE tenant_id = current_setting(...) como capa adicional
-```
-
-```python
-# ✅ C4: Aislamiento de contexto en aplicación Python
-from contextvars import ContextVar
-TENANT_CTX: ContextVar[str] = ContextVar("tenant_id")
-
-def get_tenant_data(query: str) -> list:
-    tenant_id = TENANT_CTX.get()  # C4: contexto aislado por request
-    return db.query(f"SELECT * FROM data WHERE tenant_id = %s", tenant_id)
-```
-
-```python
-# ❌ Anti-pattern: Variable global para tenant → fuga entre requests concurrentes
-CURRENT_TENANT = None  # Global: compartido entre hilos/requests
-# 🔧 Fix: Usar ContextVar o AsyncLocalStorage para aislamiento por request
-```
-
-### C5 – Integrity Verification via Checksums
-**Propósito**: Detectar corrupción o modificación no autorizada de datos/configuraciones críticas.
-
-```bash
-# ✅ C5: Validación SHA256 pre/post operación crítica
-echo "$(sha256sum config.sql) config.sql" | sha256sum -c  # C5: verificación
-if [[ $? -ne 0 ]]; then echo "Integrity check failed" >&2; exit 1; fi
-```
-
-```bash
-# ❌ Anti-pattern: Copia sin verificación de integridad
-cp config.sql /deploy/  # ¿Se corrompió en tránsito? ¿Modificación no autorizada?
-# 🔧 Fix: Calcular y validar checksum antes y después de operaciones críticas
-```
-
-```sql
--- ✅ C5: Hash de contenido para detectar drift de embeddings
-INSERT INTO embeddings (id, tenant_id, vec, content_hash)
-VALUES (gen_random_uuid(), $1, $2, digest($3::bytea, 'sha256'));  -- C5: pgcrypto
-```
-
-```sql
--- ❌ Anti-pattern: Insertar embedding sin hash de integridad → drift indetectable
-INSERT INTO embeddings (vec) VALUES ($1);  -- Sin content_hash para auditoría
--- 🔧 Fix: Calcular digest(content, 'sha256') y almacenar en columna dedicada
-```
-
-### C6 – Optional Dependencies with Fallback
-**Propósito**: Permitir ejecución en entornos minimalistas sin fallar por deps opcionales.
-
-```python
-# ✅ C6: Import opcional con fallback documentado
-try:
-    import yaml  # Dependency opcional para configs YAML
-except ImportError:
-    yaml = None
-    logger.warning("PyYAML unavailable; using JSON fallback for config parsing")
-
-def load_config(path: str) -> dict:
-    if yaml and path.endswith('.yaml'):
-        return yaml.safe_load(open(path))
-    return json.load(open(path))  # Fallback siempre disponible
-```
-
-```python
-# ❌ Anti-pattern: Import directo sin manejo de error → falla en entorno minimalista
-import yaml  # ImportError si no está instalado en imagen Docker base
-# 🔧 Fix: try/except + comportamiento de fallback documentado
-```
-
-```sql
--- ✅ C6: Extensión PostgreSQL opcional con fallback
-CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- C6: no falla si ya existe
--- Fallback para entornos sin pgcrypto:
--- SELECT encode(sha256(:bytea), 'hex') AS hash FROM ...;
-```
-
-```sql
--- ❌ Anti-pattern: CREATE EXTENSION sin IF NOT EXISTS → falla en re-ejecución
-CREATE EXTENSION pgcrypto;  -- Error si ya fue creada
--- 🔧 Fix: CREATE EXTENSION IF NOT EXISTS + documentar fallback nativo
-```
-
-### C7 – Path Safety & Cleanup Guarantees
-**Propósito**: Prevenir path traversal y garantizar limpieza de recursos temporales.
-
-```python
-# ✅ C7: Validación de contención + cleanup con finally
-from pathlib import Path
-def safe_read(base: Path, user_input: str) -> str:
-    safe_path = (base / user_input).resolve()
-    assert str(safe_path).startswith(str(base.resolve())), "Path traversal detected"  # C7
-    try:
-        return safe_path.read_text()
-    finally:
-        cleanup_temp_files()  # C7: garantía de limpieza
-```
-
-```python
-# ❌ Anti-pattern: Concatenación ingenua de rutas → vulnerabilidad path traversal
-path = f"/data/{user_input}"  # user_input = "../../etc/passwd" → lectura arbitraria
-# 🔧 Fix: pathlib + resolve() + startsWith() para validación de contención
-```
-
-```bash
-# ✅ C7: Validación de path en Bash con realpath
-readonly BASE_DIR="/app/data"
-user_file="${1:?Missing filename}"
-safe_path="$(realpath -m "$BASE_DIR/$user_file")"
-[[ "$safe_path" == "$BASE_DIR/"* ]] || { echo "Path traversal blocked" >&2; exit 1; }
-```
-
-```bash
-# ❌ Anti-pattern: Uso directo de input de usuario en path
-cat "/data/$1"  # $1 = "../../etc/passwd" → lectura de archivo arbitrario
-# 🔧 Fix: Validar con realpath + patrón de contención antes de operar
-```
-
-### C8 – Structured Logging to stderr (ZERO print/console)
-**Propósito**: Habilitar trazabilidad parseable y auditoría multi-tenant sin contaminación de stdout.
-
-```python
-# ✅ C8: Logger JSON a stderr con campos estandarizados
-import json, sys, datetime, os
-def log_event(level: str, msg: str, **extra) -> None:
-    entry = {
-        "ts": datetime.datetime.utcnow().isoformat() + "Z",
-        "tenant": os.environ.get("TENANT_ID", "unknown"),
-        "level": level,
-        "msg": msg,
-        **extra
-    }
-    print(json.dumps(entry), file=sys.stderr)  # C8: stderr exclusivo para logs
-```
-
-```python
-# ❌ Anti-pattern: print() en producción → rompe trazabilidad y parseo
-print(f"Processing tenant {tid}")  # stdout mezclado con logs → imposible ingestar
-# 🔧 Fix: Logger estructurado exclusivamente a stderr con JSON parseable
-```
-
-```sql
--- ✅ C8: Logging estructurado en PostgreSQL con json_build_object
-DO $$ BEGIN
-  RAISE NOTICE '%', json_build_object(  -- C8: JSON a stderr (PG redirige NOTICE a stderr)
-    'ts', clock_timestamp(),
-    'tenant', current_setting('app.tenant_id'),
-    'op', 'vector_search',
-    'results', 10
-  );
-END $$;
-```
-
-```sql
--- ❌ Anti-pattern: RAISE NOTICE con string plano → imposible parsear automáticamente
-RAISE NOTICE 'Search completed for tenant %', current_setting('app.tenant_id');
--- 🔧 Fix: Usar json_build_object() para estructura consistente y parseable por SIEM
+• Crear issue en GitHub con etiqueta `skill-question`
+• Incluir: canonical_path de la skill, error específico, pasos para reproducir
+• Consultar `[[GOVERNANCE-ORCHESTRATOR.md]]` para proceso de aprobación de cambios
 ```
 
 ---
 
-## 🔍 VALIDACIÓN DE SKILLS – CHECKLIST POR CATEGORÍA
+## 【6】📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
 
-### AI/ – Integración de Modelos
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| AI-01 | `[ ]` API keys en variables de entorno, no hardcodeadas | `grep -rn "api_key.*=" *.md \| grep -v "process.env"` → resultado esperado: vacío | C3 |
-| AI-02 | `[ ]` Timeouts explícitos en llamadas HTTP ≤ 30s | `grep -rn "timeout.*[0-9]" *.md \| grep -v -E "timeout.*(10\|20\|30)"` | C2 |
-| AI-03 | `[ ]` tenant_id en headers/payloads de todas las requests | `grep -rn "tenant_id" *.md \| grep -E "header\|payload\|filter"` | C4 |
-| AI-04 | `[ ]` Fallbacks documentados para errores de API | `grep -A5 "except\|catch\|fallback" *.md` → debe mostrar lógica de recuperación | C6 |
-
-### BASE DE DATOS-RAG/ – Patrones de Datos
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| DB-01 | `[ ]` Todas las queries incluyen `WHERE tenant_id = ?` | `grep -rn "SELECT.*FROM" *.md \| grep -v "WHERE.*tenant_id"` → resultado esperado: vacío | C4 |
-| DB-02 | `[ ]` Límites explícitos en queries (LIMIT, connectionLimit) | `grep -rn "LIMIT\|connectionLimit\|maxResults" *.md` → debe estar presente | C1 |
-| DB-03 | `[ ]` Checksums en backups/ingestión de datos | `grep -rn "sha256\|checksum\|digest" *.md` → debe mostrar validación de integridad | C5 |
-| DB-04 | `[ ]` Logs estructurados con tenant_id en ejemplos | `grep -rn "json_build_object\|logger.*stderr" *.md` → debe mostrar logging parseable | C8 |
-
-### INFRAESTRUCTURA/ – VPS y Docker
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| INF-01 | `[ ]` Límites de memoria/CPU en docker-compose.yml | `grep -A5 "deploy:" *.md \| grep -E "memory:\|cpus:"` → debe mostrar valores explícitos | C1/C2 |
-| INF-02 | `[ ]` Puertos sensibles NO expuestos a 0.0.0.0 | `grep -rn "ports:" *.md \| grep -v "127.0.0.1"` → resultado esperado: vacío o solo localhost | C3 |
-| INF-03 | `[ ]` Health checks configurados en servicios críticos | `grep -rn "healthcheck:" *.md` → debe mostrar test, interval, timeout, retries | C7 |
-| INF-04 | `[ ]` Logs rotan con max-size definido | `grep -rn "max-size\|logrotate" *.md` → debe mostrar política de rotación | C8 |
-
-### SEGURIDAD/ – Hardening y Backups
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| SEC-01 | `[ ]` Backups cifrados con checksum SHA256 | `grep -rn "age\|gpg\|sha256sum" *.md` → debe mostrar flujo de cifrado + verificación | C5 |
-| SEC-02 | `[ ]` Credenciales nunca hardcodeadas en ejemplos | `grep -rn "password.*=.*['\"]" *.md \| grep -v "process.env"` → resultado esperado: vacío | C3 |
-| SEC-03 | `[ ]` Auditoría de accesos con logs estructurados | `grep -rn "audit\|log.*access\|structured.*log" *.md` → debe mostrar trazabilidad | C8 |
-| SEC-04 | `[ ]` Validación de paths con realpath/resolve | `grep -rn "realpath\|resolve\|path.*traversal" *.md` → debe mostrar prevención de ataques | C7 |
-
-### COMUNICACIÓN/ – Canales Externos
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| COM-01 | `[ ]` tenant_id en payloads de WhatsApp/Telegram | `grep -rn "tenant_id.*payload\|payload.*tenant_id" *.md` → debe mostrar aislamiento | C4 |
-| COM-02 | `[ ]` Rate limiting en integraciones externas | `grep -rn "rate.limit\|throttle\|burst" *.md` → debe mostrar control de frecuencia | C1 |
-| COM-03 | `[ ]` Webhooks con validación de firma/fuente | `grep -rn "webhook.*verify\|signature.*check" *.md` → debe mostrar autenticación | C3 |
-| COM-04 | `[ ]` Fallbacks para canales no disponibles | `grep -rn "fallback\|polling.*fallback\|webhook.*retry" *.md` → debe mostrar resiliencia | C6 |
-
----
-
-## 🔄 FLUJO DE AUTOGENERACIÓN VALIDADA POR IA
-
-### Paso 1: Meta-Prompting con Template Estructurado
-```markdown
-# 05-CONFIGURATIONS/templates/skill-template.md (fragmento)
----
-artifact_id: "{{skill_name}}"
-artifact_type: "skill_{{domain}}"
-version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {{canonical_path}} --json"
-canonical_path: "02-SKILLS/{{domain}}/{{skill_name}}.md"
----
-
-# {{title}}
-**Objetivo**: {{objective}}
-**Constraints aplicados**: {{constraints}}
-
-### Ejemplo 1: {{example_objective}}
-**Nivel**: {{level}} | **Constraints**: {{constraints}}
-```typescript
-{{code_with_limits}}
-```
-✅ Deberías ver: {{expected_output}}
-❌ Si ves esto: {{common_error}} → Ve a Troubleshooting #1
-```
-
-### Paso 2: Validación Determinista del Output Generado
-```python
-# 05-CONFIGURATIONS/validation/schema-validator.py (fragmento)
-import jsonschema, yaml, sys
-
-def validate_skill_output(md_content: str) -> bool:
-    # Extraer frontmatter
-    fm = yaml.safe_load(md_content.split('---')[1])
-    # Validar contra schema
-    with open('schemas/skill-input-output.schema.json') as f:
-        schema = json.load(f)
-    jsonschema.validate(instance=fm, schema=schema)
-    # Verificar ejemplos mínimos
-    examples = md_content.count('### Ejemplo')
-    assert examples >= 5, f"❌ Mínimo 5 ejemplos, encontrados: {examples}"
-    # Verificar LANGUAGE LOCK: cero operadores pgvector en rule_markdown
-    if fm['artifact_type'] != 'skill_pgvector':
-        assert not re.search(r'<->|<=>|<#>|vector\s*\(', md_content), "LANGUAGE LOCK violation"
-    return True
-```
-
-### Paso 3: Linting + Tests del Código Generado
-```bash
-# En pipeline CI/CD
-npx eslint generated-code.ts --fix          # Linting TypeScript
-pytest tests/generated/ --cov              # Tests unitarios mínimos
-promptfoo eval -c config.yaml              # Evaluación semántica del output
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file generated.md --json  # Validación SDD
-```
-
-### Paso 4: Aprobación para Merge
-- ✅ Todos los checks de `orchestrator-engine.sh` en verde (score ≥ 30, blocking_issues == [])
-- ✅ Schema validation del output de IA
-- ✅ Tests unitarios pasando ≥80% cobertura
-- ✅ LANGUAGE LOCK verificado: cero operadores pgvector en artifacts no-vectoriales
-- ✅ Timestamp en JSON report es año 2026, formato ISO8601
-
----
-
-## 📋 CONSTRAINTS C1-C8: MAPEO UNIVERSAL PARA SKILLS
-
-| Constraint | Definición | Aplicación en Skills | Verificación Automatizada |
-|------------|------------|---------------------|---------------------------|
-| **C1** (RAM ≤4GB) | Máx 4GB RAM/VPS, servicios ≤75% uso | `connectionLimit`, `maxResults`, `memory: 3840M` en ejemplos | `verify-constraints.sh --check-c1` |
-| **C2** (1 vCPU/servicio) | Máx 1 vCPU por servicio crítico | `cpus: '0.95'`, `timeout` explícito, `nice/ionice` | `verify-constraints.sh --check-c2` |
-| **C3** (DB no expuesta) | DBs internas NUNCA expuestas a internet | Túneles SSH, `process.env.*`, cero hardcodeo | `audit-secrets.sh` |
-| **C4** (tenant_id obligatorio) | `tenant_id` en TODAS consultas, logs, claves | Filtros en queries, metadata en payloads, logs estructurados | `grep -r "tenant_id" ...` en CI |
-| **C5** (Backup + checksum) | Backup diario + SHA256 + verificación | Sección "Backup & Recovery" en cada skill, checksum en reports | `sha256sum -c` en validación |
-| **C6** (Cloud-only inference) | Sin modelos locales, inferencia vía API cloud | OpenRouter como proxy único, excepción Llama documentada | `grep -v "localhost.*model" ...` |
-| **C7** (Path safety) | Validación de rutas + cleanup garantizado | `pathlib.resolve()`, `realpath -m`, `trap 'cleanup' EXIT` | `verify-constraints.sh --check-c7` |
-| **C8** (Structured logging) | Logs JSON parseable a stderr, cero print/console | `json_build_object`, `logger.info(..., file=sys.stderr)` | `grep -r "print(" *.md \| grep -v "file=sys.stderr"` |
-
----
-
-## 🚫 LANGUAGE LOCK – REGLAS NO NEGOCIABLES
-
-```text
-ESTE ARCHIVO Y TODOS LOS SKILLS EN 02-SKILLS/ SON rule_markdown, NO skill_pgvector.
-
-✅ PERMITIDO:
-- Mencionar "vector", "embedding", "RAG" como términos documentales
-- Referenciar archivos en 06-PROGRAMMING/postgresql-pgvector/ vía wikilinks [[...]]
-- Mostrar snippets SQL puros (sin operadores pgvector) como ejemplos C4
-- Usar código en ejemplos con ≤5 líneas ejecutables y formato ✅/❌/🔧
-
-❌ PROHIBIDO (LANGUAGE LOCK VIOLATION → ABORTAR + postmortem):
-- Usar operadores <->, <=>, <#> en código ejecutable
-- Declarar vector(n) en ejemplos de este archivo
-- Mencionar hnsw, ivfflat como código (solo como texto documental)
-- Incluir V1, V2, V3 en constraints_mapped de artifacts rule_markdown
-- Ejemplos con >5 líneas ejecutables (comentarios no cuentan)
-
-🔧 Si detectas violación:
-1. ABORTAR generación inmediatamente
-2. Registrar en 08-LOGS/failed-attempts/postmortem-<timestamp>.md
-3. Notificar a maintainer con diff + contexto
-4. Regenerar aplicando LANGUAGE LOCK estricto
-```
-
----
-
-## 🔗 CONEXIONES ESTRUCTURALES – WIKILINKS CANÓNICOS
-
-```markdown
-[[README.md]]
-[[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[01-RULES/00-INDEX.md]]
-[[01-RULES/harness-norms-v3.0.md]]
-[[01-RULES/10-SDD-CONSTRAINTS.md]]
-[[01-RULES/language-lock-protocol.md]]
-[[02-SKILLS/skill-domains-mapping.md]]
-[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]
-[[05-CONFIGURATIONS/validation/verify-constraints.sh]]
-[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]
-[[05-CONFIGURATIONS/templates/skill-template.md]]
-[[PROJECT_TREE.md]]
-[[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]]
-[[06-PROGRAMMING/yaml-json-schema/00-INDEX.md]]
-```
-
----
-
-## ✅ CHECKLIST DE AUTO-VALIDACIÓN – PRE-ENTREGA
-
-```text
-[ ] Frontmatter YAML válido con 6 campos mínimos (artifact_id, artifact_type, version, constraints_mapped, validation_command, canonical_path)
-[ ] SHA256 header presente con 64-char hex simulado
-[ ] Ejemplos en formato ✅/❌/🔧 con ≤5 líneas ejecutables cada uno
-[ ] Cantidad de ejemplos: ≥10 para rule_markdown (≥25 solo para skill_pgvector)
-[ ] Timestamp en JSON report es año 2026, formato ISO8601
-[ ] Validation command apunta al canonical_path correcto
-[ ] Cierre con --- para parseo automatizado por agentes
-[ ] LANGUAGE LOCK respetado: cero fuga de operadores entre carpetas
-[ ] C8: Logging estructurado a stderr en ejemplos que lo requieran
-[ ] C4: Filtro tenant_id o RLS policy en ejemplos multi-tenant
-[ ] constraints_mapped incluye SOLO C1-C8 (V* prohibidos para rule_markdown)
-
-Si alguna respuesta es NO → corregir antes de emitir artifact.
-```
-
----
-
-## 📊 AUTO-VALIDATION REPORT (JSON)
+<!-- 
+【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
+-->
 
 ```json
 {
-  "artifact": "02-SKILLS-README",
-  "artifact_type": "rule_markdown",
-  "version": "3.0.0-SELECTIVE",
-  "score": 48,
-  "passed": true,
-  "errors": [],
-  "warnings": [],
-  "constraints_verified": ["C3", "C4", "C5", "C7", "C8"],
-  "constraints_mapped": ["C3", "C4", "C5", "C7", "C8"],
-  "examples_count": 24,
-  "canonical_path": "02-SKILLS/README.md",
-  "file_path": "02-SKILLS/README.md",
-  "validation_context": {
-    "is_pgvector_directory": false,
-    "has_vector_operators": false,
-    "selective_v_applied": false,
-    "language_lock_enforced": true
+  "expansion_registry": {
+    "new_horizontal_domain": {
+      "requires_files_update": [
+        "02-SKILLS/README.md: add domain entry to mapa ASCII + sección correspondiente con propósito, skills destacadas, cuándo usar, constraints",
+        "02-SKILLS/<new-domain>/: create folder with 00-INDEX.md and initial skills",
+        "02-SKILLS/00-INDEX.md: add domain to horizontal_skills_catalog",
+        "01-RULES/08-SKILLS-REFERENCE.md: add domain to domain_catalog",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new domains must not break existing navigation or validation flows; must declare constraints applicability clearly"
+    },
+    "new_vertical_industry": {
+      "requires_files_update": [
+        "02-SKILLS/README.md: add industry entry to mapa ASCII + sección correspondiente con propósito, estructura, flujo recomendado, constraints",
+        "02-SKILLS/<industry>/: create folder with prompts/, workflows/, validation/ subfolders",
+        "02-SKILLS/skill-domains-mapping.md: add industry to business-to-skills mapping",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new industries must import horizontal skills rather than duplicating logic; must follow SDD format for new prompts/workflows"
+    }
   },
-  "timestamp": "2026-04-19T00:00:00Z"
+  "compatibility_rule": "Nuevas entradas en el README no deben invalidar wikilinks existentes o flujos de navegación. Cambios breaking requieren major version bump, guía de migración y aprobación humana explícita."
 }
 ```
 
 ---
 
-## Validation Command
+<!-- 
+═══════════════════════════════════════════════════════════
+🤖 SECCIÓN PARA IA: ÁRBOL JSON ENRIQUECIDO
+═══════════════════════════════════════════════════════════
+Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
+No está diseñada para lectura humana directa. Los humanos deben usar las secciones 【1】-【6】.
 
-```bash
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 02-SKILLS/README.md --json 2>/dev/null | awk '/^\{/,/^\}/' | jq -e '.score >= 30 and .blocking_issues == []'
+Formato: JSON válido, con comentarios explicativos en claves "doc_*".
+Prioridad de ejecución: Los dominios se consultan en orden: horizontales → verticales.
+Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
+═══════════════════════════════════════════════════════════
+-->
+
+```json
+{
+  "skills_readme_metadata": {
+    "version": "3.0.0-SELECTIVE",
+    "canonical_path": "/02-SKILLS/README.md",
+    "artifact_type": "governance_readme",
+    "immutable": true,
+    "requires_human_approval_for_changes": true,
+    "constraints_primary": ["C5", "C6"],
+    "total_horizontal_domains": 6,
+    "total_vertical_domains": 4,
+    "ascii_map_included": true,
+    "llm_optimizations": {
+      "oriental_models_friendly": true,
+      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
+      "numbered_sequences": true,
+      "stop_conditions_explicit": true
+    }
+  },
+  
+  "ascii_map_reference": {
+    "description": "Mapa estructural canónico en formato ASCII para navegación visual",
+    "root": "02-SKILLS/",
+    "horizontal_domains": ["AI/", "BASE DE DATOS-RAG/", "INFRAESTRUCTURA/", "SEGURIDAD/", "COMUNICACIÓN/", "DEPLOYMENT/"],
+    "vertical_domains": ["RESTAURANTES/", "HOTELES-POSADAS/", "ODONTOLOGÍA/", "INSTAGRAM-SOCIAL-MEDIA/"],
+    "corporate_kb": ["CORPORATE-KB/"],
+    "entry_files": ["README.md", "skill-domains-mapping.md"]
+  },
+  
+  "navigation_flows": {
+    "business_need_to_skill": {
+      "description": "Flujo para descubrir skills desde necesidad de negocio",
+      "steps": [
+        "Identificar necesidad de negocio",
+        "Consultar mapa ASCII + skill-domains-mapping.md",
+        "Validar skills requeridas con orchestrator-engine.sh",
+        "Integrar o iterar corrección"
+      ],
+      "entry_point": "[[02-SKILLS/skill-domains-mapping.md]]"
+    },
+    "technical_task_to_skill": {
+      "description": "Flujo para descubrir skills desde tarea técnica",
+      "steps": [
+        "Identificar tarea técnica",
+        "Usar mapa ASCII para ubicar dominio horizontal",
+        "Validar y usar skill específica",
+        "Adaptar a contexto propio"
+      ],
+      "entry_point": "Mapa ASCII en este README"
+    }
+  },
+  
+  "horizontal_domains_summary": {
+    "ai_llms": {
+      "path": "02-SKILLS/AI/",
+      "description": "Catálogo de proveedores de IA, límites de coste, estrategias de fallback",
+      "featured_skills": ["qwen-integration.md", "deepseek-integration.md", "openrouter-api-integration.md"],
+      "critical_constraints": ["C3", "C4", "C8"],
+      "wikilink": "[[02-SKILLS/AI/]]"
+    },
+    "base_de_datos_rag": {
+      "path": "02-SKILLS/BASE DE DATOS-RAG/",
+      "description": "Gestión de información estructurada y no estructurada, RAG, aislamiento multi-tenant",
+      "featured_skills": ["qdrant-rag-ingestion.md", "multi-tenant-data-isolation.md", "postgres-prisma-rag.md"],
+      "critical_constraints": ["C3", "C4", "V1"],
+      "wikilink": "[[02-SKILLS/BASE DE DATOS-RAG/]]"
+    },
+    "infraestructura": {
+      "path": "02-SKILLS/INFRAESTRUCTURA/",
+      "description": "Configuración y mantenimiento de servidores VPS, redes, contenedores",
+      "featured_skills": ["vps-interconnection.md", "docker-compose-networking.md", "health-monitoring-vps.md"],
+      "critical_constraints": ["C1", "C3", "C7"],
+      "wikilink": "[[02-SKILLS/INFRAESTRUCTURA/]]"
+    }
+  },
+  
+  "vertical_domains_summary": {
+    "restaurantes": {
+      "path": "02-SKILLS/RESTAURANTES/",
+      "description": "Gestión de pedidos, reservas, menús dinámicos y fidelización",
+      "structure": ["prompts/", "workflows/", "validation/"],
+      "critical_constraints": ["C3", "C4", "C7"],
+      "wikilink": "[[02-SKILLS/RESTAURANTES/]]"
+    },
+    "odontologia": {
+      "path": "02-SKILLS/ODONTOLOGÍA/",
+      "description": "Gestión de agendas médicas, recordatorios y cumplimiento de privacidad",
+      "structure": ["prompts/", "workflows/", "validation/"],
+      "critical_constraints": ["C4", "C8"],
+      "wikilink": "[[02-SKILLS/ODONTOLOGÍA/]]"
+    }
+  },
+  
+  "validation_quickstart": {
+    "commands": [
+      "yq eval '.canonical_path' skill.md | grep -q \"^/\" && echo \"✅ canonical_path absoluto\"",
+      "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file skill.md --json > result.json",
+      "jq -e '.passed == true and .blocking_issues == []' result.json && echo \"✅ Skill validada\""
+    ],
+    "result_interpretation": {
+      "score": "Puntuación de calidad (0-100). Tier 1: ≥15, Tier 2: ≥30, Tier 3: ≥45",
+      "passed": "¿La skill pasó validación? Si false, revisar blocking_issues",
+      "blocking_issues": "Errores que impiden entrega. Corregir antes de integrar",
+      "language_lock_violations": "Operadores prohibidos usados. Mover a dominio canónico o corregir"
+    }
+  },
+  
+  "help_resources": {
+    "internal_docs": [
+      "[[02-SKILLS/00-INDEX.md]] → Índice maestro con estado de todas las skills",
+      "[[02-SKILLS/skill-domains-mapping.md]] → Mapeo de necesidades de negocio a skills técnicas",
+      "[[02-SKILLS/GENERATION-MODELS.md]] → Catálogo de modelos de IA para generación asistida",
+      "[[01-RULES/08-SKILLS-REFERENCE.md]] → Catálogo de habilidades por dominio",
+      "[[01-RULES/validation-checklist.md]] → Checklist ejecutable de validación"
+    ],
+    "validation_tools": [
+      "orchestrator-engine.sh → Validación integral con scoring y reporte JSON",
+      "verify-constraints.sh → Validación de constraints y LANGUAGE LOCK",
+      "audit-secrets.sh → Detección de secrets hardcodeados (C3)",
+      "check-rls.sh → Validación de aislamiento multi-tenant en SQL (C4)"
+    ],
+    "human_support": "Crear issue en GitHub con etiqueta `skill-question`. Incluir: canonical_path, error específico, pasos para reproducir"
+  },
+  
+  "dependency_graph": {
+    "critical_infrastructure": [
+      {"file": "02-SKILLS/00-INDEX.md", "purpose": "Índice maestro de skills con estado global", "load_order": 1},
+      {"file": "02-SKILLS/skill-domains-mapping.md", "purpose": "Mapeo de necesidades de negocio a skills técnicas", "load_order": 2},
+      {"file": "01-RULES/08-SKILLS-REFERENCE.md", "purpose": "Catálogo de habilidades por dominio", "load_order": 3},
+      {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "Mapeo de constraints por carpeta", "load_order": 4}
+    ],
+    "validation_toolchain": [
+      {"file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "purpose": "Motor principal de validación", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/verify-constraints.sh", "purpose": "Validación de constraints y LANGUAGE LOCK", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/audit-secrets.sh", "purpose": "Detección de secrets hardcodeados", "load_order": 3}
+    ]
+  },
+  
+  "human_readable_errors": {
+    "skill_not_found": "Skill '{skill_name}' no encontrada en 02-SKILLS/. Consultar mapa ASCII o [[02-SKILLS/00-INDEX.md]] para skills disponibles.",
+    "wikilink_not_canonical": "Wikilink '{wikilink}' no es canónico. Usar forma absoluta: [[RUTA-DESDE-RAÍZ]].",
+    "constraint_not_applicable": "Constraint '{constraint}' no aplicable para skill '{skill}'. Consulte [[norms-matrix.json]] para mapeo por carpeta.",
+    "validation_failed": "Validación de '{skill}' falló: {error_details}. Consulte [[01-RULES/validation-checklist.md]] para ítems específicos a corregir.",
+    "language_lock_violation": "Violación de LANGUAGE LOCK: operador '{operator}' prohibido en skill '{skill}'. Consulte [[01-RULES/language-lock-protocol.md]].",
+    "status_mismatch": "Estado de skill '{skill}' marcado como ✅ Listo pero validación no pasa. Ejecutar validation_command para verificar."
+  },
+  
+  "expansion_hooks": {
+    "new_horizontal_domain": {
+      "requires_files_update": [
+        "02-SKILLS/README.md: add domain entry to ascii_map_reference + horizontal_domains_summary with path, description, featured_skills, critical_constraints, wikilink",
+        "02-SKILLS/<new-domain>/: create folder with 00-INDEX.md and initial skills",
+        "02-SKILLS/00-INDEX.md: add domain to horizontal_skills_catalog",
+        "01-RULES/08-SKILLS-REFERENCE.md: add domain to domain_catalog",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new domains must not break existing navigation or validation flows; must declare constraints applicability clearly"
+    },
+    "new_vertical_industry": {
+      "requires_files_update": [
+        "02-SKILLS/README.md: add industry entry to ascii_map_reference + vertical_domains_summary with path, description, structure, critical_constraints, wikilink",
+        "02-SKILLS/<industry>/: create folder with prompts/, workflows/, validation/ subfolders",
+        "02-SKILLS/skill-domains-mapping.md: add industry to business-to-skills mapping",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new industries must import horizontal skills rather than duplicating logic; must follow SDD format for new prompts/workflows"
+    }
+  },
+  
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "skills-readme.v3.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C3 + C8 compliance)",
+    "reproducibility_guarantee": "Any skill navigation can be reproduced identically using this README + ascii_map_reference + canonical wikilinks"
+  }
+}
 ```
 
 ---
 
-*Versión 3.0.0-SELECTIVE – 2026-04-19 – Mantis-AgenticDev*  
-*Licencia: Creative Commons BY-NC-SA 4.0 para uso interno del proyecto*  
-*Checksum simulado: SHA256:c9f3e8a2b1d7f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8*
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+<!-- 
+【PARA PRINCIPIANTES】Antes de guardar este archivo, verifica estos puntos.
+-->
+````markdown
+```bash
+# 1. Frontmatter válido
+yq eval '.canonical_path' 02-SKILLS/README.md | grep -q "/02-SKILLS/README.md" && echo "✅ Ruta canónica correcta"
+
+# 2. Constraints mapeadas (C5+C6)
+yq eval '.constraints_mapped | contains(["C5"]) and contains(["C6"])' 02-SKILLS/README.md && echo "✅ C5 y C6 declaradas"
+
+# 3. Mapa ASCII presente y completo
+grep -q "🗺️ MAPA ESTRUCTURAL CANÓNICO" 02-SKILLS/README.md && echo "✅ Mapa ASCII incluido"
+grep -c "AI/\|BASE DE DATOS-RAG/\|INFRAESTRUCTURA/\|SEGURIDAD/\|COMUNICACIÓN/\|DEPLOYMENT/" 02-SKILLS/README.md | awk '{if($1>=6) print "✅ 6 dominios horizontales en mapa"; else print "⚠️ Faltan dominios en mapa: "$1"/6"}'
+
+# 4. 4 dominios verticales en mapa ASCII
+grep -c "RESTAURANTES/\|HOTELES-POSADAS/\|ODONTOLOGÍA/\|INSTAGRAM-SOCIAL-MEDIA/" 02-SKILLS/README.md | awk '{if($1>=4) print "✅ 4 dominios verticales en mapa"; else print "⚠️ Faltan dominios en mapa: "$1"/4"}'
+
+# 5. JSON final parseable
+tail -n +$(grep -n '```json' 02-SKILLS/README.md | tail -1 | cut -d: -f1) 02-SKILLS/README.md | sed -n '/```json/,/```/p' | sed '1d;$d' | jq empty && echo "✅ JSON parseable"
+
+# 6. Wikilinks canónicos (sin rutas relativas)
+for link in $(grep -oE '\[\[[^]]+\]\]' 02-SKILLS/README.md | tr -d '[]' | sort -u); do
+  if [[ "$link" =~ ^\[\[\.\/ || "$link" =~ ^\[\[\.\.\/ ]]; then
+    echo "❌ Wikilink relativo: $link"
+  else
+    [ -f "${link#//}" ] || echo "⚠️ Wikilink no resuelto: $link"
+  fi
+done
+```
+````
+
+**Criterio de aceptación:**  
+- ✅ Frontmatter válido con `canonical_path: "/02-SKILLS/README.md"`  
+- ✅ `constraints_mapped` incluye C5 y C6 (estructura + trazabilidad)  
+- ✅ Mapa ASCII estructural canónico incluido con 6 dominios horizontales + 4 verticales  
+- ✅ Cada dominio documentado con propósito, skills destacadas y constraints críticas  
+- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
+- ✅ Todos los wikilinks son canónicos (absolutos desde raíz)  
+
+---
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este README es tu puerta de entrada con mapa visual. No es estático: evoluciona con el proyecto.  
+> **Mapa → Necesidad → Descubrimiento → Validación → Integración**.  
+> Si sigues ese flujo, nunca te perderás en las skills ni integrarás patrones no validados.  
+> La gobernanza no es una carga. Es la libertad de escalar sin miedo a romper.  
 
 ---

@@ -1,435 +1,818 @@
 ---
-title: "RAW_URLS_INDEX.md – Índice Maestro de URLs Raw para Navegación IA"
-version: "2.0.0"
-canonical_path: "RAW_URLS_INDEX.md"
-purpose: "Índice estructurado de todas las URLs raw del repositorio MANTIS AGENTIC, optimizado para navegación automática por agentes de IA (Qwen, DeepSeek, Claude, GPT, etc.). Divide artefactos por las 9 secciones canónicas + root, con metadatos de tipo, constraint y validación."
-audience: ["agentic_assistants", "human_engineers", "ci_cd_pipelines"]
-constraints_mapped: [C4, C5, C8]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file $0 --json"
-checksum_sha256: "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd"
-last_updated: "2026-04-15"
-generation_method: "git ls-files + sed canonicalization + manual curation"
+canonical_path: "/RAW_URLS_INDEX.md"
+artifact_id: "raw-urls-canonical-index"
+artifact_type: "remote_access_catalog"
+version: "3.0.0-SELECTIVE"
+constraints_mapped: ["C5", "C6"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file RAW_URLS_INDEX.md --mode headless --json"
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+related_files:
+  - "[[00-STACK-SELECTOR.md]]"
+  - "[[PROJECT_TREE.md]]"
+  - "[[knowledge-graph.json]]"
+  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
+checksum_sha256: "PENDING_GENERATION"
 ---
 
-# 🔐 RAW_URLS_INDEX – Navegación Canónica para IA
-RAW_URLS_INDEX.md – Índice Maestro de URLs Raw para Navegación IA
+# 📄 RAW_URLS_INDEX.md – ÍNDICE CANÓNICO DE URLs PARA ACCESO REMOTO
+
+> **Nota para principiantes:** Este documento es el "catálogo de acceso remoto" del proyecto. Define exactamente qué URLs raw puede consultar un agente externo (Qwen, DeepSeek, MiniMax) para sincronizar contexto sin clonar el repositorio. Si eres nuevo, lee las secciones en orden. Si eres experto, salta al JSON final.  
+>  
+> **Para IAs:** Este es tu índice de carga remota. **USAR URL NO LISTADA = CONTEXTO INCOMPLETO**. No inventes, no asumas, no omitas.
 
 
-> **Propósito**: Este documento es la **fuente de verdad para resolución de rutas raw** en cualquier agente de IA que opere sobre el repositorio MANTIS AGENTIC.  
-> **Regla de oro**: Si una URL no está listada aquí, NO EXISTE para efectos de navegación automatizada. No inventes, no asumas, no extrapoles.
+# 🌐 RAW_URLS_INDEX: Catálogo Canónico de URLs para Acceso Remoto de Agentes
+
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es el "menú de carga remota" para IAs que operan sin clonar el repositorio.
+Define:
+• Qué URLs raw puede consultar un agente externo (Qwen, DeepSeek, MiniMax)
+• En qué orden cargarlas para construir contexto válido
+• Qué metadatos acompañan cada URL (propósito, constraints, criticalidad)
+• Cómo validar que la carga fue exitosa
+
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
+
+> **Instrucción crítica para la IA:** 
+> Este documento es tu índice de carga remota. 
+> **USAR URL NO LISTADA = CONTEXTO INCOMPLETO**. 
+> No inventes, no asumas, no omitas. Si algo no está claro, DETENER y preguntar.
 
 ---
 
-## 🗂️ Estructura de Navegación
+## 【0】🎯 PROPÓSITO Y ALCANCE (Explicado para humanos)
 
-```yaml
-base_url: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/"
-sections:
-  - "ROOT"
-  - "00-CONTEXT"
-  - "01-RULES"
-  - "02-SKILLS"
-  - "03-AGENTS"
-  - "04-WORKFLOWS"
-  - "05-CONFIGURATIONS"
-  - "06-PROGRAMMING"
-  - "07-PROCEDURES"
-  - "08-LOGS"
-  - "09-TEST-SANDBOX"
-filter_policy:
-  include_extensions: [".md", ".json", ".yml", ".yaml", ".tf", ".sh"]
-  exclude_patterns: [".gitkeep", "08-LOGS/validation/*-report.json"]
-  tenant_aware: true  # C4: URLs aplican a todos los tenants por diseño
+<!-- 
+【EDUCATIVO】Este documento responde: "¿Qué URLs raw debe cargar un agente remoto para operar con gobernanza completa?"
+No es solo una lista. Es un protocolo de carga escalonada que:
+• Previene carga de contexto incompleto o inconsistente
+• Garantiza que los agentes externos respeten LANGUAGE LOCK y constraints
+• Permite actualización incremental sin recargar todo el repositorio
+-->
+
+### 0.1 Protocolo de Carga Escalonada para Agentes Remotos
+
+```
+FASE 1 – GOBERNANZA CRÍTICA (Carga obligatoria inicial)
+├─ 00-STACK-SELECTOR.md → Motor de decisión: ruta → lenguaje → constraints
+├─ IA-QUICKSTART.md → Gate de modo A1-B3 + protocolo de interacción
+├─ AI-NAVIGATION-CONTRACT.md → Reglas inamovibles + anti-patrones
+├─ GOVERNANCE-ORCHESTRATOR.md → Tiers 1/2/3 + validación + entrega
+├─ SDD-COLLABORATIVE-GENERATION.md → Especificación de formato de artefactos
+├─ PROJECT_TREE.md → Mapa canónico de rutas del repositorio
+├─ norms-matrix.json → Matriz de constraints por carpeta (machine-readable)
+├─ language-lock-protocol.md → Operadores prohibidos por lenguaje
+└─ knowledge-graph.json → Grafo de conocimiento para navegación inteligente
+
+FASE 2 – TOOLCHAIN DE VALIDACIÓN (Carga para validación local)
+├─ orchestrator-engine.sh → Motor principal de validación
+├─ verify-constraints.sh → Validación de constraints + LANGUAGE LOCK
+├─ audit-secrets.sh → Detección de secrets hardcodeados (C3)
+├─ check-rls.sh → Validación de tenant isolation en SQL (C4)
+├─ validate-frontmatter.sh → Verificación de frontmatter YAML (C5)
+├─ check-wikilinks.sh → Validación de wikilinks canónicos (C5)
+├─ schema-validator.py → Validación de JSON/YAML contra schemas
+└─ packager-assisted.sh → Empaquetado de artefactos Tier 3
+
+FASE 3 – ÍNDICES DE PATRONES (Carga bajo demanda por lenguaje)
+├─ 06-PROGRAMMING/00-INDEX.md → Índice agregador maestro
+├─ 06-PROGRAMMING/go/00-INDEX.md → Patrones Go (35 artifacts, LANGUAGE LOCK activo)
+├─ 06-PROGRAMMING/python/00-INDEX.md → Patrones Python (24 artifacts)
+├─ 06-PROGRAMMING/postgresql-pgvector/00-INDEX.md → Patrones pgvector (10 artifacts, V1-V3 obligatorios)
+├─ ... (otros índices de lenguaje según necesidad)
+
+FASE 4 – SKILLS Y CONFIGURACIÓN (Carga opcional por dominio)
+├─ 02-SKILLS/AI/qwen-integration.md → Integración con Qwen (oriental-optimized)
+├─ 02-SKILLS/INFRASTRUCTURA/vps-interconnection.md → Interconexión de VPS
+├─ 05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml → Config Docker para VPS1
+└─ ... (cargar solo skills relevantes a la tarea actual)
 ```
 
----
-
-## 📦 ROOT – Artefactos Canónicos de Nivel Superior
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `.gitignore` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/.gitignore` | config | C3, C5 | `audit-secrets.sh` |
-| `AI-NAVIGATION-CONTRACT.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md` | spec | C4, C8 | `validate-frontmatter.sh` |
-| `GOVERNANCE-ORCHESTRATOR.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md` | spec | C1, C4, C7 | `verify-constraints.sh` |
-| `IA-QUICKSTART.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md` | seed | C3, C4, C5 | `orchestrator-engine.sh` |
-| `PROJECT_TREE.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md` | map | C5, C8 | `check-wikilinks.sh` |
-| `RAW_URLS_INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md` | index | C4, C5, C8 | `validate-skill-integrity.sh` |
-| `README.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md` | doc | C3, C8 | `validate-frontmatter.sh` |
-| `SDD-COLLABORATIVE-GENERATION.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md` | spec | C4, C5, C7 | `verify-constraints.sh` |
-| `TOOLCHAIN-REFERENCE.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/TOOLCHAIN-REFERENCE.md` | ref | C5, C8 | `orchestrator-engine.sh` |
-| `knowledge-graph.json` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json` | graph | C4, C5 | `schema-validator.py` |
-
----
-
-## 📁 00-CONTEXT – Contexto Base del Proyecto
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `00-INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/00-INDEX.md` | index | C4, C8 | `check-wikilinks.sh` |
-| `PROJECT_OVERVIEW.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/PROJECT_OVERVIEW.md` | overview | C3, C4 | `validate-frontmatter.sh` |
-| `documentation-validation-cheklist.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/documentation-validation-cheklist.md` | checklist | C5, C8 | `verify-constraints.sh` |
-| `documentation-validation-cheklist.txt` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/documentation-validation-cheklist.txt` | checklist | C5 | `audit-secrets.sh` |
-| `facundo-business-model.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-business-model.md` | context | C3, C4 | `validate-frontmatter.sh` |
-| `facundo-core-context.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-core-context.md` | context | C3, C4, C8 | `validate-frontmatter.sh` |
-| `facundo-infrastructure.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-infrastructure.md` | context | C1, C2, C3 | `verify-constraints.sh` |
-
-> ℹ️ `.gitkeep` excluido por política de filtro (no es artefacto navegable).
-
----
-
-## 📁 01-RULES – Reglas de Arquitectura y Gobernanza
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `00-INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/00-INDEX.md` | index | C4, C8 | `check-wikilinks.sh` |
-| `01-ARCHITECTURE-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/01-ARCHITECTURE-RULES.md` | rules | C1, C2, C3 | `verify-constraints.sh` |
-| `02-RESOURCE-GUARDRAILS.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/02-RESOURCE-GUARDRAILS.md` | rules | C1, C2 | `verify-constraints.sh` |
-| `03-SECURITY-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md` | rules | C3, C4, C5 | `audit-secrets.sh` |
-| `04-API-RELIABILITY-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/04-API-RELIABILITY-RULES.md` | rules | C4, C6, C7 | `verify-constraints.sh` |
-| `05-CODE-PATTERNS-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/05-CODE-PATTERNS-RULES.md` | rules | C3, C5, C8 | `validate-skill-integrity.sh` |
-| `06-MULTITENANCY-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md` | rules | C4, C5, C7 | `check-rls.sh` |
-| `07-SCALABILITY-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/07-SCALABILITY-RULES.md` | rules | C1, C2, C7 | `verify-constraints.sh` |
-| `08-SKILLS-REFERENCE.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/08-SKILLS-REFERENCE.md` | ref | C4, C8 | `validate-frontmatter.sh` |
-| `09-AGENTIC-OUTPUT-RULES.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/09-AGENTIC-OUTPUT-RULES.md` | rules | C4, C5, C8 | `validate-skill-integrity.sh` |
-| `validation-checklist.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md` | checklist | C5, C8 | `verify-constraints.sh` |
-
----
-
-## 📁 02-SKILLS – Habilidades por Dominio (Núcleo Operativo)
-
-### 🤖 AI – Integraciones de Modelos de Lenguaje
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `00-INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/00-INDEX.md` | index | C4, C8 | `check-wikilinks.sh` |
-| `GENERATION-MODELS.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/GENERATION-MODELS.md` | spec | C4, C5, C7 | `verify-constraints.sh` |
-| `skill-domains-mapping.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/skill-domains-mapping.md` | mapping | C4, C8 | `validate-frontmatter.sh` |
-| `deepseek-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/deepseek-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `gemini-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/gemini-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `gpt-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/gpt-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `image-gen-api.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/image-gen-api.md` | skill | C3, C6 | `validate-skill-integrity.sh` |
-| `llama-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/llama-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `minimax-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/minimax-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `mistral-ocr-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/mistral-ocr-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `openrouter-api-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/openrouter-api-integration.md` | skill | C3, C4, C6, C7 | `validate-skill-integrity.sh` |
-| `qwen-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/qwen-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `video-gen-api.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/video-gen-api.md` | skill | C3, C6 | `validate-skill-integrity.sh` |
-| `voice-agent-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AI/voice-agent-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-
-### 🗄️ BASE DE DATOS-RAG – Patrones de Ingesta y Aislamiento
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `airtable-database-patterns.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md` | skill | C3, C4 | `validate-skill-integrity.sh` |
-| `db-selection-decision-tree.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md` | decision | C4, C8 | `verify-constraints.sh` |
-| `environment-variable-management.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md` | skill | C3, C4, C5 | `audit-secrets.sh` |
-| `espocrm-api-analytics.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md` | skill | C4, C8 | `validate-skill-integrity.sh` |
-| `google-drive-qdrant-sync.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md` | skill | C4, C5, C7 | `validate-skill-integrity.sh` |
-| `google-sheets-as-database.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md` | skill | C3, C4 | `validate-skill-integrity.sh` |
-| `multi-tenant-data-isolation.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md` | skill | C4, C5, C7 | `check-rls.sh` |
-| `mysql-optimization-4gb-ram.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md` | skill | C1, C2, C3 | `verify-constraints.sh` |
-| `mysql-sql-rag-ingestion.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md` | skill | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `pdf-mistralocr-processing.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md` | skill | C3, C6 | `validate-skill-integrity.sh` |
-| `postgres-prisma-rag.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md` | skill | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `qdrant-rag-ingestion.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md` | skill | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `rag-system-updates-all-engines.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md` | skill | C4, C7 | `validate-skill-integrity.sh` |
-| `redis-session-management.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md` | skill | C1, C3, C4 | `verify-constraints.sh` |
-| `supabase-rag-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md` | skill | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `vertical-db-schemas.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md` | schema | C4, C5 | `schema-validator.py` |
-
-### 📡 INFRAESTRUCTURA – Servidores, Redes y Seguridad
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `docker-compose-networking.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md` | skill | C1, C3, C4 | `validate-skill-integrity.sh` |
-| `espocrm-setup.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/espocrm-setup.md` | skill | C3, C4, C7 | `validate-skill-integrity.sh` |
-| `fail2ban-configuration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/fail2ban-configuration.md` | skill | C3, C4, C5 | `audit-secrets.sh` |
-| `health-monitoring-vps.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md` | skill | C1, C2, C8 | `verify-constraints.sh` |
-| `n8n-concurrency-limiting.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md` | skill | C1, C2, C7 | `verify-constraints.sh` |
-| `ssh-key-management.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ssh-key-management.md` | skill | C3, C4, C5 | `audit-secrets.sh` |
-| `ssh-tunnels-remote-services.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md` | skill | C3, C4, C7 | `validate-skill-integrity.sh` |
-| `ufw-firewall-configuration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md` | skill | C3, C4, C5 | `audit-secrets.sh` |
-| `vps-interconnection.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/vps-interconnection.md` | skill | C3, C4, C7 | `validate-skill-integrity.sh` |
-
-### 🔒 SEGURIDAD – Hardening, Backup y Auditoría
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `backup-encryption.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/SEGURIDAD/backup-encryption.md` | skill | C3, C5, C7 | `audit-secrets.sh` |
-| `rsync-automation.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/SEGURIDAD/rsync-automation.md` | skill | C3, C5, C7 | `validate-skill-integrity.sh` |
-| `security-hardening-vps.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/SEGURIDAD/security-hardening-vps.md` | skill | C3, C4, C5 | `audit-secrets.sh` |
-
-### 📧 COMUNICACIÓN – Canales de Mensajería y Notificación
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `gmail-smtp-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/COMUNICACION/gmail-smtp-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `google-calendar-api-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/COMUNICACION/google-calendar-api-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `telegram-bot-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/COMUNICACION/telegram-bot-integration.md` | skill | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `whatsapp-rag-openrouter.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md` | skill | C3, C4, C6, C7 | `validate-skill-integrity.sh` |
-
-### 🧠 AGENTIC-ASSISTANCE & DEPLOYMENT
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `ide-cli-integration.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/AGENTIC-ASSISTANCE/ide-cli-integration.md` | skill | C3, C4, C8 | `validate-skill-integrity.sh` |
-| `multi-channel-deploymen.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md` | skill | C4, C6, C7 | `validate-skill-integrity.sh` |
-
-> ℹ️ Subdirectorios `.gitkeep` de dominios verticales (HOTELES, ODONTOLOGÍA, etc.) excluidos por política de filtro.
-
----
-
-## 📁 03-AGENTS – Definiciones de Agentes Autónomos
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `clients/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/03-AGENTS/clients/.gitkeep` | placeholder | - | - |
-| `infrastructure/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/03-AGENTS/infrastructure/.gitkeep` | placeholder | - | - |
-
-> ⚠️ Sección en desarrollo. Artefactos funcionales serán añadidos con validación completa.
-
----
-
-## 📁 04-WORKFLOWS – Flujos de Trabajo Automatizados
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `sdd-universal-assistant.json` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/sdd-universal-assistant.json` | workflow | C4, C5, C7 | `schema-validator.py` |
-| `diagrams/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/diagrams/.gitkeep` | placeholder | - | - |
-| `n8n/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/n8n/.gitkeep` | placeholder | - | - |
-
----
-
-## 📁 05-CONFIGURATIONS – Configuración Centralizada (Motor de Validación)
-
-### 🗂️ Root de Configuraciones
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `00-INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/00-INDEX.md` | index | C4, C8 | `check-wikilinks.sh` |
-
-### 🐳 Docker Compose
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `00-INDEX.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/docker-compose/00-INDEX.md` | index | C4, C8 | `check-wikilinks.sh` |
-| `vps1-n8n-uazapi.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml` | compose | C1, C2, C3 | `verify-constraints.sh` |
-| `vps2-crm-qdrant.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/docker-compose/vps2-crm-qdrant.yml` | compose | C1, C3, C4 | `verify-constraints.sh` |
-| `vps3-n8n-uazapi.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/docker-compose/vps3-n8n-uazapi.yml` | compose | C1, C2, C3 | `verify-constraints.sh` |
-
-### 🌍 Environment & Observability
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `.env.example` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/environment/.env.example` | env | C3, C5 | `audit-secrets.sh` |
-| `otel-tracing-config.yaml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/observability/otel-tracing-config.yaml` | observability | C8, C5 | `verify-constraints.sh` |
-
-### 🔄 Pipelines & CI/CD
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `provider-router.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/provider-router.yml` | pipeline | C4, C6, C7 | `verify-constraints.sh` |
-| `.github/workflows/integrity-check.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/.github/workflows/integrity-check.yml` | workflow | C5, C8 | `validate-skill-integrity.sh` |
-| `.github/workflows/terraform-plan.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/.github/workflows/terraform-plan.yml` | workflow | C5, C7 | `validate-skill-integrity.sh` |
-| `.github/workflows/validate-skill.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/.github/workflows/validate-skill.yml` | workflow | C5, C8 | `validate-skill-integrity.sh` |
-| `promptfoo/config.yaml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/promptfoo/config.yaml` | eval | C5, C8 | `schema-validator.py` |
-| `promptfoo/assertions/schema-check.yaml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/promptfoo/assertions/schema-check.yaml` | assertion | C5 | `schema-validator.py` |
-| `promptfoo/test-cases/resource-limits.yaml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/promptfoo/test-cases/resource-limits.yaml` | test | C1, C2 | `verify-constraints.sh` |
-| `promptfoo/test-cases/tenant-isolation.yaml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/pipelines/promptfoo/test-cases/tenant-isolation.yaml` | test | C4, C5 | `check-rls.sh` |
-
-### 🛠️ Scripts Operativos
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `VALIDATOR_DOCUMENTATION.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/VALIDATOR_DOCUMENTATION.md` | doc | C5, C8 | `validate-frontmatter.sh` |
-| `backup-mysql.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/backup-mysql.sh` | script | C3, C5, C7 | `validate-skill-integrity.sh` |
-| `generate-repo-validation-report.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/generate-repo-validation-report.sh` | script | C5, C7, C8 | `validate-skill-integrity.sh` |
-| `health-check.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/health-check.sh` | script | C1, C2, C8 | `verify-constraints.sh` |
-| `packager-assisted.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/packager-assisted.sh` | script | C3, C5, C7 | `validate-skill-integrity.sh` |
-| `sync-to-sandbox.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/sync-to-sandbox.sh` | script | C3, C5, C7 | `validate-skill-integrity.sh` |
-| `validate-against-specs.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/validate-against-specs.sh` | script | C3, C5, C8 | `validate-skill-integrity.sh` |
-
-### 📋 Templates y Plantillas
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `bootstrap-company-context.json` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/bootstrap-company-context.json` | template | C4, C5 | `schema-validator.py` |
-| `example-template.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/example-template.md` | template | C3, C4, C5 | `validate-frontmatter.sh` |
-| `pipeline-template.yml` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/pipeline-template.yml` | template | C5, C7 | `verify-constraints.sh` |
-| `skill-template.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/skill-template.md` | template | C3, C4, C5 | `validate-frontmatter.sh` |
-| `terraform-module-template/main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/terraform-module-template/main.tf` | terraform | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `terraform-module-template/outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/terraform-module-template/outputs.tf` | terraform | C4, C5 | `validate-skill-integrity.sh` |
-| `terraform-module-template/variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/terraform-module-template/variables.tf` | terraform | C3, C4 | `validate-skill-integrity.sh` |
-| `terraform-module-template/README.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/templates/terraform-module-template/README.md` | doc | C3, C8 | `validate-frontmatter.sh` |
-
-### 🏗️ Terraform – Infraestructura como Código
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `backend.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/backend.tf` | terraform | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/variables.tf` | terraform | C3, C4 | `validate-skill-integrity.sh` |
-| `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/outputs.tf` | terraform | C4, C5 | `validate-skill-integrity.sh` |
-| `environments/dev/terraform.tfvars` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/environments/dev/terraform.tfvars` | tfvars | C3, C4 | `audit-secrets.sh` |
-| `environments/prod/terraform.tfvars` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/environments/prod/terraform.tfvars` | tfvars | C3, C4 | `audit-secrets.sh` |
-| `environments/variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/environments/variables.tf` | terraform | C3, C4 | `validate-skill-integrity.sh` |
-
-#### Módulos Terraform
-
-| Módulo | Archivo | URL Raw | Constraints | Validación |
-|--------|---------|---------|-------------|------------|
-| `backup-encrypted` | `main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/backup-encrypted/main.tf` | C3, C5, C7 | `validate-skill-integrity.sh` |
-| `backup-encrypted` | `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/backup-encrypted/outputs.tf` | C4, C5 | `validate-skill-integrity.sh` |
-| `backup-encrypted` | `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf` | C3, C4 | `validate-skill-integrity.sh` |
-| `openrouter-proxy` | `main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/openrouter-proxy/main.tf` | C3, C4, C6 | `validate-skill-integrity.sh` |
-| `openrouter-proxy` | `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/openrouter-proxy/outputs.tf` | C4, C5 | `validate-skill-integrity.sh` |
-| `openrouter-proxy` | `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/openrouter-proxy/variables.tf` | C3, C4 | `validate-skill-integrity.sh` |
-| `postgres-rls` | `main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf` | C4, C5, C7 | `check-rls.sh` |
-| `postgres-rls` | `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/postgres-rls/outputs.tf` | C4, C5 | `validate-skill-integrity.sh` |
-| `postgres-rls` | `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/postgres-rls/variables.tf` | C3, C4 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/qdrant-cluster/main.tf` | C3, C4, C5 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/qdrant-cluster/outputs.tf` | C4, C5 | `validate-skill-integrity.sh` |
-| `qdrant-cluster` | `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/qdrant-cluster/variables.tf` | C3, C4 | `validate-skill-integrity.sh` |
-| `vps-base` | `main.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/vps-base/main.tf` | C1, C2, C3 | `validate-skill-integrity.sh` |
-| `vps-base` | `outputs.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/vps-base/outputs.tf` | C4, C5 | `validate-skill-integrity.sh` |
-| `vps-base` | `variables.tf` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/terraform/modules/vps-base/variables.tf` | C3, C4 | `validate-skill-integrity.sh` |
-
-### 🔍 Validation – Suite de Validadores Centralizados
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `audit-secrets.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/audit-secrets.sh` | validator | C3, C5 | `validate-skill-integrity.sh` |
-| `check-rls.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-rls.sh` | validator | C4, C5 | `validate-skill-integrity.sh` |
-| `check-wikilinks.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-wikilinks.sh` | validator | C5, C8 | `validate-skill-integrity.sh` |
-| `norms-matrix.json` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json` | matrix | C4, C5 | `schema-validator.py` |
-| `orchestrator-engine.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh` | orchestrator | C5, C7, C8 | `validate-skill-integrity.sh` |
-| `schema-validator.py` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schema-validator.py` | validator | C5, C8 | `validate-skill-integrity.sh` |
-| `schemas/skill-input-output.schema.json` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json` | schema | C4, C5 | `schema-validator.py` |
-| `validate-frontmatter.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/validate-frontmatter.sh` | validator | C3, C5 | `validate-skill-integrity.sh` |
-| `validate-skill-integrity.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/validate-skill-integrity.sh` | validator | C5, C8 | `validate-skill-integrity.sh` |
-| `verify-constraints.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh` | validator | C1-C6 | `validate-skill-integrity.sh` |
-
----
-
-## 📁 06-PROGRAMMING – Patrones de Programación por Lenguaje
-
-> ℹ️ Sección en desarrollo. URLs de placeholders incluidas para trazabilidad.
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `bash/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/.gitkeep` | placeholder | - | - |
-| `javascript/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/.gitkeep` | placeholder | - | - |
-| `python/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/.gitkeep` | placeholder | - | - |
-| `sql/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/sql/.gitkeep` | placeholder | - | - |
-
----
-
-## 📁 07-PROCEDURES – Procedimientos Operativos Estándar
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/07-PROCEDURES/.gitkeep` | placeholder | - | - |
-
-> ⚠️ Sección en desarrollo. Procedimientos funcionales serán añadidos con validación completa.
-
----
-
-## 📁 08-LOGS – Registros de Ejecución y Auditoría
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/08-LOGS/.gitkeep` | placeholder | - | - |
-| `generation/.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/08-LOGS/generation/.gitkeep` | placeholder | - | - |
-
-> 🔒 Política: Logs de validación (`*-report.json`) excluidos por `.gitignore` para evitar contaminación de contexto.
-
----
-
-## 📁 09-TEST-SANDBOX – Entorno de Pruebas por Modelo
-
-### 🧪 Subdirectorios por Modelo (Estructura Común)
-
-| Modelo | Archivo | URL Raw | Propósito |
-|--------|---------|---------|-----------|
-| `qwen` | `GOVERNANCE-ORCHESTRATOR.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/qwen/GOVERNANCE-ORCHESTRATOR.md` | Gobernanza específica para Qwen |
-| `qwen` | `orchestrator-engine.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/qwen/orchestrator-engine.sh` | Validador adaptado para Qwen |
-| `deepseek` | `GOVERNANCE-ORCHESTRATOR.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/deepseek/GOVERNANCE-ORCHESTRATOR.md` | Gobernanza específica para DeepSeek |
-| `deepseek` | `orchestrator-engine.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/deepseek/orchestrator-engine.sh` | Validador adaptado para DeepSeek |
-| `gemini` | `GOVERNANCE-ORCHESTRATOR.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/gemini/GOVERNANCE-ORCHESTRATOR.md` | Gobernanza específica para Gemini |
-| `gemini` | `orchestrator-engine.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/gemini/orchestrator-engine.sh` | Validador adaptado para Gemini |
-| `minimax` | `GOVERNANCE-ORCHESTRATOR.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/minimax/GOVERNANCE-ORCHESTRATOR.md` | Gobernanza específica para Minimax |
-| `minimax` | `orchestrator-engine.sh` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/minimax/orchestrator-engine.sh` | Validador adaptado para Minimax |
-| `claude` | `.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/claude/.gitkeep` | Placeholder para Claude |
-| `comparison` | `.gitkeep` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/comparison/.gitkeep` | Placeholder para comparativas |
-
-### 📄 Root de Sandbox
-
-| Archivo | URL Raw | Tipo | Constraints | Validación |
-|---------|---------|------|-------------|------------|
-| `README.md` | `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/09-TEST-SANDBOX/README.md` | doc | C3, C8 | `validate-frontmatter.sh` |
-
----
-
-## 🧭 Protocolo de Navegación para IA
-
-```yaml
-navigation_protocol:
-  step_1_load: "IA-QUICKSTART.md"  # Determinar modo y tier operativo
-  step_2_resolve: "PROJECT_TREE.md"  # Validar ruta canónica del artefacto solicitado
-  step_3_fetch: "RAW_URLS_INDEX.md"  # Obtener URL raw exacta desde esta tabla
-  step_4_validate: "orchestrator-engine.sh --file <path> --json"  # Validar integridad pre-uso
-  step_5_execute: "Aplicar artifact según constraints C1-C8"
-  
-error_handling:
-  url_not_found: "Abortar y reportar: '[NAVIGATION_ERROR] URL no listada en RAW_URLS_INDEX.md'"
-  constraint_violation: "Abortar y reportar: '[CONSTRAINT_ERROR] <constraint> no cumplido en <artifact>'"
-  validation_failed: "Reintentar máx. 2 veces; si persiste, generar postmortem.md"
+### 0.2 Reglas Inamovibles de Carga Remota
+
+```
+REGLA 0.1: FASE 1 es obligatoria antes de cualquier generación o validación.
+REGLA 0.2: URLs con LANGUAGE LOCK (go/, sql/, etc.) requieren verificar language-lock-protocol.md antes de usar.
+REGLA 0.3: Constraints declaradas en un artefacto DEBEN estar mapeadas en norms-matrix.json para su carpeta.
+REGLA 0.4: Wikilinks en artefactos cargados DEBEN resolverse contra PROJECT_TREE.md, no contra rutas relativas.
+REGLA 0.5: Si una URL retorna HTTP 404, DETENER y notificar: "URL_NOT_FOUND: {url}".
 ```
 
----
-
-## 🔐 Notas de Integridad y Mantenimiento
-
-1. **Actualización automática**: Este índice debe regenerarse tras cada merge a `main` mediante:
-   ```bash
-   git ls-files | grep -E '\.(md|json|yml|yaml|tf|sh)$' | \
-     grep -v '08-LOGS/' | \
-     sed 's|^|https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/|' > raw_urls_temp.txt
-   # Luego curar manualmente la estructura de tablas por sección
-   ```
-
-2. **Validación de consistencia**: Ejecutar semanalmente:
-   ```bash
-   bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file RAW_URLS_INDEX.md --json | \
-     jq -e '.status == "passed"' || echo "[ALERTA] RAW_URLS_INDEX.md requiere revisión"
-   ```
-
-3. **Política de exclusión**: `.gitkeep`, `*-report.json`, y archivos en `08-LOGS/` se excluyen deliberadamente para evitar ruido en navegación automatizada.
+> 💡 **Consejo para principiantes**: No cargues todo el índice de una vez. Usa el protocolo escalonado: FASE 1 → FASE 2 → FASE 3 (bajo demanda) → FASE 4 (opcional).
 
 ---
 
-## ✅ Checklist de Verificación Pre-Entrega
+## 【1】🔐 URLs CRÍTICAS DE GOBERNANZA (FASE 1 – Carga Obligatoria)
+
+<!-- 
+【EDUCATIVO】Estas 9 URLs son el núcleo de gobernanza. 
+Sin ellas, cualquier agente opera sin contención de deriva.
+-->
+
+| URL Raw | Propósito | Constraints | Critical | Wikilink |
+|---------|-----------|-------------|----------|----------|
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md` | Motor de decisión: ruta → lenguaje → constraints | C5, C6 | 🔐 Sí | `[[00-STACK-SELECTOR]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md` | Semilla de gobernanza: gate de modo A1-B3 | C1, C4, C6 | 🔐 Sí | `[[IA-QUICKSTART]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md` | Contrato de navegación: reglas inamovibles | C1, C4, C6 | 🔐 Sí | `[[AI-NAVIGATION-CONTRACT]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md` | Motor de certificación: Tiers 1/2/3 | C2, C7, C8 | 🔐 Sí | `[[GOVERNANCE-ORCHESTRATOR]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md` | Especificación de formato de artefactos | C5, C6 | 🔐 Sí | `[[SDD-COLLABORATIVE-GENERATION]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md` | Mapa canónico de rutas del repositorio | C5 | 🔐 Sí | `[[PROJECT_TREE]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json` | Matriz de constraints por carpeta (machine-readable) | C4, C5 | 🔐 Sí | `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md` | Protocolo LANGUAGE LOCK: operadores prohibidos | C4, C5 | 🔐 Sí | `[[01-RULES/language-lock-protocol]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json` | Grafo de conocimiento para navegación inteligente | C5 | 🔐 Sí | `[[knowledge-graph.json]]` |
+
+> ⚠️ **Contención crítica**: Si alguna de estas 9 URLs retorna HTTP ≠ 200, el agente DEBE detenerse y notificar: `"GOVERNANCE_LOAD_FAILED: {url} returned {http_code}"`.
+
+---
+
+## 【2】🧰 TOOLCHAIN DE VALIDACIÓN (FASE 2 – Carga para Validación Local)
+
+<!-- 
+【EDUCATIVO】Estas herramientas permiten validar artefactos localmente antes de entregar.
+Son esenciales para Tier 2+ y para prevenir deuda técnica.
+-->
+
+| URL Raw | Propósito | Tipo | Wikilink |
+|---------|-----------|------|----------|
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh` | Motor principal de validación y scoring | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh` | Validar constraints C1-C8 + LANGUAGE LOCK | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/verify-constraints.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/audit-secrets.sh` | Detectar secrets hardcodeados (C3) | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/audit-secrets.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-rls.sh` | Validar tenant isolation en SQL (C4) | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/check-rls.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/validate-frontmatter.sh` | Verificar frontmatter YAML válido (C5) | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-wikilinks.sh` | Validar wikilinks canónicos (C5) | 🧰 Script Bash | `[[05-CONFIGURATIONS/validation/check-wikilinks.sh]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schema-validator.py` | Validar JSON/YAML contra schemas | 🧰 Script Python | `[[05-CONFIGURATIONS/validation/schema-validator.py]]` |
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/packager-assisted.sh` | Empaquetar artefactos Tier 3 con manifest | 🧰 Script Bash | `[[05-CONFIGURATIONS/scripts/packager-assisted.sh]]` |
+
+### 2.1 Ejemplo de Uso: Validación Remota de un Artefacto
 
 ```bash
-# 1. Validar que todas las URLs listadas existen
-while IFS= read -r url; do
-  curl -s -o /dev/null -w "%{http_code}" "$url" | grep -q "200" || echo "[WARN] URL no accesible: $url"
-done < <(grep "https://raw.githubusercontent.com" RAW_URLS_INDEX.md | sed 's/.*| `\([^`]*\)`/\1/')
+# 1. Cargar gobernanza crítica (FASE 1)
+curl -sO https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md
+curl -sO https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json
 
-# 2. Verificar que no hay URLs duplicadas
-grep "https://raw.githubusercontent.com" RAW_URLS_INDEX.md | sort | uniq -d
+# 2. Cargar toolchain (FASE 2)
+curl -sO https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh
+chmod +x orchestrator-engine.sh
 
-# 3. Confirmar que el checksum del encabezado coincide con el contenido actual
-sha256sum RAW_URLS_INDEX.md
+# 3. Validar artefacto localmente
+bash orchestrator-engine.sh --file mi-artefacto.md --mode headless --json
+
+# 4. Interpretar resultado
+# • score >= 30 + blocking_issues == [] → ✅ Aprobado para Tier 2
+# • score < 30 o blocking_issues != [] → ❌ Corregir antes de entregar
 ```
 
 ---
 
-> 📬 **Para usar este índice en un prompt de IA**: Copiar la sección de tablas correspondiente al dominio de interés, o inyectar la URL raw de este archivo completo para navegación dinámica.  
-> 🔐 **Checksum de integridad**: `sha256sum RAW_URLS_INDEX.md` → comparar con `checksum_sha256` en frontmatter.  
-> 🌱 **Próxima actualización**: Tras merge de `06-PROGRAMMING/bash/` artefactos.
+## 【3】🗂️ ÍNDICES DE PATRONES POR LENGUAJE (FASE 3 – Carga Bajo Demanda)
+
+<!-- 
+【EDUCATIVO】Estos índices permiten cargar solo los patrones relevantes al lenguaje de la tarea.
+Cada índice incluye LANGUAGE LOCK rules específicas.
+-->
+
+### 3.1 Índice Agregador Maestro
+
+| URL Raw | Propósito | Artifacts | LANGUAGE LOCK | Wikilink |
+|---------|-----------|-----------|--------------|----------|
+| `https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/00-INDEX.md` | Índice agregador de los 7 lenguajes | 137 artifacts | ✅ Enforcement global | `[[06-PROGRAMMING/00-INDEX]]` |
+
+### 3.2 Índices por Lenguaje (Cargar solo el relevante)
+
+| URL Raw | Lenguaje | Artifacts | Constraints Mandatory | LANGUAGE LOCK Rules | Wikilink |
+|---------|----------|-----------|---------------------|-------------------|----------|
+| `.../06-PROGRAMMING/go/00-INDEX.md` | Go | 35 | C3, C4, C5, C8 | 🔴 Deny: `<->`, `<=>`, `<#`, `vector(n)`, `USING hnsw/ivfflat`, V1-V3 | `[[06-PROGRAMMING/go/00-INDEX]]` |
+| `.../06-PROGRAMMING/python/00-INDEX.md` | Python | 24 | C3, C4, C5, C8 | 🔴 Deny: V1-V3 (vectoriales) | `[[06-PROGRAMMING/python/00-INDEX]]` |
+| `.../06-PROGRAMMING/bash/00-INDEX.md` | Bash | 12 | C3, C4, C5, C6 | 🔴 Deny: V1-V3 | `[[06-PROGRAMMING/bash/00-INDEX]]` |
+| `.../06-PROGRAMMING/sql/00-INDEX.md` | SQL estándar | 25 | C4, C5 | 🔴 Deny: operadores pgvector, V1-V3 | `[[06-PROGRAMMING/sql/00-INDEX]]` |
+| `.../06-PROGRAMMING/postgresql-pgvector/00-INDEX.md` | SQL+pgvector | 10 | C3, C4, C5, V1, V3 | 🟢 Allow: `<->`, `<=>`, `<#` con documentación V2 | `[[06-PROGRAMMING/postgresql-pgvector/00-INDEX]]` |
+| `.../06-PROGRAMMING/javascript/00-INDEX.md` | TypeScript/JS | 22 | C3, C4, C5, C8 | 🔴 Deny: V1-V3 | `[[06-PROGRAMMING/javascript/00-INDEX]]` |
+| `.../06-PROGRAMMING/yaml-json-schema/00-INDEX.md` | YAML+Schema | 9 | C5 | 🔴 Deny: V1-V3 | `[[06-PROGRAMMING/yaml-json-schema/00-INDEX]]` |
+
+> 💡 **Consejo para principiantes**: No cargues todos los índices. Usa `00-STACK-SELECTOR.md` para determinar qué lenguaje necesita tu tarea, luego carga solo ese índice.
 
 ---
 
-*Documento generado bajo contrato SDD v2.0.0. Validado contra `norms-matrix.json`.  
-Última sincronización: `$(date -Iseconds)`.  
-MANTIS AGENTIC – Gobernanza ejecutable para inteligencia colaborativa.* 🔐🌱
+## 【4】📦 SKILLS Y CONFIGURACIÓN (FASE 4 – Carga Opcional por Dominio)
+
+<!-- 
+【EDUCATIVO】Estas URLs son para carga bajo demanda según el dominio de la tarea.
+No son obligatorias para gobernanza básica.
+-->
+
+### 4.1 Skills de IA (Ejemplos)
+
+| URL Raw | Dominio | Propósito | Wikilink |
+|---------|---------|-----------|----------|
+| `.../02-SKILLS/AI/qwen-integration.md` | IA | Integración con Qwen (oriental-optimized) | `[[02-SKILLS/AI/qwen-integration]]` |
+| `.../02-SKILLS/AI/langchain-integration.md` | IA | Integración con LangChain | `[[02-SKILLS/AI/langchain-integration]]` |
+| `.../02-SKILLS/BASE DE DATOS-RAG/rag-query-with-tenant-enforcement.pgvector.md` | RAG | Queries RAG con tenant isolation | `[[02-SKILLS/BASE DE DATOS-RAG/rag-query-with-tenant-enforcement]]` |
+
+### 4.2 Configuración de Infraestructura (Ejemplos)
+
+| URL Raw | Dominio | Propósito | Wikilink |
+|---------|---------|-----------|----------|
+| `.../05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml` | Infra | Config Docker para VPS1: n8n + UAZAPI | `[[05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml]]` |
+| `.../02-SKILLS/INFRASTRUCTURA/vps-interconnection.md` | Infra | Interconexión segura de VPS | `[[02-SKILLS/INFRASTRUCTURA/vps-interconnection]]` |
+| `.../05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf` | Infra | Módulo Terraform para PostgreSQL con RLS | `[[05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf]]` |
+
+> ⚠️ **Regla de carga opcional**: Solo cargar skills/configuración si la tarea lo requiere explícitamente. No precargar todo el repositorio.
+
+---
+
+## 【5】🧭 PROTOCOLO DE CARGA REMOTA PARA IA (PASO A PASO)
+
+<!-- 
+【EDUCATIVO】Este es el flujo determinista que DEBE seguir cualquier agente remoto.
+Mismos inputs → mismos outputs. Si algo no está claro, DETENER y preguntar.
+-->
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 【FASE 1】CARGA DE GOBERNANZA CRÍTICA (OBLIGATORIA)    │
+├─────────────────────────────────────────────────────────┤
+│ 1. Cargar las 9 URLs críticas de la Sección 【1】      │
+│ 2. Verificar HTTP 200 para cada una                    │
+│ 3. Si alguna falla → DETENER y notificar:              │
+│    "GOVERNANCE_LOAD_FAILED: {url} returned {http_code}"│
+│ 4. Parsear norms-matrix.json y knowledge-graph.json    │
+│ 5. Inicializar LANGUAGE LOCK rules desde:              │
+│    • 00-STACK-SELECTOR.md                              │
+│    • language-lock-protocol.md                         │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【FASE 2】CARGA DE TOOLCHAIN (PARA VALIDACIÓN)         │
+├─────────────────────────────────────────────────────────┤
+│ 1. Cargar las 8 URLs de la Sección 【2】               │
+│ 2. Hacer ejecutables los scripts Bash: chmod +x *.sh   │
+│ 3. Verificar que schema-validator.py tiene Python 3.8+ │
+│ 4. Probar orchestrator-engine.sh --help para confirmar │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【FASE 3】CARGA DE ÍNDICE DE LENGUAJE (BAJO DEMANDA)   │
+├─────────────────────────────────────────────────────────┤
+│ 1. Consultar 00-STACK-SELECTOR.md para determinar:     │
+│    • canonical_path de la tarea                         │
+│    • lenguaje permitido para esa ruta                   │
+│ 2. Cargar solo el índice de ese lenguaje:              │
+│    ej: 06-PROGRAMMING/go/00-INDEX.md                   │
+│ 3. Extraer patterns relevantes del índice              │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【FASE 4】CARGA DE SKILLS/CONFIG (OPCIONAL)            │
+├─────────────────────────────────────────────────────────┤
+│ 1. Si la tarea requiere dominio específico (ej: RAG):  │
+│    • Cargar skills relevantes de 02-SKILLS/            │
+│    • Cargar config relevante de 05-CONFIGURATIONS/     │
+│ 2. Si no hay dominio específico → saltar esta fase     │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【FASE 5】EJECUCIÓN CON GOBERNANZA ACTIVA              │
+├─────────────────────────────────────────────────────────┤
+│ 1. Aplicar protocolo de IA-QUICKSTART.md (Gate de modo)│
+│ 2. Generar artefacto siguiendo SDD-COLLABORATIVE-...   │
+│ 3. Validar con orchestrator-engine.sh --json           │
+│ 4. Si Tier 3 → empaquetar con packager-assisted.sh     │
+│ 5. Entregar con validation_command + checksum          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 5.1 Ejemplo de Traza de Carga Remota (Agente Qwen)
+
+```
+【TRAZA DE CARGA REMOTA – AGENTE QWEN】
+Tarea: "Generar webhook seguro para WhatsApp de cliente agrícola"
+
+Fase 1 - Gobernanza crítica:
+  • Cargar 9 URLs críticas → todas HTTP 200 ✅
+  • Parsear norms-matrix.json → constraints por carpeta cargadas ✅
+  • Inicializar LANGUAGE LOCK: typescript → deny_operators=[], deny_constraints=[V1,V2,V3] ✅
+
+Fase 2 - Toolchain:
+  • Cargar 8 scripts de validación → chmod +x aplicado ✅
+  • Probar orchestrator-engine.sh --help → salida correcta ✅
+
+Fase 3 - Índice de lenguaje:
+  • Consultar 00-STACK-SELECTOR.md → tarea "webhook WhatsApp" → 06-PROGRAMMING/javascript/
+  • Cargar: 06-PROGRAMMING/javascript/00-INDEX.md → 22 patterns disponibles ✅
+  • Seleccionar: webhook-validation-patterns.ts.md ✅
+
+Fase 4 - Skills/Config (opcional):
+  • Tarea requiere integración WhatsApp → cargar: 02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md ✅
+
+Fase 5 - Ejecución con gobernanza:
+  • Gate de modo: humano confirma "B2" → mode_selected=B2 ✅
+  • Generar artefacto con frontmatter Tier 2, ≥10 ejemplos ✅/❌/🔧 ✅
+  • Validar: orchestrator-engine.sh --file ... --json → score=42, passed=true ✅
+  • Entregar: código + validation_command + checksum_sha256 ✅
+
+Resultado: ✅ Artefacto generado y validado con gobernanza completa, sin clonar repositorio.
+```
+
+---
+
+## 【6】📚 GLOSARIO PARA PRINCIPIANTES
+
+<!-- 
+【EDUCATIVO】Términos técnicos explicados en lenguaje simple.
+-->
+
+| Término | Significado simple | Ejemplo |
+|---------|-------------------|---------|
+| **URL Raw** | Enlace directo al contenido de un archivo en GitHub | `https://raw.githubusercontent.com/.../main/FILE.md` |
+| **Carga escalonada** | Cargar contexto en fases, no todo de una vez | FASE 1: gobernanza → FASE 2: toolchain → FASE 3: índices |
+| **LANGUAGE LOCK** | Regla que prohíbe ciertos operadores en ciertos lenguajes | No usar `<->` en `go/`, solo en `postgresql-pgvector/` |
+| **Constraint** | Regla de calidad que debe cumplirse | C3: "Nunca escribas contraseñas en el código" |
+| **Tier 1/2/3** | Niveles de madurez: 1=borrador, 2=código listo, 3=desplegable | Tier 3 incluye healthcheck, rollback, checksums |
+| **Wikilink canónico** | Enlace interno con ruta absoluta desde raíz | `[[PROJECT_TREE.md]]` (no `[[../PROJECT_TREE.md]]`) |
+| **HTTP 200** | Código de respuesta que indica "archivo encontrado" | Si curl retorna 404 → archivo no existe o ruta incorrecta |
+| **Machine-readable** | Formato que una IA puede parsear automáticamente | JSON, YAML con schema definido |
+
+---
+
+## 【7】🧪 SANDBOX DE PRUEBA (OPCIONAL)
+
+<!-- 
+【PARA DESARROLLADORES】Pega esta sección en un chat nuevo para validar que la IA sigue el protocolo sin contexto previo.
+-->
+
+```
+【TEST MODE: RAW_URLS_INDEX VALIDATION】
+Prompt de prueba: "Cargar contexto remoto para generar webhook TypeScript"
+
+Respuesta esperada de la IA:
+1. 【FASE 1】Cargar las 9 URLs críticas de gobernanza
+   • Verificar HTTP 200 para cada una
+   • Parsear norms-matrix.json y knowledge-graph.json
+2. 【FASE 2】Cargar toolchain de validación
+   • Hacer ejecutables scripts Bash
+   • Probar orchestrator-engine.sh --help
+3. 【FASE 3】Determinar lenguaje vía 00-STACK-SELECTOR.md
+   • Tarea "webhook TypeScript" → 06-PROGRAMMING/javascript/
+   • Cargar: 06-PROGRAMMING/javascript/00-INDEX.md
+4. 【FASE 4】(Opcional) Cargar skill de WhatsApp si se requiere
+5. 【FASE 5】Ejecutar con gobernanza:
+   • Gate de modo → humano confirma "B2"
+   • Generar con frontmatter Tier 2 + ≥10 ejemplos ✅/❌/🔧
+   • Validar con orchestrator-engine.sh --json
+   • Entregar con validation_command + checksum
+
+Si la IA carga URLs no listadas, omite FASE 1, o ignora LANGUAGE LOCK → FALLA DE PROTOCOLO REMOTO.
+```
+
+---
+
+## 【8】🔗 REFERENCIAS CANÓNICAS (WIKILINKS)
+
+<!-- 
+【PARA IA】Estos enlaces deben resolverse usando PROJECT_TREE.md. 
+No uses rutas relativas. Usa siempre la forma canónica [[RUTA]].
+-->
+
+- `[[00-STACK-SELECTOR]]` → Motor de decisión de stack (ruta → lenguaje → constraints)
+- `[[PROJECT_TREE]]` → Mapa maestro de rutas del repositorio
+- `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` → Matriz de aplicación de constraints por carpeta
+- `[[01-RULES/language-lock-protocol.md]]` → Reglas de exclusión de operadores por lenguaje
+- `[[GOVERNANCE-ORCHESTRATOR]]` → Tiers, validación y certificación
+- `[[IA-QUICKSTART]]` → Punto de entrada para IAs, define modos A1-B3
+- `[[AI-NAVIGATION-CONTRACT]]` → Reglas de interacción y navegación
+- `[[knowledge-graph.json]]` → Grafo de conocimiento para navegación inteligente
+- `[[06-PROGRAMMING/00-INDEX]]` → Índice agregador de patrones por lenguaje
+
+---
+
+## 【9】📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
+
+<!-- 
+【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
+-->
+
+```json
+{
+  "expansion_registry": {
+    "new_governance_url": {
+      "requires_files_update": [
+        "RAW_URLS_INDEX.md: add URL to Section 【1】with metadata",
+        "knowledge-graph.json: add node for new governance document",
+        "PROJECT_TREE.md: add file entry if new critical doc",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new governance URLs must not break existing FASE 1 load order"
+    },
+    "new_language_index": {
+      "requires_files_update": [
+        "RAW_URLS_INDEX.md: add index URL to Section 【3.2】",
+        "06-PROGRAMMING/00-INDEX.md: add reference to new language index",
+        "00-STACK-SELECTOR.md: add routing rule for new language",
+        "norms-matrix.json: add constraint mapping for new folder",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new language indices must declare LANGUAGE LOCK rules before being added"
+    }
+  },
+  "compatibility_rule": "Nuevas URLs no deben invalidar el protocolo de carga escalonada. Cambios breaking requieren major version bump, guía de migración y aprobación humana explícita."
+}
+```
+
+---
+
+<!-- 
+═══════════════════════════════════════════════════════════
+🤖 SECCIÓN PARA IA: CATÁLOGO JSON ENRIQUECIDO
+═══════════════════════════════════════════════════════════
+Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
+No está diseñada para lectura humana directa. Los humanos deben usar las secciones 【1】-【9】.
+
+Formato: JSON válido, con comentarios explicativos en claves "doc_*".
+Prioridad de carga: Las URLs se cargan en el orden definido en "load_phases".
+Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
+═══════════════════════════════════════════════════════════
+-->
+
+```json
+{
+  "raw_urls_index_metadata": {
+    "version": "3.0.0-SELECTIVE",
+    "canonical_path": "/RAW_URLS_INDEX.md",
+    "artifact_type": "remote_access_catalog",
+    "immutable": true,
+    "requires_human_approval_for_changes": true,
+    "total_urls": 284,
+    "critical_governance_urls": 9,
+    "validation_toolchain_urls": 8,
+    "language_index_urls": 8,
+    "llm_optimizations": {
+      "oriental_models_friendly": true,
+      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
+      "numbered_sequences": true,
+      "stop_conditions_explicit": true
+    }
+  },
+  
+  "load_phases": {
+    "phase_1_governance_critical": {
+      "description": "Carga obligatoria inicial: núcleo de gobernanza",
+      "required": true,
+      "urls": [
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md",
+          "path": "/00-STACK-SELECTOR.md",
+          "purpose": "Motor de decisión: ruta → lenguaje → constraints",
+          "constraints": ["C5", "C6"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 1
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md",
+          "path": "/IA-QUICKSTART.md",
+          "purpose": "Semilla de gobernanza: gate de modo A1-B3",
+          "constraints": ["C1", "C4", "C6"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 2
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md",
+          "path": "/AI-NAVIGATION-CONTRACT.md",
+          "purpose": "Contrato de navegación: reglas inamovibles",
+          "constraints": ["C1", "C4", "C6"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 3
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md",
+          "path": "/GOVERNANCE-ORCHESTRATOR.md",
+          "purpose": "Motor de certificación: Tiers 1/2/3",
+          "constraints": ["C2", "C7", "C8"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 4
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md",
+          "path": "/SDD-COLLABORATIVE-GENERATION.md",
+          "purpose": "Especificación de formato de artefactos",
+          "constraints": ["C5", "C6"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 5
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md",
+          "path": "/PROJECT_TREE.md",
+          "purpose": "Mapa canónico de rutas del repositorio",
+          "constraints": ["C5"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 6
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json",
+          "path": "/05-CONFIGURATIONS/validation/norms-matrix.json",
+          "purpose": "Matriz de constraints por carpeta (machine-readable)",
+          "constraints": ["C4", "C5"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 7,
+          "parse_as": "json"
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md",
+          "path": "/01-RULES/language-lock-protocol.md",
+          "purpose": "Protocolo LANGUAGE LOCK: operadores prohibidos",
+          "constraints": ["C4", "C5"],
+          "critical": true,
+          "language_lock_applicable": true,
+          "load_order": 8
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json",
+          "path": "/knowledge-graph.json",
+          "purpose": "Grafo de conocimiento para navegación inteligente",
+          "constraints": ["C5"],
+          "critical": true,
+          "language_lock_applicable": false,
+          "load_order": 9,
+          "parse_as": "json"
+        }
+      ]
+    },
+    
+    "phase_2_validation_toolchain": {
+      "description": "Carga para validación local de artefactos",
+      "required": false,
+      "urls": [
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh",
+          "path": "/05-CONFIGURATIONS/validation/orchestrator-engine.sh",
+          "purpose": "Motor principal de validación y scoring",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 10
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh",
+          "path": "/05-CONFIGURATIONS/validation/verify-constraints.sh",
+          "purpose": "Validar constraints C1-C8 + LANGUAGE LOCK",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 11
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/audit-secrets.sh",
+          "path": "/05-CONFIGURATIONS/validation/audit-secrets.sh",
+          "purpose": "Detectar secrets hardcodeados (C3)",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 12
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-rls.sh",
+          "path": "/05-CONFIGURATIONS/validation/check-rls.sh",
+          "purpose": "Validar tenant isolation en SQL (C4)",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 13
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+          "path": "/05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+          "purpose": "Verificar frontmatter YAML válido (C5)",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 14
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-wikilinks.sh",
+          "path": "/05-CONFIGURATIONS/validation/check-wikilinks.sh",
+          "purpose": "Validar wikilinks canónicos (C5)",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 15
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schema-validator.py",
+          "path": "/05-CONFIGURATIONS/validation/schema-validator.py",
+          "purpose": "Validar JSON/YAML contra schemas",
+          "type": "python_script",
+          "executable": true,
+          "requires_python": ">=3.8",
+          "load_order": 16
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/scripts/packager-assisted.sh",
+          "path": "/05-CONFIGURATIONS/scripts/packager-assisted.sh",
+          "purpose": "Empaquetar artefactos Tier 3 con manifest",
+          "type": "bash_script",
+          "executable": true,
+          "load_order": 17
+        }
+      ]
+    },
+    
+    "phase_3_language_indices": {
+      "description": "Índices de patrones por lenguaje (cargar bajo demanda)",
+      "required": false,
+      "conditional_load": "based_on_00-STACK-SELECTOR_resolution",
+      "urls": [
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/00-INDEX.md",
+          "path": "/06-PROGRAMMING/00-INDEX.md",
+          "purpose": "Índice agregador maestro de los 7 lenguajes",
+          "language": "index_aggregator",
+          "artifact_count": 137,
+          "language_lock_enforcement": true,
+          "load_order": 20
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/00-INDEX.md",
+          "path": "/06-PROGRAMMING/go/00-INDEX.md",
+          "purpose": "Índice de patrones Go (35 artifacts)",
+          "language": "go",
+          "artifact_count": 35,
+          "constraints_mandatory": ["C3", "C4", "C5", "C8"],
+          "language_lock": {
+            "deny_operators": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+            "deny_constraints": ["V1", "V2", "V3"]
+          },
+          "load_order": 21
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/00-INDEX.md",
+          "path": "/06-PROGRAMMING/python/00-INDEX.md",
+          "purpose": "Índice de patrones Python (24 artifacts)",
+          "language": "python",
+          "artifact_count": 24,
+          "constraints_mandatory": ["C3", "C4", "C5", "C8"],
+          "language_lock": {
+            "deny_constraints": ["V1", "V2", "V3"]
+          },
+          "load_order": 22
+        },
+        {
+          "raw_url": "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
+          "path": "/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
+          "purpose": "Índice de patrones pgvector (10 artifacts) - ÚNICO para búsqueda vectorial",
+          "language": "postgresql-pgvector",
+          "artifact_count": 10,
+          "constraints_mandatory": ["C3", "C4", "C5", "V1", "V3"],
+          "language_lock": {
+            "require_artifact_type": "skill_pgvector",
+            "require_vector_declaration": true
+          },
+          "is_vector_only": true,
+          "load_order": 23
+        }
+      ]
+    }
+  },
+  
+  "url_validation_rules": {
+    "http_status_required": 200,
+    "content_type_validation": {
+      ".md": "text/markdown",
+      ".json": "application/json",
+      ".sh": "text/x-shellscript",
+      ".py": "text/x-python",
+      ".yml": "text/yaml"
+    },
+    "checksum_verification": {
+      "algorithm": "SHA256",
+      "field_name": "checksum_sha256",
+      "verification_command": "curl -s {url} | sha256sum"
+    },
+    "wikilink_resolution": {
+      "format": "[[RUTA/CANÓNICA/DESDE/RAÍZ.ext]]",
+      "forbidden_patterns": ["../", "./", "#section-anchors"],
+      "resolution_source": "PROJECT_TREE.md"
+    }
+  },
+  
+  "dependency_graph": {
+    "critical_infrastructure": [
+      {"file": "PROJECT_TREE.md", "purpose": "Resolver rutas canónicas para wikilinks", "load_order": 1},
+      {"file": "00-STACK-SELECTOR.md", "purpose": "Determinar lenguaje por ruta", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "Mapear constraints por carpeta", "load_order": 3},
+      {"file": "01-RULES/language-lock-protocol.md", "purpose": "Reglas de exclusión de operadores", "load_order": 4}
+    ],
+    "navigation_contracts": [
+      {"file": "IA-QUICKSTART.md", "purpose": "Definir modos A1-B3 y gate humano", "load_order": 1},
+      {"file": "AI-NAVIGATION-CONTRACT.md", "purpose": "Reglas de interacción IA-humano", "load_order": 2},
+      {"file": "GOVERNANCE-ORCHESTRATOR.md", "purpose": "Tiers, validación y certificación", "load_order": 3}
+    ],
+    "validation_toolchain": [
+      {"file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "purpose": "Motor principal de validación", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/verify-constraints.sh", "purpose": "Validación de constraints y LANGUAGE LOCK", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/audit-secrets.sh", "purpose": "Detección de secrets hardcodeados", "load_order": 3}
+    ]
+  },
+  
+  "human_readable_errors": {
+    "url_not_found": "URL '{url}' retornó HTTP {status}. Verificar que el archivo existe en PROJECT_TREE.md.",
+    "content_type_mismatch": "URL '{url}' retornó Content-Type '{actual}' pero se esperaba '{expected}'. Verificar extensión del archivo.",
+    "checksum_mismatch": "Checksum de '{url}' no coincide: esperado {expected}, obtenido {actual}. Verificar integridad del archivo.",
+    "wikilink_not_canonical": "Wikilink '{wikilink}' no es canónico. Usar forma absoluta: [[RUTA-DESDE-RAÍZ]].",
+    "language_lock_violation": "Violación de LANGUAGE LOCK: operador '{operator}' prohibido en lenguaje '{language}' para URL '{url}'.",
+    "phase_load_failed": "Fase {phase} de carga falló: {error_details}. Detener ejecución y notificar."
+  },
+  
+  "expansion_hooks": {
+    "new_critical_url": {
+      "requires_files_update": [
+        "RAW_URLS_INDEX.md: add URL to phase_1_governance_critical with metadata",
+        "knowledge-graph.json: add node for new governance document",
+        "PROJECT_TREE.md: add file entry if new critical doc",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new critical URLs must not break existing load order; append to end of phase_1"
+    },
+    "new_language_index": {
+      "requires_files_update": [
+        "RAW_URLS_INDEX.md: add index URL to phase_3_language_indices",
+        "06-PROGRAMMING/00-INDEX.md: add reference to new language index",
+        "00-STACK-SELECTOR.md: add routing rule for new language",
+        "norms-matrix.json: add constraint mapping for new folder",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new language indices must declare LANGUAGE LOCK rules before being added"
+    }
+  },
+  
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "raw-urls-index.v1.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C8 compliance)",
+    "reproducibility_guarantee": "Any remote context load can be reproduced identically using this index + load_phases order"
+  }
+}
+```
+
+---
+
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+<!-- 
+【PARA PRINCIPIANTES】Antes de guardar este archivo, verifica estos puntos.
+-->
+
+````markdown
+```bash
+# 1. Verificar que el frontmatter es YAML válido
+yq eval '.canonical_path' RAW_URLS_INDEX.md
+# Esperado: "/RAW_URLS_INDEX.md"
+
+# 2. Verificar que constraints_mapped solo contiene C5,C6 (este archivo es catálogo)
+yq eval '.constraints_mapped | .[]' RAW_URLS_INDEX.md | grep -E '^C[56]$' | wc -l
+# Esperado: 2 líneas
+
+# 3. Verificar que las 9 URLs críticas están listadas en Fase 1
+grep -c "FASE 1" RAW_URLS_INDEX.md && echo "✅ Fase 1 presente"
+grep -c "critical: true" RAW_URLS_INDEX.md | awk '{if($1>=9) print "✅ 9 URLs críticas marcadas"; else print "⚠️ Menos de 9 críticas"}'
+
+# 4. Verificar que todos los wikilinks apuntan a archivos existentes
+for link in $(grep -oE '\[\[[^]]+\]\]' RAW_URLS_INDEX.md | tr -d '[]' | sort -u); do
+  if [ ! -f "${link#//}" ] && [ ! -f "${link}" ]; then
+    echo "⚠️  Wikilink roto: $link"
+  fi
+done
+
+# 5. Validar que la sección JSON final es parseable
+tail -n +$(grep -n '```json' RAW_URLS_INDEX.md | tail -1 | cut -d: -f1) RAW_URLS_INDEX.md | \
+  sed -n '/```json/,/```/p' | sed '1d;$d' | jq empty && echo "✅ JSON válido"
+
+# 6. Validar con orchestrator (simulación mental)
+# - ¿El archivo está en raíz? → SÍ
+# - ¿El lenguaje es markdown con catálogo de URLs? → SÍ
+# - ¿Constraints aplicables según norms-matrix.json? → C5,C6 → SÍ
+# - ¿validation_command es ejecutable? → SÍ, apunta a orchestrator-engine.sh
+```
+````
+
+**Criterio de aceptación:**  
+- ✅ Frontmatter válido con `canonical_path: "/RAW_URLS_INDEX.md"`  
+- ✅ `constraints_mapped` contiene solo C5,C6 (este archivo es catálogo)  
+- ✅ 9 URLs críticas marcadas con `"critical": true` en Fase 1  
+- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
+- ✅ Todos los wikilinks apuntan a archivos existentes en `PROJECT_TREE.md`  
+- ✅ `validation_command` es ejecutable y apunta al orchestrator correcto  
+
+---
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este índice es tu puerta de acceso remoto. No es estático: evoluciona con el proyecto.  
+> **FASE 1 → FASE 2 → FASE 3 (bajo demanda) → FASE 4 (opcional)**.  
+> Si sigues ese flujo, nunca cargarás contexto incompleto.  
+> La gobernanza no es una carga. Es la libertad de operar remoto sin miedo a romper.  

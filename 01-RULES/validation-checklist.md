@@ -1,490 +1,824 @@
-# SHA256: b7f3e9a2c8d1f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
-artifact_id: "documentation-validation-checklist"
-artifact_type: "rule_markdown"
+canonical_path: "/01-RULES/validation-checklist.md"
+artifact_id: "validation-checklist-canonical"
+artifact_type: "governance_checklist"
 version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C3","C4","C5","C7","C8"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-CONTEXT/documentation-validation-checklist.md --json"
-canonical_path: "00-CONTEXT/documentation-validation-checklist.md"
+constraints_mapped: ["C5", "C6"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 01-RULES/validation-checklist.md --mode headless --json"
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+related_files:
+  - "[[01-RULES/harness-norms-v3.0.md]]"
+  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
+  - "[[GOVERNANCE-ORCHESTRATOR.md]]"
+  - "[[SDD-COLLABORATIVE-GENERATION.md]]"
+  - "[[TOOLCHAIN-REFERENCE.md]]"
+  - "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]"
+checksum_sha256: "PENDING_GENERATION"
 ---
 
-# ✅ Checklist de Validación SDD – MANTIS AGENTIC v3.0-SELECTIVE
+# 📄 01-RULES/validation-checklist.md – REGENERADO COMPLETO v3.0-SELECTIVE
 
-## Metadatos del Documento
+> **Nota para principiantes:** Este documento es el **checklist ejecutable de validación** para todo artefacto en MANTIS AGENTIC. Define QUÉ verificar, CÓMO verificarlo y CUÁNDO un artefacto está listo para entrega. Si eres nuevo, lee las secciones en orden. Si eres experto, salta al JSON final.  
+>  
+> **Para IAs:** Este es tu contrato de calidad. **ENTREGAR SIN VALIDAR = DEUDA TÉCNICA AUTOMÁTICA**. No inventes, no asumas, no omitas.
 
-| Campo | Valor |
-|-------|-------|
-| **Categoría** | Validation / Reference |
-| **Prioridad de carga** | Alta (documentación crítica) |
-| **Versión** | 3.0.0-SELECTIVE |
-| **Última actualización** | 2026-04-19 |
-| **Archivos relacionados** | `[[01-RULES/harness-norms-v3.0.md]]`, `[[01-RULES/10-SDD-CONSTRAINTS.md]]`, `[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]` |
-| **LANGUAGE LOCK** | Markdown puro – ❌ PROHIBIDO: `<->`, `<=>`, `<#>`, `vector(`, `hnsw`, `ivfflat` |
 
----
 
-## 🎯 Propósito de Este Documento
+# ✅ VALIDATION-CHECKLIST: Checklist Ejecutable de Validación para Artefactos MANTIS
 
-Este checklist proporciona una guía exhaustiva para validar que cualquier componente del proyecto MANTIS AGENTIC cumple con los **constraints C1-C8** de HARNESS NORMS v3.0-SELECTIVE.
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es el "examen final" de todo artefacto en el proyecto MANTIS AGENTIC.
+Define una lista verificable de ítems que TODO artefacto debe aprobar antes de ser considerado válido.
 
-**Diferenciación clave**:
-- **RULES**: "Qué hacer" (constraints verificables C1-C8)
-- **SKILLS**: "Cómo hacer" (procedimientos detallados)
-- **ESTE DOCUMENTO**: "Cómo validar" que RULES y SKILLS cumplen constraints
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
 
-> ⚠️ **Advertencia SELECTIVA**: Este artifact es `rule_markdown`, NO `skill_pgvector`. Las constraints V1-V3 **NO APLICAN** aquí. Cualquier mención de operadores vectoriales debe ser como texto documental, NO como código ejecutable.
-
----
-
-## 📚 Glosario para Validadores
-
-| Término | Definición | Ejemplo de Aplicación |
-|---------|-----------|---------------------|
-| **Constraint (C1-C8)** | Restricción técnica no negociable del proyecto | C4: `tenant_id` en todas las queries |
-| **tenant_id** | Identificador único de cliente para aislamiento de datos | `WHERE tenant_id = current_setting('app.tenant_id')` |
-| **Multi-tenancy** | Arquitectura donde múltiples clientes comparten infraestructura con aislamiento estricto | RLS policies, filtros explícitos en queries |
-| **SDD** | Specification-Driven Development: definir reglas primero, validar después | Este checklist + `orchestrator-engine.sh` |
-| **LANGUAGE LOCK** | Boundary estricto que prohíbe operadores de un lenguaje en carpetas de otro | ❌ `vector(` en `06-PROGRAMMING/sql/` |
-| **Structured Logging (C8)** | Logs en JSON parseable enviados exclusivamente a stderr | `printf '{"ts":"%s","level":"INFO"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >&2` |
+> **Instrucción crítica para la IA:** 
+> Este documento es tu contrato de calidad. 
+> **ENTREGAR SIN VALIDAR = DEUDA TÉCNICA AUTOMÁTICA**. 
+> No inventes, no asumas, no omitas. Si algo no está claro, DETENER y preguntar.
 
 ---
 
-## 🔐 Constraints CORE – Guía de Validación (C1-C8)
+## 【0】🎯 PROPÓSITO Y ALCANCE (Explicado para humanos)
 
-### C1 – Resource Limits Enforcement
-**Propósito**: Prevenir agotamiento de memoria/CPU en queries u operaciones costosas.
+<!-- 
+【EDUCATIVO】Este documento responde: "¿Cómo sé si mi artefacto está listo para entregar?"
+No es una lista de deseos. Es un sistema de validación ejecutable que:
+• Proporciona checklist verificable paso a paso para cada Tier (1/2/3)
+• Conecta cada ítem con herramientas automáticas de validación (`orchestrator-engine.sh`, etc.)
+• Define criterios de aceptación claros: score mínimo, blocking_issues, language_lock_violations
+• Permite validación manual y automática para redundancia y seguridad
+-->
 
-```bash
-# ✅ C1: Verificar límites de memoria en contenedores Docker
-docker inspect n8n --format='{{.HostConfig.Memory}}'  # Esperado: ≤4294967296 (4GB)
+### 0.1 Arquitectura de Validación en MANTIS AGENTIC
+
+```mermaid
+graph LR
+    A[Artefacto Generado] --> B[Checklist Manual]
+    A --> C[Validación Automática]
+    
+    B --> D[Verificar frontmatter, estructura, ejemplos]
+    C --> E[Ejecutar orchestrator-engine.sh --json]
+    
+    D --> F{¿Pasa checklist manual?}
+    E --> G{¿Pasa validación automática?}
+    
+    F -->|Sí| H[Proceed to delivery]
+    F -->|No| I[Iterar corrección]
+    
+    G -->|Sí| H
+    G -->|No| I
+    
+    H --> J[Entrega según Tier: pantalla/código/ZIP]
+    I --> K[Corregir y re-validar (máx 3 intentos)]
+    
+    style J fill:#c8e6c9
+    style K fill:#ffcdd2
 ```
 
-```bash
-# ❌ Anti-pattern: Contenedor sin límite de memoria → riesgo de OOM
-docker run my-image  # Sin --memory flag
-# 🔧 Fix: Añadir --memory="1500m" o definir en docker-compose.yml
+### 0.2 Niveles de Validación por Tier
+
+| Tier | Nombre | Checklist Requerido | Score Mínimo | blocking_issues | Herramienta Principal |
+|------|--------|-------------------|-------------|----------------|---------------------|
+| **1** | Documentación / Propuesta | Frontmatter válido, wikilinks canónicos, estructura SDD básica | ≥ 15 | Solo warnings permitidos | `validate-frontmatter.sh` + `check-wikilinks.sh` |
+| **2** | Código Validable | Todo Tier 1 + ≥10 ejemplos ✅/❌/🔧, validation_command ejecutable, checksum | ≥ 30 | Debe estar vacío | `orchestrator-engine.sh --checks C1-C8` |
+| **3** | Paquete Desplegable | Todo Tier 2 + bundle completo, manifest.json, deploy.sh, rollback.sh, healthcheck | ≥ 45 | Debe estar vacío | `orchestrator-engine.sh --bundle --checksum` + `packager-assisted.sh` |
+
+> 💡 **Consejo para principiantes**: No intentes saltar Tiers. Cada Tier es un escalón: valida Tier 1 primero, luego Tier 2, luego Tier 3. La madurez se gana con validación, no con prisa.
+
+---
+
+## 【1】🔒 CHECKLIST EJECUTABLE POR TIER (VC-001 a VC-030)
+
+<!-- 
+【EDUCATIVO】Estos 30 ítems son contractuales. 
+Cada artefacto debe aprobar los ítems correspondientes a su Tier antes de entregar.
+-->
+
+### ✅ TIER 1: Checklist de Documentación / Propuesta (VC-001 a VC-010)
+
+```
+【VC-001】Frontmatter YAML válido al inicio del archivo
+✅ Cumplimiento:
+---
+canonical_path: "/ruta/canónica/exacta/desde/raíz.md"
+artifact_id: "identificador-único"
+artifact_type: "documentation|skill_go|etc"
+version: "1.0.0"
+constraints_mapped: ["C3","C4","C5"]
+---
+❌ Violación: YAML con sintaxis inválida, campos faltantes (`canonical_path`, `constraints_mapped`)
+🔧 Validación: `yq eval '.canonical_path' <archivo> | grep -q "/"`
+
+【VC-002】canonical_path es ruta absoluta desde raíz (no relativa)
+✅ Cumplimiento: `canonical_path: "/06-PROGRAMMING/go/example.go.md"`
+❌ Violación: `canonical_path: "../otra-carpeta/example.md"` o sin slash inicial
+🔧 Validación: `yq eval '.canonical_path' <archivo> | grep -q '^/'`
+
+【VC-003】constraints_mapped es subconjunto de norms-matrix[carpeta].allowed
+✅ Cumplimiento: Consultar `norms-matrix.json` para la carpeta destino
+❌ Violación: Declarar `["C9"]` o constraint no mapeada
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file <archivo> --json`
+
+【VC-004】Estructura de secciones sigue orden SDD canónico
+✅ Cumplimiento: Propósito → Implementación → Ejemplos → Validación → Referencias
+❌ Violación: Secciones fuera de orden o faltantes
+🔧 Validación: Revisión manual + `grep -E "^## 【[0-9】】" <archivo>`
+
+【VC-005】Wikilinks son canónicos: [[RUTA/DESDE/RAÍZ.md]], nunca relativos
+✅ Cumplimiento: `[[00-STACK-SELECTOR]]`, `[[PROJECT_TREE.md]]`
+❌ Violación: `[[../otra]]`, `[[./local]]`, `[[archivo#ancla]]`
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/check-wikilinks.sh --file <archivo> --json`
+
+【VC-006】Fences de código declaran lenguaje: ```bash, ```python, ```go, etc.
+✅ Cumplimiento: ```go, ```python, ```sql, ```json, ```yaml
+❌ Violación: ``` sin lenguaje o lenguaje inventado
+🔧 Validación: `grep -E '^```[a-z]+' <archivo> | wc -l` vs total fences
+
+【VC-007】No hay código ejecutable sin validación de seguridad (C3)
+✅ Cumplimiento: Cero `password = "xxx"`, cero API keys hardcodeadas
+❌ Violación: Secrets en texto plano en código, config o logs
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/audit-secrets.sh --file <archivo> --json`
+
+【VC-008】No hay queries SQL sin filtro tenant_id si aplica C4
+✅ Cumplimiento: `WHERE tenant_id = $1` en todas las queries que acceden a datos
+❌ Violación: Query sin aislamiento multi-tenant cuando el artefacto maneja datos de usuario
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/check-rls.sh --file <archivo> --json`
+
+【VC-009】Nota de estado de revisión presente según Tier
+✅ Cumplimiento: Para Tier 1: `⚠️ Requiere revisión humana antes de usar`
+❌ Violación: Entregar Tier 1 como si fuera código listo para producción
+🔧 Validación: Revisión manual de nota final del artefacto
+
+【VC-010】validation_command presente y ejecutable (aunque sea para Tier 1)
+✅ Cumplimiento: `validation_command: "bash .../orchestrator-engine.sh --file <ruta> --json"`
+❌ Violación: Campo faltante o comando con ruta inexistente
+🔧 Validación: `yq eval '.validation_command' <archivo> | grep -q "orchestrator-engine.sh"`
 ```
 
-```yaml
-# ✅ C1: Ejemplo docker-compose con límites explícitos
-services:
-  qdrant:
-    deploy:
-      resources:
-        limits:
-          memory: 1g  # C1: límite explícito
-          cpus: "0.5"  # C2: límite de CPU
+### ✅ TIER 2: Checklist de Código Validable (VC-011 a VC-020)
+
+```
+【VC-011】Todo lo de Tier 1 + frontmatter con tier: 2 y ejemplos_count ≥ 10
+✅ Cumplimiento: `tier: 2`, `examples_count: 12` en frontmatter
+❌ Violación: tier: 2 pero ejemplos_count < 10 o campo faltante
+🔧 Validación: `yq eval '.examples_count' <archivo> | awk '{if($1>=10) print "✅" else print "❌"}'`
+
+【VC-012】≥10 ejemplos en formato ✅/❌/🔧 con casos reales
+✅ Cumplimiento: Tabla o lista con al menos 10 filas de ejemplos buenos/malos/corrección
+❌ Violación: Menos de 10 ejemplos o ejemplos genéricos sin contexto real
+🔧 Validación: `grep -c '✅\|❌\|🔧' <archivo> | awk '{if($1>=10) print "✅" else print "❌"}'`
+
+【VC-013】checksum_sha256 presente y coincide con contenido del archivo
+✅ Cumplimiento: `checksum_sha256: "sha256:abc123..."` calculado post-generación
+❌ Violación: Checksum faltante o que no coincide con `sha256sum <archivo>`
+🔧 Validación: `sha256sum <archivo> | grep -q "$(yq eval '.checksum_sha256' <archivo>)"`
+
+【VC-014】validation_command es ejecutable y retorna exit code significativo
+✅ Cumplimiento: Comando que se puede copiar/pegar y ejecutar sin modificaciones
+❌ Violación: Comando con rutas relativas, flags inválidos o que siempre retorna 0
+🔧 Validación: Ejecutar comando en entorno de prueba y verificar exit code ≠ 0 en fallo
+
+【VC-015】Código pasa linter del lenguaje sin errors (solo warnings permitidos)
+✅ Cumplimiento: `go fmt`, `flake8`, `shellcheck`, `eslint` sin errors
+❌ Violación: Linter reporta errors que bloquean compilación/ejecución
+🔧 Validación: Ejecutar linter correspondiente al lenguaje del artefacto
+
+【VC-016】No hay imports o dependencias no declaradas o con versiones flotantes
+✅ Cumplimiento: `go.mod`, `requirements.txt`, `package.json` con versiones fijas
+❌ Violación: `import "github.com/user/repo"` sin versión o `pip install package` sin hash
+🔧 Validación: `govulncheck`, `pip-audit`, `npm audit` según lenguaje
+
+【VC-017】Funciones/métodos tienen documentación de contrato (input/output)
+✅ Cumplimiento: Docstrings, comentarios de firma, o schema JSON para APIs
+❌ Violación: Función sin documentación de qué espera y qué retorna
+🔧 Validación: Revisión manual + `grep -c "Args:\|Returns:\|schema" <archivo>`
+
+【VC-018】Manejo explícito de errores con fallback o retry (C7)
+✅ Cumplimiento: `try/except`, `if err != nil`, `trap cleanup` con fallback definido
+❌ Violación: Ignorar errores con `pass`, `/* ignore */`, o crashear sin recuperación
+🔧 Validación: Revisión manual de patrones de error handling + tests de resiliencia
+
+【VC-019】Logging estructurado con tenant_id y trace_id si aplica (C8)
+✅ Cumplimiento: Logs JSON con campos obligatorios: timestamp, level, event, tenant_id, trace_id
+❌ Violación: `print()`, `console.log()` sin estructura o sin campos de trazabilidad
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --checks C8 --file <archivo> --json`
+
+【VC-020】Score de orchestrator-engine.sh ≥ 30 y blocking_issues == []
+✅ Cumplimiento: Ejecutar validación integral y verificar resultado
+❌ Violación: Score < 30 o blocking_issues no vacío
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <archivo> --json | jq '.score, .blocking_issues'`
 ```
 
-```yaml
-# ❌ Anti-pattern: Servicio sin resource limits
-services:
-  qdrant:
-    image: qdrant/qdrant:latest  # Sin deploy.resources → consumo ilimitado
-# 🔧 Fix: Añadir deploy.resources con limits explícitos C1/C2
+### ✅ TIER 3: Checklist de Paquete Desplegable (VC-021 a VC-030)
+
 ```
+【VC-021】Todo lo de Tier 2 + frontmatter con tier: 3 y bundle_required: true
+✅ Cumplimiento: `tier: 3`, `bundle_required: true` en frontmatter
+❌ Violación: tier: 3 pero bundle_required: false o campo faltante
+🔧 Validación: `yq eval '.bundle_required' <archivo> | grep -q "true"`
 
-### C2 – Explicit Timeouts in All Operations
-**Propósito**: Garantizar que ninguna operación bloquee indefinidamente el sistema.
+【VC-022】bundle_contents lista todos los archivos requeridos en el ZIP
+✅ Cumplimiento: `bundle_contents: ["manifest.json", "deploy.sh", "rollback.sh", "healthcheck.sh", "README-DEPLOY.md"]`
+❌ Violación: Archivo crítico faltante en la lista o en el bundle real
+🔧 Validación: Comparar lista en frontmatter con archivos generados en bundle/
 
-```sql
--- ✅ C2: Timeout explícito en transacción PostgreSQL
-BEGIN;
-SET LOCAL statement_timeout = '30s';  -- C2: timeout por transacción
-UPDATE metrics SET last_run = now() WHERE tenant_id = current_setting('app.tenant_id');
-COMMIT;
-```
+【VC-023】manifest.json válido con metadatos canónicos del paquete
+✅ Cumplimiento: JSON con artifact_id, version, tier, validation_result, checksum, deploy_command
+❌ Violación: manifest.json con sintaxis inválida o campos obligatorios faltantes
+🔧 Validación: `jq empty manifest.json && jq '.artifact_id, .version, .tier' manifest.json`
 
-```sql
--- ❌ Anti-pattern: Transacción larga sin timeout → bloqueo de locks
-BEGIN; UPDATE metrics SET ...; COMMIT;  -- Sin límite temporal
--- 🔧 Fix: SET LOCAL statement_timeout dentro de BEGIN/COMMIT
-```
+【VC-024】deploy.sh es idempotente y soporta --dry-run
+✅ Cumplimiento: Script que verifica estado actual antes de modificar, con flag --dry-run
+❌ Violación: Script que crea duplicados al ejecutarse dos veces o sin opción de simulación
+🔧 Validación: Ejecutar `./deploy.sh --dry-run` y luego `./deploy.sh` dos veces, verificar idempotencia
 
-```python
-# ✅ C2: Timeout explícito en operación asíncrona Python
-import asyncio
-async def fetch_with_timeout(url: str, timeout: float = 10.0) -> dict:
-    async with asyncio.timeout(timeout):  # C2: timeout explícito
-        return await http_get(url)
-```
+【VC-025】rollback.sh revierte cambios de deploy.sh sin pérdida de datos
+✅ Cumplimiento: Script que restaura estado previo usando backups o versionado
+❌ Violación: rollback.sh que no funciona o que pierde datos al revertir
+🔧 Validación: Ejecutar deploy.sh → rollback.sh → verificar que sistema vuelve a estado inicial
 
-```python
-# ❌ Anti-pattern: Operación sin timeout → bloqueo potencial indefinido
-async def fetch(url: str) -> dict:
-    return await http_get(url)  # ¿Qué pasa si el servidor no responde?
-# 🔧 Fix: Envolver en contexto con timeout explícito
-```
+【VC-026】healthcheck.sh verifica salud del servicio desplegado
+✅ Cumplimiento: Script que retorna exit code 0 si servicio está sano, 1 si no
+❌ Violación: healthcheck.sh que siempre retorna 0 o que no verifica dependencias críticas
+🔧 Validación: Ejecutar healthcheck.sh con servicio up/down y verificar exit codes
 
-### C3 – Secrets & Environment Validation
-**Propósito**: Fallar temprano si variables críticas de entorno no están configuradas.
+【VC-027】README-DEPLOY.md con instrucciones claras para el cliente
+✅ Cumplimiento: Documento con: requisitos previos, pasos de deploy, comandos de rollback, troubleshooting
+❌ Violación: README genérico o sin pasos ejecutables específicos para este paquete
+🔧 Validación: Revisión manual de claridad y completitud de instrucciones
 
-```bash
-# ✅ C3: Validación explícita de variable crítica en Bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-readonly API_KEY="${API_KEY:?API_KEY no configurada en entorno}"  # C3: fallo temprano
-```
+【VC-028】checksums.sha256 con hashes válidos para todos los archivos del bundle
+✅ Cumplimiento: Archivo con `sha256sum <file>` para cada archivo en bundle_contents
+❌ Violación: Checksum faltante para algún archivo o hash que no coincide
+🔧 Validación: `sha256sum -c checksums.sha256` en directorio del bundle
 
-```bash
-# ❌ Anti-pattern: Variable opcional sin validación para valor crítico
-API_KEY="${API_KEY:-}"  # Silencioso: vacío si no existe
-# 🔧 Fix: Usar ${VAR:?mensaje} para valores obligatorios
-```
+【VC-029】Score de orchestrator-engine.sh ≥ 45 y blocking_issues == [] para Tier 3
+✅ Cumplimiento: Validación integral con flags --bundle --checksum retorna score alto
+❌ Violación: Score < 45 o blocking_issues no vacío para artefacto Tier 3
+🔧 Validación: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <archivo> --bundle --checksum --json | jq '.score, .blocking_issues'`
 
-```python
-# ✅ C3: Validación explícita con mensaje claro en Python
-import os
-TENANT_ID = os.environ["TENANT_ID"]  # KeyError si falta → fallo inmediato
-assert len(TENANT_ID) >= 3 and TENANT_ID.isalnum(), "TENANT_ID: ≥3 chars alfanuméricos"
-```
-
-```python
-# ❌ Anti-pattern: Default silencioso que oculta error de configuración
-TENANT_ID = os.environ.get("TENANT_ID", "default")  # ¿Es intencional o error?
-# 🔧 Fix: Acceso directo + assert con mensaje específico
-```
-
-### C4 – Multi-Tenant Isolation (CRÍTICO)
-**Propósito**: Garantizar que ningún tenant pueda acceder a datos de otro, ni por error ni por ataque.
-
-```sql
--- ✅ C4: Filtro explícito + RLS como defensa en profundidad
-SELECT id, data FROM documents
-WHERE tenant_id = current_setting('app.tenant_id')  -- C4: filtro explícito
-ORDER BY created_at DESC LIMIT 100;
--- + Política RLS: USING (tenant_id = current_setting('app.tenant_id'))
-```
-
-```sql
--- ❌ Anti-pattern: Query sin contexto de tenant → riesgo de fuga cross-tenant
-SELECT id, data FROM documents ORDER BY created_at DESC LIMIT 100;  -- Sin WHERE tenant_id
--- 🔧 Fix: Siempre incluir WHERE tenant_id = current_setting(...) como capa adicional
-```
-
-```python
-# ✅ C4: Aislamiento de contexto en aplicación Python
-from contextvars import ContextVar
-TENANT_CTX: ContextVar[str] = ContextVar("tenant_id")
-
-def get_tenant_data(query: str) -> list:
-    tenant_id = TENANT_CTX.get()  # C4: contexto aislado por request
-    return db.query(f"SELECT * FROM data WHERE tenant_id = %s", tenant_id)
-```
-
-```python
-# ❌ Anti-pattern: Variable global para tenant → fuga entre requests concurrentes
-CURRENT_TENANT = None  # Global: compartido entre hilos/requests
-# 🔧 Fix: Usar ContextVar o AsyncLocalStorage para aislamiento por request
-```
-
-### C5 – Integrity Verification via Checksums
-**Propósito**: Detectar corrupción o modificación no autorizada de datos/configuraciones críticas.
-
-```bash
-# ✅ C5: Validación SHA256 pre/post operación crítica
-echo "$(sha256sum config.sql) config.sql" | sha256sum -c  # C5: verificación
-if [[ $? -ne 0 ]]; then echo "Integrity check failed" >&2; exit 1; fi
-```
-
-```bash
-# ❌ Anti-pattern: Copia sin verificación de integridad
-cp config.sql /deploy/  # ¿Se corrompió en tránsito? ¿Modificación no autorizada?
-# 🔧 Fix: Calcular y validar checksum antes y después de operaciones críticas
-```
-
-```sql
--- ✅ C5: Hash de contenido para detectar drift de embeddings
-INSERT INTO embeddings (id, tenant_id, vec, content_hash)
-VALUES (gen_random_uuid(), $1, $2, digest($3::bytea, 'sha256'));  -- C5: pgcrypto
-```
-
-```sql
--- ❌ Anti-pattern: Insertar embedding sin hash de integridad → drift indetectable
-INSERT INTO embeddings (vec) VALUES ($1);  -- Sin content_hash para auditoría
--- 🔧 Fix: Calcular digest(content, 'sha256') y almacenar en columna dedicada
-```
-
-### C6 – Optional Dependencies with Fallback
-**Propósito**: Permitir ejecución en entornos minimalistas sin fallar por deps opcionales.
-
-```python
-# ✅ C6: Import opcional con fallback documentado
-try:
-    import yaml  # Dependency opcional para configs YAML
-except ImportError:
-    yaml = None
-    logger.warning("PyYAML unavailable; using JSON fallback for config parsing")
-
-def load_config(path: str) -> dict:
-    if yaml and path.endswith('.yaml'):
-        return yaml.safe_load(open(path))
-    return json.load(open(path))  # Fallback siempre disponible
-```
-
-```python
-# ❌ Anti-pattern: Import directo sin manejo de error → falla en entorno minimalista
-import yaml  # ImportError si no está instalado en imagen Docker base
-# 🔧 Fix: try/except + comportamiento de fallback documentado
-```
-
-```sql
--- ✅ C6: Extensión PostgreSQL opcional con fallback
-CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- C6: no falla si ya existe
--- Fallback para entornos sin pgcrypto:
--- SELECT encode(sha256(:bytea), 'hex') AS hash FROM ...;
-```
-
-```sql
--- ❌ Anti-pattern: CREATE EXTENSION sin IF NOT EXISTS → falla en re-ejecución
-CREATE EXTENSION pgcrypto;  -- Error si ya fue creada
--- 🔧 Fix: CREATE EXTENSION IF NOT EXISTS + documentar fallback nativo
-```
-
-### C7 – Path Safety & Cleanup Guarantees
-**Propósito**: Prevenir path traversal y garantizar limpieza de recursos temporales.
-
-```python
-# ✅ C7: Validación de contención + cleanup con finally
-from pathlib import Path
-def safe_read(base: Path, user_input: str) -> str:
-    safe_path = (base / user_input).resolve()
-    assert str(safe_path).startswith(str(base.resolve())), "Path traversal detected"  # C7
-    try:
-        return safe_path.read_text()
-    finally:
-        cleanup_temp_files()  # C7: garantía de limpieza
-```
-
-```python
-# ❌ Anti-pattern: Concatenación ingenua de rutas → vulnerabilidad path traversal
-path = f"/data/{user_input}"  # user_input = "../../etc/passwd" → lectura arbitraria
-# 🔧 Fix: pathlib + resolve() + startsWith() para validación de contención
-```
-
-```bash
-# ✅ C7: Validación de path en Bash con realpath
-readonly BASE_DIR="/app/data"
-user_file="${1:?Missing filename}"
-safe_path="$(realpath -m "$BASE_DIR/$user_file")"
-[[ "$safe_path" == "$BASE_DIR/"* ]] || { echo "Path traversal blocked" >&2; exit 1; }
-```
-
-```bash
-# ❌ Anti-pattern: Uso directo de input de usuario en path
-cat "/data/$1"  # $1 = "../../etc/passwd" → lectura de archivo arbitrario
-# 🔧 Fix: Validar con realpath + patrón de contención antes de operar
-```
-
-### C8 – Structured Logging to stderr (ZERO print/console)
-**Propósito**: Habilitar trazabilidad parseable y auditoría multi-tenant sin contaminación de stdout.
-
-```python
-# ✅ C8: Logger JSON a stderr con campos estandarizados
-import json, sys, datetime, os
-def log_event(level: str, msg: str, **extra) -> None:
-    entry = {
-        "ts": datetime.datetime.utcnow().isoformat() + "Z",
-        "tenant": os.environ.get("TENANT_ID", "unknown"),
-        "level": level,
-        "msg": msg,
-        **extra
-    }
-    print(json.dumps(entry), file=sys.stderr)  # C8: stderr exclusivo para logs
-```
-
-```python
-# ❌ Anti-pattern: print() en producción → rompe trazabilidad y parseo
-print(f"Processing tenant {tid}")  # stdout mezclado con logs → imposible ingestar
-# 🔧 Fix: Logger estructurado exclusivamente a stderr con JSON parseable
-```
-
-```sql
--- ✅ C8: Logging estructurado en PostgreSQL con json_build_object
-DO $$ BEGIN
-  RAISE NOTICE '%', json_build_object(  -- C8: JSON a stderr (PG redirige NOTICE a stderr)
-    'ts', clock_timestamp(),
-    'tenant', current_setting('app.tenant_id'),
-    'op', 'vector_search',
-    'results', 10
-  );
-END $$;
-```
-
-```sql
--- ❌ Anti-pattern: RAISE NOTICE con string plano → imposible parsear automáticamente
-RAISE NOTICE 'Search completed for tenant %', current_setting('app.tenant_id');
--- 🔧 Fix: Usar json_build_object() para estructura consistente y parseable por SIEM
+【VC-030】packager-assisted.sh genera bundle válido y reproducible
+✅ Cumplimiento: Script de empaquetado que crea ZIP con estructura canónica y checksums
+❌ Violación: packager-assisted.sh que omite archivos críticos o genera checksums inconsistentes
+🔧 Validación: Ejecutar `bash 05-CONFIGURATIONS/scripts/packager-assisted.sh --source <archivo> --dry-run` y verificar estructura
 ```
 
 ---
 
-## 🔍 Checklist de Validación por Componente
+## 【2】🛡️ VALIDACIÓN AUTOMÁTICA DEL CHECKLIST
 
-### Docker / Contenedores
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| DOCK-01 | `[ ]` Contenedores principales tienen límite de memoria definido | `docker inspect <container> --format='{{.HostConfig.Memory}}'` ≤ 4294967296 | C1 |
-| DOCK-02 | `[ ]` Puertos sensibles NO expuestos a 0.0.0.0 | `docker ps --format "table {{.Names}}\t{{.Ports}}" \| grep 3306` → debe mostrar `127.0.0.1:3306` | C3 |
-| DOCK-03 | `[ ]` Health checks configurados en servicios críticos | `docker inspect <container> --format='{{.Config.Healthcheck}}'` | C7 |
-| DOCK-04 | `[ ]` Logs rotan con max-size definido | `docker inspect <container> --format='{{.HostConfig.LogConfig}}'` → max-size: "10m" | C8 |
+<!-- 
+【EDUCATIVO】Herramientas y comandos para validar automáticamente los ítems del checklist.
+-->
 
-### n8n / Workflows
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| N8N-01 | `[ ]` Workflows incluyen tenant_id en filtros de Qdrant/SQL | `jq '.nodes[] \| select(.type \| contains("Qdrant")) \| .parameters.filter' workflow.json` → debe contener `tenant_id` | C4 |
-| N8N-02 | `[ ]` Nodos HTTP tienen timeout explícito ≤ 30s | `jq '.nodes[] \| select(.type == "n8n-nodes-base.httpRequest") \| .parameters.options.timeout' workflow.json` ≤ 30000 | C2 |
-| N8N-03 | `[ ]` Credentials en variables de entorno, no hardcodeadas | `grep -rn "X-Api-Key" *.json \| grep -v "process.env"` → resultado esperado: vacío | C3 |
-| N8N-04 | `[ ]` Queries SQL usan prepared statements, no concatenación | `jq '.nodes[] \| select(.type == "n8n-nodes-base.mySql") \| .parameters.query' workflow.json` → debe usar `:param` no `+ $json.var` | C4 |
-
-### SQL / Bases de Datos
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| SQL-01 | `[ ]` Todas las queries incluyen `WHERE tenant_id = ?` | `grep -n "SELECT.*FROM" *.sql \| grep -v "WHERE.*tenant_id"` → resultado esperado: vacío | C4 |
-| SQL-02 | `[ ]` No se usa `SELECT *` sin LIMIT o filtro altamente selectivo | `grep -n "SELECT \* FROM" queries.sql` → debe ir acompañado de `WHERE tenant_id` y `LIMIT` | C1 |
-| SQL-03 | `[ ]` Índices incluyen tenant_id como primera columna | `SHOW INDEX FROM interactions WHERE Column_name = 'tenant_id';` | C4 |
-| SQL-04 | `[ ]` Usuario de app no es root ni tiene GRANT ALL | `mysql -e "SHOW GRANTS FOR 'app_user'@'%';"` → solo SELECT, INSERT, UPDATE, DELETE | C3 |
-
-### APIs / Integraciones Externas
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| API-01 | `[ ]` Endpoints requieren autenticación (excepto health checks) | `curl -X GET https://api.example.com/v1/users` → debe retornar 401 Unauthorized | C3 |
-| API-02 | `[ ]` tenant_id en headers o payload, NO en URL | `grep -rn "/api/v1/[^/]*orders" *.js` → no debe contener tenant_id en path | C4 |
-| API-03 | `[ ]` Rate limiting configurado por tenant_id | Verificar headers de respuesta: `X-RateLimit-Limit`, `X-RateLimit-Remaining` | C1 |
-| API-04 | `[ ]` Tokens JWT tienen expiración ≤ 24h | `jwt.decode(token, verify=False)` → verificar claim `exp` - `iat` ≤ 86400 | C3 |
-
-### Monitorización / Observabilidad
-| ID | Check | Comando de Verificación | Constraint |
-|----|-------|------------------------|------------|
-| MON-01 | `[ ]` Métricas de CPU/RAM/Disk con alertas configuradas | `curl -s http://localhost:9090/api/v1/alerts \| jq '.data.alerts[] \| select(.state="firing")'` | C8 |
-| MON-02 | `[ ]` Logs estructurados en JSON con tenant_id | `tail -100 /var/log/app.log \| jq -e '.tenant'` → debe parsear correctamente | C8 |
-| MON-03 | `[ ]` Health checks responden con status "ok" | `curl -s http://localhost:8080/healthz \| jq '.status'` → debe ser "ok" | C7 |
-| MON-04 | `[ ]` Trazas distribuidas incluyen trace_id y tenant_id | Verificar headers de OpenTelemetry: `traceparent`, `x-tenant-id` | C8 |
-
----
-
-## 🔄 Flujo de Validación Automatizada
+### 2.1 orchestrator-engine.sh – Validación Integral con Scoring
 
 ```bash
-# 1. Validar un artifact individual
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/orchestrator-engine.sh
+
+# 🎯 Propósito
+Validar artefacto contra checklist completo, calcular score y detectar blocking_issues.
+
+# 📦 Flags Principales
+--file <ruta>              # Artefacto a validar
+--mode <headless|interactive>  # headless para CI/CD
+--json                     # Salida en formato JSON para parsing
+--checks <C1,C2,...>       # Constraints específicas a validar (default: todas aplicables)
+--bundle                   # Validar estructura de bundle para Tier 3
+--checksum                 # Calcular y verificar checksums SHA256
+
+# ✅ Ejemplo: Validar artefacto Tier 2
 bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-  --file 02-SKILLS/BASE\ DE\ DATOS-RAG/multi-tenant-data-isolation.md \
-  --json | jq '.passed, .score, .blocking_issues'
+  --file 06-PROGRAMMING/go/webhook-handler.go.md \
+  --mode headless \
+  --json
 
-# 2. Validar todo un directorio
-find 06-PROGRAMMING/sql/ -name "*.md" -print0 | while IFS= read -r -d '' file; do
-  bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file "$file" --json
-done | jq -s '[.[] | select(.passed == false)] | length'
-
-# 3. Generar reporte consolidado
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-  --file 01-RULES/08-SKILLS-REFERENCE.md --json > validation-report.json
-
-# 4. Verificar LANGUAGE LOCK (detección de pgvector leak en sql/)
-grep -rE '<->|<=>|<#>|vector\(|hnsw|ivfflat' 06-PROGRAMMING/sql/*.md && \
-  echo "❌ LANGUAGE LOCK VIOLATION: pgvector operators in sql/" || echo "✅ SQL puro verificado"
-```
-
----
-
-## 🚫 LANGUAGE LOCK – Advertencia Crítica para Validadores
-
-```text
-ESTE ARCHIVO ES rule_markdown, NO skill_pgvector.
-
-✅ PERMITIDO:
-- Mencionar "vector", "embedding", "RAG" como términos documentales
-- Referenciar archivos en 06-PROGRAMMING/postgresql-pgvector/ vía wikilinks
-- Mostrar snippets SQL puros (sin operadores pgvector) como ejemplos C4
-
-❌ PROHIBIDO (LANGUAGE LOCK VIOLATION):
-- Usar operadores <->, <=>, <#> en código ejecutable
-- Declarar vector(n) en ejemplos de este archivo
-- Mencionar hnsw, ivfflat como código (solo como texto documental)
-- Incluir V1, V2, V3 en constraints_mapped de este artifact
-
-🔧 Si detectas violación: ABORTAR validación + notificar a maintainer + registrar en 08-LOGS/failed-attempts/
-```
-
----
-
-## ✅ Checklist de Auto-Validación – Pre-Entrega
-
-```text
-[ ] Frontmatter YAML válido con 6 campos mínimos (artifact_id, artifact_type, version, constraints_mapped, validation_command, canonical_path)
-[ ] SHA256 header presente con 64-char hex simulado
-[ ] Ejemplos en formato ✅/❌/🔧 con ≤5 líneas ejecutables cada uno
-[ ] Cantidad de ejemplos: ≥10 para rule_markdown (≥25 solo para skill_pgvector)
-[ ] Timestamp en JSON report es año 2026, formato ISO8601
-[ ] Validation command apunta al canonical_path correcto
-[ ] Cierre con --- para parseo automatizado por agentes
-[ ] LANGUAGE LOCK respetado: cero fuga de operadores entre carpetas
-[ ] C8: Logging estructurado a stderr en ejemplos que lo requieran
-[ ] C4: Filtro tenant_id o RLS policy en ejemplos multi-tenant
-[ ] constraints_mapped incluye SOLO C1-C8 (V* prohibidos para rule_markdown)
-
-Si alguna respuesta es NO → corregir antes de emitir artifact.
-```
-
----
-
-## 🔗 Conexiones Estructurales – Wikilinks Canónicos
-
-```markdown
-[[README.md]]
-[[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[01-RULES/00-INDEX.md]]
-[[01-RULES/harness-norms-v3.0.md]]
-[[01-RULES/10-SDD-CONSTRAINTS.md]]
-[[01-RULES/language-lock-protocol.md]]
-[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]
-[[05-CONFIGURATIONS/validation/verify-constraints.sh]]
-[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]
-[[PROJECT_TREE.md]]
-[[06-PROGRAMMING/postgresql-pgvector/00-INDEX.md]]
-[[06-PROGRAMMING/yaml-json-schema/00-INDEX.md]]
-```
-
----
-
-## 📊 Auto-Validation Report (JSON)
-
-```json
+# 📤 Salida Esperada (JSON)
 {
-  "artifact": "documentation-validation-checklist",
-  "artifact_type": "rule_markdown",
-  "version": "3.0.0-SELECTIVE",
-  "score": 47,
+  "file": "06-PROGRAMMING/go/webhook-handler.go.md",
+  "tier_validated": "tier2-code",
+  "score": 42,
   "passed": true,
-  "errors": [],
-  "warnings": [],
-  "constraints_verified": ["C3", "C4", "C5", "C7", "C8"],
-  "constraints_mapped": ["C3", "C4", "C5", "C7", "C8"],
-  "examples_count": 24,
-  "canonical_path": "00-CONTEXT/documentation-validation-checklist.md",
-  "file_path": "00-CONTEXT/documentation-validation-checklist.md",
-  "validation_context": {
-    "is_pgvector_directory": false,
-    "has_vector_operators": false,
-    "selective_v_applied": false,
-    "language_lock_enforced": true
+  "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "constraints_failed": [],
+  "blocking_issues": [],
+  "warnings": ["C2: timeout no especificado en función X, se asume default 30s"],
+  "language_lock_violations": 0,
+  "validation_profile_used": "tier2-code",
+  "validation_timestamp": "2026-04-19T12:05:00Z",
+  "artifact_checksum": "sha256:abc123...",
+  "checklist_items": {
+    "VC-001": {"status": "passed", "details": "frontmatter YAML válido"},
+    "VC-002": {"status": "passed", "details": "canonical_path absoluto"},
+    "VC-012": {"status": "passed", "details": "12 ejemplos ✅/❌/🔧 encontrados"},
+    "VC-020": {"status": "passed", "details": "score=42 >= 30, blocking_issues=[]"}
   },
-  "timestamp": "2026-04-19T00:00:00Z"
+  "next_steps": ["✅ Artefacto aprobado para Tier 2. Entregar con validation_command + checksum."]
+}
+
+# ⚠️ Criterios de Aceptación por Tier
+| Tier | Score Mínimo | blocking_issues | language_lock_violations |
+|------|-------------|-----------------|-------------------------|
+| 1    | ≥ 15        | vacío o warnings| 0                       |
+| 2    | ≥ 30        | vacío           | 0                       |
+| 3    | ≥ 45        | vacío           | 0                       |
+```
+
+### 2.2 validate-frontmatter.sh – Validación Rápida de Estructura
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/validate-frontmatter.sh
+
+# 🎯 Propósito
+Validar que frontmatter YAML es sintácticamente válido y tiene campos obligatorios por Tier.
+
+# 📦 Flags Principales
+--file <ruta>              # Archivo Markdown a validar
+--level <1|2|3>            # Nivel de especificación: 1=base, 2=código, 3=paquete
+--required-fields <lista>  # Campos adicionales requeridos (separados por comas)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar frontmatter Tier 2
+bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh \
+  --file 06-PROGRAMMING/go/webhook-handler.go.md \
+  --level 2 \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/go/webhook-handler.go.md",
+  "frontmatter_valid": true,
+  "yaml_syntax_ok": true,
+  "required_fields_present": ["canonical_path", "artifact_id", "artifact_type", "version", "constraints_mapped", "validation_command", "tier", "mode_selected", "prompt_hash", "generated_at"],
+  "missing_fields": [],
+  "extra_fields": [],
+  "passed": true
+}
+```
+
+### 2.3 check-wikilinks.sh – Validación de Enlaces Canónicos
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/check-wikilinks.sh
+
+# 🎯 Propósito
+Validar que todos los wikilinks `[[RUTA]]` son canónicos (absolutos desde raíz) y apuntan a archivos existentes.
+
+# 📦 Flags Principales
+--file <ruta>              # Archivo Markdown a validar
+--project-tree <archivo>   # Ruta a PROJECT_TREE.md (default: PROJECT_TREE.md)
+--allow-external           # Permitir wikilinks a URLs externas (https://...)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar wikilinks en archivo
+bash 05-CONFIGURATIONS/validation/check-wikilinks.sh \
+  --file 01-RULES/validation-checklist.md \
+  --project-tree PROJECT_TREE.md \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "01-RULES/validation-checklist.md",
+  "wikilinks_found": 24,
+  "wikilinks_canonical": 24,
+  "wikilinks_relative": 0,
+  "wikilinks_broken": 0,
+  "findings": [],
+  "passed": true,
+  "recommendation": "✅ Todos los wikilinks son canónicos y apuntan a archivos existentes."
 }
 ```
 
 ---
 
-## Validation Command
+## 【3】🧭 PROTOCOLO DE VALIDACIÓN PRE-ENTREGA (PASO A PASO)
 
-```bash
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-CONTEXT/documentation-validation-checklist.md --json 2>/dev/null | awk '/^\{/,/^\}/' | jq -e '.score >= 30 and .blocking_issues == []'
+<!-- 
+【EDUCATIVO】Flujo determinista que DEBE seguir cualquier artefacto antes de entregar.
+Mismos inputs → mismos outputs. Si algo no está claro, DETENER y preguntar.
+-->
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 0】CONFIRMAR TIER Y MODO                        │
+├─────────────────────────────────────────────────────────┤
+│ 1. Verificar que mode_selected está confirmado en IA-QUICKSTART │
+│ 2. Determinar Tier según mapeo: A1/B1→1, A2/B2→2, A3/B3→3 │
+│ 3. Registrar tier en frontmatter del artefacto         │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 1】VALIDACIÓN MANUAL DEL CHECKLIST              │
+├─────────────────────────────────────────────────────────┤
+│ 4. Ejecutar checklist correspondiente al Tier:         │
+│    • Tier 1: VC-001 a VC-010                           │
+│    • Tier 2: VC-001 a VC-020                           │
+│    • Tier 3: VC-001 a VC-030                           │
+│ 5. Marcar cada ítem como ✅/❌ con evidencia            │
+│ 6. Si algún ítem crítico falla → iterar corrección    │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 2】VALIDACIÓN AUTOMÁTICA CON TOOLCHAIN          │
+├─────────────────────────────────────────────────────────┤
+│ 7. Ejecutar validate-frontmatter.sh --level <tier>     │
+│ 8. Ejecutar check-wikilinks.sh                         │
+│ 9. Ejecutar audit-secrets.sh (si aplica C3)            │
+│ 10. Ejecutar check-rls.sh (si aplica C4 y es SQL)      │
+│ 11. Ejecutar verify-constraints.sh --check-language-lock│
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 3】SCORING INTEGRAL CON ORCHESTRATOR           │
+├─────────────────────────────────────────────────────────┤
+│ 12. Ejecutar: orchestrator-engine.sh --file <ruta> --json│
+│ 13. Verificar: score >= mínimo para Tier, blocking_issues == []│
+│ 14. Si falla → iterar corrección (máx 3 intentos)      │
+└─────────────────────────────────────────────────────────┘
+ ▼
+┌─────────────────────────────────────────────────────────┐
+│ 【PASO 4】ENTREGA SEGÚN TIER + AUDITORÍA              │
+├─────────────────────────────────────────────────────────┤
+│ 15. Formato de entrega:                                │
+│    • Tier 1: Pantalla + nota "Requiere revisión humana"│
+│    • Tier 2: Código + validation_command + checksum    │
+│    • Tier 3: ZIP con manifest + deploy.sh + rollback.sh│
+│ 16. Registrar log de auditoría con prompt_hash, tenant_id, trace_id│
+└─────────────────────────────────────────────────────────┘
+```
+
+### 3.1 Ejemplo de Traza de Validación Pre-Entrega
+
+```
+【TRAZA DE VALIDACIÓN PRE-ENTREGA】
+Artefacto: `06-PROGRAMMING/python/rag-query.md`, Tier 2
+
+Paso 0 - Confirmar Tier:
+  • mode_selected: "B2" confirmado en IA-QUICKSTART ✅
+  • Mapeo: B2 → Tier 2 ✅
+  • Frontmatter: tier: 2 registrado ✅
+
+Paso 1 - Checklist manual (VC-001 a VC-020):
+  • VC-001: Frontmatter YAML válido ✅
+  • VC-002: canonical_path absoluto ✅
+  • VC-012: 14 ejemplos ✅/❌/🔧 encontrados ✅
+  • VC-020: orchestrator-engine.sh --json retorna score=38, passed=true ✅
+  • Todos los ítems Tier 2 aprobados ✅
+
+Paso 2 - Validación automática:
+  • validate-frontmatter.sh --level 2 → passed ✅
+  • check-wikilinks.sh → 24 wikilinks canónicos, 0 rotos ✅
+  • audit-secrets.sh → 0 secrets hardcodeados ✅
+  • verify-constraints.sh --check-language-lock → 0 violaciones ✅
+
+Paso 3 - Scoring integral:
+  • orchestrator-engine.sh --json → score=38 >= 30, blocking_issues=[] ✅
+  • language_lock_violations: 0 ✅
+
+Paso 4 - Entrega Tier 2:
+  • Formato: código fuente + validation_command + checksum_sha256 ✅
+  • Log auditoría: {"event":"artifact_delivered","tier":2,"score":38,"tenant_id":"cli_001"} ✅
+
+Resultado: ✅ Artefacto certificado para Tier 2, listo para integración.
 ```
 
 ---
 
-*Versión 3.0.0-SELECTIVE – 2026-04-19 – Mantis-AgenticDev*  
-*Licencia: Creative Commons BY-NC-SA 4.0 para uso interno del proyecto*  
-*Checksum simulado: SHA256:b7f3e9a2c8d1f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8*
+## 【4】📚 GLOSARIO PARA PRINCIPIANTES
+
+<!-- 
+【EDUCATIVO】Términos técnicos explicados en lenguaje simple.
+-->
+
+| Término | Significado simple | Ejemplo |
+|---------|-------------------|---------|
+| **Tier 1/2/3** | Niveles de madurez: 1=borrador, 2=código listo, 3=paquete desplegable | Tier 2 → código con validation_command y checksum |
+| **blocking_issue** | Error que impide la entrega hasta que se corrige | `C3_VIOLATION: API key hardcodeada` |
+| **score** | Puntuación de calidad del artefacto (0-100) | Score 42 ≥ 30 → aprobado para Tier 2 |
+| **canonical_path** | Ruta absoluta desde raíz del repositorio | `/06-PROGRAMMING/python/rag-query.md` |
+| **wikilink canónico** | Enlace interno con ruta absoluta, nunca relativa | `[[PROJECT_TREE.md]]` (no `[[../PROJECT_TREE.md]]`) |
+| **checksum SHA256** | Hash que verifica que un archivo no fue modificado | `sha256:abc123...` para verificar integridad |
+| **idempotente** | Script que puede ejecutarse múltiples veces sin efectos secundarios | `deploy.sh` que verifica si ya está instalado antes de instalar |
+| **dry-run** | Ejecutar comando en modo simulación, sin cambios reales | `./deploy.sh --dry-run` para probar sin desplegar |
+| **PII scrubbing** | Reemplazar datos personales por `***REDACTED***` en logs | Log: `user_email=***REDACTED***` en lugar de valor real |
+| **LANGUAGE LOCK** | Regla que prohíbe ciertos operadores en ciertos lenguajes | No usar `<->` en `go/`, solo en `postgresql-pgvector/` |
 
 ---
+
+## 【5】🧪 SANDBOX DE PRUEBA (OPCIONAL)
+
+<!-- 
+【PARA DESARROLLADORES】Pega esta sección en un chat nuevo para validar que la IA sigue el protocolo sin contexto previo.
+-->
+
+```
+【TEST MODE: VALIDATION-CHECKLIST VALIDATION】
+Prompt de prueba: "Validar artefacto de webhook seguro en TypeScript para Tier 2"
+
+Respuesta esperada de la IA:
+1. Confirmar Tier: mode_selected "B2" → Tier 2
+2. Ejecutar checklist manual VC-001 a VC-020:
+   • Verificar frontmatter YAML válido (VC-001)
+   • Verificar canonical_path absoluto (VC-002)
+   • Verificar ≥10 ejemplos ✅/❌/🔧 (VC-012)
+   • Verificar validation_command ejecutable (VC-014)
+3. Ejecutar validación automática:
+   • validate-frontmatter.sh --level 2
+   • check-wikilinks.sh
+   • audit-secrets.sh (para C3)
+   • verify-constraints.sh --check-language-lock
+4. Ejecutar orchestrator-engine.sh --json y verificar score >= 30, blocking_issues == []
+5. Si pasa → entregar con formato Tier 2: código + validation_command + checksum
+6. Si falla → iterar corrección (máx 3 intentos) con sugerencias específicas
+
+Si la IA omite validación automática, entrega sin checksum, o ignora blocking_issues → FALLA DE VALIDACIÓN.
+```
+
+---
+
+## 【6】🔗 REFERENCIAS CANÓNICAS (WIKILINKS)
+
+<!-- 
+【PARA IA】Estos enlaces deben resolverse usando PROJECT_TREE.md. 
+No uses rutas relativas. Usa siempre la forma canónica [[RUTA]].
+-->
+
+- `[[01-RULES/harness-norms-v3.0.md]]` → Definición canónica de constraints C1-C8, V1-V3
+- `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` → Mapeo de constraints por carpeta
+- `[[GOVERNANCE-ORCHESTRATOR.md]]` → Tiers, validación y formatos de entrega
+- `[[SDD-COLLABORATIVE-GENERATION.md]]` → Especificación de formato de artefactos
+- `[[TOOLCHAIN-REFERENCE.md]]` → Catálogo de herramientas de validación
+- `[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]` → Motor principal de validación
+- `[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]` → Validador de frontmatter YAML
+- `[[05-CONFIGURATIONS/validation/check-wikilinks.sh]]` → Validador de wikilinks canónicos
+- `[[PROJECT_TREE]]` → Mapa canónico de rutas para resolución de wikilinks
+- `[[00-STACK-SELECTOR]]` → Motor de decisión de stack por ruta
+
+---
+
+## 【7】📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
+
+<!-- 
+【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
+-->
+
+```json
+{
+  "expansion_registry": {
+    "new_checklist_item": {
+      "requires_files_update": [
+        "01-RULES/validation-checklist.md: add item with format ## 【VC-XXX】<TÍTULO>",
+        "GOVERNANCE-ORCHESTRATOR.md: update tier definitions if item affects scoring",
+        "05-CONFIGURATIONS/validation/: add validation logic if item requires new tool",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new checklist items must not invalidate existing artifacts that passed previous version; apply only to new generations"
+    },
+    "new_validation_tool": {
+      "requires_files_update": [
+        "01-RULES/validation-checklist.md: integrate new tool in validation steps",
+        "TOOLCHAIN-REFERENCE.md: document new tool with examples",
+        "orchestrator-engine.sh: integrate new check in scoring logic",
+        "CI/CD: add new tool to validation pipeline",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new tools must support existing artifact formats via optional flags; not break existing validation flows"
+    }
+  },
+  "compatibility_rule": "Nuevos ítems de checklist no deben invalidar artefactos generados bajo versiones anteriores. Cambios breaking requieren major version bump, guía de migración y aprobación humana explícita."
+}
+```
+
+---
+
+<!-- 
+═══════════════════════════════════════════════════════════
+🤖 SECCIÓN PARA IA: ÁRBOL JSON ENRIQUECIDO
+═══════════════════════════════════════════════════════════
+Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
+No está diseñada para lectura humana directa. Los humanos deben usar las secciones 【1】-【7】.
+
+Formato: JSON válido, con comentarios explicativos en claves "doc_*".
+Prioridad de ejecución: Los ítems de checklist se validan en orden VC-001 → VC-030.
+Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
+═══════════════════════════════════════════════════════════
+-->
+
+```json
+{
+  "validation_checklist_metadata": {
+    "version": "3.0.0-SELECTIVE",
+    "canonical_path": "/01-RULES/validation-checklist.md",
+    "artifact_type": "governance_checklist",
+    "immutable": true,
+    "requires_human_approval_for_changes": true,
+    "constraints_primary": ["C5", "C6"],
+    "llm_optimizations": {
+      "oriental_models_friendly": true,
+      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
+      "numbered_sequences": true,
+      "stop_conditions_explicit": true
+    }
+  },
+  
+  "checklist_items_catalog": {
+    "tier_1_items": {
+      "VC-001": {"title": "Frontmatter YAML válido", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "validate-frontmatter.sh"},
+      "VC-002": {"title": "canonical_path absoluto", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "yq eval + regex"},
+      "VC-003": {"title": "constraints_mapped ⊆ norms-matrix.allowed", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "verify-constraints.sh"},
+      "VC-004": {"title": "Estructura SDD en orden canónico", "constraint": "C5", "priority": "high", "blocking_if_failed": false, "validation_tool": "manual review + grep"},
+      "VC-005": {"title": "Wikilinks canónicos", "constraint": "C5", "priority": "high", "blocking_if_failed": true, "validation_tool": "check-wikilinks.sh"},
+      "VC-006": {"title": "Fences de código con lenguaje", "constraint": "C5", "priority": "medium", "blocking_if_failed": false, "validation_tool": "grep + count"},
+      "VC-007": {"title": "Cero secrets hardcodeados (C3)", "constraint": "C3", "priority": "critical", "blocking_if_failed": true, "validation_tool": "audit-secrets.sh"},
+      "VC-008": {"title": "Queries con tenant_id si aplica C4", "constraint": "C4", "priority": "critical", "blocking_if_failed": true, "validation_tool": "check-rls.sh"},
+      "VC-009": {"title": "Nota de estado de revisión presente", "constraint": "C6", "priority": "medium", "blocking_if_failed": false, "validation_tool": "manual review"},
+      "VC-010": {"title": "validation_command presente y ejecutable", "constraint": "C6", "priority": "high", "blocking_if_failed": true, "validation_tool": "yq eval + command execution test"}
+    },
+    "tier_2_items": {
+      "VC-011": {"title": "tier: 2 + ejemplos_count ≥ 10", "constraint": "C5", "priority": "high", "blocking_if_failed": true, "validation_tool": "yq eval + awk"},
+      "VC-012": {"title": "≥10 ejemplos ✅/❌/🔧 con casos reales", "constraint": "C5", "priority": "high", "blocking_if_failed": false, "validation_tool": "grep count"},
+      "VC-013": {"title": "checksum_sha256 válido", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "sha256sum verification"},
+      "VC-014": {"title": "validation_command ejecutable con exit code significativo", "constraint": "C6", "priority": "critical", "blocking_if_failed": true, "validation_tool": "command execution test"},
+      "VC-015": {"title": "Código pasa linter sin errors", "constraint": "C5", "priority": "high", "blocking_if_failed": false, "validation_tool": "language-specific linter"},
+      "VC-016": {"title": "Dependencias declaradas con versiones fijas", "constraint": "C1", "priority": "medium", "blocking_if_failed": false, "validation_tool": "govulncheck/pip-audit/npm audit"},
+      "VC-017": {"title": "Funciones con documentación de contrato", "constraint": "C5", "priority": "medium", "blocking_if_failed": false, "validation_tool": "manual review + grep"},
+      "VC-018": {"title": "Manejo explícito de errores con fallback/retry", "constraint": "C7", "priority": "high", "blocking_if_failed": false, "validation_tool": "manual review + resilience tests"},
+      "VC-019": {"title": "Logging estructurado con tenant_id y trace_id", "constraint": "C8", "priority": "high", "blocking_if_failed": false, "validation_tool": "orchestrator-engine.sh --checks C8"},
+      "VC-020": {"title": "Score ≥ 30 y blocking_issues == []", "constraint": "C6", "priority": "critical", "blocking_if_failed": true, "validation_tool": "orchestrator-engine.sh --json"}
+    },
+    "tier_3_items": {
+      "VC-021": {"title": "tier: 3 + bundle_required: true", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "yq eval"},
+      "VC-022": {"title": "bundle_contents lista archivos requeridos", "constraint": "C5", "priority": "high", "blocking_if_failed": true, "validation_tool": "frontmatter vs bundle directory comparison"},
+      "VC-023": {"title": "manifest.json válido con metadatos canónicos", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "jq empty + field validation"},
+      "VC-024": {"title": "deploy.sh idempotente + --dry-run", "constraint": "C6", "priority": "critical", "blocking_if_failed": true, "validation_tool": "idempotency test + dry-run execution"},
+      "VC-025": {"title": "rollback.sh revierte cambios sin pérdida de datos", "constraint": "C7", "priority": "critical", "blocking_if_failed": true, "validation_tool": "deploy → rollback → state verification"},
+      "VC-026": {"title": "healthcheck.sh verifica salud del servicio", "constraint": "C7", "priority": "high", "blocking_if_failed": false, "validation_tool": "healthcheck execution with service up/down"},
+      "VC-027": {"title": "README-DEPLOY.md con instrucciones claras", "constraint": "C6", "priority": "medium", "blocking_if_failed": false, "validation_tool": "manual review for clarity and completeness"},
+      "VC-028": {"title": "checksums.sha256 con hashes válidos", "constraint": "C5", "priority": "critical", "blocking_if_failed": true, "validation_tool": "sha256sum -c verification"},
+      "VC-029": {"title": "Score ≥ 45 y blocking_issues == [] para Tier 3", "constraint": "C6", "priority": "critical", "blocking_if_failed": true, "validation_tool": "orchestrator-engine.sh --bundle --checksum --json"},
+      "VC-030": {"title": "packager-assisted.sh genera bundle válido", "constraint": "C5", "priority": "high", "blocking_if_failed": false, "validation_tool": "packager-assisted.sh --dry-run + structure validation"}
+    }
+  },
+  
+  "validation_integration": {
+    "orchestrator-engine.sh": {
+      "purpose": "Validación integral con scoring y reporte JSON",
+      "flags": ["--file", "--mode", "--json", "--checks", "--bundle", "--checksum"],
+      "exit_codes": {"0": "passed", "1": "failed"},
+      "output_format": "JSON con score, passed, blocking_issues, checklist_items"
+    },
+    "validate-frontmatter.sh": {
+      "purpose": "Validar estructura YAML y campos obligatorios",
+      "flags": ["--file", "--level", "--required-fields", "--json"],
+      "exit_codes": {"0": "valid", "1": "invalid"},
+      "output_format": "JSON con frontmatter_valid, required_fields_present, missing_fields"
+    },
+    "check-wikilinks.sh": {
+      "purpose": "Validar wikilinks canónicos",
+      "flags": ["--file", "--project-tree", "--allow-external", "--json"],
+      "exit_codes": {"0": "all_canonical", "1": "relative_or_broken_found"},
+      "output_format": "JSON con wikilinks_found, wikilinks_canonical, wikilinks_broken"
+    },
+    "audit-secrets.sh": {
+      "purpose": "Detectar secrets hardcodeados (C3)",
+      "flags": ["--file", "--dir", "--patterns", "--strict", "--json"],
+      "exit_codes": {"0": "no_secrets_found", "1": "secrets_detected"},
+      "output_format": "JSON con secrets_found, patterns_checked, findings"
+    },
+    "check-rls.sh": {
+      "purpose": "Validar tenant isolation en SQL (C4)",
+      "flags": ["--file", "--dir", "--tenant-column", "--strict", "--json"],
+      "exit_codes": {"0": "rls_compliant", "1": "rls_violation"},
+      "output_format": "JSON con queries_analyzed, queries_with_tenant_filter"
+    },
+    "verify-constraints.sh": {
+      "purpose": "Validar constraints y LANGUAGE LOCK",
+      "flags": ["--file", "--dir", "--check-language-lock", "--check-constraint", "--json"],
+      "exit_codes": {"0": "compliant", "1": "violation"},
+      "output_format": "JSON con constraints_validated, language_lock.violations"
+    }
+  },
+  
+  "dependency_graph": {
+    "critical_infrastructure": [
+      {"file": "GOVERNANCE-ORCHESTRATOR.md", "purpose": "Definición de Tiers y scoring", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "Mapeo de constraints por carpeta", "load_order": 2},
+      {"file": "SDD-COLLABORATIVE-GENERATION.md", "purpose": "Especificación de formato estructural", "load_order": 3},
+      {"file": "PROJECT_TREE.md", "purpose": "Mapa canónico para resolución de wikilinks", "load_order": 4}
+    ],
+    "validation_toolchain": [
+      {"file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "purpose": "Motor principal de validación", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/validate-frontmatter.sh", "purpose": "Validación de frontmatter YAML", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/check-wikilinks.sh", "purpose": "Validación de wikilinks canónicos", "load_order": 3},
+      {"file": "05-CONFIGURATIONS/validation/audit-secrets.sh", "purpose": "Detección de secrets hardcodeados", "load_order": 4},
+      {"file": "05-CONFIGURATIONS/validation/check-rls.sh", "purpose": "Validación de tenant isolation en SQL", "load_order": 5},
+      {"file": "05-CONFIGURATIONS/validation/verify-constraints.sh", "purpose": "Validación de constraints y LANGUAGE LOCK", "load_order": 6}
+    ]
+  },
+  
+  "human_readable_errors": {
+    "frontmatter_invalid": "Frontmatter en '{file}' inválido: {details}. Consulte [[SDD-COLLABORATIVE-GENERATION.md]] para formato canónico.",
+    "canonical_path_relative": "canonical_path '{path}' no es absoluto. Usar forma canónica: [[RUTA-DESDE-RAÍZ]].",
+    "constraint_not_allowed": "Constraint '{constraint}' no permitida para carpeta '{folder}'. Consulte [[05-CONFIGURATIONS/validation/norms-matrix.json]].",
+    "wikilink_not_canonical": "Wikilink '{wikilink}' no es canónico. Usar forma absoluta: [[RUTA-DESDE-RAÍZ]].",
+    "secrets_detected": "Secrets hardcodeados detectados en '{file}': {findings}. Usar variables de entorno o secret managers.",
+    "rls_violation": "Query en '{file}' sin filtro tenant_id. Agregar WHERE tenant_id = $N para cumplir C4.",
+    "score_below_threshold": "Score {score} < mínimo {min_score} para Tier {tier}. Revisar blocking_issues y corregir antes de reintentar.",
+    "bundle_incomplete": "Paquete Tier 3 incompleto: faltan {missing_files}. Consulte 【VC-022】 para estructura requerida.",
+    "checksum_mismatch": "Checksum del archivo no coincide: esperado {expected}, obtenido {actual}. Verificar integridad.",
+    "validation_command_broken": "validation_command en '{file}' no es ejecutable o retorna exit code inválido. Corregir comando canónico."
+  },
+  
+  "expansion_hooks": {
+    "new_checklist_item": {
+      "requires_files_update": [
+        "01-RULES/validation-checklist.md: add item with format ## 【VC-XXX】<TÍTULO>",
+        "GOVERNANCE-ORCHESTRATOR.md: update tier definitions if item affects scoring",
+        "05-CONFIGURATIONS/validation/: add validation logic if item requires new tool",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new checklist items must not invalidate existing artifacts that passed previous version; apply only to new generations"
+    },
+    "new_tier_definition": {
+      "requires_files_update": [
+        "01-RULES/validation-checklist.md: add new tier section with VC-XXX items",
+        "GOVERNANCE-ORCHESTRATOR.md: update tier_definitions table",
+        "SDD-COLLABORATIVE-GENERATION.md: update format specification for new tier",
+        "orchestrator-engine.sh: add scoring logic for new tier",
+        "Human approval required: true + major version bump"
+      ],
+      "backward_compatibility": "new tiers must not break existing Tier 1/2/3 validation; must provide migration path for existing artifacts"
+    }
+  },
+  
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "validation-checklist.v3.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C3 + C8 compliance)",
+    "reproducibility_guarantee": "Any artifact validation can be reproduced identically using this checklist + orchestrator-engine.sh + prompt_hash"
+  }
+}
+```
+
+---
+
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+<!-- 
+【PARA PRINCIPIANTES】Antes de guardar este archivo, verifica estos puntos.
+-->
+
+````markdown
+```bash
+# 1. Frontmatter válido
+yq eval '.canonical_path' 01-RULES/validation-checklist.md | grep -q "/01-RULES/validation-checklist.md" && echo "✅ Ruta canónica correcta"
+
+# 2. Constraints mapeadas (C5+C6)
+yq eval '.constraints_mapped | contains(["C5"]) and contains(["C6"])' 01-RULES/validation-checklist.md && echo "✅ C5 y C6 declaradas"
+
+# 3. Ítems de checklist presentes (VC-001 a VC-030)
+grep -c "VC-0[0-9][0-9]:" 01-RULES/validation-checklist.md | awk '{if($1==30) print "✅ 30 ítems de checklist presentes"; else print "⚠️ Faltan ítems: "$1"/30"}'
+
+# 4. Tabla de Tiers presente
+grep -q "Niveles de Validación por Tier" 01-RULES/validation-checklist.md && echo "✅ Tabla de Tiers documentada"
+
+# 5. JSON final parseable
+tail -n +$(grep -n '```json' 01-RULES/validation-checklist.md | tail -1 | cut -d: -f1) 01-RULES/validation-checklist.md | sed -n '/```json/,/```/p' | sed '1d;$d' | jq empty && echo "✅ JSON parseable"
+
+# 6. Wikilinks canónicos (sin rutas relativas)
+for link in $(grep -oE '\[\[[^]]+\]\]' 01-RULES/validation-checklist.md | tr -d '[]' | sort -u); do
+  if [[ "$link" =~ ^\[\[\.\/ || "$link" =~ ^\[\[\.\.\/ ]]; then
+    echo "❌ Wikilink relativo: $link"
+  else
+    [ -f "${link#//}" ] || echo "⚠️ Wikilink no resuelto: $link"
+  fi
+done
+```
+````
+
+**Criterio de aceptación:**  
+- ✅ Frontmatter válido con `canonical_path: "/01-RULES/validation-checklist.md"`  
+- ✅ `constraints_mapped` incluye C5 y C6 (estructura + trazabilidad)  
+- ✅ 30 ítems de checklist (VC-001 a VC-030) documentados con ejemplos ✅/❌/🔧  
+- ✅ Integración con `orchestrator-engine.sh`, `validate-frontmatter.sh`, `check-wikilinks.sh` para validación automática  
+- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
+- ✅ Todos los wikilinks son canónicos (absolutos desde raíz)  
+
+---
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este checklist es tu garantía de calidad. No es opcional.  
+> **Frontmatter → Estructura → Ejemplos → Validación → Score → Entrega**.  
+> Si sigues ese flujo, nunca entregarás un artefacto que no cumpla con lo prometido.  
+> La gobernanza no es una carga. Es la libertad de escalar sin miedo a romper.  

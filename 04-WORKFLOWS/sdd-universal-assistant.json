@@ -1,269 +1,450 @@
+
+# 📄 04-WORKFLOWS/sdd-universal-assistant.json – REGENERADO COMPLETO v3.0-SELECTIVE
+#> **Nota para principiantes:** Este documento es el **"cerebro ejecutable"** del proyecto MANTIS AGENTIC. Define CÓMO se mapean los modos de interacción (A1-B3) a niveles de entrega (Tier 1-3), QUÉ perfiles de validación aplicar según el dominio, y CÓMO se estructuran los outputs para ser consumibles por humanos y sistemas. Si eres nuevo, lee las secciones en orden. Si eres experto, salta al JSON final.  
+#>  
+#> **Para IAs:** Este es tu contrato de orquestación. **MAPEAR MAL UN MODO O IGNORAR UN GATE = DEUDA TÉCNICA CRÍTICA**. No inventes, no asumas, no omitas.
+
+
 {
-  "workflow_id": "sdd-assisted-generation-loop",
-  "version": "2.0.0",
-  "description": "Ciclo de generación asistida y autogeneración SDD Hardened. Orquesta la creación, validación, empaquetado y entrega de artefactos bajo reglas C1-C8.",
-  "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-  "inference_providers": ["OpenRouter", "DashScope", "DeepSeek", "MiniMax"],
-  "nodes": [
-    {
-      "id": "node_01_init_context",
-      "type": "validator",
-      "title": "Validación de Contexto Inicial (C4)",
-      "level": "Junior",
-      "action": "validate_bootstrap",
-      "script": "scripts/init-agent-context.sh",
-      "inputs": {
-        "tenant_id": "${env.TENANT_ID}",
-        "bootstrap_path": "config/bootstrap-company.json"
-      },
-      "validation_logic": "Verificar existencia de archivo y coincidencia de tenant_id.",
-      "success_output": "Contexto cargado. Variables MAX_RESULTS, TIMEOUT_MS, CONNECTION_LIMIT exportadas.",
-      "failure_output": "C4 VIOLATION: tenant_id missing or mismatch.",
-      "troubleshooting": {
-        "error": "C4 VIOLATION",
-        "cause": "Variable de entorno no definida o archivo bootstrap ausente.",
-        "fix": "Ejecutar 'export TENANT_ID=x' y verificar ruta del JSON."
-      }
-    },
-    {
-      "id": "node_02_load_skills_map",
-      "type": "loader",
-      "title": "Carga de Mapa de Skills Disponibles",
-      "level": "Junior",
-      "action": "read_json",
-      "source": "02-SKILLS/skill-domains-mapping.md",
-      "outputs": ["infra", "db-rag", "comms", "ai", "security"],
-      "constraint_check": "C5: Validar que el mapa tenga estructura legible."
-    },
-    {
-      "id": "node_03_select_generation_mode",
-      "type": "router",
-      "title": "Selección de Modo: Asistido vs Auto",
-      "level": "Intermediate",
-      "condition": "${env.GENERATION_MODE} == 'AUTO' ? 'auto_pipeline' : 'interactive_assist'",
-      "branches": {
-        "auto_pipeline": "node_04_auto_gen",
-        "interactive_assist": "node_05_interactive_prompt"
-      }
-    },
-    {
-      "id": "node_04_auto_gen",
-      "type": "generator",
-      "title": "Autogeneración Masiva de Skills (C6)",
-      "level": "Expert",
-      "action": "batch_generate",
-      "model": "${env.MODEL_PREFERENCE}",
-      "provider": "openrouter_proxy",
-      "inputs": {
-        "skills_list": "${node_02.outputs}",
-        "tenant_id": "${env.TENANT_ID}"
-      },
-      "constraints": {
-        "C1_C2": "Inyectar límites explícitos en prompts.",
-        "C3": "Forzar uso de process.env en código generado.",
-        "C6": "Usar solo proxy cloud para inferencia."
-      },
-      "output_dir": ".temp_generated_skills/"
-    },
-    {
-      "id": "node_05_interactive_prompt",
-      "type": "input_handler",
-      "title": "Captura de Prompt Contextual (Asistido)",
-      "level": "Junior",
-      "action": "cli_input",
-      "prompt_text": "Describe el módulo a generar (ej: 'Conexión Qdrant con tenant_id'):",
-      "validation": "No vacío, > 10 caracteres."
-    },
-    {
-      "id": "node_06_single_skill_gen",
-      "type": "generator",
-      "title": "Generación de Skill Única con Qwen/DeepSeek",
-      "level": "Intermediate",
-      "action": "single_generate",
-      "model": "${env.MODEL_PREFERENCE}",
-      "system_prompt": "Eres un ingeniero senior SDD Hardened. Genera código TS/Python cumpliendo C1-C8. Incluye troubleshooting.",
-      "user_prompt": "${node_05.input}",
-      "output_file": ".temp_generated_skills/single_skill.ts"
-    },
-    {
-      "id": "node_07_validate_c3_secrets",
-      "type": "security_scanner",
-      "title": "Escaneo de Credenciales Hardcodeadas (C3)",
-      "level": "Intermediate",
-      "action": "grep_scan",
-      "target_dir": ".temp_generated_skills/",
-      "patterns": ["api_key\\s*=\\s*['\"]", "password\\s*=\\s*['\"]", "secret\\s*=\\s*['\"]"],
-      "fail_on_match": true,
-      "error_message": "C3 VIOLATION: Hardcoded secrets detected.",
-      "fix_instruction": "Reemplazar literals por process.env.VAR_NAME."
-    },
-    {
-      "id": "node_08_validate_c4_tenant",
-      "type": "logic_scanner",
-      "title": "Validación de Aislamiento Multi-Tenant (C4)",
-      "level": "Intermediate",
-      "action": "ast_parse_check",
-      "target_dir": ".temp_generated_skills/",
-      "check_logic": "Cada función DB/API debe recibir 'tenant_id' como argumento y usarlo en queries/logs.",
-      "fail_if_missing": true,
-      "error_message": "C4 VIOLATION: tenant_id not enforced in logic."
-    },
-    {
-      "id": "node_09_validate_c1_c2_limits",
-      "type": "code_quality_check",
-      "title": "Verificación de Límites Explícitos (C1/C2)",
-      "level": "Intermediate",
-      "action": "regex_check",
-      "patterns": ["timeout", "maxResults", "connectionLimit", "LIMIT"],
-      "min_occurrences": 1,
-      "scope": "database_calls, http_fetches",
-      "error_message": "C1/C2 WARNING: Missing explicit limits."
-    },
-    {
-      "id": "node_10_lint_and_format",
-      "type": "formatter",
-      "title": "Linting y Formateo Automático",
-      "level": "Junior",
-      "action": "exec_command",
-      "command": "npx eslint .temp_generated_skills/ --fix && npx prettier .temp_generated_skills/ --write",
-      "ignore_errors": false
-    },
-    {
-      "id": "node_11_unit_test_gen",
-      "type": "generator",
-      "title": "Generación de Tests Unitarios (C5)",
-      "level": "Expert",
-      "action": "generate_tests",
-      "source_code": ".temp_generated_skills/*.ts",
-      "framework": "jest",
-      "mock_strategy": "Mockear DB y API calls. Inyectar tenant_id de prueba.",
-      "output_dir": ".temp_generated_skills/__tests__/"
-    },
-    {
-      "id": "node_12_run_unit_tests",
-      "type": "tester",
-      "title": "Ejecución de Tests Unitarios",
-      "level": "Intermediate",
-      "action": "exec_command",
-      "command": "npm test -- .temp_generated_skills/__tests__/",
-      "timeout_ms": "${env.TIMEOUT_MS}",
-      "fail_on_error": true
-    },
-    {
-      "id": "node_13_integration_smoke_test",
-      "type": "integration_tester",
-      "title": "Smoke Test de Integración Local",
-      "level": "Expert",
-      "action": "spin_up_docker_compose",
-      "services": ["postgres_test", "qdrant_test"],
-      "run_script": "scripts/smoke_test_deploy.ts",
-      "cleanup": true,
-      "validation": "Verificar conexión DB y respuesta API básica."
-    },
-    {
-      "id": "node_14_generate_docs",
-      "type": "documenter",
-      "title": "Generación de Documentación Markdown",
-      "level": "Junior",
-      "action": "parse_comments_to_md",
-      "source": ".temp_generated_skills/",
-      "template": "05-CONFIGURATIONS/templates/skill-template.md",
-      "output": "docs/generated_skills/",
-      "include_sections": ["Objetivo", "Código", "Troubleshooting", "Constraints"]
-    },
-    {
-      "id": "node_15_security_audit_deps",
-      "type": "security_scanner",
-      "title": "Auditoría de Dependencias (C7)",
-      "level": "Intermediate",
-      "action": "npm_audit",
-      "severity_threshold": "high",
-      "fail_if_vulns_found": true,
-      "output_report": "reports/dependency-audit.json"
-    },
-    {
-      "id": "node_16_prepare_artifact_structure",
-      "type": "packager",
-      "title": "Preparación de Estructura de Artefacto",
-      "level": "Intermediate",
-      "action": "copy_files",
-      "structure": {
-        "src/": ".temp_generated_skills/",
-        "config/": "config/bootstrap-company.json, config/.env.example",
-        "infra/": "05-CONFIGURATIONS/terraform/modules/",
-        "docs/": "docs/generated_skills/",
-        "scripts/": "scripts/packager-agentic.sh, scripts/validate-constraints-cli.sh"
-      },
-      "exclude": ["node_modules", ".git", "*.log"]
-    },
-    {
-      "id": "node_17_inject_env_template",
-      "type": "configurator",
-      "title": "Inyección de Plantilla .env Segura (C3)",
-      "level": "Junior",
-      "action": "create_env_example",
-      "variables": [
-        "TENANT_ID",
-        "DB_PRIMARY_DSN",
-        "OPENROUTER_API_KEY",
-        "QDRANT_URL",
-        "MAX_RESULTS",
-        "TIMEOUT_MS",
-        "CONNECTION_LIMIT"
-      ],
-      "warning_comment": "# NEVER commit this file with real values. Use vault/secrets manager."
-    },
-    {
-      "id": "node_18_create_zip_archive",
-      "type": "packager",
-      "title": "Compresión ZIP Final",
-      "level": "Intermediate",
-      "action": "zip_directory",
-      "source_dir": ".temp_artifact_staging/",
-      "output_file": "releases/release-${env.TENANT_ID}-${timestamp}.zip",
-      "compression_level": 9
-    },
-    {
-      "id": "node_19_sign_and_checksum",
-      "type": "security_signer",
-      "title": "Firma Digital y Checksum (C8)",
-      "level": "Expert",
-      "action": "gpg_sign_and_sha256",
-      "input_file": "${node_18.output_file}",
-      "outputs": [
-        "${node_18.output_file}.asc",
-        "${node_18.output_file}.sha256"
-      ],
-      "log_event": "artifact_signed"
-    },
-    {
-      "id": "node_20_notify_and_cleanup",
-      "type": "notifier",
-      "title": "Notificación de Entrega y Limpieza",
-      "level": "Junior",
-      "action": "send_slack_webhook",
-      "payload": {
-        "text": "✅ Deploy Package Ready for Tenant: ${env.TENANT_ID}",
-        "attachment": "Artifact: ${node_18.output_file}"
-      },
-      "cleanup_action": "rm -rf .temp_generated_skills/ .temp_artifact_staging/",
-      "final_status": "SUCCESS"
-    }
-  ],
-  "global_error_handling": {
-    "retry_policy": {
-      "max_retries": 3,
-      "backoff_multiplier": 2,
-      "initial_delay_ms": 1000
-    },
-    "notification_channel": "slack_errors",
-    "rollback_trigger": "Si node_12 o node_13 fallan, abortar pipeline y limpiar temp dirs."
+  "metadata": {
+    "canonical_path": "/04-WORKFLOWS/sdd-universal-assistant.json",
+    "artifact_id": "sdd-universal-assistant-canonical",
+    "artifact_type": "workflow_orchestration",
+    "version": "3.0.0-SELECTIVE",
+    "constraints_mapped": ["C5", "C6"],
+    "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 04-WORKFLOWS/sdd-universal-assistant.json --mode headless --json",
+    "tier": 1,
+    "immutable": true,
+    "requires_human_approval_for_changes": true,
+    "related_files": [
+      "[[00-STACK-SELECTOR.md]]",
+      "[[IA-QUICKSTART.md]]",
+      "[[GOVERNANCE-ORCHESTRATOR.md]]",
+      "[[SDD-COLLABORATIVE-GENERATION.md]]",
+      "[[05-CONFIGURATIONS/validation/norms-matrix.json]]",
+      "[[TOOLCHAIN-REFERENCE.md]]"
+    ],
+    "checksum_sha256": "PENDING_GENERATION",
+    "generated_at": "2026-04-19T12:00:00Z",
+    "prompt_hash": "sha256:PENDING"
   },
-  "environment_requirements": {
-    "node_version": ">=18",
-    "python_version": ">=3.9",
-    "required_tools": ["zip", "gpg", "docker", "kubectl"],
-    "env_vars_mandatory": ["TENANT_ID", "OPENROUTER_API_KEY", "MODEL_PREFERENCE"]
+
+  "orchestration_core": {
+    "description": "Mapeo canónico de modos de interacción a niveles de entrega y perfiles de validación",
+    
+    "mode_to_tier_mapping": {
+      "description": "Determina el Tier de entrega según el modo confirmado en [[IA-QUICKSTART.md]]",
+      "mapping": {
+        "A1": {"tier": 1, "format": "screen_editor", "human_review_required": true, "min_score": 15},
+        "B1": {"tier": 1, "format": "screen_editor", "human_review_required": true, "min_score": 15},
+        "A2": {"tier": 2, "format": "code_with_validation", "human_review_required": false, "min_score": 30},
+        "B2": {"tier": 2, "format": "code_with_validation", "human_review_required": false, "min_score": 30},
+        "A3": {"tier": 3, "format": "zip_with_manifest", "human_review_required": false, "min_score": 45},
+        "B3": {"tier": 3, "format": "zip_with_manifest", "human_review_required": false, "min_score": 45}
+      },
+      "fallback_logic": {
+        "if_mode_unclear": "default_to_tier_1_with_note",
+        "if_constraints_conflict": "fail_fast_with_blocking_issue",
+        "if_language_lock_violation": "redirect_to_canonical_domain_or_reject"
+      }
+    },
+
+    "validation_profiles": {
+      "description": "Perfiles de validación aplicables según carpeta destino (de [[norms-matrix.json]])",
+      "profiles": {
+        "tier1-doc": {
+          "applicable_to": ["00-CONTEXT/", "01-RULES/", "02-SKILLS/*/prompts/", "04-WORKFLOWS/"],
+          "constraints_required": ["C5"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh"],
+          "min_score": 15,
+          "blocking_issues_allowed": ["warnings_only"],
+          "delivery_format": {
+            "type": "markdown",
+            "required_sections": ["Propósito", "Implementación", "Referencias"],
+            "examples_required": false,
+            "validation_command_required": true
+          }
+        },
+        "tier2-code": {
+          "applicable_to": ["06-PROGRAMMING/go/", "06-PROGRAMMING/python/", "06-PROGRAMMING/bash/", "06-PROGRAMMING/javascript/", "06-PROGRAMMING/sql/", "06-PROGRAMMING/yaml-json-schema/"],
+          "constraints_required": ["C3", "C4", "C5", "C8"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "check-rls.sh", "verify-constraints.sh", "orchestrator-engine.sh"],
+          "min_score": 30,
+          "blocking_issues_allowed": [],
+          "delivery_format": {
+            "type": "code_with_metadata",
+            "required_sections": ["Propósito", "Implementación", "Ejemplos", "Validación", "Referencias"],
+            "examples_required": true,
+            "min_examples_count": 10,
+            "examples_format": "✅/❌/🔧",
+            "validation_command_required": true,
+            "checksum_required": true
+          }
+        },
+        "tier3-deploy": {
+          "applicable_to": ["05-CONFIGURATIONS/docker-compose/", "05-CONFIGURATIONS/terraform/", "02-SKILLS/DEPLOYMENT/"],
+          "constraints_required": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "check-rls.sh", "verify-constraints.sh", "orchestrator-engine.sh", "packager-assisted.sh"],
+          "min_score": 45,
+          "blocking_issues_allowed": [],
+          "delivery_format": {
+            "type": "bundle_with_manifest",
+            "required_files": ["manifest.json", "deploy.sh", "rollback.sh", "healthcheck.sh", "README-DEPLOY.md"],
+            "bundle_validation": "packager-assisted.sh --verify",
+            "idempotency_required": true,
+            "dry_run_supported": true,
+            "checksums_required": true
+          }
+        },
+        "tier2-pgvector": {
+          "applicable_to": ["06-PROGRAMMING/postgresql-pgvector/"],
+          "constraints_required": ["C3", "C4", "C5", "V1", "V3"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "check-rls.sh", "verify-constraints.sh --check-vector-dims --check-vector-metric --check-vector-index", "orchestrator-engine.sh"],
+          "min_score": 35,
+          "blocking_issues_allowed": [],
+          "language_lock": {
+            "allowed_operators": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+            "required_metadata": ["dimensions", "model", "metric", "index_type"]
+          },
+          "delivery_format": {
+            "type": "code_with_vector_metadata",
+            "required_sections": ["Propósito", "Implementación", "Vector Metadata", "Ejemplos", "Validación", "Referencias"],
+            "examples_required": true,
+            "min_examples_count": 10,
+            "examples_format": "✅/❌/🔧",
+            "validation_command_required": true,
+            "checksum_required": true
+          }
+        }
+      }
+    },
+
+    "constraint_inheritance_logic": {
+      "description": "Cómo se heredan y aplican constraints desde norms-matrix.json a artifacts específicos",
+      "rules": [
+        {
+          "rule_id": "CI-001",
+          "description": "constraints_mapped en artifact DEBE ser subconjunto de constraints_allowed para su carpeta",
+          "validation": "constraints_mapped ⊆ norms-matrix[carpeta].constraints_allowed",
+          "failure_action": "blocking_issue: CONSTRAINT_NOT_ALLOWED"
+        },
+        {
+          "rule_id": "CI-002",
+          "description": "constraints_mandatory para la carpeta DEBEN estar incluidas en constraints_mapped del artifact",
+          "validation": "norms-matrix[carpeta].constraints_mandatory ⊆ constraints_mapped",
+          "failure_action": "blocking_issue: MANDATORY_CONSTRAINT_MISSING"
+        },
+        {
+          "rule_id": "CI-003",
+          "description": "Constraints vectoriales (V1-V3) SOLO aplican en postgresql-pgvector/",
+          "validation": "if carpeta != 'postgresql-pgvector/' then V1,V2,V3 ∉ constraints_mapped",
+          "failure_action": "blocking_issue: VECTOR_CONSTRAINT_OUTSIDE_DOMAIN"
+        },
+        {
+          "rule_id": "CI-004",
+          "description": "LANGUAGE LOCK: operadores prohibidos no pueden aparecer en contenido del artifact",
+          "validation": "scan content for deny_operators from norms-matrix[carpeta]",
+          "failure_action": "blocking_issue: LANGUAGE_LOCK_VIOLATION"
+        }
+      ]
+    },
+
+    "gates_and_fallbacks": {
+      "description": "Gates de validación que deben pasarse antes de proceder a entrega",
+      "gates": [
+        {
+          "gate_id": "G-001",
+          "name": "Mode Confirmation Gate",
+          "description": "Verificar que mode_selected está confirmado en [[IA-QUICKSTART.md]]",
+          "check": "mode_selected ∈ {A1,A2,A3,B1,B2,B3}",
+          "on_failure": "fallback_to_tier_1_with_note: '⚠️ Modo no confirmado. Propuesta inicial sujeta a revisión.'"
+        },
+        {
+          "gate_id": "G-002",
+          "name": "Canonical Path Resolution Gate",
+          "description": "Verificar que canonical_path existe en [[PROJECT_TREE.md]]",
+          "check": "canonical_path ∈ PROJECT_TREE.valid_paths",
+          "on_failure": "blocking_issue: NON_CANONICAL_PATH"
+        },
+        {
+          "gate_id": "G-003",
+          "name": "Constraint Applicability Gate",
+          "description": "Validar constraints_mapped contra norms-matrix.json",
+          "check": "CI-001 AND CI-002 AND CI-003",
+          "on_failure": "blocking_issue: CONSTRAINT_MISMATCH"
+        },
+        {
+          "gate_id": "G-004",
+          "name": "LANGUAGE LOCK Gate",
+          "description": "Validar que no hay operadores prohibidos para el stack",
+          "check": "CI-004",
+          "on_failure": "blocking_issue: LANGUAGE_LOCK_VIOLATION"
+        },
+        {
+          "gate_id": "G-005",
+          "name": "Structural Contract Gate",
+          "description": "Validar frontmatter, wikilinks y estructura SDD",
+          "check": "validate-frontmatter.sh AND check-wikilinks.sh passed",
+          "on_failure": "blocking_issue: STRUCTURAL_CONTRACT_VIOLATION"
+        },
+        {
+          "gate_id": "G-006",
+          "name": "Security & Isolation Gate",
+          "description": "Validar C3 (secrets) y C4 (tenant isolation) si aplican",
+          "check": "if C3 in constraints: audit-secrets.sh passed; if C4 in constraints: check-rls.sh passed",
+          "on_failure": "blocking_issue: SECURITY_VIOLATION"
+        },
+        {
+          "gate_id": "G-007",
+          "name": "Scoring Gate",
+          "description": "Validar score mínimo para Tier confirmado",
+          "check": "score >= mode_to_tier_mapping[mode_selected].min_score",
+          "on_failure": "blocking_issue: SCORE_BELOW_THRESHOLD"
+        }
+      ],
+      "fallback_chain": [
+        {"condition": "any blocking_issue", "action": "reject_with_structured_error", "format": "❌ BLOCKING_ISSUE: {issue}\\n🔧 Sugerencia: {fix}\\n📖 Referencia: [[wikilink]]"},
+        {"condition": "score < min_score but no blocking_issues", "action": "suggest_iteration", "format": "⚠️ Score {score} < {min_score}. Revisar warnings y corregir antes de entregar."},
+        {"condition": "mode_unclear", "action": "default_to_tier_1", "format": "Entregar como Tier 1 con nota de revisión humana requerida"}
+      ]
+    }
+  },
+
+  "delivery_formats": {
+    "tier_1_screen_editor": {
+      "description": "Formato para documentación / propuestas iniciales",
+      "structure": {
+        "frontmatter_required_fields": ["canonical_path", "artifact_id", "artifact_type", "version", "constraints_mapped", "validation_command"],
+        "sections_required": ["Propósito y Alcance", "Implementación / Configuración", "Referencias Canónicas"],
+        "examples_required": false,
+        "wikilinks_format": "absolute_canonical_only",
+        "code_fences": "must_declare_language",
+        "footer_note": "⚠️ Requiere revisión humana antes de usar en producción"
+      },
+      "validation": {
+        "command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --mode headless --json",
+        "expected_exit_code": 0,
+        "min_score": 15,
+        "blocking_issues_allowed": ["warnings_only"]
+      }
+    },
+    "tier_2_code_with_validation": {
+      "description": "Formato para código validable con ejemplos y checksum",
+      "structure": {
+        "frontmatter_required_fields": ["canonical_path", "artifact_id", "artifact_type", "version", "constraints_mapped", "tier", "examples_count", "validation_command", "checksum_sha256"],
+        "sections_required": ["Propósito y Alcance", "Implementación / Configuración", "Ejemplos ✅/❌/🔧", "Validación", "Referencias Canónicas"],
+        "examples_required": true,
+        "min_examples_count": 10,
+        "examples_format": "table_or_list_with_✅/❌/🔧",
+        "wikilinks_format": "absolute_canonical_only",
+        "code_fences": "must_declare_language",
+        "json_tree_required": true
+      },
+      "validation": {
+        "command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --mode headless --json",
+        "expected_exit_code": 0,
+        "min_score": 30,
+        "blocking_issues_allowed": [],
+        "additional_checks": ["audit-secrets.sh if C3", "check-rls.sh if C4+SQL", "verify-constraints.sh --check-language-lock"]
+      }
+    },
+    "tier_3_zip_with_manifest": {
+      "description": "Formato para paquete desplegable con manifest, deploy.sh, rollback.sh",
+      "structure": {
+        "frontmatter_required_fields": ["canonical_path", "artifact_id", "artifact_type", "version", "constraints_mapped", "tier", "bundle_required", "bundle_contents", "validation_command", "checksum_sha256"],
+        "bundle_required_files": ["manifest.json", "deploy.sh", "rollback.sh", "healthcheck.sh", "README-DEPLOY.md", "checksums.sha256"],
+        "manifest_schema": {
+          "artifact_id": "string",
+          "version": "semver",
+          "tier": "3",
+          "validation_result": {"score": "number", "passed": "boolean", "blocking_issues": "array"},
+          "deploy_command": "string",
+          "rollback_command": "string",
+          "healthcheck_command": "string",
+          "checksums": {"file": "sha256_hash"}
+        },
+        "deploy_script_requirements": ["idempotent", "supports_--dry-run", "logs_structured_json", "exit_codes_significant"],
+        "rollback_script_requirements": ["reversible", "no_data_loss", "logs_structured_json"],
+        "healthcheck_script_requirements": ["returns_0_if_healthy_1_if_not", "checks_critical_dependencies"]
+      },
+      "validation": {
+        "command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --bundle --checksum --mode headless --json",
+        "expected_exit_code": 0,
+        "min_score": 45,
+        "blocking_issues_allowed": [],
+        "bundle_validation": "bash 05-CONFIGURATIONS/scripts/packager-assisted.sh --verify --source <ruta>"
+      }
+    }
+  },
+
+  "error_handling_and_auditing": {
+    "structured_error_format": {
+      "description": "Formato canónico para errores de validación y fallbacks",
+      "schema": {
+        "error_type": "blocking_issue|warning|fallback_triggered",
+        "artifact": {"canonical_path": "string", "tier": "number"},
+        "violation": {
+          "type": "CONSTRAINT_NOT_ALLOWED|MANDATORY_CONSTRAINT_MISSING|VECTOR_CONSTRAINT_OUTSIDE_DOMAIN|LANGUAGE_LOCK_VIOLATION|STRUCTURAL_CONTRACT_VIOLATION|SECURITY_VIOLATION|SCORE_BELOW_THRESHOLD",
+          "details": "string",
+          "rule_violated": "string (ej: CI-001, G-004)",
+          "suggested_fix": "string"
+        },
+        "validation": {
+          "command_executed": "string",
+          "exit_code": "number",
+          "output_snippet": "string"
+        },
+        "remediation": {
+          "action_taken": "rejected|suggested_iteration|defaulted_to_tier_1",
+          "exception_requested": "boolean",
+          "trace_id": "string (for distributed tracing)"
+        },
+        "timestamp": "RFC3339_UTC"
+      }
+    },
+    "audit_log_requirements": {
+      "description": "Campos obligatorios para logs de auditoría de orquestación",
+      "required_fields": ["timestamp", "level", "event", "tenant_id", "trace_id", "artifact_path", "mode_selected", "tier_validated", "score", "blocking_issues", "validation_command_executed"],
+      "pii_scrubbing": ["password", "secret", "token", "api_key", "credential", "user_email", "user_phone"],
+      "scrub_method": "replace_with_***REDACTED***",
+      "retention_policy": {"debug_logs": "90_days", "audit_logs": "7_years", "compliance_logs": "permanent_if_tier3"}
+    }
+  },
+
+  "integration_with_toolchain": {
+    "orchestrator_engine_integration": {
+      "description": "Cómo sdd-universal-assistant.json se integra con orchestrator-engine.sh",
+      "flow": [
+        "1. Extract mode_selected from artifact frontmatter or IA-QUICKSTART context",
+        "2. Determine tier via mode_to_tier_mapping",
+        "3. Load validation_profile from validation_profiles based on artifact folder",
+        "4. Execute gates G-001 to G-007 in order",
+        "5. If all gates pass: run orchestrator-engine.sh with profile-specific flags",
+        "6. Parse JSON output: check score >= min_score, blocking_issues == []",
+        "7. Format delivery per delivery_formats[tier_N]",
+        "8. Log audit entry with structured format"
+      ],
+      "command_template": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --mode headless --json {profile_specific_flags}",
+      "expected_output_fields": ["score", "passed", "tier_validated", "constraints_applied", "blocking_issues", "warnings", "language_lock_violations", "validation_timestamp", "artifact_checksum"]
+    },
+    "ci_cd_integration": {
+      "description": "Cómo usar este workflow en pipelines de CI/CD",
+      "github_actions_example": {
+        "name": "Validate MANTIS Artifact",
+        "on": ["push", "pull_request"],
+        "jobs": {
+          "validate": {
+            "runs-on": "ubuntu-latest",
+            "steps": [
+              {"uses": "actions/checkout@v4"},
+              {"name": "Load orchestration config", "run": "curl -sO https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/sdd-universal-assistant.json"},
+              {"name": "Extract mode and tier", "run": "MODE=$(yq eval '.mode_selected' artifact.md); TIER=$(jq -r \".orchestration_core.mode_to_tier_mapping.\\\"$MODE\\\".tier\" sdd-universal-assistant.json)"},
+              {"name": "Run validation", "run": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file artifact.md --mode headless --json > /tmp/result.json"},
+              {"name": "Check results", "run": "SCORE=$(jq -r '.score' /tmp/result.json); MIN_SCORE=$(jq -r \".orchestration_core.mode_to_tier_mapping.\\\"$MODE\\\".min_score\" sdd-universal-assistant.json); if [ \"$SCORE\" -lt \"$MIN_SCORE\" ] || jq -e '.blocking_issues | length > 0' /tmp/result.json; then echo \"❌ Validation failed\"; exit 1; fi"}
+            ]
+          }
+        }
+      }
+    }
+  },
+
+  "human_readable_guidance": {
+    "for_developers": [
+      "Siempre confirmar mode_selected en [[IA-QUICKSTART.md]] antes de generar",
+      "Consultar [[PROJECT_TREE.md]] para canonical_path válido",
+      "Usar [[00-STACK-SELECTOR.md]] para determinar lenguaje permitido por ruta",
+      "Validar con orchestrator-engine.sh antes de entregar",
+      "Nunca omitir validation_command en frontmatter"
+    ],
+    "for_reviewers": [
+      "Verificar que constraints_mapped ⊆ norms-matrix[carpeta].allowed",
+      "Confirmar que wikilinks son canónicos (absolutos desde raíz)",
+      "Ejecutar validation_command para reproducir validación",
+      "Revisar structured error format si hay blocking_issues"
+    ],
+    "for_agents_remotes": [
+      "Cargar primero: IA-QUICKSTART.md, 00-STACK-SELECTOR.md, norms-matrix.json",
+      "Determinar mode_selected → tier → validation_profile antes de generar",
+      "Ejecutar gates G-001 a G-007 en orden estricto",
+      "Fallback a Tier 1 si hay ambigüedad, nunca asumir",
+      "Loguear cada paso con tenant_id y trace_id para auditoría"
+    ]
+  },
+
+  "expansion_hooks": {
+    "new_mode_addition": {
+      "requires_files_update": [
+        "04-WORKFLOWS/sdd-universal-assistant.json: add mode to mode_to_tier_mapping with tier, format, min_score",
+        "IA-QUICKSTART.md: update mode definitions if new mode is user-facing",
+        "GOVERNANCE-ORCHESTRATOR.md: update tier definitions if new mode affects delivery",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new modes must not break existing A1-B3 mappings; must provide clear fallback logic"
+    },
+    "new_validation_profile": {
+      "requires_files_update": [
+        "04-WORKFLOWS/sdd-universal-assistant.json: add profile to validation_profiles with applicable_to, constraints_required, validators, min_score, delivery_format",
+        "05-CONFIGURATIONS/validation/norms-matrix.json: update if new profile affects constraint mapping",
+        "orchestrator-engine.sh: add support for new profile flags",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new profiles must not invalidate existing artifacts; must be opt-in via folder mapping"
+    }
+  },
+
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "sdd-universal-assistant.v3.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C3 + C8 compliance)",
+    "reproducibility_guarantee": "Any orchestration decision can be reproduced identically using this workflow + mode_selected + canonical_path"
   }
 }
 
+
+---
+
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+```bash
+# 1. JSON válido y parseable
+jq empty 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ JSON válido"
+
+# 2. Frontmatter-like metadata presente en root
+jq -e '.metadata.canonical_path == "/04-WORKFLOWS/sdd-universal-assistant.json"' 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ canonical_path correcto"
+
+# 3. Constraints mapeadas (C5+C6)
+jq -e '.metadata.constraints_mapped | contains(["C5"]) and contains(["C6"])' 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ C5 y C6 declaradas"
+
+# 4. Mapeo de modos a Tiers completo (A1-B3 → 1-3)
+jq -e '.orchestration_core.mode_to_tier_mapping | has("A1") and has("B3")' 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ Mapeo de modos completo"
+
+# 5. Validation profiles para las 4 carpetas críticas
+jq -e '.orchestration_core.validation_profiles | has("tier1-doc") and has("tier2-code") and has("tier3-deploy") and has("tier2-pgvector")' 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ Validation profiles completos"
+
+# 6. Gates de validación definidos (G-001 a G-007)
+jq -e '.orchestration_core.gates_and_fallbacks.gates | length == 7' 04-WORKFLOWS/sdd-universal-assistant.json && echo "✅ 7 gates de validación definidos"
+
+# 7. Wikilinks canónicos en related_files (sin rutas relativas)
+jq -r '.metadata.related_files[]' 04-WORKFLOWS/sdd-universal-assistant.json | grep -E '^\[\[\.\/|^\[\[\.\.\/' | wc -l | awk '{if($1==0) print "✅ Cero wikilinks relativos"; else print "❌ Wikilinks relativos encontrados: "$1}'
+```
+
+**Criterio de aceptación:**  
+- ✅ JSON válido y parseable con `jq`  
+- ✅ `metadata.canonical_path` absoluto desde raíz  
+- ✅ `constraints_mapped` incluye C5 y C6  
+- ✅ Mapeo completo de modos A1-B3 a Tiers 1-3 con min_score  
+- ✅ 4 validation_profiles definidos para carpetas críticas  
+- ✅ 7 gates de validación (G-001 a G-007) con fallback chain  
+- ✅ Cero wikilinks relativos en `related_files`  
+
+---
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este workflow es tu cerebro de orquestación. No es estático: evoluciona con el proyecto.  
+> **Modo → Tier → Perfil → Gates → Validación → Entrega**.  
+> Si sigues ese flujo, nunca entregarás un artifact que no cumpla con lo prometido.  
+> La gobernanza no es una carga. Es la libertad de escalar sin miedo a romper.  
+
+---
