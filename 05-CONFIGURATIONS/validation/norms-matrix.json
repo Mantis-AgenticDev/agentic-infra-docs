@@ -1200,5 +1200,18 @@
       "verification_command": "sha256sum 05-CONFIGURATIONS/validation/norms-matrix.json",
       "integrity_check_in_orchestrator": "verify-constraints.sh --check-file-integrity"
     }
+  },
+  "domain_context_overrides": {
+    "description_doc": "【EDUCATIVO】Reglas contextuales de validación. Define anti-patrones permitidos o prohibidos según el dominio.",
+    "05-WORKFLOWS/n8n/": {
+      "allowed_constraints": ["C1", "C2", "C3", "C4", "C5"],
+      "forbidden_patterns": ["anti-pattern", "deprecated", "example-only"],
+      "severity_on_violation": "error"
+    },
+    "02-EDUCATIONAL/patterns/": {
+      "allowed_constraints": ["C1", "C2", "C3", "C4", "C5", "anti-pattern"],
+      "forbidden_patterns": [],
+      "severity_on_violation": "warning"
+    }
   }
 }

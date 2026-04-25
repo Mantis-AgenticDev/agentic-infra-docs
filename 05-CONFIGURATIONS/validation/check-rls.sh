@@ -2,38 +2,46 @@
 # VALIDATOR_DEPENDENCIES: jq>=1.6, bash>=5.0, awk, date
 # EXECUTION_PROFILE: <3000ms, <64MB RAM, streaming IO
 # SCOPE: internal-validation-only - static analysis for C4 compliance
-set -o pipefail
+# INTERFACE_VERSION: v3.3-CONTRACTUAL
+set -euo pipefail
 
-readonly VALIDATOR_NAME="check-rls.sh"
-readonly VALIDATOR_VERSION="3.2.5"
+START_MS=$(date +%s%3N 2>/dev/null || echo 0)
+SCRIPT_NAME="$(basename "$0")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+readonly VALIDATOR_NAME="${SCRIPT_NAME%.sh}"
+readonly VALIDATOR_VERSION="3.3.0-CONTRACTUAL"
 readonly CONSTRAINT="C4"
-readonly NORMS_FILE="05-CONFIGURATIONS/validation/norms-matrix.json"
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-readonly DEFAULT_LOG_DIR="$REPO_ROOT/08-LOGS/validation/test-orchestrator-engine/check-rls"
+readonly NORMS_FILE="$PROJECT_ROOT/05-CONFIGURATIONS/validation/norms-matrix.json"
+readonly LOG_DIR="$PROJECT_ROOT/08-LOGS/validation/test-orchestrator-engine/${VALIDATOR_NAME}"
+readonly LOG_FILE="$LOG_DIR/$(date -u +%Y-%m-%d).jsonl"
 
-MODE="file"; TARGET=""
-LOG_DIR="$DEFAULT_LOG_DIR"
-LOG_FILE=""   # Si se define, se usará en lugar de generar uno nuevo con timestamp
+log_err() {
+  local level="${1:-INFO}" msg="${2:-}"
+  printf '{"ts":"%s","level":"%s","script":"%s","msg":"%s"}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$level" "$SCRIPT_NAME" "$msg" >&2
+}
 
+FILE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --file) MODE="file"; TARGET="$2"; shift 2 ;;
-    --dir)  MODE="dir"; TARGET="$2"; shift 2 ;;
-    --log-dir) LOG_DIR="$2"; shift 2 ;;
-    --log-file) LOG_FILE="$2"; shift 2 ;;
-    -h|--help) echo "Uso: $0 [--file <ruta>|--dir <ruta>] [--log-dir <ruta>] [--log-file <ruta>]"; exit 0 ;;
-    *) echo "Error: Flag desconocido: $1" >&2; exit 2 ;;
+    --file|-f) FILE="$2"; shift 2 ;;
+    *) shift ;;
   esac
 done
-[[ -z "$TARGET" ]] && { echo "Error: Se requiere --file o --dir" >&2; exit 2; }
 
-mkdir -p "$LOG_DIR"
-# Si no se especificó --log-file, generar uno con timestamp
-if [[ -z "$LOG_FILE" ]]; then
-  LOG_FILE="$LOG_DIR/$(date +%Y-%m-%d_%H%M%S).jsonl"
+if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+  log_err "ERROR" "File not found: $FILE"
+  jq -n -c \
+    --arg v "$VALIDATOR_NAME" --arg ver "$VALIDATOR_VERSION" \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg f "$FILE" \
+    '{validator:$v,version:$ver,timestamp:$ts,file:$f,passed:false,issues:["FILE_NOT_FOUND"],issues_count:1,performance_ms:0}'
+  exit 2
 fi
 
-log() { echo "[check-rls] $*" >&2; }
+log_err "INFO" "Starting check-rls validation for: $FILE"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
 
 # ===== Cargar excepciones desde norms-matrix.json =====
 declare -A C4_EXCEPTIONS
@@ -45,7 +53,7 @@ fi
 
 is_exception() {
   local filepath="$1" pattern="$2"
-  [[ -n "${C4_EXCEPTIONS["$filepath|$pattern"]}" ]] && return 0
+  [[ -n "${C4_EXCEPTIONS["$filepath|$pattern"]-}" ]] && return 0
   for key in "${!C4_EXCEPTIONS[@]}"; do
     local key_path="${key%%|*}"
     local key_exc="${key#*|}"
@@ -79,39 +87,15 @@ build_issue() {
     '{constraint:$c,category:$cat,description:$d,severity:$s,line:$l,snippet:$snip}'
 }
 
-emit_file_json() {
-  local file="$1" passed="$2" issues_json="$3" issues_count="$4" elapsed_ms="$5" warning="${6:-}"
-  local perf_ok="true"; [[ $elapsed_ms -gt 3000 ]] && perf_ok="false"
-  jq -n -c --arg v "$VALIDATOR_NAME" --arg ver "$VALIDATOR_VERSION" --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg f "$file" --arg c "$CONSTRAINT" \
-    --argjson p "$passed" --argjson i "$issues_json" --argjson cnt "$issues_count" --argjson perf "$elapsed_ms" --argjson perf_ok "$perf_ok" --arg warn "$warning" \
-    '{validator:$v,version:$ver,timestamp:$ts,file:$f,constraint:$c,passed:$p,issues:$i,issues_count:$cnt,performance_ms:$perf,performance_ok:$perf_ok} + (if $warn!="" then {warning:$warn} else {} end)'
-}
+rel_path="${FILE#${PROJECT_ROOT}/}"
+sql_lines=$(extract_sql_with_lines "$FILE")
 
-validate_file() {
-  local file="$1"
-  local start_ms=$(date +%s%3N)
-  
-  if [[ ! -f "$file" ]]; then
-    local elapsed=$(( $(date +%s%3N) - start_ms ))
-    emit_file_json "$file" false "[]" 0 "$elapsed" "file_not_found"
-    return 2
-  fi
+declare -a issues=()
 
-  local rel_path="${file#${REPO_ROOT}/}"
-  local sql_lines=$(extract_sql_with_lines "$file")
-  
-  if [[ -z "$sql_lines" ]]; then
-    local elapsed=$(( $(date +%s%3N) - start_ms ))
-    emit_file_json "$file" true "[]" 0 "$elapsed" "no_sql_block"
-    return 0
-  fi
-
-  local -a issues=()
-  local line_num line_content
-
+if [[ -n "$sql_lines" ]]; then
   while IFS=':' read -r line_num line_content; do
     [[ -z "$line_content" ]] && continue
-    local is_comment=false
+    is_comment=false
     [[ "$line_content" =~ ^[[:space:]]*-- ]] && is_comment=true
 
     if ! $is_comment && [[ "$line_content" =~ SET[[:space:]]+rls[[:space:]]*=[[:space:]]*false ]]; then
@@ -140,57 +124,37 @@ validate_file() {
       fi
     fi
   done <<< "$sql_lines"
+fi
 
-  local elapsed=$(( $(date +%s%3N) - start_ms ))
-  local passed=false
-  local issues_count=${#issues[@]}
-  [[ $issues_count -eq 0 ]] && passed=true
+END_MS=$(date +%s%3N 2>/dev/null || echo 0)
+ELAPSED_MS=$((END_MS - START_MS))
+[[ "$ELAPSED_MS" -lt 0 ]] && ELAPSED_MS=0
 
-  local issues_json="[]"
-  [[ $issues_count -gt 0 ]] && issues_json=$(printf '%s\n' "${issues[@]}" | jq -s '.')
+PASSED=true
+[[ ${#issues[@]} -gt 0 ]] && PASSED=false
 
-  emit_file_json "$file" "$passed" "$issues_json" "$issues_count" "$elapsed"
-  [[ "$passed" == "true" ]] && return 0 || return 1
-}
+ISSUES_JSON="[]"
+[[ ${#issues[@]} -gt 0 ]] && ISSUES_JSON=$(printf '%s\n' "${issues[@]}" | jq -s '.')
 
-# === MAIN ===
-log "Iniciando $VALIDATOR_NAME v$VALIDATOR_VERSION"
+OUTPUT_JSON=$(jq -n -c \
+  --arg v "$VALIDATOR_NAME" \
+  --arg ver "$VALIDATOR_VERSION" \
+  --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --arg f "$FILE" \
+  --arg c "$CONSTRAINT" \
+  --argjson p "$PASSED" \
+  --argjson i "$ISSUES_JSON" \
+  --argjson cnt "${#issues[@]}" \
+  --argjson perf "$ELAPSED_MS" \
+  --argjson perf_ok "$([ $ELAPSED_MS -gt 3000 ] && echo false || echo true)" \
+  '{validator:$v,version:$ver,timestamp:$ts,file:$f,constraint:$c,passed:$p,issues:$i,issues_count:$cnt,performance_ms:$perf,performance_ok:$perf_ok}'
+)
 
-if [[ "$MODE" == "file" ]]; then
-  result=$(validate_file "$TARGET")
-  exit_code=$?
-  echo "$result"
-  echo "$result" >> "$LOG_FILE"
-  exit "$exit_code"
+echo "$OUTPUT_JSON"
+echo "$OUTPUT_JSON" >> "$LOG_FILE"
+
+if [[ "$PASSED" == true ]]; then
+  exit 0
 else
-  total=$(find "$TARGET" -type f -name "*.md" 2>/dev/null | wc -l)
-  processed=0; passed=0; failed=0; errors=0
-  failed_files=()
-
-  while IFS= read -r -d '' file; do
-    ((processed++))
-    printf "[%3d/%3d] %s " "$processed" "$total" "${file#$REPO_ROOT/}" >&2
-    result=$(validate_file "$file")
-    exit_code=$?
-    echo "$result" >> "$LOG_FILE"
-    case $exit_code in
-      0) ((passed++)); echo "✅" >&2 ;;
-      1) ((failed++)); echo "❌" >&2; failed_files+=("$file") ;;
-      *) ((errors++)); echo "⚠️" >&2 ;;
-    esac
-  done < <(find "$TARGET" -type f -name "*.md" -print0 2>/dev/null)
-
-  echo "" >&2
-  log "Resumen: $processed procesados | ✅ $passed | ❌ $failed | ⚠️ $errors"
-  if [[ ${#failed_files[@]} -gt 0 ]]; then
-    log "Archivos con errores:"
-    for f in "${failed_files[@]}"; do
-      log "  ❌ $f"
-      grep "\"file\":\"$f\"" "$LOG_FILE" | jq -r '.issues[] | "    Línea \(.line): \(.description) [\(.severity)]\n      \(.snippet)"' 2>/dev/null | while IFS= read -r line; do
-        log "    $line"
-      done
-    done
-  fi
-
-  [[ $failed -eq 0 && $errors -eq 0 ]] && exit 0 || exit 1
+  exit 1
 fi
