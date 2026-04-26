@@ -74,6 +74,7 @@ canonical_path: "06-PROGRAMMING/sql/00-INDEX.md"
 | `[[unit-test-patterns-for-sql.sql.md]]` | C4,C5,C8 | Pruebas unitarias aisladas, fixtures y asserts de hash |
 | `[[integration-test-fixtures.sql.md]]` | C3,C4,C7 | Carga masiva segura, validación de rutas y rollback automático |
 | `[[constraint-validation-tests.sql.md]]` | C4,C5,C7 | Verificación de `CHECK`, `NOT NULL` y reportes de integridad |
+| `[[unit-test-patterns-for-sql.sql.md]]` | C4,C5,C8 | Pruebas unitarias aisladas, fixtures y asserts de hash |
 
 ---
 

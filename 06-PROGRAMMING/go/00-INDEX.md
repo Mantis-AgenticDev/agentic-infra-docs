@@ -92,6 +92,7 @@ canonical_path: "06-PROGRAMMING/go/00-INDEX.md"
 |----------|-------------|-----------|
 | `[[testing-multi-tenant-patterns.go.md]]` | C4,C5,C8 | Patrones de testing con `testing.T`, fixtures aisladas por tenant y mocks de API tenant-scoped |
 | `[[scale-simulation-utils.go.md]]` | C1,C2,C7 | Utilidades para simulación de carga con límites de recursos y métricas de escalabilidad por tenant |
+| `[[testing-multi-tenant-patterns.go.md]]` | C4,C5,C8 | Patrones de testing con `testing.T`, fixtures aisladas por tenant y mocks de API tenant-scoped |
 
 ---
 
