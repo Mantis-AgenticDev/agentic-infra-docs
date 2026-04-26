@@ -1,1646 +1,1550 @@
 ---
-artifact_id: "TOOLCHAIN-REFERENCE"
-artifact_type: "toolchain_catalog"
-version: "3.1.0-SELECTIVE"
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+canonical_path: "/TOOLCHAIN-REFERENCE.md"
+artifact_id: "toolchain-reference-catalog"
+artifact_type: "toolchain_documentation"
+version: "3.0.0-SELECTIVE"
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json"
-canonical_path: "TOOLCHAIN-REFERENCE.md"
 tier: 1
 immutable: true
 requires_human_approval_for_changes: true
 related_files:
- - "[[GOVERNANCE-ORCHESTRATOR.md]]"
- - "[[00-STACK-SELECTOR.md]]"
- - "[[AI-NAVIGATION-CONTRACT.md]]"
- - "[[SDD-COLLABORATIVE-GENERATION.md]]"
- - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
- - "[[01-RULES/harness-norms-v3.0.md]]"
- - "[[06-PROGRAMMING/00-INDEX.md]]"
- - "[[CHRONICLE.md]]"
+  - "[[00-STACK-SELECTOR.md]]"
+  - "[[IA-QUICKSTART.md]]"
+  - "[[AI-NAVIGATION-CONTRACT.md]]"
+  - "[[GOVERNANCE-ORCHESTRATOR.md]]"
+  - "[[SDD-COLLABORATIVE-GENERATION.md]]"
+  - "[[PROJECT_TREE.md]]"
+  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
+  - "[[01-RULES/harness-norms-v3.0.md]]"
+  - "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]"
 checksum_sha256: "PENDING_GENERATION"
-language_lock: ["markdown","json","mermaid","bash","python"]
-governance_severity: error
-validation_hooks:
-  - verify-constraints.sh
-  - validate-toolchain-integrity.sh
-  - check-hook-compatibility.sh
 ---
 
-# 🔧 TOOLCHAIN-REFERENCE.md – Catálogo Maestro de Herramientas de Validación para MANTIS AGENTIC
+# 📄 TOOLCHAIN-REFERENCE.md – REFERENCIA COMPLETA DEL TOOLCHAIN DE GOBERNANZA
 
-> **Propósito**: Definir el catálogo inmutable de herramientas, hooks y scripts de validación que garantizan la integridad, seguridad y escalabilidad del ecosistema MANTIS AGENTIC.  
-> **Alcance**: 7 dominios de programación, 7 agentes master especializados, 12+ hooks de validación, validación automatizada con orchestrator-engine.sh.  
-> **Estado**: ✅ Tier 1 (Inmutable sin validación) | 🔁 Actualizado con catálogo completo de agentes + matriz de hooks por dominio | 🚫 Sin documentación pt-BR aún (deuda técnica pendiente)  
-> **Audiencia crítica**: Agentes LLM de generación de código, validadores automatizados, arquitectos de toolchain, revisores de gobernanza.
+> **Nota para principiantes:** Este documento es el "manual de herramientas" del proyecto MANTIS AGENTIC. Define exactamente qué scripts existen, para qué sirven, cómo se usan y cómo se integran entre sí. Si eres nuevo, lee las secciones en orden. Si eres experto, salta al JSON final.  
+>  
+> **Para IAs:** Este es tu catálogo operativo. **USAR HERRAMIENTA INCORRECTA = VALIDACIÓN FALLIDA**. No inventes, no asumas, no omitas.
 
-> ⚠️ **ADVERTENCIA CONTRACTUAL ABSOLUTA**: Este artifact es **Tier 1**. Cualquier modificación debe pasar validación automática con `orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json`. Los agentes LLM **DEBEN** consultar este catálogo ANTES de ejecutar cualquier hook de validación.
+
+# 🧰 TOOLCHAIN-REFERENCE: Catálogo Completo de Herramientas de Gobernanza
+
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es el "manual de usuario" del toolchain de MANTIS AGENTIC.
+Define:
+• Qué scripts de validación existen y dónde están
+• Para qué sirve cada uno y cuándo usarlo
+• Cómo se integran entre sí en el flujo de generación
+• Ejemplos ejecutables para cada herramienta
+• Dependencias y orden de ejecución
+
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
+
+> **Instrucción crítica para la IA:** 
+> Este documento es tu catálogo operativo. 
+> **USAR HERRAMIENTA INCORRECTA = VALIDACIÓN FALLIDA**. 
+> No inventes, no asumas, no omitas. Si algo no está claro, DETENER y preguntar.
 
 ---
 
-## 【0.1】🎯 PROPÓSITO PARA HUMANOS (Explicación Pedagógica Ampliada)
+## 【0】🎯 PROPÓSITO Y ALCANCE (Explicado para humanos)
 
-### 0.1.1 ¿Por qué existe este catálogo de toolchain?
+<!-- 
+【EDUCATIVO】Este documento responde: "¿Qué herramientas tengo para validar mis artefactos?"
+No es solo documentación. Es un manual ejecutable: cada herramienta tiene ejemplo de uso real.
+-->
 
-Imagina que eres un validador de gobernanza y necesitas asegurar que un artifact generado por IA cumple con todas las normas:
+### 0.1 Arquitectura del Toolchain (Visión General)
 
-```text
-❓ ¿Qué hook valida C3 (Zero Hardcode Secrets)?
-❓ ¿Cómo ejecuto validación de LANGUAGE LOCK para pgvector?
-❓ ¿Qué flags pasar a orchestrator-engine.sh para validar constraints vectoriales?
-❓ ¿Cómo interpreto el output JSON de un hook de validación?
-❓ ¿Qué hago si un hook falla con error ambiguo?
-❓ ¿Cómo coordino múltiples hooks para validación cruzada?
+```mermaid
+graph TD
+    A[Humano solicita tarea] --> B[IA-QUICKSTART: Gate de Modo]
+    B --> C[00-STACK-SELECTOR: Ruta → Lenguaje]
+    C --> D[Generación con plantillas]
+    D --> E[TOOLCHAIN: Validación pre-entrega]
+    
+    subgraph "TOOLCHAIN DE VALIDACIÓN"
+        E1[orchestrator-engine.sh] --> E2[verify-constraints.sh]
+        E1 --> E3[audit-secrets.sh]
+        E1 --> E4[check-rls.sh]
+        E1 --> E5[validate-frontmatter.sh]
+        E1 --> E6[check-wikilinks.sh]
+        E1 --> E7[schema-validator.py]
+        E1 --> E8[packager-assisted.sh]
+    end
+    
+    E --> F{¿Validación pasa?}
+    F -->|Sí| G[Entrega según Tier]
+    F -->|No| H[Iterar corrección (máx 3)]
 ```
 
-**Este catálogo es tu manual de operaciones**. Te dice:
+### 0.2 Mapeo Herramienta → Propósito → Fase de Uso
 
-```text
-✅ Qué hook validar qué constraint (matriz de coverage)
-✅ Qué flags pasar a cada hook para casos específicos (vectores, handoffs, bundles)
-✅ Cómo interpretar output JSON/JSONL de validación para debugging
-✅ Qué hacer cuando un hook falla: diagnóstico preciso + corrección sugerida
-✅ Cómo coordinar hooks para validación cruzada entre dominios
-✅ Cómo registrar resultados de validación en CHRONICLE.md para trazabilidad
+| Herramienta | Propósito Principal | Fase de Uso | Tier Aplicable | Wikilink |
+|------------|-------------------|------------|---------------|----------|
+| `orchestrator-engine.sh` | Motor principal de validación y scoring | Post-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]` |
+| `verify-constraints.sh` | Validar constraints C1-C8 + LANGUAGE LOCK | Pre/Post-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/verify-constraints.sh]]` |
+| `audit-secrets.sh` | Detectar secrets hardcodeados (C3) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/audit-secrets.sh]]` |
+| `check-rls.sh` | Validar tenant isolation en SQL (C4) | Pre-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/check-rls.sh]]` |
+| `validate-frontmatter.sh` | Verificar YAML frontmatter válido (C5) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]` |
+| `check-wikilinks.sh` | Validar wikilinks canónicos (C5) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/check-wikilinks.sh]]` |
+| `schema-validator.py` | Validar JSON/YAML contra schemas | Pre-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/schema-validator.py]]` |
+| `packager-assisted.sh` | Empaquetar artefactos Tier 3 con manifest | Post-validación | 3 | `[[05-CONFIGURATIONS/scripts/packager-assisted.sh]]` |
+
+> 💡 **Consejo para principiantes**: No necesitas memorizar todas. Usa esta tabla como referencia rápida. La mayoría de las veces, solo ejecutarás `orchestrator-engine.sh` que orquesta las demás.
+
+---
+
+## 【1】🔧 CATÁLOGO DE HERRAMIENTAS (Detalles Ejecutables)
+
+<!-- 
+【EDUCATIVO】Cada herramienta tiene: propósito, ubicación, ejemplo de uso, flags principales y salida esperada.
+Copia y pega los ejemplos para usarlas directamente.
+-->
+
+### 1.1 orchestrator-engine.sh – Motor Principal de Validación
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/orchestrator-engine.sh
+
+# 🎯 Propósito
+Validar artefactos contra normas HARNESS v3.0, calcular score, detectar blocking_issues,
+y generar reporte JSON estructurado para auditoría.
+
+# 📦 Flags Principales
+--file <ruta>              # Ruta del artefacto a validar (obligatorio)
+--mode <headless|interactive>  # headless para CI/CD, interactive para terminal
+--json                     # Salida en formato JSON (recomendado para parsing)
+--checks <C1,C2,...>       # Constraints específicas a validar (default: todas aplicables)
+--lint                     # Ejecutar linters de lenguaje (go fmt, shellcheck, etc.)
+--bundle                   # Validar estructura de bundle para Tier 3
+--checksum                 # Calcular y verificar checksums SHA256
+
+# ✅ Ejemplo de Uso Básico (Tier 2)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/javascript/webhook-whatsapp.ts.md \
+  --mode headless \
+  --json
+
+# ✅ Ejemplo de Uso Avanzado (Tier 3)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file services/rag/whatsapp-agent/agent.py.md \
+  --mode headless \
+  --json \
+  --checks C1,C2,C3,C4,C5,C6,C7,C8,V1,V3 \
+  --lint \
+  --bundle \
+  --checksum
+
+# 📤 Salida Esperada (JSON)
+{
+  "score": 42,
+  "passed": true,
+  "tier_validated": "tier2-code",
+  "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "constraints_failed": [],
+  "blocking_issues": [],
+  "warnings": ["C2: timeout no especificado en función X, se asume default 30s"],
+  "language_lock_violations": 0,
+  "validation_profile_used": "tier2-code",
+  "validation_timestamp": "2026-04-19T12:05:00Z",
+  "artifact_checksum": "sha256:abc123...",
+  "next_steps": ["✅ Artefacto aprobado para Tier 2"]
+}
+
+# ⚠️ Criterios de Aceptación por Tier
+| Tier | Score Mínimo | blocking_issues | language_lock_violations |
+|------|-------------|-----------------|-------------------------|
+| 1    | ≥ 15        | vacío o warnings| 0                       |
+| 2    | ≥ 30        | vacío           | 0                       |
+| 3    | ≥ 45        | vacío           | 0                       |
+
+# 🔗 Dependencias Internas
+• verify-constraints.sh → validación de constraints y LANGUAGE LOCK
+• audit-secrets.sh → detección de secrets hardcodeados
+• check-rls.sh → validación de tenant isolation en SQL
+• validate-frontmatter.sh → verificación de YAML frontmatter
+• check-wikilinks.sh → validación de wikilinks canónicos
+• schema-validator.py → validación de JSON/YAML contra schemas
 ```
 
-### 0.1.2 ¿Por qué es crítico para las IA (especialmente asiáticas)?
+### 1.2 verify-constraints.sh – Validación de Constraints y LANGUAGE LOCK
 
-Las IA asiáticas (especializadas en validación formal, diagnóstico estructural y optimización de flujos de toolchain) encuentran en este catálogo:
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/verify-constraints.sh
 
-| Capacidad de IA | Cómo este catálogo la potencia |
-|----------------|-------------------------------|
-| **Selección precisa de hooks** | Matriz de coverage: qué hook valida qué constraint por dominio |
-| **Diagnóstico estructurado de errores** | Códigos de error específicos con fix_hint para cada violation |
-| **Optimización de flujos de validación** | Orden de ejecución priorizado: C3/C4/C5 primero (fail-fast), luego warnings |
-| **Validación cruzada entre dominios** | Protocolo para coordinar hooks de sql/, pgvector/, python/ en un solo artifact |
-| **Trazabilidad histórica** | Registro en CHRONICLE.md con hook_results, execution_time, exit_code para auditoría |
-| **Recuperación ante fallos** | Protocolo de fallback: si hook A falla, usa hook B con diagnóstico preciso |
+# 🎯 Propósito
+Validar que un artefacto cumple con las constraints declaradas (C1-C8, V1-V3)
+y verificar LANGUAGE LOCK (operadores prohibidos por lenguaje).
 
-> 🔑 **Principio fundamental para IA asiáticas**: "La excelencia en validación no es velocidad, es precisión diagnóstica. Cuanto más claro sea el catálogo, más eficiente será la detección y corrección de violations de gobernanza."
+# 📦 Flags Principales
+--file <ruta>              # Artefacto a validar
+--dir <directorio>         # Validar todo un directorio (ej: 06-PROGRAMMING/go/)
+--check-language-lock      # Verificar operadores/constraints prohibidos por LANGUAGE LOCK
+--check-vector-dims        # Validar declaración de dimensiones vectoriales (V1)
+--check-vector-metric      # Validar documentación de métrica de distancia (V2)
+--check-vector-index       # Validar justificación de tipo de índice (V3)
+--json                     # Salida en formato JSON
 
-### 0.1.3 Diferenciador competitivo: IA Asiáticas vs. Orientales en Toolchain
+# ✅ Ejemplo: Validar LANGUAGE LOCK en directorio Go
+bash 05-CONFIGURATIONS/validation/verify-constraints.sh \
+  --dir 06-PROGRAMMING/go/ \
+  --check-language-lock \
+  --json
 
-> 📌 **Nota estratégica**: Esta distinción no es geográfica, es técnica:
-> - **IA "asiáticas"**: Modelos especializados en validación formal, diagnóstico estructural, optimización de flujos de toolchain (ej: Qwen, DeepSeek, Yi)
-> - **IA "orientales"**: Modelos generalistas con enfoque en generación libre sin validación estructurada
+# ✅ Ejemplo: Validar constraints vectoriales en pgvector
+bash 05-CONFIGURATIONS/validation/verify-constraints.sh \
+  --file 06-PROGRAMMING/postgresql-pgvector/rag-query.pgvector.md \
+  --check-vector-dims \
+  --check-vector-metric \
+  --check-vector-index \
+  --json
 
-**Este catálogo está diseñado para que las IA asiáticas demuestren superioridad en**:
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/go/orchestrator-engine.go.md",
+  "language": "go",
+  "constraints_validated": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "constraints_failed": [],
+  "language_lock": {
+    "violations": 0,
+    "denied_operators_checked": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+    "denied_constraints_checked": ["V1", "V2", "V3"]
+  },
+  "vector_constraints": null
+# ✅ CONFIRMACIÓN DE LECTURA COMPLETADA
+
+He analizado el contenido actual de `TOOLCHAIN-REFERENCE.md` y el ecosistema completo de gobernanza que hemos construido. Procedo a regenerarlo completamente integrando:
+
+- **Catálogo completo de herramientas** de validación con ejemplos ejecutables
+- **Integración canónica** con `[[00-STACK-SELECTOR]]`, `[[norms-matrix.json]]`, `[[GOVERNANCE-ORCHESTRATOR]]`, `[[IA-QUICKSTART]]`, `[[AI-NAVIGATION-CONTRACT]]`, `[[SDD-COLLABORATIVE-GENERATION]]`
+- **Formato oriental-LLM friendly**: delimitadores `【】`, instrucciones numeradas, stop conditions explícitos
+- **Sección educativa** para principiantes con glosario, ejemplos de trazas de ejecución y diagramas de flujo del toolchain
+- **Árbol JSON enriquecido** al final para consumo automático por agentes de IA con metadatos, dependencias y prioridad de ejecución de normas
+- **Wikilinks canónicos** absolutos (no relativos)
+- **Validación embebida** con `orchestrator-engine.sh`
+- **Contención de deriva**: reglas inamovibles para prevenir alucinaciones y garantizar reproducibilidad
+
+---
+
+# 📄 TOOLCHAIN-REFERENCE.md – REFERENCIA COMPLETA DEL TOOLCHAIN DE GOBERNANZA
+
+> **Nota para principiantes:** Este documento es el "manual de herramientas" del proyecto MANTIS AGENTIC. Define exactamente qué scripts existen, para qué sirven, cómo se usan y cómo se integran entre sí. Si eres nuevo, lee las secciones en orden. Si eres experto, salta al JSON final.  
+>  
+> **Para IAs:** Este es tu catálogo operativo. **USAR HERRAMIENTA INCORRECTA = VALIDACIÓN FALLIDA**. No inventes, no asumas, no omitas.
+
+```markdown
+---
+canonical_path: "/TOOLCHAIN-REFERENCE.md"
+artifact_id: "toolchain-reference-catalog"
+artifact_type: "toolchain_documentation"
+version: "3.0.0-SELECTIVE"
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json"
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+related_files:
+  - "[[00-STACK-SELECTOR.md]]"
+  - "[[IA-QUICKSTART.md]]"
+  - "[[AI-NAVIGATION-CONTRACT.md]]"
+  - "[[GOVERNANCE-ORCHESTRATOR.md]]"
+  - "[[SDD-COLLABORATIVE-GENERATION.md]]"
+  - "[[PROJECT_TREE.md]]"
+  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
+  - "[[01-RULES/harness-norms-v3.0.md]]"
+  - "[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]"
+checksum_sha256: "PENDING_GENERATION"
+---
+
+# 🧰 TOOLCHAIN-REFERENCE: Catálogo Completo de Herramientas de Gobernanza
+
+<!-- 
+【PARA PRINCIPIANTES】¿Qué es este archivo?
+Este documento es el "manual de usuario" del toolchain de MANTIS AGENTIC.
+Define:
+• Qué scripts de validación existen y dónde están
+• Para qué sirve cada uno y cuándo usarlo
+• Cómo se integran entre sí en el flujo de generación
+• Ejemplos ejecutables para cada herramienta
+• Dependencias y orden de ejecución
+
+Si eres nuevo: lee en orden. 
+Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
+-->
+
+> **Instrucción crítica para la IA:** 
+> Este documento es tu catálogo operativo. 
+> **USAR HERRAMIENTA INCORRECTA = VALIDACIÓN FALLIDA**. 
+> No inventes, no asumas, no omitas. Si algo no está claro, DETENER y preguntar.
+
+---
+
+## 【0】🎯 PROPÓSITO Y ALCANCE (Explicado para humanos)
+
+<!-- 
+【EDUCATIVO】Este documento responde: "¿Qué herramientas tengo para validar mis artefactos?"
+No es solo documentación. Es un manual ejecutable: cada herramienta tiene ejemplo de uso real.
+-->
+
+### 0.1 Arquitectura del Toolchain (Visión General)
+
+```mermaid
+graph TD
+    A[Humano solicita tarea] --> B[IA-QUICKSTART: Gate de Modo]
+    B --> C[00-STACK-SELECTOR: Ruta → Lenguaje]
+    C --> D[Generación con plantillas]
+    D --> E[TOOLCHAIN: Validación pre-entrega]
+    
+    subgraph "TOOLCHAIN DE VALIDACIÓN"
+        E1[orchestrator-engine.sh] --> E2[verify-constraints.sh]
+        E1 --> E3[audit-secrets.sh]
+        E1 --> E4[check-rls.sh]
+        E1 --> E5[validate-frontmatter.sh]
+        E1 --> E6[check-wikilinks.sh]
+        E1 --> E7[schema-validator.py]
+        E1 --> E8[packager-assisted.sh]
+    end
+    
+    E --> F{¿Validación pasa?}
+    F -->|Sí| G[Entrega según Tier]
+    F -->|No| H[Iterar corrección (máx 3)]
+```
+
+### 0.2 Mapeo Herramienta → Propósito → Fase de Uso
+
+| Herramienta | Propósito Principal | Fase de Uso | Tier Aplicable | Wikilink |
+|------------|-------------------|------------|---------------|----------|
+| `orchestrator-engine.sh` | Motor principal de validación y scoring | Post-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]]` |
+| `verify-constraints.sh` | Validar constraints C1-C8 + LANGUAGE LOCK | Pre/Post-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/verify-constraints.sh]]` |
+| `audit-secrets.sh` | Detectar secrets hardcodeados (C3) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/audit-secrets.sh]]` |
+| `check-rls.sh` | Validar tenant isolation en SQL (C4) | Pre-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/check-rls.sh]]` |
+| `validate-frontmatter.sh` | Verificar YAML frontmatter válido (C5) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/validate-frontmatter.sh]]` |
+| `check-wikilinks.sh` | Validar wikilinks canónicos (C5) | Pre-generación | 1, 2, 3 | `[[05-CONFIGURATIONS/validation/check-wikilinks.sh]]` |
+| `schema-validator.py` | Validar JSON/YAML contra schemas | Pre-generación | 2, 3 | `[[05-CONFIGURATIONS/validation/schema-validator.py]]` |
+| `packager-assisted.sh` | Empaquetar artefactos Tier 3 con manifest | Post-validación | 3 | `[[05-CONFIGURATIONS/scripts/packager-assisted.sh]]` |
+
+> 💡 **Consejo para principiantes**: No necesitas memorizar todas. Usa esta tabla como referencia rápida. La mayoría de las veces, solo ejecutarás `orchestrator-engine.sh` que orquesta las demás.
+
+---
+
+## 【1】🔧 CATÁLOGO DE HERRAMIENTAS (Detalles Ejecutables)
+
+<!-- 
+【EDUCATIVO】Cada herramienta tiene: propósito, ubicación, ejemplo de uso, flags principales y salida esperada.
+Copia y pega los ejemplos para usarlas directamente.
+-->
+
+### 1.1 orchestrator-engine.sh – Motor Principal de Validación
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/orchestrator-engine.sh
+
+# 🎯 Propósito
+Validar artefactos contra normas HARNESS v3.0, calcular score, detectar blocking_issues,
+y generar reporte JSON estructurado para auditoría.
+
+# 📦 Flags Principales
+--file <ruta>              # Ruta del artefacto a validar (obligatorio)
+--mode <headless|interactive>  # headless para CI/CD, interactive para terminal
+--json                     # Salida en formato JSON (recomendado para parsing)
+--checks <C1,C2,...>       # Constraints específicas a validar (default: todas aplicables)
+--lint                     # Ejecutar linters de lenguaje (go fmt, shellcheck, etc.)
+--bundle                   # Validar estructura de bundle para Tier 3
+--checksum                 # Calcular y verificar checksums SHA256
+
+# ✅ Ejemplo de Uso Básico (Tier 2)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/javascript/webhook-whatsapp.ts.md \
+  --mode headless \
+  --json
+
+# ✅ Ejemplo de Uso Avanzado (Tier 3)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file services/rag/whatsapp-agent/agent.py.md \
+  --mode headless \
+  --json \
+  --checks C1,C2,C3,C4,C5,C6,C7,C8,V1,V3 \
+  --lint \
+  --bundle \
+  --checksum
+
+# 📤 Salida Esperada (JSON)
+{
+  "score": 42,
+  "passed": true,
+  "tier_validated": "tier2-code",
+  "constraints_applied": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "constraints_failed": [],
+  "blocking_issues": [],
+  "warnings": ["C2: timeout no especificado en función X, se asume default 30s"],
+  "language_lock_violations": 0,
+  "validation_profile_used": "tier2-code",
+  "validation_timestamp": "2026-04-19T12:05:00Z",
+  "artifact_checksum": "sha256:abc123...",
+  "next_steps": ["✅ Artefacto aprobado para Tier 2"]
+}
+
+# ⚠️ Criterios de Aceptación por Tier
+| Tier | Score Mínimo | blocking_issues | language_lock_violations |
+|------|-------------|-----------------|-------------------------|
+| 1    | ≥ 15        | vacío o warnings| 0                       |
+| 2    | ≥ 30        | vacío           | 0                       |
+| 3    | ≥ 45        | vacío           | 0                       |
+
+# 🔗 Dependencias Internas
+• verify-constraints.sh → validación de constraints y LANGUAGE LOCK
+• audit-secrets.sh → detección de secrets hardcodeados
+• check-rls.sh → validación de tenant isolation en SQL
+• validate-frontmatter.sh → verificación de YAML frontmatter
+• check-wikilinks.sh → validación de wikilinks canónicos
+• schema-validator.py → validación de JSON/YAML contra schemas
+```
+
+### 1.2 verify-constraints.sh – Validación de Constraints y LANGUAGE LOCK
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/verify-constraints.sh
+
+# 🎯 Propósito
+Validar que un artefacto cumple con las constraints declaradas (C1-C8, V1-V3)
+y verificar LANGUAGE LOCK (operadores prohibidos por lenguaje).
+
+# 📦 Flags Principales
+--file <ruta>              # Artefacto a validar
+--dir <directorio>         # Validar todo un directorio (ej: 06-PROGRAMMING/go/)
+--check-language-lock      # Verificar operadores/constraints prohibidos por LANGUAGE LOCK
+--check-vector-dims        # Validar declaración de dimensiones vectoriales (V1)
+--check-vector-metric      # Validar documentación de métrica de distancia (V2)
+--check-vector-index       # Validar justificación de tipo de índice (V3)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar LANGUAGE LOCK en directorio Go
+bash 05-CONFIGURATIONS/validation/verify-constraints.sh \
+  --dir 06-PROGRAMMING/go/ \
+  --check-language-lock \
+  --json
+
+# ✅ Ejemplo: Validar constraints vectoriales en pgvector
+bash 05-CONFIGURATIONS/validation/verify-constraints.sh \
+  --file 06-PROGRAMMING/postgresql-pgvector/rag-query.pgvector.md \
+  --check-vector-dims \
+  --check-vector-metric \
+  --check-vector-index \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/go/orchestrator-engine.go.md",
+  "language": "go",
+  "constraints_validated": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "constraints_failed": [],
+  "language_lock": {
+    "violations": 0,
+    "denied_operators_checked": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+    "denied_constraints_checked": ["V1", "V2", "V3"]
+  },
+  "vector_constraints": null,  # null porque no es pgvector
+  "passed": true
+}
+
+# ⚠️ Errores Comunes y Soluciones
+| Error | Causa Probable | Solución |
+|-------|---------------|----------|
+| `LANGUAGE_LOCK_VIOLATION: operador '<->' prohibido en lenguaje 'go'` | Query vectorial en archivo Go | Mover query a 06-PROGRAMMING/postgresql-pgvector/ |
+| `MISSING_MANDATORY_CONSTRAINT: 'V1' es obligatoria para postgresql-pgvector/` | Falta declaración de dimensiones vectoriales | Agregar comentario: `-- embedding: 1536d, model: text-embedding-3-small` |
+| `CONSTRAINT_NOT_ALLOWED: 'V2' no aplicable para ruta '06-PROGRAMMING/sql/'` | Constraint vectorial en SQL genérico | Usar ruta en postgresql-pgvector/ para búsqueda vectorial |
+```
+
+### 1.3 audit-secrets.sh – Detección de Secrets Hardcodeados (C3)
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/audit-secrets.sh
+
+# 🎯 Propósito
+Escanear artefactos en busca de secrets, API keys, credenciales o tokens hardcodeados.
+Cumple con constraint C3: Zero Hardcode Secrets.
+
+# 📦 Flags Principales
+--file <ruta>              # Artefacto a escanear
+--dir <directorio>         # Escanear todo un directorio
+--patterns <archivo>       # Archivo con patrones regex personalizados (opcional)
+--json                     # Salida en formato JSON
+--strict                   # Modo estricto: fallar ante cualquier posible secreto
+
+# ✅ Ejemplo: Escanear archivo individual
+bash 05-CONFIGURATIONS/validation/audit-secrets.sh \
+  --file 06-PROGRAMMING/python/langchain-integration.md \
+  --json
+
+# ✅ Ejemplo: Escanear directorio completo (pre-commit hook)
+bash 05-CONFIGURATIONS/validation/audit-secrets.sh \
+  --dir 06-PROGRAMMING/ \
+  --strict \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/python/config.py.md",
+  "secrets_found": 0,
+  "patterns_checked": [
+    "password\\s*=\\s*['\"][^'\"]+['\"]",
+    "api[_-]?key\\s*=\\s*['\"][^'\"]+['\"]",
+    "sk-[a-zA-Z0-9]{20,}",
+    "ghp_[a-zA-Z0-9]{36,}",
+    "\\$\\{[^}]+\\}"  # Variables de entorno (permitidas)
+  ],
+  "findings": [],
+  "passed": true,
+  "recommendation": "✅ No se detectaron secrets hardcodeados. Usar variables de entorno para configuración sensible."
+}
+
+# ⚠️ Patrones Detectados por Defecto
+| Patrón | Ejemplo Detectado | Alternativa Segura |
+|--------|-----------------|-------------------|
+| `password = "xxx"` | `DB_PASSWORD = "supersecret123"` | `DB_PASSWORD = "${DB_PASSWORD:?missing}"` |
+| `api_key = "sk-xxx"` | `OPENAI_API_KEY = "sk-abc123..."` | `OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]` |
+| `token = "ghp_xxx"` | `GITHUB_TOKEN = "ghp_abc123..."` | `GITHUB_TOKEN = process.env.GITHUB_TOKEN` |
+| `secret = "xxx"` | `JWT_SECRET = "my-secret-key"` | `JWT_SECRET = config.get("JWT_SECRET")` |
+
+# 🔐 Regla de Oro C3
+NUNCA escribir secrets en código. Siempre usar:
+• Variables de entorno: `${VAR:?missing}` (bash), `os.environ["VAR"]` (Python)
+• Secret managers: AWS Secrets Manager, HashiCorp Vault, etc.
+• Inyección runtime: pasar secrets vía CLI flags o config files externos (no versionados)
+```
+
+### 1.4 check-rls.sh – Validación de Tenant Isolation en SQL (C4)
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/check-rls.sh
+
+# 🎯 Propósito
+Validar que queries SQL incluyen cláusulas de aislamiento por tenant_id (C4: Tenant Isolation).
+Previene fuga de datos entre clientes en sistemas multi-tenant.
+
+# 📦 Flags Principales
+--file <ruta>              # Archivo SQL a validar
+--dir <directorio>         # Validar directorio de queries SQL
+--tenant-column <nombre>   # Nombre de la columna de tenant (default: tenant_id)
+--strict                   # Modo estricto: fallar si falta tenant_id en cualquier query SELECT/UPDATE/DELETE
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar query individual
+bash 05-CONFIGURATIONS/validation/check-rls.sh \
+  --file 06-PROGRAMMING/sql/crud-with-tenant-enforcement.sql.md \
+  --tenant-column tenant_id \
+  --json
+
+# ✅ Ejemplo: Validar directorio de queries (pre-deploy)
+bash 05-CONFIGURATIONS/validation/check-rls.sh \
+  --dir 06-PROGRAMMING/sql/ \
+  --strict \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/sql/user-queries.sql.md",
+  "queries_analyzed": 5,
+  "queries_with_tenant_filter": 5,
+  "queries_without_tenant_filter": 0,
+  "findings": [],
+  "passed": true,
+  "recommendation": "✅ Todas las queries incluyen filtro por tenant_id. Isolación multi-tenant verificada."
+}
+
+# ⚠️ Patrones Válidos vs Inválidos
+| Query ✅ Válida | Query ❌ Inválida | Corrección 🔧 |
+|----------------|-----------------|--------------|
+| `SELECT * FROM users WHERE tenant_id = $1` | `SELECT * FROM users` | Agregar `WHERE tenant_id = $1` |
+| `UPDATE orders SET status = $2 WHERE id = $1 AND tenant_id = $3` | `UPDATE orders SET status = $2 WHERE id = $1` | Agregar `AND tenant_id = $3` |
+| `DELETE FROM logs WHERE created_at < $1 AND tenant_id = $2` | `DELETE FROM logs WHERE created_at < $1` | Agregar `AND tenant_id = $2` |
+
+# 🔐 Regla de Oro C4
+TODA query que acceda a datos de usuario DEBE incluir `tenant_id` en el WHERE.
+Excepciones permitidas (documentar explícitamente):
+• Queries de administración del sistema (con roles de superadmin)
+• Queries de agregación anónima (sin datos personales)
+• Queries de configuración global (no tenant-specific)
+```
+
+### 1.5 validate-frontmatter.sh – Verificación de Frontmatter YAML (C5)
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/validate-frontmatter.sh
+
+# 🎯 Propósito
+Validar que el frontmatter YAML al inicio de archivos Markdown es sintácticamente válido
+y contiene los campos obligatorios según el nivel de especificación (SDD-COLLABORATIVE-GENERATION).
+
+# 📦 Flags Principales
+--file <ruta>              # Archivo Markdown a validar
+--level <1|2|3>            # Nivel de especificación: 1=base, 2=código, 3=paquete
+--required-fields <lista>  # Campos adicionales requeridos (separados por comas)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar frontmatter Nivel 2 (código)
+bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh \
+  --file 06-PROGRAMMING/go/orchestrator-engine.go.md \
+  --level 2 \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "06-PROGRAMMING/go/orchestrator-engine.go.md",
+  "frontmatter_valid": true,
+  "yaml_syntax_ok": true,
+  "required_fields_present": ["canonical_path", "artifact_id", "artifact_type", "version", "constraints_mapped", "validation_command", "tier", "mode_selected", "prompt_hash", "generated_at"],
+  "missing_fields": [],
+  "extra_fields": [],
+  "passed": true
+}
+
+# ⚠️ Campos Obligatorios por Nivel (ver SDD-COLLABORATIVE-GENERATION#0.3)
+| Campo | Nivel 1 | Nivel 2 | Nivel 3 |
+|-------|---------|---------|---------|
+| `canonical_path` | ✅ | ✅ | ✅ |
+| `artifact_id` | ✅ | ✅ | ✅ |
+| `artifact_type` | ✅ | ✅ | ✅ |
+| `version` | ✅ | ✅ | ✅ |
+| `constraints_mapped` | ✅ | ✅ | ✅ |
+| `validation_command` | ⚪ | ✅ | ✅ |
+| `tier` | ⚪ | ✅ | ✅ |
+| `mode_selected` | ⚪ | ✅ | ✅ |
+| `prompt_hash` | ⚪ | ✅ | ✅ |
+| `generated_at` | ⚪ | ✅ | ✅ |
+| `bundle_required` | ⚪ | ⚪ | ✅ |
+| `bundle_contents` | ⚪ | ⚪ | ✅ |
+```
+
+### 1.6 check-wikilinks.sh – Validación de Wikilinks Canónicos (C5)
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/check-wikilinks.sh
+
+# 🎯 Propósito
+Validar que todos los wikilinks `[[RUTA]]` en archivos Markdown son canónicos (absolutos desde raíz)
+y apuntan a archivos que existen en PROJECT_TREE.md.
+
+# 📦 Flags Principales
+--file <ruta>              # Archivo Markdown a validar
+--project-tree <archivo>   # Ruta a PROJECT_TREE.md (default: PROJECT_TREE.md)
+--allow-external           # Permitir wikilinks a URLs externas (https://...)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar wikilinks en archivo
+bash 05-CONFIGURATIONS/validation/check-wikilinks.sh \
+  --file IA-QUICKSTART.md \
+  --project-tree PROJECT_TREE.md \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "IA-QUICKSTART.md",
+  "wikilinks_found": 12,
+  "wikilinks_canonical": 12,
+  "wikilinks_relative": 0,
+  "wikilinks_broken": 0,
+  "findings": [],
+  "passed": true,
+  "recommendation": "✅ Todos los wikilinks son canónicos y apuntan a archivos existentes."
+}
+
+# ⚠️ Formato de Wikilinks: Válido vs Inválido
+| Wikilink ✅ Válido | Wikilink ❌ Inválido | Corrección 🔧 |
+|------------------|---------------------|--------------|
+| `[[PROJECT_TREE.md]]` | `[[../PROJECT_TREE.md]]` | Usar ruta absoluta desde raíz |
+| `[[00-STACK-SELECTOR]]` | `[[./00-STACK-SELECTOR]]` | Eliminar `./` relativo |
+| `[[06-PROGRAMMING/go/00-INDEX]]` | `[[go/00-INDEX]]` | Incluir ruta completa desde raíz |
+
+# 🔗 Resolución de Wikilinks
+Los wikilinks se resuelven así:
+1. Extraer contenido entre `[[` y `]]`: `00-STACK-SELECTOR`
+2. Si no tiene extensión, añadir `.md`: `00-STACK-SELECTOR.md`
+3. Si no empieza con `/`, añadir `/`: `/00-STACK-SELECTOR.md`
+4. Verificar que el archivo existe en el filesystem o en PROJECT_TREE.md
+```
+
+### 1.7 schema-validator.py – Validación de JSON/YAML contra Schemas
+
+```python
+# 📍 Ubicación
+05-CONFIGURATIONS/validation/schema-validator.py
+
+# 🎯 Propósito
+Validar archivos JSON o YAML contra esquemas JSON Schema definidos en 
+05-CONFIGURATIONS/validation/schemas/.
+
+# 📦 Argumentos Principales
+--file <ruta>              # Archivo JSON/YAML a validar
+--schema <ruta-schema>     # Esquema JSON Schema a usar
+--draft <7|2019-09|2020-12>  # Versión de JSON Schema (default: 2020-12)
+--json                     # Salida en formato JSON
+
+# ✅ Ejemplo: Validar configuración contra schema
+python 05-CONFIGURATIONS/validation/schema-validator.py \
+  --file 05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml \
+  --schema 05-CONFIGURATIONS/validation/schemas/docker-compose.schema.json \
+  --json
+
+# ✅ Ejemplo: Validar stack-selection contra schema canónico
+python 05-CONFIGURATIONS/validation/schema-validator.py \
+  --file /tmp/stack-selection-instance.json \
+  --schema 05-CONFIGURATIONS/validation/schemas/stack-selection.schema.json \
+  --json
+
+# 📤 Salida Esperada (JSON)
+{
+  "file": "05-CONFIGURATIONS/docker-compose/vps1-n8n-uazapi.yml",
+  "schema": "05-CONFIGURATIONS/validation/schemas/docker-compose.schema.json",
+  "valid": true,
+  "errors": [],
+  "warnings": ["property 'mem_limit' is deprecated, use 'deploy.resources.limits.memory' instead"],
+  "recommendation": "✅ Configuración válida contra schema. Considerar actualizar propiedad depreciada."
+}
+
+# 📁 Schemas Disponibles
+| Schema | Propósito | Ubicación |
+|--------|-----------|-----------|
+| `stack-selection.schema.json` | Validar decisiones de stack tecnológico | `05-CONFIGURATIONS/validation/schemas/stack-selection.schema.json` |
+| `skill-input-output.schema.json` | Validar formato de entrada/salida de skills | `05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json` |
+| `docker-compose.schema.json` | Validar archivos docker-compose.yml | `05-CONFIGURATIONS/validation/schemas/docker-compose.schema.json` |
+| `n8n-workflow.schema.json` | Validar workflows de n8n | `05-CONFIGURATIONS/validation/schemas/n8n-workflow.schema.json` |
+```
+
+### 1.8 packager-assisted.sh – Empaquetado de Artefactos Tier 3
+
+```bash
+# 📍 Ubicación
+05-CONFIGURATIONS/scripts/packager-assisted.sh
+
+# 🎯 Propósito
+Empaquetar artefactos Tier 3 en estructura de bundle con manifest.json, 
+scripts de deploy/rollback, healthcheck y checksums SHA256.
+
+# 📦 Flags Principales
+--source <ruta-artefacto>    # Artefacto Nivel 2 a empaquetar
+--output <ruta-zip>          # Ruta de salida del ZIP (default: ./output/artefacto-v1.0.zip)
+--version <semver>           # Versión del paquete (default: 1.0.0)
+--tenant <id>                # Tenant ID para inyectar en scripts (opcional)
+--dry-run                    # Simular empaquetado sin crear archivos
+--json                       # Salida en formato JSON
+
+# ✅ Ejemplo: Empaquetar agente RAG para cliente
+bash 05-CONFIGURATIONS/scripts/packager-assisted.sh \
+  --source services/rag/whatsapp-agent/agent.py.md \
+  --output deploy/rag-agent-whatsapp-v1.0.zip \
+  --version 1.0.0 \
+  --tenant cliente-agricola-x \
+  --json
+
+# 📤 Estructura de Bundle Generada
+```
+rag-agent-whatsapp-v1.0/
+├── manifest.json              # Metadatos del paquete
+├── deploy.sh                  # Script de despliegue idempotente
+├── rollback.sh                # Script de reversión segura
+├── healthcheck.sh             # Verificación post-deploy
+├── README-DEPLOY.md           # Instrucciones para el cliente
+├── checksums.sha256           # Hashes de todos los archivos
+└── src/
+    └── agent.py.md            # Código fuente validado (Nivel 2)
+```
+
+# 📄 Contenido de manifest.json (Ejemplo)
+```json
+{
+  "artifact_id": "rag-agent-whatsapp",
+  "version": "1.0.0",
+  "tier": 3,
+  "mode_selected": "B3",
+  "validation_result": {"score": 48, "passed": true},
+  "bundle_checksum": "sha256:xyz789...",
+  "deploy_command": "./deploy.sh --tenant cliente-agricola-x",
+  "rollback_command": "./rollback.sh --tenant cliente-agricola-x",
+  "healthcheck_command": "./healthcheck.sh",
+  "generated_at": "2026-04-19T12:00:00Z",
+  "prompt_hash": "sha256:abc123...",
+  "files": [
+    {"path": "src/agent.py.md", "checksum": "sha256:def456..."},
+    {"path": "deploy.sh", "checksum": "sha256:ghi789..."},
+    {"path": "rollback.sh", "checksum": "sha256:jkl012..."}
+  ]
+}
+```
+
+# ⚠️ Requisitos para Empaquetado Exitoso
+| Requisito | Verificación | Consecuencia si falla |
+|-----------|-------------|---------------------|
+| Artefacto fuente validado Tier 2 | `orchestrator-engine.sh --file <source> --json` → passed:true | ❌ Error: "SOURCE_NOT_VALIDATED" |
+| Frontmatter con bundle_required: true | `yq eval '.bundle_required' <source>` → true | ❌ Error: "BUNDLE_FLAG_MISSING" |
+| Scripts deploy.sh/rollback.sh funcionales | Ejecutar con `--dry-run` y verificar exit code | ❌ Error: "SCRIPTS_NOT_FUNCTIONAL" |
+| Checksums SHA256 válidos | `sha256sum -c checksums.sha256` → OK | ❌ Error: "CHECKSUM_MISMATCH" |
+```
+
+---
+
+## 【2】🔄 FLUJO COMPLETO DE VALIDACIÓN (End-to-End)
+
+<!-- 
+【EDUCATIVO】Así se integran todas las herramientas en el flujo real de generación.
+Sigue este orden para validar cualquier artefacto.
+-->
+
+### 2.1 Diagrama de Flujo del Toolchain
 
 ```mermaid
 graph LR
-    A[🎯 Artifact a validar] --> B[🔧 IA: consultar TOOLCHAIN-REFERENCE.md]
-    B --> C{¿Qué constraints validar?}
+    A[Artefacto Generado] --> B[validate-frontmatter.sh]
+    B --> C[check-wikilinks.sh]
+    C --> D[audit-secrets.sh]
+    D --> E[check-rls.sh]
+    E --> F[verify-constraints.sh]
+    F --> G[schema-validator.py]
+    G --> H[orchestrator-engine.sh]
     
-    C -->|C3/C4/C5 (fail-fast)| D[🚨 Ejecutar hooks bloqueantes primero]
-    C -->|C1/C2/C6/C7/C8 (warnings)| E[⚠️ Ejecutar hooks de mejora después]
-    C -->|V1/V2/V3 (pgvector)| F[🧠 Ejecutar vector-schema-validator.py con flags]
+    H --> I{¿Score >= mínimo?}
+    I -->|Sí| J[✅ Aprobado para Tier]
+    I -->|No| K[❌ Iterar corrección]
     
-    D --> D1[verify-constraints.sh --check-secrets]
-    D --> D2[verify-constraints.sh --check-tenant-isolation]
-    D --> D3[verify-constraints.sh --check-structural]
+    J --> L{¿Tier 3?}
+    L -->|Sí| M[packager-assisted.sh]
+    L -->|No| N[Entrega directa]
     
-    E --> E1[verify-constraints.sh --check-resources]
-    E --> E2[verify-constraints.sh --check-auditability]
-    E --> E3[verify-constraints.sh --check-observability]
-    
-    F --> F1[vector-schema-validator.py --check-vector-dims]
-    F --> F2[vector-schema-validator.py --check-vector-metric]
-    F --> F3[vector-schema-validator.py --check-vector-index]
-    
-    D1 --> G[📊 Consolidar resultados JSON]
-    D2 --> G
-    D3 --> G
-    E1 --> G
-    E2 --> G
-    E3 --> G
-    F1 --> G
-    F2 --> G
-    F3 --> G
-    
-    G --> H{¿Todos los hooks pasaron?}
-    H -->|Sí| I[✅ Artifact válido + registrar en CHRONICLE.md]
-    H -->|No| J[❌ Diagnosticar por código de error + sugerir corrección]
-    
-    style D1 fill:#ffcdd2,stroke:#c62828
-    style D2 fill:#ffcdd2,stroke:#c62828
-    style D3 fill:#ffcdd2,stroke:#c62828
-    style F1 fill:#e3f2fd,stroke:#1976d2
-    style F2 fill:#e3f2fd,stroke:#1976d2
-    style F3 fill:#e3f2fd,stroke:#1976d2
-    style I fill:#c8e6c9,stroke:#2e7d32
+    M --> O[✅ Bundle listo para deploy]
 ```
 
-> 💡 **Ventaja competitiva**: Las IA que dominan validación formal pueden navegar este catálogo con precisión quirúrgica, ejecutando hooks en el orden correcto, interpretando outputs con diagnóstico preciso, y corrigiendo violations al primer intento, reduciendo iteraciones y debt técnico.
-
----
-
-## 【0.2】🗂️ CATEGORÍAS DE HOOKS – DEFINICIONES CONTRACTUALES (Preservadas + Expandidas)
-
-### 0.2.1 Hooks Bloqueantes (Fail-Fast – C3/C4/C5/V1)
-
-```json
-{
- "category": "blocking_hooks",
- "purpose": "Validar constraints que, si fallan, rechazan el artifact inmediatamente",
- "applicable_constraints": ["C3", "C4", "C5", "V1"],
- "execution_order": "Primero: siempre ejecutar antes de hooks de warning",
- "hooks": [
- {
- "name": "verify-constraints.sh",
- "validates": ["C3", "C4", "C5"],
- "description": "Hook principal para validar constraints de seguridad, aislamiento y estructura",
- "required_flags": {
- "C3": "--check-secrets",
- "C4": "--check-tenant-isolation",
- "C5": "--check-structural"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: todos los constraints validados exitosamente",
- "1": "failed: al menos un constraint bloqueante violado",
- "2": "error: error de ejecución del hook (no de validación)"
- },
- "error_codes": {
- "C3_HARDCODED_SECRET": {"severity": "error", "fix_hint": "Reemplazar secret hardcodeado con os.getenv('SECRET_NAME')"},
- "C4_MISSING_TENANT_ID": {"severity": "error", "fix_hint": "Agregar 'WHERE tenant_id = $1' a queries SQL o propagar contexto de tenant"},
- "C5_INVALID_FRONTMATTER": {"severity": "error", "fix_hint": "Corregir frontmatter YAML: verificar artifact_id, canonical_path, constraints_mapped"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file 06-PROGRAMMING/sql/query.sql.md --check-secrets --check-tenant-isolation --check-structural --json"
- },
- {
- "name": "vector-schema-validator.py",
- "validates": ["V1"],
- "description": "Hook especializado para validar constraint V1: dimensiones de vector explícitas",
- "required_flags": {
- "V1": "--check-vector-dims"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: V1 validado exitosamente",
- "1": "failed: V1 violado (vector(n) sin declaración explícita)",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "V1_MISSING_VECTOR_DIM": {"severity": "error", "fix_hint": "Declarar vector(768) explícitamente y agregar V1 a constraints_mapped"},
- "V1_DIMENSION_MISMATCH": {"severity": "error", "fix_hint": "Asegurar que dimensión declarada en vector(n) coincide con embedding model usado"}
- },
- "usage_example": "python3 05-CONFIGURATIONS/validation/vector-schema-validator.py --file 06-PROGRAMMING/postgresql-pgvector/query.pgvector.md --check-vector-dims --json"
- }
- ],
- "execution_protocol": {
- "order": ["C3", "C4", "C5", "V1"],
- "parallel_execution": false,
- "fail_fast": true,
- "rollback_on_failure": "No generar artifact; diagnosticar error y sugerir corrección"
- }
-}
-```
-
-### 0.2.2 Hooks de Warning (Permisivos – C1/C2/C6/C7/C8/V2/V3)
-
-```json
-{
- "category": "warning_hooks",
- "purpose": "Validar constraints que, si fallan, generan warnings pero permiten corrección iterativa",
- "applicable_constraints": ["C1", "C2", "C6", "C7", "C8", "V2", "V3"],
- "execution_order": "Después: ejecutar solo si hooks bloqueantes pasaron",
- "hooks": [
- {
- "name": "verify-constraints.sh",
- "validates": ["C1", "C2", "C6", "C7", "C8"],
- "description": "Hook principal para validar constraints de performance, auditabilidad y observabilidad",
- "required_flags": {
- "C1": "--check-resource-limits",
- "C2": "--check-performance-budgets",
- "C6": "--check-auditability",
- "C7": "--check-resilience",
- "C8": "--check-observability"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: todos los constraints validados exitosamente",
- "1": "warning: al menos un constraint de warning violado (pero artifact aceptable)",
- "2": "error: error de ejecución del hook"
- },
- "warning_codes": {
- "C1_RESOURCE_LIMIT_UNDECLARED": {"severity": "warning", "fix_hint": "Declarar límites de CPU/memoria con timeout o ulimit"},
- "C2_PERFORMANCE_BUDGET_MISSING": {"severity": "warning", "fix_hint": "Documentar benchmarks de latencia/throughput esperados"},
- "C6_STRUCTURED_LOGGING_INCOMPLETE": {"severity": "warning", "fix_hint": "Usar logging.info(json.dumps({...})) para trazabilidad por tenant"},
- "C7_ERROR_HANDLING_MISSING": {"severity": "warning", "fix_hint": "Agregar try/except, defer, o patterns de resilience según lenguaje"},
- "C8_METRICS_UNDECLARED": {"severity": "warning", "fix_hint": "Incluir métricas Prometheus-ready o spans de OpenTelemetry"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file 06-PROGRAMMING/python/module.py.md --check-resource-limits --check-performance-budgets --check-auditability --check-resilience --check-observability --json"
- },
- {
- "name": "vector-schema-validator.py",
- "validates": ["V2", "V3"],
- "description": "Hook especializado para validar constraints vectoriales V2 (métrica) y V3 (índice)",
- "required_flags": {
- "V2": "--check-vector-metric",
- "V3": "--check-vector-index"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: V2/V3 validados exitosamente",
- "1": "warning: V2/V3 con warnings pero artifact aceptable",
- "2": "error: error de ejecución del hook"
- },
- "warning_codes": {
- "V2_METRIC_UNDOCUMENTED": {"severity": "warning", "fix_hint": "Documentar métrica de distancia: cosine_distance, l2_distance, o inner_product"},
- "V3_INDEX_PARAMS_UNJUSTIFIED": {"severity": "warning", "fix_hint": "Justificar parámetros de índice: hnsw.m=16, ivfflat.lists=100 con benchmarks"}
- },
- "usage_example": "python3 05-CONFIGURATIONS/validation/vector-schema-validator.py --file 06-PROGRAMMING/postgresql-pgvector/query.pgvector.md --check-vector-metric --check-vector-index --json"
- }
- ],
- "execution_protocol": {
- "order": ["C1", "C2", "C6", "C7", "C8", "V2", "V3"],
- "parallel_execution": true,
- "fail_fast": false,
- "rollback_on_failure": "Generar artifact con warnings; registrar en CHRONICLE.md para mejora iterativa"
- }
-}
-```
-
-### 0.2.3 Hooks Especializados por Dominio (LANGUAGE LOCK + Handoffs)
-
-```json
-{
- "category": "domain_specialized_hooks",
- "purpose": "Validar constraints específicos de dominio: LANGUAGE LOCK, handoffs, bundles",
- "applicable_constraints": ["LANGUAGE_LOCK", "HANDOFF_METADATA", "BUNDLE_INTEGRITY"],
- "execution_order": "Después de hooks generales: validar aspectos específicos de dominio",
- "hooks": [
- {
- "name": "check-language-lock-navigation.sh",
- "validates": ["LANGUAGE_LOCK"],
- "description": "Hook para validar que operadores usados están permitidos en el dominio per LANGUAGE LOCK",
- "required_flags": {
- "all": "--check-language-lock"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: LANGUAGE LOCK compliant",
- "1": "failed: LANGUAGE LOCK violation detected",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "LANGUAGE_LOCK_VECTOR_IN_WRONG_DOMAIN": {"severity": "error", "fix_hint": "Delegar a postgresql-pgvector/ para operaciones vectoriales"},
- "LANGUAGE_LOCK_PROHIBITED_PATTERN": {"severity": "error", "fix_hint": "Remover patrón prohibido o delegar a dominio correcto"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/check-language-lock-navigation.sh --file 06-PROGRAMMING/sql/query.sql.md --check-language-lock --json"
- },
- {
- "name": "validate-sdd-flow.sh",
- "validates": ["HANDOFF_METADATA", "CROSS_DOMAIN_VALIDATION"],
- "description": "Hook para validar flujos colaborativos SDD: handoffs, metadata, validación cruzada",
- "required_flags": {
- "handoff": "--check-handoffs",
- "cross_domain": "--check-cross-domain"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: handoffs y validación cruzada exitosas",
- "1": "failed: handoff metadata incompleta o validación cruzada fallida",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "HANDOFF_METADATA_INCOMPLETE": {"severity": "error", "fix_hint": "Agregar metadata mínima: target_agent, reason, expected_output, timeout_seconds"},
- "CROSS_DOMAIN_CONSTRAINT_VIOLATION": {"severity": "error", "fix_hint": "Validar constraints en todos los dominios involucrados: C4 en SQL + V1 en pgvector"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/validate-sdd-flow.sh --file 06-PROGRAMMING/sql/semantic-wrapper.sql.md --check-handoffs --check-cross-domain --json"
- },
- {
- "name": "validate-bundle.sh",
- "validates": ["BUNDLE_INTEGRITY", "CHECKSUM_COORDINATION"],
- "description": "Hook para validar bundles Nivel 3: estructura, checksums coordinados, deploy/rollback",
- "required_flags": {
- "structure": "--check-structure",
- "checksums": "--check-checksums",
- "rollback": "--check-rollback"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/",
- "exit_codes": {
- "0": "passed: bundle válido y desplegable",
- "1": "failed: estructura inválida o checksums no coordinados",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "BUNDLE_STRUCTURE_INVALID": {"severity": "error", "fix_hint": "Incluir archivos requeridos: manifest.json, deploy.sh, rollback.sh, healthcheck.sh"},
- "CHECKSUM_MISMATCH": {"severity": "error", "fix_hint": "Regenerar checksums.sha256 con contenido actualizado de todos los archivos del bundle"},
- "ROLLBACK_NOT_FUNCTIONAL": {"severity": "error", "fix_hint": "Probar rollback.sh en sandbox antes de entregar para garantizar reversión segura"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/validate-bundle.sh --bundle-path 08-BUNDLES/rag-system-v1.0.0/ --check-structure --check-checksums --check-rollback --json"
- }
- ],
- "execution_protocol": {
- "order": ["LANGUAGE_LOCK", "HANDOFF_METADATA", "BUNDLE_INTEGRITY"],
- "parallel_execution": false,
- "fail_fast": true,
- "rollback_on_failure": "No entregar artifact; diagnosticar error específico de dominio y sugerir corrección"
- }
-}
-```
-
-### 0.2.4 Tabla Comparativa de Categorías de Hooks para Decisión Rápida
-
-| Criterio | Hooks Bloqueantes (C3/C4/C5/V1) | Hooks de Warning (C1/C2/C6/C7/C8/V2/V3) | Hooks Especializados (LANGUAGE_LOCK/HANDOFF/BUNDLE) |
-|----------|------------------------------|--------------------------------------|------------------------------------------------|
-| **Propósito** | Rechazar artifacts inválidos/inseguros | Mejorar calidad iterativamente | Validar aspectos específicos de dominio/colaboración |
-| **Ejecución** | Primero: siempre antes de warnings | Después: solo si bloqueantes pasaron | Último: después de hooks generales |
-| **Exit code 1** | ❌ Artifact rechazado | ⚠️ Artifact aceptado con warnings | ❌ Artifact rechazado (violación específica) |
-| **Parallel execution** | ❌ No: orden estricto C3→C4→C5→V1 | ✅ Sí: independientes entre sí | ❌ No: dependen de contexto de dominio |
-| **Tiempo típico** | 200-500 ms por hook | 100-300 ms por hook | 300-900 ms por hook (más complejo) |
-| **Caso de uso típico** | Validar query SQL con tenant isolation | Mejorar logging estructurado o métricas | Validar handoff a pgvector o bundle Nivel 3 |
-
----
-
-## 【1】🤖 CATÁLOGO DE AGENTES MASTER – CONTRATOS DE TOOLCHAIN ESPECÍFICOS
-
-### 1.1 Tabla Maestra de Toolchain por Agente
-
-| Dominio | Master Agent | Canonical Path | Hooks Primarios | Hooks Secundarios | LANGUAGE LOCK Hook | Handoff/Bundle Hook | Fallback Strategy |
-|---------|-------------|---------------|----------------|------------------|-------------------|-------------------|------------------|
-| `sql/` | `sql-master-agent.md` | `06-PROGRAMMING/sql/sql-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `verify-constraints.sh --check-resilience --check-observability` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si delega a pgvector) | Si hook falla: diagnosticar por código de error → corregir → re-validar |
-| `python/` | `python-master-agent.md` | `06-PROGRAMMING/python/python-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `pylint-validator.py --check-type-safety`, `verify-constraints.sh --check-auditability` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si delega a pgvector) | Si hook falla: usar diagnóstico de pylint/verify-constraints → corregir → re-validar |
-| `postgresql-pgvector/` | `postgresql-pgvector-rag-master-agent.md` | `06-PROGRAMMING/postgresql-pgvector/postgresql-pgvector-rag-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation`, `vector-schema-validator.py --check-vector-dims` | `vector-schema-validator.py --check-vector-metric --check-vector-index`, `verify-constraints.sh --check-observability` | `check-language-lock-navigation.sh --check-language-lock` (para confirmar que vectores SOLO aquí) | `validate-sdd-flow.sh --check-cross-domain` (si handoff a sql/python) | Si vector-schema-validator falla: diagnosticar V1/V2/V3 específico → corregir dimensión/métrica/índice → re-validar |
-| `javascript/` | `javascript-typescript-master-agent.md` | `06-PROGRAMMING/javascript/javascript-typescript-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `eslint-validator.js --check-type-safety`, `tsc-strict-check.sh --check-structural` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si delega a backend) | Si eslint/tsc falla: usar diagnóstico de linter → corregir type hints → re-validar |
-| `go/` | `go-master-agent.md` | `06-PROGRAMMING/go/go-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `go-vet-validator.sh --check-concurrency`, `golangci-lint-check.sh --check-resilience` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si delega a pgvector) | Si go-vet/golangci falla: usar diagnóstico de linter → corregir context propagation → re-validar |
-| `bash/` | `bash-master-agent.md` | `06-PROGRAMMING/bash/bash-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `shellcheck-validator.sh --check-hardening`, `bash-syntax-check.sh --check-structural` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si delega a otros dominios) | Si shellcheck falla: usar diagnóstico de linter → agregar `set -euo pipefail` → re-validar |
-| `yaml-json-schema/` | `yaml-json-schema-master-agent.md` | `06-PROGRAMMING/yaml-json-schema/yaml-json-schema-master-agent.md` | `verify-constraints.sh --check-secrets --check-tenant-isolation` | `schema-validator.py --check-structural --check-auditability` | `check-language-lock-navigation.sh --check-language-lock` | `validate-sdd-flow.sh --check-handoffs` (si schema vectorial) | Si schema-validator falla: usar diagnóstico de validación JSON Schema → corregir $schema/properties → re-validar |
-
-### 1.2 Metadatos de Toolchain por Agente (Para Ejecución de Hooks)
-
-#### 🗄️ sql-master-agent – Contrato de Toolchain
-```json
-{
- "agent_id": "sql-master-agent",
- "toolchain_protocol": {
- "primary_hooks": [
- {
- "name": "verify-constraints.sh",
- "flags": ["--check-secrets", "--check-tenant-isolation", "--check-structural"],
- "execution_order": 1,
- "fail_fast": true,
- "output_parsing": {
- "passed": ".passed == true",
- "issues": ".issues[] | select(.severity == \"error\")",
- "fix_hint": ".issues[].fix_hint"
- }
- }
- ],
- "secondary_hooks": [
- {
- "name": "verify-constraints.sh",
- "flags": ["--check-resource-limits", "--check-resilience", "--check-observability"],
- "execution_order": 2,
- "fail_fast": false,
- "output_parsing": {
- "warnings": ".issues[] | select(.severity == \"warning\")",
- "metrics": ".performance_ms"
- }
- }
- ],
- "language_lock_hook": {
- "name": "check-language-lock-navigation.sh",
- "flags": ["--check-language-lock"],
- "validation_rule": "exit_code == 0 OR (exit_code == 1 AND .error_code == \"LANGUAGE_LOCK_VECTOR_IN_WRONG_DOMAIN\" → delegate to postgresql-pgvector/)"
- },
- "handoff_hook": {
- "name": "validate-sdd-flow.sh",
- "flags": ["--check-handoffs"],
- "trigger_condition": "if artifact contains vector operators → execute with --check-cross-domain",
- "metadata_required": ["target_agent", "reason", "expected_output", "timeout_seconds"]
- },
- "fallback_strategy": {
- "on_hook_failure": "Parse error_code from JSON output → apply fix_hint → re-execute hook with same flags",
- "on_ambiguous_error": "Consult 01-RULES/10-SDD-CONSTRAINTS.md for constraint definition → apply textual fix → re-validate",
- "on_timeout": "Increase timeout_seconds in handoff metadata → re-execute with --timeout-override flag"
- },
- "output_protocol": {
- "json_stdout": true,
- "human_stderr": true,
- "jsonl_logs": "08-LOGS/validation/sql/",
- "chronicle_entry": {
- "required_fields": ["artifact_id", "hook_results", "execution_time", "exit_code", "fix_applied"],
- "template": "## {generated_at} - {artifact_id}\n- Hooks ejecutados: {hook_names}\n- Resultados: {hook_results}\n- Tiempo total: {total_time_ms}ms\n- Estado: {final_status}"
- }
- }
- },
- "toolchain_metrics": {
- "avg_hook_execution_time_ms": 387.2,
- "hook_success_rate": 96.4,
- "most_common_error": "C4_MISSING_TENANT_ID",
- "avg_fix_time_ms": 1247.8
- }
-}
-```
-
-#### 🧠 postgresql-pgvector-rag-master-agent ⭐ – Contrato de Toolchain (ÚNICO CON VECTORES)
-```json
-{
- "agent_id": "postgresql-pgvector-rag-master-agent",
- "toolchain_protocol": {
- "primary_hooks": [
- {
- "name": "verify-constraints.sh",
- "flags": ["--check-secrets", "--check-tenant-isolation", "--check-structural"],
- "execution_order": 1,
- "fail_fast": true,
- "output_parsing": {
- "passed": ".passed == true",
- "issues": ".issues[] | select(.severity == \"error\")",
- "fix_hint": ".issues[].fix_hint"
- }
- },
- {
- "name": "vector-schema-validator.py",
- "flags": ["--check-vector-dims"],
- "execution_order": 2,
- "fail_fast": true,
- "output_parsing": {
- "passed": ".passed == true",
- "v1_issues": ".issues[] | select(.code | startswith(\"V1_\"))",
- "fix_hint": ".issues[].fix_hint"
- }
- }
- ],
- "secondary_hooks": [
- {
- "name": "vector-schema-validator.py",
- "flags": ["--check-vector-metric", "--check-vector-index"],
- "execution_order": 3,
- "fail_fast": false,
- "output_parsing": {
- "warnings": ".issues[] | select(.severity == \"warning\")",
- "v2_v3_issues": ".issues[] | select(.code | startswith(\"V2_\") or startswith(\"V3_\"))",
- "metrics": ".vector_metrics"
- }
- },
- {
- "name": "verify-constraints.sh",
- "flags": ["--check-observability"],
- "execution_order": 4,
- "fail_fast": false,
- "output_parsing": {
- "observability_warnings": ".issues[] | select(.code == \"C8_METRICS_UNDECLARED\")"
- }
- }
- ],
- "language_lock_hook": {
- "name": "check-language-lock-navigation.sh",
- "flags": ["--check-language-lock"],
- "validation_rule": "exit_code == 0 → vector operators permitted; exit_code == 1 in other domains → delegate to postgresql-pgvector/"
- },
- "cross_domain_hook": {
- "name": "validate-sdd-flow.sh",
- "flags": ["--check-cross-domain"],
- "trigger_condition": "if artifact includes handoff to sql/python/js → execute with --check-cross-domain",
- "validation_rule": "Validate C4 in SQL + V1/V2 in pgvector + consistent tenant_id propagation across domains"
- },
- "fallback_strategy": {
- "on_v1_failure": "Parse V1 error code → add explicit vector(n) dimension → re-execute vector-schema-validator.py --check-vector-dims",
- "on_v2_v3_warning": "Document metric/index params in comments or frontmatter → re-execute with --accept-warnings flag",
- "on_cross_domain_mismatch": "Diagnose which domain violated constraint → apply fix_hint per domain → re-execute validate-sdd-flow.sh --check-cross-domain"
- },
- "output_protocol": {
- "json_stdout": true,
- "human_stderr": true,
- "jsonl_logs": "08-LOGS/validation/postgresql-pgvector/",
- "chronicle_entry": {
- "required_fields": ["artifact_id", "hook_results", "vector_metadata", "execution_time", "exit_code", "cross_domain_validation"],
- "template": "## {generated_at} - {artifact_id}\n- Hooks ejecutados: {hook_names}\n- Vector metadata: dims={dims}, metric={metric}, index={index}\n- Validación cruzada: {cross_domain_result}\n- Tiempo total: {total_time_ms}ms\n- Estado: {final_status}"
- }
- }
- },
- "toolchain_metrics": {
- "avg_hook_execution_time_ms": 524.7,
- "hook_success_rate": 98.1,
- "most_common_error": "V1_MISSING_VECTOR_DIM",
- "avg_fix_time_ms": 892.3
- }
-}
-```
-
-#### ⚛️ javascript-typescript-master-agent – Contrato de Toolchain
-```json
-{
- "agent_id": "javascript-typescript-master-agent",
- "toolchain_protocol": {
- "primary_hooks": [
- {
- "name": "verify-constraints.sh",
- "flags": ["--check-secrets", "--check-tenant-isolation", "--check-structural"],
- "execution_order": 1,
- "fail_fast": true,
- "output_parsing": {
- "passed": ".passed == true",
- "issues": ".issues[] | select(.severity == \"error\")",
- "fix_hint": ".issues[].fix_hint"
- }
- }
- ],
- "secondary_hooks": [
- {
- "name": "eslint-validator.js",
- "flags": ["--check-type-safety", "--check-auditability"],
- "execution_order": 2,
- "fail_fast": false,
- "output_parsing": {
- "type_warnings": ".issues[] | select(.rule | startswith(\"@typescript-eslint\"))",
- "fix_suggestions": ".suggestions[]"
- }
- },
- {
- "name": "tsc-strict-check.sh",
- "flags": ["--check-structural"],
- "execution_order": 3,
- "fail_fast": false,
- "output_parsing": {
- "ts_errors": ".errors[] | select(.category == \"error\")",
- "ts_warnings": ".errors[] | select(.category == \"warning\")"
- }
- }
- ],
- "language_lock_hook": {
- "name": "check-language-lock-navigation.sh",
- "flags": ["--check-language-lock"],
- "validation_rule": "exit_code == 0 → no pgvector imports; exit_code == 1 → delegate to postgresql-pgvector/ for vector ops"
- },
- "handoff_hook": {
- "name": "validate-sdd-flow.sh",
- "flags": ["--check-handoffs"],
- "trigger_condition": "if artifact includes API call to backend → execute with --check-handoffs",
- "metadata_required": ["target_agent", "api_contract", "expected_output", "timeout_seconds"]
- },
- "fallback_strategy": {
- "on_eslint_failure": "Parse rule name from error → apply TypeScript best practice fix → re-execute eslint-validator.js",
- "on_tsc_error": "Use tsc --noEmit --explainFiles for detailed diagnosis → fix type hints → re-execute tsc-strict-check.sh",
- "on_handoff_metadata_missing": "Add minimum metadata: target_agent, api_contract, expected_output → re-execute validate-sdd-flow.sh --check-handoffs"
- },
- "output_protocol": {
- "json_stdout": true,
- "human_stderr": true,
- "jsonl_logs": "08-LOGS/validation/javascript/",
- "chronicle_entry": {
- "required_fields": ["artifact_id", "hook_results", "type_safety_status", "execution_time", "exit_code", "handoff_metadata"],
- "template": "## {generated_at} - {artifact_id}\n- Hooks ejecutados: {hook_names}\n- Type safety: {type_safety_status}\n- Handoff metadata: {handoff_present}\n- Tiempo total: {total_time_ms}ms\n- Estado: {final_status}"
- }
- }
- },
- "toolchain_metrics": {
- "avg_hook_execution_time_ms": 412.6,
- "hook_success_rate": 95.8,
- "most_common_error": "C4_MISSING_TENANT_HEADER",
- "avg_fix_time_ms": 1034.2
- }
-}
-```
-
-*(Los contratos de toolchain para python, go, bash y yaml-json-schema siguen el mismo patrón, adaptado a sus lenguajes y hooks específicos. Por brevedad, se omiten aquí pero están completos en el repositorio.)*
-
----
-
-## 【2】🔐 MATRIZ DE HOOKS POR CONSTRAINT Y DOMINIO – DIAGRAMAS Y REGLAS (ASCII Art + Tabla)
-
-```
-╔════════════════════════════════════════════════════════════════════════════╗
-║  🔧 MATRIZ DE HOOKS – ¿QUÉ HOOK VALIDA QUÉ CONSTRAINT EN QUÉ DOMINIO?   ║
-╠════════════════════════════════════════════════════════════════════════════╣
-║                                                                            ║
-║  Constraint → Dominio        │ Hook Principal              │ Flags Requeridos │
-║  ───────────────────────────┼────────────────────────────┼───────────────── ║
-║  C3 (Secrets) → Todos      │ verify-constraints.sh      │ --check-secrets  ║
-║  C4 (Tenant Isolation) → Todos│ verify-constraints.sh      │ --check-tenant-isolation │
-║  C5 (Structural) → Todos   │ verify-constraints.sh      │ --check-structural │
-║  V1 (Vector Dims) → pgvector│ vector-schema-validator.py │ --check-vector-dims │
-║  V2 (Vector Metric) → pgvector│ vector-schema-validator.py │ --check-vector-metric │
-║  V3 (Vector Index) → pgvector│ vector-schema-validator.py │ --check-vector-index │
-║  C1 (Resources) → Todos    │ verify-constraints.sh      │ --check-resource-limits │
-║  C2 (Performance) → Todos  │ verify-constraints.sh      │ --check-performance-budgets │
-║  C6 (Auditability) → Todos │ verify-constraints.sh      │ --check-auditability │
-║  C7 (Resilience) → Todos   │ verify-constraints.sh      │ --check-resilience │
-║  C8 (Observability) → Todos│ verify-constraints.sh      │ --check-observability │
-║  LANGUAGE LOCK → Todos    │ check-language-lock-navigation.sh │ --check-language-lock │
-║  HANDOFF_METADATA → Multi │ validate-sdd-flow.sh       │ --check-handoffs │
-║  BUNDLE_INTEGRITY → Nivel3│ validate-bundle.sh         │ --check-structure, --check-checksums │
-║                                                                            ║
-║  ⚡ REGLAS DE EJECUCIÓN DE HOOKS – CONTRATO INMUTABLE:                   ║
-║  ┌────────────────────────────────────────────────────────────────┐       ║
-║  │ 1. Orden de ejecución estricto:                                ║       ║
-║  │    Bloqueantes (C3/C4/C5/V1) → Warnings (C1/C2/C6/C7/C8/V2/V3)│       ║
-║  │    → Especializados (LANGUAGE_LOCK/HANDOFF/BUNDLE)            ║       ║
-║  │                                                                ║       ║
-║  │ 2. Fail-fast para hooks bloqueantes:                          ║       ║
-║  │    - Si C3/C4/C5/V1 falla → detener ejecución, diagnosticar,  ║       ║
-║  │      corregir, re-validar; no proceder a hooks de warning    ║       ║
-║  │                                                                ║       ║
-║  │ 3. Parallel execution para hooks de warning:                  ║       ║
-║  │    - C1, C2, C6, C7, C8, V2, V3 son independientes → ejecutar│       ║
-║  │      en paralelo para optimizar tiempo de validación         ║       ║
-║  │                                                                ║       ║
-║  │ 4. Output protocol estricto:                                  ║       ║
-║  │    - JSON a stdout para parsing automático por dashboards   ║       ║
-║  │    - Logs humanos a stderr para debugging manual             ║       ║
-║  │    - JSONL a 08-LOGS/validation/{dominio}/ para trazabilidad│       ║
-║  │    - Registro en CHRONICLE.md con hook_results y execution_time │    ║
-║  │                                                                ║       ║
-║  │ 5. Fallback strategy para errores de hook:                    ║       ║
-║  │    - Parsear error_code del JSON output                     ║       ║
-║  │    - Aplicar fix_hint sugerido                              ║       ║
-║  │    - Re-ejecutar hook con mismos flags                      ║       ║
-║  │    - Si persiste: escalar a humano con diagnóstico completo │       ║
-║  └────────────────────────────────────────────────────────────────┘       ║
-║                                                                            ║
-╚════════════════════════════════════════════════════════════════════════════╝
-```
-
-### 2.1 Tabla de Diagnóstico de Errores por Hook
-
-| Hook | Código de Error | Severidad | Mensaje Típico | Fix Hint | Dominios Afectados |
-|------|---------------|-----------|---------------|----------|-------------------|
-| `verify-constraints.sh` | `C3_HARDCODED_SECRET` | 🔴 error | "Secret hardcodeado detectado" | "Reemplazar con os.getenv('SECRET_NAME')" | Todos |
-| `verify-constraints.sh` | `C4_MISSING_TENANT_ID` | 🔴 error | "Query SQL sin WHERE tenant_id=$1" | "Agregar 'WHERE tenant_id = $1' o propagar contexto de tenant" | sql/, python/, go/, js/, bash/ |
-| `verify-constraints.sh` | `C5_INVALID_FRONTMATTER` | 🔴 error | "Frontmatter YAML inválido o incompleto" | "Verificar artifact_id, canonical_path, constraints_mapped en bloque YAML inicial" | Todos |
-| `vector-schema-validator.py` | `V1_MISSING_VECTOR_DIM` | 🔴 error | "vector(n) usado pero V1 no declarado" | "Agregar V1 a constraints_mapped y documentar dimensión explícita" | postgresql-pgvector/ |
-| `vector-schema-validator.py` | `V2_METRIC_UNDOCUMENTED` | 🟡 warning | "Operador de distancia usado pero métrica no documentada" | "Documentar métrica: cosine_distance, l2_distance, o inner_product en comentarios" | postgresql-pgvector/ |
-| `vector-schema-validator.py` | `V3_INDEX_PARAMS_UNJUSTIFIED` | 🟡 warning | "Parámetros de índice configurados pero no justificados" | "Justificar hnsw.m=16, ivfflat.lists=100 con benchmarks de precisión/latencia" | postgresql-pgvector/ |
-| `check-language-lock-navigation.sh` | `LANGUAGE_LOCK_VECTOR_IN_WRONG_DOMAIN` | 🔴 error | "Operador vectorial en dominio no permitido" | "Delegar a postgresql-pgvector/ con comentario de handoff explícito" | sql/, python/, js/, go/, bash/, yaml/ |
-| `validate-sdd-flow.sh` | `HANDOFF_METADATA_INCOMPLETE` | 🔴 error | "Metadata de handoff incompleta" | "Agregar target_agent, reason, expected_output, timeout_seconds en comentario de handoff" | Multi-dominio (B2/B3) |
-| `validate-sdd-flow.sh` | `CROSS_DOMAIN_CONSTRAINT_VIOLATION` | 🔴 error | "Constraint violado en validación cruzada" | "Validar C4 en SQL + V1 en pgvector + consistente propagación de tenant_id" | Multi-dominio (B2/B3) |
-| `validate-bundle.sh` | `BUNDLE_STRUCTURE_INVALID` | 🔴 error | "Estructura de bundle inválida" | "Incluir manifest.json, deploy.sh, rollback.sh, healthcheck.sh, README-DEPLOY.md" | Nivel 3 (B3) |
-| `validate-bundle.sh` | `CHECKSUM_MISMATCH` | 🔴 error | "Checksums no coordinados en bundle" | "Regenerar checksums.sha256 con contenido actualizado de todos los archivos" | Nivel 3 (B3) |
-| `validate-bundle.sh` | `ROLLBACK_NOT_FUNCTIONAL` | 🔴 error | "Script de rollback no funcional" | "Probar rollback.sh en sandbox antes de entregar para garantizar reversión segura" | Nivel 3 (B3) |
-
-> ⚠️ **Regla de oro para toolchain**: "Nunca ejecutar hooks de warning antes que hooks bloqueantes. Nunca ignorar fix_hint de error_code. Nunca entregar artifact sin registrar resultados en CHRONICLE.md".
-
----
-
-## 【3】🛡️ PROTOCOLO DE EJECUCIÓN DE HOOKS – CHECKLIST Y FALLBACKS (Expandidos)
-
-### 3.1 Pre-Hook Gate – Checklist Ampliado para Ejecución de Toolchain
-
-```json
-{
- "pre_hook_gate_toolchain": {
- "checklist_items": [
- {
- "check": "hook_exists_and_executable",
- "blocking": true,
- "validator": "test -x {hook_path} || bash {hook_path} --help > /dev/null",
- "toolchain_notes": "El hook debe existir y ser ejecutable; si no, diagnosticar ruta incorrecta o permisos"
- },
- {
- "check": "required_flags_present",
- "blocking": true,
- "validator": "grep -q '{required_flag}' {command_line}",
- "toolchain_notes": "Flags requeridos por constraint deben estar presentes; si no, agregar antes de ejecutar"
- },
- {
- "check": "artifact_path_valid",
- "blocking": true,
- "validator": "test -f {artifact_path}",
- "toolchain_notes": "La ruta del artifact a validar debe existir; si no, diagnosticar canonical_path incorrecto"
- },
- {
- "check": "output_protocol_configured",
- "blocking": false,
- "validator": "echo '$OUTPUT_PROTOCOL' | grep -q 'json_stdout.*human_stderr.*jsonl_logs'",
- "toolchain_notes": "Output protocol debe estar configurado para JSON stdout, stderr humano, JSONL logs; si no, warning pero permitir ejecución"
- },
- {
- "check": "chronicle_entry_template_available",
- "blocking": false,
- "validator": "test -f 05-CONFIGURATIONS/validation/chronicle-entry-template.md",
- "toolchain_notes": "Plantilla de registro en CHRONICLE.md debe estar disponible; si no, usar formato mínimo: artifact_id, hook_results, execution_time"
- },
- {
- "check": "timeout_configured_for_handoffs",
- "blocking": true,
- "validator": "if handoff: grep -q 'timeout_seconds' {artifact_path}",
- "required_for": ["B2", "B3"],
- "toolchain_notes": "Handoffs deben incluir timeout_seconds para prevenir deadlocks; si no, agregar valor por defecto: 600"
- },
- {
- "check": "checksum_file_present_for_level3",
- "blocking": true,
- "validator": "if level_3: test -f {bundle_path}/checksums.sha256",
- "required_for": ["B3"],
- "toolchain_notes": "Bundles Nivel 3 deben incluir checksums.sha256 coordinados; si no, generar antes de validar"
- },
- {
- "check": "cross_domain_constraints_loaded",
- "blocking": true,
- "validator": "if multi_domain: jq -e '.cross_domain_validation' {norms_matrix}",
- "toolchain_notes": "Validación cruzada debe cargar constraints de todos los dominios involucrados; si no, consultar norms-matrix.json para reglas específicas"
- }
- ],
- "retry_policy": {
- "max_attempts": 3,
- "backoff": "exponential",
- "toolchain_notes": "Para fallos de hook, retry policy debe incluir diagnóstico de error_code → aplicación de fix_hint → re-ejecución con mismos flags"
- },
- "failure_action": "return_structured_error_with_hook_diagnosis_and_fallback_recovery",
- "fallback_recovery": {
- "on_hook_not_found": "Diagnosticar ruta incorrecta → consultar TOOLCHAIN-REFERENCE.md para ruta canónica del hook → re-ejecutar",
- "on_missing_flag": "Agregar flag requerido per constraint → re-ejecutar hook con flags completos",
- "on_invalid_artifact_path": "Consultar PROJECT_TREE.md para canonical_path correcto → actualizar artifact_path → re-ejecutar",
- "on_timeout_handoff": "Liberar lock por canonical_path → notificar a coordinador → reintentar con timeout_seconds aumentado",
- "on_checksum_mismatch": "Regenerar checksums.sha256 con contenido actualizado → re-ejecutar validate-bundle.sh --check-checksums"
- }
- }
-}
-```
-
-### 3.2 Protocolo de Fallback para Ejecución de Hooks
+### 2.2 Script de Validación Unificado (Ejemplo para CI/CD)
 
 ```bash
-#!/usr/bin/env bash
-# execute-hook-with-fallback.sh – Protocolo de fallback para ejecución de hooks de validación
-# Optimizado para IA asiáticas: diagnóstico estructurado y recuperación ante errores de toolchain
+#!/bin/bash
+# 📍 Ubicación sugerida: .github/workflows/validate-artifact.sh
+# 🎯 Propósito: Validar artefacto en pipeline CI/CD con todas las herramientas
 
 set -euo pipefail
 
-HOOK_NAME="${1:-}"
-ARTIFACT_PATH="${2:-}"
-FLAGS="${3:-}"
-MODE_SELECTED="${4:-B1}"
+ARTIFACT_PATH="${1:?Usage: $0 <artifact-path>}"
+TIER="${2:-2}"  # Default Tier 2
+MODE="${3:-headless}"
 
-if [[ -z "$HOOK_NAME" || -z "$ARTIFACT_PATH" ]]; then
- echo "Uso: $0 <hook_name> <artifact_path> [flags] [mode_selected]" >&2
- exit 2
+echo "🔍 Validando artefacto: $ARTIFACT_PATH (Tier $TIER)"
+
+# Paso 1: Validar frontmatter
+echo "  ├─ ✅ Frontmatter..."
+bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh \
+  --file "$ARTIFACT_PATH" \
+  --level "$TIER" \
+  --json > /tmp/frontmatter.json
+
+# Paso 2: Validar wikilinks
+echo "  ├─ ✅ Wikilinks..."
+bash 05-CONFIGURATIONS/validation/check-wikilinks.sh \
+  --file "$ARTIFACT_PATH" \
+  --json > /tmp/wikilinks.json
+
+# Paso 3: Auditar secrets (C3)
+echo "  ├─ ✅ Secrets audit..."
+bash 05-CONFIGURATIONS/validation/audit-secrets.sh \
+  --file "$ARTIFACT_PATH" \
+  --json > /tmp/secrets.json
+
+# Paso 4: Validar RLS si es SQL (C4)
+if [[ "$ARTIFACT_PATH" =~ \.sql\.md$ ]]; then
+  echo "  ├─ ✅ RLS validation..."
+  bash 05-CONFIGURATIONS/validation/check-rls.sh \
+    --file "$ARTIFACT_PATH" \
+    --json > /tmp/rls.json
 fi
 
-echo "🔧 Ejecutando hook: $HOOK_NAME para $ARTIFACT_PATH (flags: $FLAGS)" >&2
-
-# ============================================================================
-# PASO 1: Verificar que hook existe y es ejecutable
-# ============================================================================
-HOOK_PATH="05-CONFIGURATIONS/validation/${HOOK_NAME}"
-if [[ ! -x "$HOOK_PATH" ]] && ! bash "$HOOK_PATH" --help > /dev/null 2>&1; then
- echo "❌ Hook no encontrado o no ejecutable: $HOOK_PATH" >&2
- echo "💡 Fallback: Consultar TOOLCHAIN-REFERENCE.md para ruta canónica del hook" >&2
- CANONICAL_HOOK=$(grep -A 3 "\"name\": \"$HOOK_NAME\"" TOOLCHAIN-REFERENCE.md | grep "usage_example" | sed 's/.*bash \(.*\) --.*/\1/' | head -1)
- if [[ -n "$CANONICAL_HOOK" ]]; then
- echo "✅ Ruta canónica encontrada: $CANONICAL_HOOK" >&2
- HOOK_PATH="$CANONICAL_HOOK"
- else
- echo "❌ No se pudo determinar ruta canónica para hook: $HOOK_NAME" >&2
- exit 1
- fi
-fi
-
-# ============================================================================
-# PASO 2: Ejecutar hook con output protocol configurado
-# ============================================================================
-echo "📤 Ejecutando con output protocol: JSON stdout, stderr humano, JSONL logs" >&2
-EXEC_START=$(date +%s%N)
-
-# Ejecutar hook y capturar output
-if ! HOOK_OUTPUT=$($HOOK_PATH --file "$ARTIFACT_PATH" $FLAGS --json 2> >(tee /dev/stderr >&2)); then
- HOOK_EXIT_CODE=$?
- echo "❌ Hook falló con exit code: $HOOK_EXIT_CODE" >&2
- 
- # Parsear error del JSON output si está disponible
- if echo "$HOOK_OUTPUT" | jq -e '.issues[] | select(.severity == "error")' > /dev/null 2>&1; then
- ERROR_CODE=$(echo "$HOOK_OUTPUT" | jq -r '.issues[] | select(.severity == "error") | .code' | head -1)
- FIX_HINT=$(echo "$HOOK_OUTPUT" | jq -r '.issues[] | select(.severity == "error") | .fix_hint' | head -1)
- echo "🔍 Error detectado: $ERROR_CODE" >&2
- echo "💡 Fix hint: $FIX_HINT" >&2
- 
- # Aplicar fallback: corregir artifact y re-validar
- echo "🔄 Aplicando fix hint y re-validando..." >&2
- # (En producción: aplicar corrección automática basada en fix_hint)
- 
- # Re-ejecutar hook con mismos flags
- if ! HOOK_OUTPUT=$($HOOK_PATH --file "$ARTIFACT_PATH" $FLAGS --json 2>/dev/null); then
- echo "❌ Re-validación fallida; escalando a humano" >&2
- exit 1
- fi
- echo "✅ Re-validación exitosa" >&2
-else
- HOOK_EXIT_CODE=0
- echo "✅ Hook ejecutado exitosamente" >&2
-fi
-
-EXEC_END=$(date +%s%N)
-EXEC_TIME_MS=$(( (EXEC_END - EXEC_START) / 1000000 ))
-
-# ============================================================================
-# PASO 3: Registrar resultados en CHRONICLE.md
-# ============================================================================
-ARTIFACT_ID=$(yq eval '.artifact_id' "$ARTIFACT_PATH" 2>/dev/null || echo "unknown")
-TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-echo "📝 Registrando en CHRONICLE.md" >&2
-cat >> CHRONICLE.md << EOF
-
-## $TIMESTAMP - $ARTIFACT_ID
-- Hook ejecutado: $HOOK_NAME
-- Flags: $FLAGS
-- Exit code: $HOOK_EXIT_CODE
-- Tiempo de ejecución: ${EXEC_TIME_MS}ms
-- Mode selected: $MODE_SELECTED
-- Resultado: $(if [[ $HOOK_EXIT_CODE -eq 0 ]]; then echo "✅ passed"; else echo "❌ failed"; fi)
-EOF
-
-echo "✅ Ejecución de hook completada con fallbacks aplicados" >&2
-exit $HOOK_EXIT_CODE
-```
-
----
-
-## 【4】🚫 ANTI-PATRONES DE TOOLCHAIN – QUÉ NO HACER (Expandido)
-
-### 4.1 Tabla Maestra de Anti-patrones de Toolchain
-
-| Anti-patrón | Hook Afectado | Comando Ejemplo (❌) | Por qué está prohibido | Consecuencia | Alternativa correcta (✅) |
-|-------------|--------------|-------------------|----------------------|-------------|-------------------------|
-| Ejecutar hooks de warning antes que bloqueantes | Todos | `verify-constraints.sh --check-observability` antes de `--check-secrets` | 🚫 Waste de recursos si artifact ya falla en C3/C4 | Tiempo perdido, validación incompleta | Ejecutar siempre en orden: C3/C4/C5/V1 → C1/C2/C6/C7/C8/V2/V3 → especializados |
-| Omitir flags requeridos por constraint | verify-constraints.sh | `verify-constraints.sh --file query.sql.md` sin `--check-tenant-isolation` | 🚫 C4 no se valida → artifact inseguro aceptado | Fuga de datos entre tenants en producción | Incluir siempre flags específicos por constraint: `--check-secrets --check-tenant-isolation --check-structural` |
-| Ignorar output JSON y solo leer stderr | Todos | `hook.sh --file artifact.md 2>&1 | grep "error"` | 🚫 Pierde estructura de error_code/fix_hint para diagnóstico automatizado | Debugging manual, difícil escalar correcciones | Parsear JSON stdout con jq: `hook.sh --json | jq '.issues[] | select(.severity == "error")'` |
-| No registrar en CHRONICLE.md | Todos | Ejecutar hook sin actualizar CHRONICLE.md | 🚫 Pérdida de trazabilidad, imposible auditar flujos de validación | Debt técnico, difícil debugging de violations recurrentes | Registrar siempre: artifact_id, hook_name, flags, exit_code, execution_time, fix_applied |
-| Ejecutar hooks en paralelo sin coordinación | Multi-hook | `verify-constraints.sh & vector-schema-validator.py &` sin locking | 🚫 Condiciones de carrera, output mezclado, difícil parsing | Resultados inconsistentes, difícil diagnóstico | Ejecutar hooks bloqueantes en secuencia; solo warnings en paralelo con locking por canonical_path |
-| Ignorar LANGUAGE LOCK hook en dominios no vectoriales | sql/, python/, etc. | Validar query con vectores en sql/ sin ejecutar `check-language-lock-navigation.sh` | 🚫 LANGUAGE LOCK violation no detectada → artifact inválido aceptado | Confusión de dominios, validación fallida en producción | Ejecutar siempre `check-language-lock-navigation.sh --check-language-lock` para confirmar operadores permitidos |
-| Handoff sin validar metadata | validate-sdd-flow.sh | `-- 🔄 HANDOFF: delegando a pgvector` sin target_agent, reason | 🚫 Imposible validar/auditar el handoff | Fallo en validación cruzada, debt técnico | Incluir metadata mínima: `{target_agent, reason, expected_output, timeout_seconds}` y validar con `--check-handoffs` |
-| Bundle sin checksums coordinados | validate-bundle.sh | deploy.sh sin manifest.json con checksums de todos los artifacts | 🚫 Imposible verificar integridad del paquete completo | Deployment inseguro, rollback complejo | Generar manifest.json con checksums.sha256 de todos los archivos del bundle y validar con `--check-checksums` |
-| Timeout infinito en hooks de handoff | validate-sdd-flow.sh | Handoff sin `timeout_seconds` definido | 🚫 Bloqueo permanente si agente destino no responde | Deadlock en validación multi-agente | Definir timeout explícito: 300-900s según complejidad y validar con `--timeout-override` si es necesario |
-| Ignorar fix_hint de error_code | Todos | Recibir `C4_MISSING_TENANT_ID` y no agregar `WHERE tenant_id=$1` | 🚫 Violación persiste, artifact inválido entregado | Fallo en producción, rollback necesario | Aplicar siempre fix_hint sugerido por error_code → re-validar → confirmar corrección |
-
-### 4.2 Ejemplo de Detección Automática de Anti-patrones de Toolchain
-
-```bash
-#!/usr/bin/env bash
-# detect-toolchain-anti-patterns.sh – Detección temprana de anti-patrones en ejecución de hooks
-
-set -euo pipefail
-
-ARTIFACT_PATH="${1:-}"
-HOOK_COMMAND="${2:-}"
-if [[ -z "$ARTIFACT_PATH" || -z "$HOOK_COMMAND" ]]; then
- echo "Uso: $0 <artifact_path> <hook_command>" >&2
- exit 2
-fi
-
-echo "🔍 Detectando anti-patrones de toolchain en $ARTIFACT_PATH con comando: $HOOK_COMMAND" >&2
-
-# ============================================================================
-# Anti-patrón 1: Hooks de warning antes que bloqueantes
-# ============================================================================
-if echo "$HOOK_COMMAND" | grep -q "\-\-check-observability\|\-\-check-resource-limits" && \
- ! echo "$HOOK_COMMAND" | grep -q "\-\-check-secrets\|\-\-check-tenant-isolation"; then
- echo "❌ ANTI-PATRÓN: Hooks de warning ejecutados antes que bloqueantes" >&2
- echo "💡 Solución: Ejecutar primero: --check-secrets --check-tenant-isolation --check-structural" >&2
- exit 1
-fi
-
-# ============================================================================
-# Anti-patrón 2: Flags requeridos omitidos
-# ============================================================================
-if echo "$ARTIFACT_PATH" | grep -q "sql\|python\|go" && \
- ! echo "$HOOK_COMMAND" | grep -q "\-\-check-tenant-isolation"; then
- echo "❌ ANTI-PATRÓN: Flag --check-tenant-isolation omitido para dominio que requiere C4" >&2
- echo "💡 Solución: Agregar --check-tenant-isolation a verify-constraints.sh" >&2
- exit 1
-fi
-
-if echo "$ARTIFACT_PATH" | grep -q "pgvector" && \
- ! echo "$HOOK_COMMAND" | grep -q "\-\-check-vector-dims"; then
- echo "❌ ANTI-PATRÓN: Flag --check-vector-dims omitido para dominio pgvector" >&2
- echo "💡 Solución: Agregar --check-vector-dims a vector-schema-validator.py" >&2
- exit 1
-fi
-
-# ============================================================================
-# Anti-patrón 3: No parsear JSON output
-# ============================================================================
-if echo "$HOOK_COMMAND" | grep -qv "\-\-json"; then
- echo "⚠️  WARNING: Hook ejecutado sin flag --json (difícil diagnóstico automatizado)" >&2
- echo "💡 Recomendación: Agregar --json para output estructurado: jq '.issues[] | select(.severity == \"error\")'" >&2
-fi
-
-# ============================================================================
-# Anti-patrón 4: No registrar en CHRONICLE.md
-# ============================================================================
-ARTIFACT_ID=$(yq eval '.artifact_id' "$ARTIFACT_PATH" 2>/dev/null || echo "")
-if [[ -n "$ARTIFACT_ID" ]] && ! grep -q "$ARTIFACT_ID" CHRONICLE.md 2>/dev/null; then
- echo "⚠️  WARNING: Hook ejecutado sin registro en CHRONICLE.md (pérdida de trazabilidad)" >&2
- echo "💡 Recomendación: Agregar entrada en CHRONICLE.md con artifact_id, hook_name, exit_code, execution_time" >&2
-fi
-
-# ============================================================================
-# Anti-patrón 5: LANGUAGE LOCK hook omitido en dominios no vectoriales
-# ============================================================================
-DOMAIN=$(basename $(dirname "$ARTIFACT_PATH"))
-if [[ "$DOMAIN" != "postgresql-pgvector" ]] && \
- echo "$ARTIFACT_PATH" | grep -qi "vector\|<->\|cosine" && \
- ! echo "$HOOK_COMMAND" | grep -q "check-language-lock"; then
- echo "❌ ANTI-PATRÓN: LANGUAGE LOCK hook omitido para artifact con operadores vectoriales en dominio no permitido" >&2
- echo "💡 Solución: Ejecutar check-language-lock-navigation.sh --check-language-lock para confirmar delegación a pgvector" >&2
- exit 1
-fi
-
-echo "✅ Anti-patrones de toolchain: Ninguna violación crítica detectada" >&2
-exit 0
-```
-
----
-
-## 【5】📚 GLOSARIO DE TOOLCHAIN PARA PRINCIPIANTES (Términos Críticos Explicados + Ejemplos)
-
-### 5.1 Términos de Toolchain de Validación
-
-| Término | Definición Clara | Ejemplo Práctico | Hook Principal | Impacto en IA Asiáticas |
-|---------|-----------------|-----------------|---------------|----------------------|
-| **Hook de validación** | Script ejecutable que valida un constraint específico en un artifact | `verify-constraints.sh --check-secrets` para detectar secrets hardcodeados | `verify-constraints.sh` | Base para validación automatizada y diagnóstico estructurado |
-| **Output protocol** | Formato estandarizado de salida de hooks: JSON stdout, logs stderr, JSONL logs | `hook.sh --json | jq '.passed'` para parsing automático | Todos los hooks | Interoperabilidad entre hooks, dashboards y sistemas de auditoría |
-| **Error code** | Código único que identifica un tipo específico de violation de constraint | `C4_MISSING_TENANT_ID` para queries SQL sin aislamiento multi-tenant | `verify-constraints.sh` | Diagnóstico preciso y corrección automatizada basada en fix_hint |
-| **Fix hint** | Sugerencia concreta para corregir una violation de constraint | "Agregar 'WHERE tenant_id = $1' a queries SQL" para C4_MISSING_TENANT_ID | Todos los hooks | Permite corrección automática o guiada sin intervención humana |
-| **Fail-fast constraint** | Constraint que, si falla, detiene la validación inmediatamente | C3 (secrets), C4 (tenant isolation), C5 (structural), V1 (vector dims) | `verify-constraints.sh`, `vector-schema-validator.py` | Previene generación de artifacts inválidos o inseguros |
-| **Warning constraint** | Constraint que, si falla, genera warning pero permite corrección iterativa | C1 (resources), C2 (performance), C6 (auditability), V2/V3 (vector metadata) | `verify-constraints.sh`, `vector-schema-validator.py` | Permite mejora continua sin bloqueo total de validación |
-| **LANGUAGE LOCK hook** | Hook especializado para validar que operadores usados están permitidos en el dominio | `check-language-lock-navigation.sh --check-language-lock` para confirmar que `<->` solo en pgvector/ | `check-language-lock-navigation.sh` | Enforcement automatizado de aislamiento de responsabilidades por dominio |
-| **Handoff metadata** | Información mínima requerida para validar delegación entre agentes/domios | `{target_agent: "postgresql-pgvector-rag-master-agent", reason: "vector_operation", expected_output: "query_vectorial_con_C4_y_V1", timeout_seconds: 600}` | `validate-sdd-flow.sh` | Permite coordinación multi-agente sin colisiones ni validaciones inconsistentes |
-| **Bundle integrity** | Validación de que un paquete Nivel 3 tiene estructura completa, checksums coordinados y rollback funcional | `validate-bundle.sh --check-structure --check-checksums --check-rollback` para paquete RAG completo | `validate-bundle.sh` | Garantiza deployment seguro de sistemas multi-dominio con reversión garantizada |
-| **Cross-domain validation** | Validación que verifica constraints de múltiples dominios en un artifact coordinado | Validar C4 en SQL + V1 en pgvector + consistente propagación de tenant_id | `validate-sdd-flow.sh --check-cross-domain` | Garantiza coherencia en flujos que involucran varios agentes/domios |
-| **Execution time metric** | Métrica que mide el tiempo de ejecución de un hook para optimización de toolchain | `avg_hook_execution_time_ms: 387.2` para verify-constraints.sh en sql/ | Todos los hooks (registrado en CHRONICLE.md) | Permite optimizar flujos de validación basado en datos reales de performance |
-| **Fallback strategy** | Plan de recuperación cuando un hook falla con error específico | Si `C4_MISSING_TENANT_ID`: agregar `WHERE tenant_id=$1` → re-validar | Todos los hooks | Previene bloqueo total ante errores corregibles de validación |
-
-### 5.2 Guía Rápida: "¿Qué hook ejecutar para validar qué?" – Versión Toolchain
-
-```text
-🎯 Caso de uso: "Validar query SQL con tenant isolation"
-
-✅ Respuesta de protocolo de toolchain:
-   1. Hook principal: verify-constraints.sh
-   2. Flags requeridos: --check-secrets --check-tenant-isolation --check-structural
-   3. Orden de ejecución: Primero (fail-fast: C3/C4/C5)
-   4. Output esperado: JSON con .passed=true o .issues[] con error_code/fix_hint
-   5. Si falla C4: aplicar fix_hint "Agregar 'WHERE tenant_id = $1'" → re-validar
-   6. Registrar en CHRONICLE.md: artifact_id, hook_name, flags, exit_code, execution_time
-
-🎯 Caso de uso: "Validar query vectorial con dimensiones explícitas"
-
-✅ Respuesta de protocolo de toolchain:
-   1. Hooks principales: verify-constraints.sh + vector-schema-validator.py
-   2. Flags requeridos: --check-secrets --check-tenant-isolation --check-structural + --check-vector-dims
-   3. Orden de ejecución: verify-constraints.sh primero (C3/C4/C5) → vector-schema-validator.py después (V1)
-   4. Output esperado: JSON consolidado con .passed=true o .issues[] por hook
-   5. Si falla V1: aplicar fix_hint "Agregar V1 a constraints_mapped y documentar dimensión" → re-validar
-   6. Registrar en CHRONICLE.md con vector_metadata: dims, metric, index_params
-
-🎯 Caso de uso: "Validar handoff de SQL a pgvector para búsqueda semántica"
-
-✅ Respuesta de protocolo de toolchain (validación cruzada):
-   1. Hooks principales: verify-constraints.sh (SQL) + vector-schema-validator.py (pgvector) + validate-sdd-flow.sh (handoff)
-   2. Flags requeridos: --check-secrets --check-tenant-isolation + --check-vector-dims + --check-handoffs --check-cross-domain
-   3. Orden de ejecución: Hooks individuales primero → validate-sdd-flow.sh último para validación cruzada
-   4. Output esperado: JSON consolidado con .cross_domain_validation=true o .issues[] por dominio
-   5. Si falla cross-domain: diagnosticar por dominio (C4 en SQL? V1 en pgvector?) → corregir → re-validar
-   6. Registrar en CHRONICLE.md con handoff_metadata y cross_domain_validation result
-```
-
----
-
-## 【6】🔗 REFERENCIAS CANÓNICAS DE TOOLCHAIN – WIKILINKS Y RAW URLs (Fuente de Verdad Ampliada)
-
-### 6.1 Gobernanza Raíz (Contratos Inmutables – Tier 1)
-```text
-[[GOVERNANCE-ORCHESTRATOR.md]] ← Constitución del sistema: reglas inmutables de validación
-[[00-STACK-SELECTOR.md]] ← Contrato de routing: qué lenguaje para qué caso de uso
-[[AI-NAVIGATION-CONTRACT.md]] ← Contrato de navegación para IA: cómo seleccionar herramientas
-[[TOOLCHAIN-REFERENCE.md]] ← Este archivo: catálogo maestro de hooks de validación ✅
-[[SDD-COLLABORATIVE-GENERATION.md]] ← Protocolo de generación colaborativa: handoffs y validación cruzada
-[[PROJECT_TREE.md]] ← Mapa maestro de rutas del repositorio: fuente de verdad para canonical_path
-[[CHRONICLE.md]] ← Registro histórico de validaciones: trazabilidad de ejecución de hooks
-```
-
-### 6.2 Hooks de Validación Principales (Scripts Críticos – Ejecutables)
-```text
-# Hook principal para constraints C1-C8
-[[05-CONFIGURATIONS/validation/orchestrator-engine.sh]] ← Validador principal que coordina hooks
-[[05-CONFIGURATIONS/validation/verify-constraints.sh]] ← Hook para validar constraints C1-C8 con flags específicos
-# Flags: --check-secrets (C3), --check-tenant-isolation (C4), --check-structural (C5), --check-resource-limits (C1), etc.
-
-# Hooks especializados para constraints vectoriales V1-V3
-[[05-CONFIGURATIONS/validation/vector-schema-validator.py]] ← Hook para validar V1/V2/V3 en postgresql-pgvector/
-# Flags: --check-vector-dims (V1), --check-vector-metric (V2), --check-vector-index (V3), --check-delegation
-
-# Hooks de LANGUAGE LOCK y navegación
-[[05-CONFIGURATIONS/validation/check-language-lock-navigation.sh]] ← Validar que operadores están permitidos en dominio
-[[05-CONFIGURATIONS/validation/validate-navigation-integrity.sh]] ← Validar protocolo de navegación de IA
-[[05-CONFIGURATIONS/validation/navigate-with-fallback.sh]] ← Protocolo de fallback para navegación de IA
-
-# Hooks de colaboración multi-agente (SDD)
-[[05-CONFIGURATIONS/validation/validate-sdd-flow.sh]] ← Validar handoffs y validación cruzada entre dominios
-[[05-CONFIGURATIONS/validation/validate-bundle.sh]] ← Validar bundles Nivel 3 con estructura y checksums coordinados
-
-# Hooks de lenguaje específico
-[[05-CONFIGURATIONS/validation/pylint-validator.py]] ← Validar código Python con pylint + constraints MANTIS
-[[05-CONFIGURATIONS/validation/eslint-validator.js]] ← Validar código JS/TS con eslint + constraints MANTIS
-[[05-CONFIGURATIONS/validation/go-vet-validator.sh]] ← Validar código Go con go vet + constraints MANTIS
-[[05-CONFIGURATIONS/validation/golangci-lint-check.sh]] ← Validar código Go con golangci-lint + constraints MANTIS
-[[05-CONFIGURATIONS/validation/shellcheck-validator.sh]] ← Validar scripts Bash con shellcheck + constraints MANTIS
-[[05-CONFIGURATIONS/validation/bash-syntax-check.sh]] ← Validar sintaxis Bash pura
-[[05-CONFIGURATIONS/validation/schema-validator.py]] ← Validar schemas YAML/JSON con jsonschema + constraints MANTIS
-
-# Hooks de auditoría y logging
-[[05-CONFIGURATIONS/validation/audit-secrets.sh]] ← Detectar secrets hardcodeados (C3 enforcement)
-[[05-CONFIGURATIONS/validation/check-rls.sh]] ← Validar aislamiento multi-tenant en SQL (C4 enforcement)
-```
-
-### 6.3 Configuración y Plantillas (Para Ejecución Consistente de Hooks)
-```text
-[[05-CONFIGURATIONS/validation/norms-matrix.json]] ← Matriz de constraints por ruta canónica: fuente de verdad para flags de hooks
-[[05-CONFIGURATIONS/validation/handoff-metadata-schema.json]] ← Schema JSON para metadata de handoffs en validación SDD
-[[05-CONFIGURATIONS/validation/chronicle-entry-template.md]] ← Plantilla para registros en CHRONICLE.md con resultados de hooks
-[[05-CONFIGURATIONS/validation/toolchain-metrics-schema.json]] ← Schema para métricas de ejecución de hooks: avg_time, success_rate, error_codes
-[[05-CONFIGURATIONS/templates/skill-template.md]] ← Plantilla base con frontmatter contractual para artifacts Nivel 2
-[[05-CONFIGURATIONS/templates/package-template.md]] ← Plantilla para bundles Nivel 3 con estructura de directorios y checksums
-```
-
-### 6.4 Índices por Dominio (Wikilinks Directos + RAW URLs + Metadatos de Toolchain)
-```text
-# SQL – 26 artifacts, hooks con C4 enforcement estricto
-[[sql/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/sql/00-INDEX.md
-[[sql/sql-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/sql/sql-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], avg_execution_time=387.2ms, most_common_error="C4_MISSING_TENANT_ID"
-
-# Python – 28 artifacts, hooks con type safety y C4 enforcement
-[[python/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/00-INDEX.md
-[[python/python-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/python-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], secondary_hooks=["pylint-validator.py --check-type-safety"], avg_execution_time=412.6ms
-
-# PostgreSQL + pgvector ⭐ – 22 artifacts, ÚNICO con hooks vectoriales V1/V2/V3
-[[postgresql-pgvector/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-[[postgresql-pgvector/postgresql-pgvector-rag-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/postgresql-pgvector-rag-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh", "vector-schema-validator.py --check-vector-dims"], avg_execution_time=524.7ms, most_common_error="V1_MISSING_VECTOR_DIM"
-
-# JavaScript/TypeScript – 28 artifacts, hooks con frontend/backend coordination
-[[javascript/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/00-INDEX.md
-[[javascript/javascript-typescript-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/javascript-typescript-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], secondary_hooks=["eslint-validator.js", "tsc-strict-check.sh"], avg_execution_time=412.6ms
-
-# Go – 36 artifacts, hooks con concurrency safety y context propagation
-[[go/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/00-INDEX.md
-[[go/go-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/go-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], secondary_hooks=["go-vet-validator.sh", "golangci-lint-check.sh"], avg_execution_time=398.4ms
-
-# Bash – 32 artifacts, hooks con shell hardening y env var propagation
-[[bash/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/00-INDEX.md
-[[bash/bash-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/bash-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], secondary_hooks=["shellcheck-validator.sh", "bash-syntax-check.sh"], avg_execution_time=356.8ms
-
-# YAML/JSON Schema – 10 artifacts, hooks con structural validation y tenant scoping
-[[yaml-json-schema/00-INDEX.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/yaml-json-schema/00-INDEX.md
-[[yaml-json-schema/yaml-json-schema-master-agent.md]] • RAW: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/yaml-json-schema/yaml-json-schema-master-agent.md
-# Metadatos de toolchain: primary_hooks=["verify-constraints.sh --check-secrets --check-tenant-isolation"], secondary_hooks=["schema-validator.py --check-structural"], avg_execution_time=298.4ms
-```
-
-### 6.5 Rutas Canónicas Locales (Para Scripting de Toolchain – Acceso en Repo)
-```text
-# Gobernanza Raíz (Tier 1)
-TOOLCHAIN-REFERENCE.md
-GOVERNANCE-ORCHESTRATOR.md
-00-STACK-SELECTOR.md
-AI-NAVIGATION-CONTRACT.md
-SDD-COLLABORATIVE-GENERATION.md
-PROJECT_TREE.md
-CHRONICLE.md
-
-# Hooks de Validación Principales (Ejecutables)
-05-CONFIGURATIONS/validation/orchestrator-engine.sh
-05-CONFIGURATIONS/validation/verify-constraints.sh
-05-CONFIGURATIONS/validation/vector-schema-validator.py
-05-CONFIGURATIONS/validation/check-language-lock-navigation.sh
-05-CONFIGURATIONS/validation/validate-sdd-flow.sh
-05-CONFIGURATIONS/validation/validate-bundle.sh
-05-CONFIGURATIONS/validation/pylint-validator.py
-05-CONFIGURATIONS/validation/eslint-validator.js
-05-CONFIGURATIONS/validation/go-vet-validator.sh
-05-CONFIGURATIONS/validation/golangci-lint-check.sh
-05-CONFIGURATIONS/validation/shellcheck-validator.sh
-05-CONFIGURATIONS/validation/bash-syntax-check.sh
-05-CONFIGURATIONS/validation/schema-validator.py
-05-CONFIGURATIONS/validation/audit-secrets.sh
-05-CONFIGURATIONS/validation/check-rls.sh
-
-# Configuración y Plantillas (Para Ejecución Consistente)
-05-CONFIGURATIONS/validation/norms-matrix.json
-05-CONFIGURATIONS/validation/handoff-metadata-schema.json
-05-CONFIGURATIONS/validation/chronicle-entry-template.md
-05-CONFIGURATIONS/validation/toolchain-metrics-schema.json
-05-CONFIGURATIONS/templates/skill-template.md
-05-CONFIGURATIONS/templates/package-template.md
-
-# Índices por Dominio (Ejecución de Hooks por Dominio)
-06-PROGRAMMING/sql/00-INDEX.md
-06-PROGRAMMING/python/00-INDEX.md
-06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-06-PROGRAMMING/javascript/00-INDEX.md
-06-PROGRAMMING/go/00-INDEX.md
-06-PROGRAMMING/bash/00-INDEX.md
-06-PROGRAMMING/yaml-json-schema/00-INDEX.md
-```
-
----
-
-## 【7】🧪 SANDBOX DE PRUEBAS DE TOOLCHAIN – COMANDOS PARA VALIDAR HOOKS (Ampliado)
-
-```bash
-# ============================================================================
-# 🔍 VALIDACIÓN INDIVIDUAL DE HOOKS DE TOOLCHAIN
-# ============================================================================
-
-# Validar hook verify-constraints.sh para artifact SQL específico
+# Paso 5: Validar constraints y LANGUAGE LOCK
+echo "  ├─ ✅ Constraints + LANGUAGE LOCK..."
 bash 05-CONFIGURATIONS/validation/verify-constraints.sh \
- --file 06-PROGRAMMING/sql/crud-with-tenant-enforcement.sql.md \
- --check-secrets --check-tenant-isolation --check-structural \
- --json | jq '{
- validator: .validator,
- file: .file,
- constraints_validated: .constraint,
- passed: .passed,
- issues_count: .issues_count,
- issues_by_severity: .issues_by_severity,
- performance_ms: .performance_ms
-}'
+  --file "$ARTIFACT_PATH" \
+  --check-language-lock \
+  --json > /tmp/constraints.json
 
-# Validar hook vector-schema-validator.py para artifact pgvector con flags vectoriales
-python3 05-CONFIGURATIONS/validation/vector-schema-validator.py \
- --file 06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md \
- --check-vector-dims --check-vector-metric --check-vector-index \
- --json | jq '{
- validator: .validator,
- file: .file,
- vector_constraints_validated: .constraint | map(select(startswith("V"))),
- passed: .passed,
- vector_issues: [.issues[] | select(.code | startswith("V")) | {code, message}],
- vector_metrics: .vector_metrics
-}'
+# Paso 6: Validar schema si aplica
+if [[ "$ARTIFACT_PATH" =~ \.(json|yml|yaml)$ ]]; then
+  echo "  ├─ ✅ Schema validation..."
+  python 05-CONFIGURATIONS/validation/schema-validator.py \
+    --file "$ARTIFACT_PATH" \
+    --schema 05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json \
+    --json > /tmp/schema.json
+fi
 
-# Validar hook check-language-lock-navigation.sh para confirmar LANGUAGE LOCK compliance
-bash 05-CONFIGURATIONS/validation/check-language-lock-navigation.sh \
- --file 06-PROGRAMMING/sql/query.sql.md \
- --check-language-lock \
- --json | jq '{
- validator: .validator,
- file: .file,
- language_lock_compliant: .language_lock_compliant,
- violations: [.issues[] | select(.severity == "error") | {code, message, fix_hint}]
-}'
+# Paso 7: Validación final con orchestrator
+echo "  └─ ✅ Orchestrator final..."
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file "$ARTIFACT_PATH" \
+  --mode "$MODE" \
+  --json > /tmp/orchestrator.json
 
-# ============================================================================
-# 🔄 PRUEBA DE VALIDACIÓN CRUZADA PARA HANDOFFS (Simulación para Testing)
-# ============================================================================
+# Paso 8: Evaluar resultados
+SCORE=$(jq -r '.score' /tmp/orchestrator.json)
+PASSED=$(jq -r '.passed' /tmp/orchestrator.json)
+MIN_SCORE=$(jq -r --arg tier "$TIER" '.tier_definitions["tier_" + $tier].min_score' 05-CONFIGURATIONS/validation/norms-matrix.json)
 
-python3 << 'EOF'
-import json, sys, hashlib, datetime, time, subprocess
-from pathlib import Path
+if [[ "$PASSED" == "true" && "$SCORE" -ge "$MIN_SCORE" ]]; then
+  echo "✅ Artefacto aprobado: score=$SCORE >= $MIN_SCORE"
+  
+  # Si Tier 3, empaquetar
+  if [[ "$TIER" == "3" ]]; then
+    echo "📦 Empaquetando para Tier 3..."
+    bash 05-CONFIGURATIONS/scripts/packager-assisted.sh \
+      --source "$ARTIFACT_PATH" \
+      --json > /tmp/package.json
+  fi
+  
+  exit 0
+else
+  echo "❌ Validación fallida: score=$SCORE < $MIN_SCORE o passed=$PASSED"
+  echo "📋 Blocking issues:"
+  jq -r '.blocking_issues[]' /tmp/orchestrator.json
+  exit 1
+fi
+```
 
-# Simular validación cruzada para handoff de sql-agent a pgvector-agent
-def simulate_cross_domain_validation():
- print("🔧 Simulando validación cruzada: SQL → pgvector para búsqueda semántica", file=sys.stderr)
- 
- # Artifact SQL con handoff a pgvector
- sql_artifact_path = "06-PROGRAMMING/sql/semantic-search-wrapper.sql.md"
- pgvector_artifact_path = "06-PROGRAMMING/postgresql-pgvector/rag-query-semantic.pgvector.md"
- 
- # Paso 1: Validar artifact SQL con hooks de C3/C4/C5
- print(f"🔍 Validando artifact SQL: {sql_artifact_path}", file=sys.stderr)
- sql_validation = subprocess.run([
- "bash", "05-CONFIGURATIONS/validation/verify-constraints.sh",
- "--file", sql_artifact_path,
- "--check-secrets", "--check-tenant-isolation", "--check-structural",
- "--json"
- ], capture_output=True, text=True)
- 
- if sql_validation.returncode != 0:
- print(f"❌ Validación SQL fallida: {sql_validation.stderr}", file=sys.stderr)
- return False
- sql_result = json.loads(sql_validation.stdout)
- print(f"✅ Validación SQL: passed={sql_result['passed']}", file=sys.stderr)
- 
- # Paso 2: Validar artifact pgvector con hooks de V1/V2
- print(f"🔍 Validando artifact pgvector: {pgvector_artifact_path}", file=sys.stderr)
- pgvector_validation = subprocess.run([
- "python3", "05-CONFIGURATIONS/validation/vector-schema-validator.py",
- "--file", pgvector_artifact_path,
- "--check-vector-dims", "--check-vector-metric",
- "--json"
- ], capture_output=True, text=True)
- 
- if pgvector_validation.returncode != 0:
- print(f"❌ Validación pgvector fallida: {pgvector_validation.stderr}", file=sys.stderr)
- return False
- pgvector_result = json.loads(pgvector_validation.stdout)
- print(f"✅ Validación pgvector: passed={pgvector_result['passed']}", file=sys.stderr)
- 
- # Paso 3: Validación cruzada con validate-sdd-flow.sh
- print("🔍 Validando handoff y consistencia entre dominios", file=sys.stderr)
- cross_validation = subprocess.run([
- "bash", "05-CONFIGURATIONS/validation/validate-sdd-flow.sh",
- "--file", sql_artifact_path,
- "--check-handoffs", "--check-cross-domain",
- "--json"
- ], capture_output=True, text=True)
- 
- if cross_validation.returncode != 0:
- print(f"❌ Validación cruzada fallida: {cross_validation.stderr}", file=sys.stderr)
- return False
- cross_result = json.loads(cross_validation.stdout)
- print(f"✅ Validación cruzada: cross_domain_validation={cross_result.get('cross_domain_validation', False)}", file=sys.stderr)
- 
- # Consolidar resultados
- consolidated_result = {
- "sql_validation": sql_result,
- "pgvector_validation": pgvector_result,
- "cross_domain_validation": cross_result,
- "overall_passed": sql_result['passed'] and pgvector_result['passed'] and cross_result.get('cross_domain_validation', False),
- "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
- }
- 
- print("✅ Validación cruzada completada exitosamente", file=sys.stderr)
- return consolidated_result
+### 2.3 Ejemplo de Traza de Validación End-to-End
 
-if __name__ == "__main__":
- result = simulate_cross_domain_validation()
- if result:
- print(json.dumps(result, indent=2, ensure_ascii=False))
- else:
- print("❌ Validación cruzada fallida", file=sys.stderr)
- sys.exit(1)
-EOF
+```
+【TRAZA DE VALIDACIÓN TIER 2】
+Artefacto: 06-PROGRAMMING/javascript/webhook-whatsapp.ts.md
 
-# ============================================================================
-# 📊 MÉTRICAS DE TOOLCHAIN (Para Dashboard de Validación)
-# ============================================================================
+Paso 1 - Frontmatter:
+  • Comando: validate-frontmatter.sh --file ... --level 2 --json
+  • Resultado: frontmatter_valid=true, required_fields_present=10/10 ✅
 
-# Generar reporte de métricas de toolchain por dominio
-echo "📊 Reporte de Métricas de Toolchain por Dominio" >&2
-echo "===============================================" >&2
-for domain in sql python postgresql-pgvector javascript go bash yaml-json-schema; do
- echo -n "🔍 $domain: " >&2
- # Simular consulta a logs de validación
- bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
- --file "06-PROGRAMMING/$domain/" \
- --json --toolchain-metrics 2>/dev/null | jq -r --arg d "$domain" '
- .toolchain_metrics | 
- "Avg Time: \(.avg_hook_execution_time_ms)ms | Success Rate: \(.hook_success_rate)% | Top Error: \(.most_common_error)"
- ' 2>/dev/null || echo "Sin métricas de toolchain aún" >&2
+Paso 2 - Wikilinks:
+  • Comando: check-wikilinks.sh --file ... --json
+  • Resultado: 12 wikilinks encontrados, 12 canónicos, 0 rotos ✅
+
+Paso 3 - Secrets Audit:
+  • Comando: audit-secrets.sh --file ... --json
+  • Resultado: 0 secrets encontrados, patrones verificados: 5 ✅
+
+Paso 4 - RLS Validation:
+  • Comando: check-rls.sh --file ... --json
+  • Resultado: No es archivo SQL → saltado ✅
+
+Paso 5 - Constraints + LANGUAGE LOCK:
+  • Comando: verify-constraints.sh --file ... --check-language-lock --json
+  • Resultado: constraints_validated=8, language_lock_violations=0 ✅
+
+Paso 6 - Schema Validation:
+  • Comando: schema-validator.py --file ... --schema ... --json
+  • Resultado: valid=true, warnings=0 ✅
+
+Paso 7 - Orchestrator Final:
+  • Comando: orchestrator-engine.sh --file ... --mode headless --json
+  • Resultado: score=42, passed=true, blocking_issues=[] ✅
+
+Resultado: ✅ Artefacto aprobado para Tier 2, listo para integración.
+```
+
+---
+
+## 【3】🛠️ INTEGRACIÓN CON CI/CD Y HOOKS DE GIT
+
+<!-- 
+【EDUCATIVO】Cómo integrar el toolchain en pipelines automáticos para validación continua.
+-->
+
+### 3.1 Pre-commit Hook (Validación Rápida)
+
+```bash
+# 📍 Ubicación: .git/hooks/pre-commit
+#!/bin/bash
+# Validación rápida antes de commit: frontmatter + secrets + wikilinks
+
+set -euo pipefail
+
+echo "🔍 Pre-commit validation..."
+
+# Obtener archivos modificados
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(md|json|yml|yaml|sql|sh|py|go|ts)$' || true)
+
+if [[ -z "$FILES" ]]; then
+  echo "  ├─ ℹ️  No hay archivos relevantes para validar"
+  exit 0
+fi
+
+EXIT_CODE=0
+
+for FILE in $FILES; do
+  echo "  ├─ Validando: $FILE"
+  
+  # Frontmatter para Markdown
+  if [[ "$FILE" =~ \.md$ ]]; then
+    if ! bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh --file "$FILE" --level 2 >/dev/null 2>&1; then
+      echo "    ❌ Frontmatter inválido en $FILE"
+      EXIT_CODE=1
+    fi
+    
+    if ! bash 05-CONFIGURATIONS/validation/check-wikilinks.sh --file "$FILE" >/dev/null 2>&1; then
+      echo "    ❌ Wikilinks inválidos en $FILE"
+      EXIT_CODE=1
+    fi
+  fi
+  
+  # Secrets audit para todos los archivos de código/config
+  if [[ "$FILE" =~ \.(md|json|yml|yaml|sql|sh|py|go|ts)$ ]]; then
+    if ! bash 05-CONFIGURATIONS/validation/audit-secrets.sh --file "$FILE" --strict >/dev/null 2>&1; then
+      echo "    ❌ Posible secreto hardcodeado en $FILE"
+      EXIT_CODE=1
+    fi
+  fi
 done
 
-# Exportar métricas de toolchain a JSON para dashboard
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
- --file 06-PROGRAMMING/ \
- --json --toolchain-metrics 2>/dev/null | jq '{
- timestamp: now | strftime("%Y-%m-%dT%H:%M:%SZ"),
- toolchain_version: "3.1.0-SELECTIVE",
- domains: [.domains | to_entries[] | {
- name: .key,
- avg_hook_execution_time_ms: .value.toolchain_metrics.avg_hook_execution_time_ms,
- hook_success_rate: .value.toolchain_metrics.hook_success_rate,
- most_common_error: .value.toolchain_metrics.most_common_error,
- avg_fix_time_ms: .value.toolchain_metrics.avg_fix_time_ms
- }],
- global_metrics: {
- total_validations: .summary.toolchain_metrics.total_validations,
- global_success_rate: .summary.toolchain_metrics.global_success_rate,
- avg_execution_time_ms: .summary.toolchain_metrics.avg_execution_time_ms,
- errors_prevented: .summary.toolchain_metrics.errors_prevented
- }
-}' > 08-LOGS/validation/toolchain-metrics-$(date +%Y%m%d).json 2>/dev/null || true
+if [[ $EXIT_CODE -eq 0 ]]; then
+  echo "✅ Pre-commit validation passed"
+else
+  echo "❌ Pre-commit validation failed. Corregir errores antes de commit."
+  exit 1
+fi
+```
+
+### 3.2 GitHub Actions Workflow (Validación Completa)
+
+```yaml
+# 📍 Ubicación: .github/workflows/validate-artifact.yml
+name: Validate Artifact
+
+on:
+  push:
+    paths:
+      - '06-PROGRAMMING/**'
+      - '05-CONFIGURATIONS/**'
+      - '*.md'
+  pull_request:
+    paths:
+      - '06-PROGRAMMING/**'
+      - '05-CONFIGURATIONS/**'
+      - '*.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install jsonschema pyyaml
+          # Instalar yq para validación YAML
+          sudo snap install yq
+      
+      - name: Validate artifact
+        run: |
+          # Detectar archivos modificados
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep -E '\.(md|json|yml|yaml|sql|sh|py|go|ts)$' || true)
+          else
+            FILES=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(md|json|yml|yaml|sql|sh|py|go|ts)$' || true)
+          fi
+          
+          if [[ -n "$FILES" ]]; then
+            for FILE in $FILES; do
+              echo "🔍 Validando: $FILE"
+              bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+                --file "$FILE" \
+                --mode headless \
+                --json
+            done
+          else
+            echo "ℹ️  No hay archivos relevantes para validar"
+          fi
+      
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-report
+          path: /tmp/orchestrator.json
+```
+
+### 3.3 Dockerfile para Entorno de Validación Reproducible
+
+```dockerfile
+# 📍 Ubicación: 05-CONFIGURATIONS/docker/validation.Dockerfile
+# 🎯 Propósito: Entorno reproducible para ejecutar validaciones
+
+FROM python:3.11-slim
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    bash \
+    jq \
+    yq \
+    git \
+    shellcheck \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar dependencias de Python
+COPY requirements-validation.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements-validation.txt
+
+# Copiar toolchain
+COPY 05-CONFIGURATIONS/validation/ /app/validation/
+COPY 05-CONFIGURATIONS/scripts/ /app/scripts/
+COPY 05-CONFIGURATIONS/templates/ /app/templates/
+
+# Copiar normas y schemas
+COPY 01-RULES/ /app/01-RULES/
+COPY 05-CONFIGURATIONS/validation/schemas/ /app/schemas/
+
+# Configurar entorno
+WORKDIR /app
+ENV PATH="/app/validation:/app/scripts:$PATH"
+
+# Comando por defecto: validar artefacto pasado como argumento
+ENTRYPOINT ["orchestrator-engine.sh"]
+CMD ["--help"]
+
+# Ejemplo de uso:
+# docker build -f 05-CONFIGURATIONS/docker/validation.Dockerfile -t mantis-validator .
+# docker run --rm -v $(pwd):/workspace mantis-validator --file /workspace/mi-artefacto.md --json
 ```
 
 ---
 
-## 【8】📦 METADATOS DE EXPANSIÓN DE TOOLCHAIN – ROADMAP, DEUDA TÉCNICA Y MÉTRICAS (Para Futuras Versiones)
+## 【4】📚 GLOSARIO PARA PRINCIPIANTES
+
+<!-- 
+【EDUCATIVO】Términos técnicos del toolchain explicados en lenguaje simple.
+-->
+
+| Término | Significado simple | Ejemplo |
+|---------|-------------------|---------|
+| **Frontmatter** | Metadatos al inicio de un archivo Markdown (entre `---`) | `version: "1.0.0"`, `constraints_mapped: ["C1","C3"]` |
+| **Wikilink canónico** | Enlace interno con ruta absoluta desde raíz | `[[PROJECT_TREE.md]]` (no `[[../PROJECT_TREE.md]]`) |
+| **LANGUAGE LOCK** | Regla que prohíbe ciertos operadores en ciertos lenguajes | No usar `<->` en `go/`, solo en `postgresql-pgvector/` |
+| **blocking_issue** | Error que impide la entrega hasta que se corrige | "C3_VIOLATION: se detectó API key hardcodeada" |
+| **score** | Puntuación de calidad del artefacto (0-100) | Score 42 ≥ 30 → aprobado para Tier 2 |
+| **checksum SHA256** | Hash que verifica que un archivo no fue modificado | `sha256:abc123...` para verificar integridad |
+| **idempotente** | Script que puede ejecutarse múltiples veces sin efectos secundarios | `deploy.sh` que verifica si ya está instalado antes de instalar |
+| **dry-run** | Ejecutar comando en modo simulación, sin cambios reales | `./deploy.sh --dry-run` para probar sin desplegar |
+| **PII scrubbing** | Reemplazar datos personales por `***REDACTED***` en logs | Log: `user_email=***REDACTED***` en lugar de `user_email=cliente@ejemplo.com` |
+| **determinista** | Mismos inputs → mismos outputs, sin ambigüedad | Este toolchain: si sigues los pasos, siempre obtienes el mismo resultado |
+
+---
+
+## 【5】🧪 SANDBOX DE PRUEBA (OPCIONAL)
+
+<!-- 
+【PARA DESARROLLADORES】Pega esta sección en un chat nuevo para validar que la IA sigue el protocolo sin contexto previo.
+-->
+
+```
+【TEST MODE: TOOLCHAIN-REFERENCE VALIDATION】
+Prompt de prueba: "Validar artefacto webhook-whatsapp.ts.md para Tier 2"
+
+Respuesta esperada de la IA:
+1. Identificar ruta: 06-PROGRAMMING/javascript/webhook-whatsapp.ts.md
+2. Determinar lenguaje: TypeScript → constraints: C3,C4,C5,C8 mandatory
+3. Ejecutar validación en orden:
+   a. validate-frontmatter.sh --level 2 → verificar campos obligatorios
+   b. check-wikilinks.sh → verificar wikilinks canónicos
+   c. audit-secrets.sh → verificar cero secrets hardcodeados
+   d. verify-constraints.sh --check-language-lock → verificar LANGUAGE LOCK
+   e. orchestrator-engine.sh --mode headless --json → validación final
+4. Evaluar resultado:
+   • score >= 30? ✅
+   • blocking_issues == []? ✅
+   • language_lock_violations == 0? ✅
+5. Si pasa → entregar con validation_command + checksum
+6. Si falla → iterar corrección (máx 3 intentos) con sugerencias específicas
+
+Si la IA omite alguna herramienta, usa orden incorrecto, o ignora blocking_issues → FALLA DE TOOLCHAIN.
+```
+
+---
+
+## 【6】🔗 REFERENCIAS CANÓNICAS (WIKILINKS)
+
+<!-- 
+【PARA IA】Estos enlaces deben resolverse usando PROJECT_TREE.md. 
+No uses rutas relativas. Usa siempre la forma canónica [[RUTA]].
+-->
+
+- `[[00-STACK-SELECTOR]]` → Motor de decisión de stack (ruta → lenguaje → constraints)
+- `[[PROJECT_TREE]]` → Mapa maestro de rutas del repositorio
+- `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` → Matriz de aplicación de constraints por carpeta
+- `[[01-RULES/harness-norms-v3.0.md]]` → Definición textual de C1-C8
+- `[[01-RULES/language-lock-protocol.md]]` → Reglas de exclusión de operadores por lenguaje
+- `[[GOVERNANCE-ORCHESTRATOR]]` → Tiers, validación y certificación
+- `[[IA-QUICKSTART]]` → Punto de entrada para IAs, define modos A1-B3
+- `[[AI-NAVIGATION-CONTRACT]]` → Reglas de interacción y navegación
+- `[[SDD-COLLABORATIVE-GENERATION]]` → Especificación de formato de artefactos
+- `[[05-CONFIGURATIONS/templates/skill-template.md]]` → Plantilla base para nuevos artefactos
+- `[[06-PROGRAMMING/00-INDEX]]` → Índice agregador de patrones por lenguaje
+
+---
+
+## 【7】📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
+
+<!-- 
+【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
+-->
 
 ```json
 {
- "artifact_metadata": {
- "artifact_id": "TOOLCHAIN-REFERENCE",
- "version": "3.1.0-SELECTIVE",
- "tier": 1,
- "last_updated": "2026-01-27T00:00:00Z",
- "next_review": "2026-02-27T00:00:00Z",
- "owners": ["MANTIS AGENTIC Orchestrator", "Facundo"],
- "language": "es",
- "documentation_pending": ["pt-BR", "en"],
- "critical_for_asian_ai": true,
- "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json --check-toolchain"
- },
- "expansion_roadmap": {
- "v3.2.0": {
- "nuevos_hooks_de_validacion": [
- {"name": "cost-estimator.py", "validates": ["C9"], "description": "Estima costos de ejecución por artifact para constraint C9: Cost Awareness"},
- {"name": "carbon-footprint-check.sh", "validates": ["C10"], "description": "Calcula huella de carbono estimada para constraint C10: Carbon Footprint"},
- {"name": "vector-quantization-validator.py", "validates": ["V4"], "description": "Valida parámetros de cuantización vectorial para constraint V4: Vector Quantization"}
- ],
- "nuevas_integraciones_de_toolchain": [
- {"name": "GitHub Actions validation templates", "purpose": "Ejecución automática de hooks en PRs", "governance_impact": "C5 enforcement automatizado para validación de artifacts"},
- {"name": "GitLab CI validation snippets", "purpose": "Pipelines con ejecución paralela de hooks para optimización de tiempo", "governance_impact": "Reducción de tiempo de validación sin comprometer precisión"}
- ],
- "soporte_multilenguaje_docs_toolchain": {
- "pt-BR": {"status": "pendiente", "priority": "alta", "estimated_hours": 55, "governance_notes": "Traducir descripciones de hooks, error codes y fix hints con precisión técnica"},
- "en": {"status": "pendiente", "priority": "media", "estimated_hours": 40, "governance_notes": "Mantener ejemplos de comandos en lenguaje original para consistencia"}
- }
- },
- "v3.3.0": {
- "ai_specialization_features_toolchain": {
- "asian_ai_optimizations": [
- "Formal hook validation with precise error codes for constraint violations",
- "Multi-hook optimization with execution order tuning for efficiency",
- "LANGUAGE LOCK enforcement during hook execution with delegation hints",
- "Output protocol structured for automated parsing of validation workflows"
- ],
- "general_ai_features": [
- "Pedagogical comments in Spanish for learning hook usage patterns",
- "Anti-pattern examples with corrections for toolchain execution",
- "Glossary for beginners with practical hook examples"
- ]
- },
- "nuevas_metricas_de_toolchain": [
- {"name": "hook_dependency_graph.json", "purpose": "Grafo de dependencias entre hooks para optimización de ejecución paralela", "governance_impact": "Permite ejecutar hooks independientes en paralelo sin comprometer orden de fail-fast"},
- {"name": "fix_hint_effectiveness_tracker.py", "purpose": "Mide efectividad de fix hints: % de veces que aplicando fix_hint corrige la violation", "governance_impact": "Permite mejorar calidad de fix hints basado en datos reales de corrección"}
- ]
- }
- },
- "deuda_tecnica_pendiente_toolchain": {
- "documentacion_pt_br_toolchain": {
- "descripcion": "Traducir TOOLCHAIN-REFERENCE.md y descripciones de hooks a portugués do Brasil",
- "artifacts_afectados": 12,
- "estimated_hours": 55,
- "priority": "alta",
- "dependencies": ["Completar generación de artifacts planificados en bash/ y postgresql-pgvector/"],
- "governance_impact": "Sin pt-BR, validadores brasileños no pueden interpretar correctamente error codes y fix hints"
- },
- "hook_simulation_framework": {
- "descripcion": "Framework para simular ejecución de hooks sin validar artifacts reales",
- "estimated_hours": 22,
- "priority": "alta",
- "output": "Herramienta para testing de flujos de validación sin riesgo de modificar artifacts en producción",
- "governance_impact": "Permite validar protocolos de toolchain antes de deploy"
- },
- "chronicle_toolchain_dashboard": {
- "descripcion": "Dashboard interactivo para visualizar resultados de hooks en CHRONICLE.md",
- "estimated_hours": 28,
- "priority": "media",
- "output": "Interfaz web para auditar hook_results, execution_time, y success rates por dominio/constraint",
- "governance_impact": "Mejora C6 auditability con visualización en tiempo real de validaciones"
- },
- "asian_ai_toolchain_benchmark_suite": {
- "descripcion": "Suite de tests específica para evaluar precisión de IA asiáticas en validación de constraints",
- "estimated_hours": 32,
- "priority": "media",
- "output": "Reporte de precisión por tipo de constraint (C3, C4, V1, etc.) y hook",
- "governance_impact": "Permite optimizar prompts para IA especializadas en validación formal de gobernanza"
- }
- },
- "metricas_actuales_toolchain": {
- "total_hooks_configured": 12,
- "total_constraints_covered": 11,  # C1-C8 + V1-V3
- "validations_executed_last_30_days": 412,
- "hook_success_rate": "96.84%",
- "avg_hook_execution_time_ms": 427.6,
- "errors_prevented_by_fail_fast": 37,
- "fix_hint_effectiveness_rate": "91.3%",
- "cross_domain_validation_success_rate": "94.7%",
- "asian_ai_toolchain_precision_target": "≥98% en detección de constraint violations",
- "pedagogical_comment_coverage_toolchain": "95% de hooks incluyen comentarios explicativos en español"
- },
- "ai_navigation_config_toolchain": {
- "preferred_context_window": 16384,
- "required_sections_for_toolchain": [
- "CATÁLOGO DE AGENTES MASTER – CONTRATOS DE TOOLCHAIN ESPECÍFICOS",
- "MATRIZ DE HOOKS POR CONSTRAINT Y DOMINIO – DIAGRAMAS Y REGLAS",
- "PROTOCOLO DE EJECUCIÓN DE HOOKS – CHECKLIST Y FALLBACKS",
- "ANTI-PATRONES DE TOOLCHAIN – QUÉ NO HACER"
- ],
- "fallback_behavior": "Si falta información crítica de hook, consultar TOOLCHAIN-REFERENCE.md para flags requeridos y output protocol antes de ejecutar",
- "logging_requirement": "Emitir JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/ per V-INT-03 + registro en CHRONICLE.md con hook_results, execution_time, exit_code",
- "asian_ai_optimizations_toolchain": {
- "formal_hook_validation": "Priorizar detección precisa de constraint violations con códigos de error específicos para corrección automatizada",
- "multi_hook_execution_optimization": "Evaluar trade-offs entre ejecución secuencial (fail-fast) y paralela (eficiencia) con justificación documentada",
- "delegation_decision_tree": "Usar toolchain_protocol de cada agente antes de ejecutar hooks para evitar LANGUAGE LOCK violations y validaciones inconsistentes",
- "output_protocol_compliance_toolchain": "Estricto: JSON stdout para parsing automático de resultados de validación, stderr para humanos, CHRONICLE.md para trazabilidad histórica"
- }
- }
+  "expansion_registry": {
+    "validation_tools": {
+      "current_count": 8,
+      "extensible": true,
+      "addition_requires": [
+        "Update this file: add tool entry to Section 【1】with purpose, flags, examples",
+        "Update orchestrator-engine.sh: integrate new tool in validation flow",
+        "Update CI/CD workflows: include new tool in pre-commit and GitHub Actions",
+        "Update norms-matrix.json: if tool affects constraint validation",
+        "Human approval required: true"
+      ]
+    },
+    "ci_cd_integrations": {
+      "current": ["pre-commit hook", "GitHub Actions", "Docker validation image"],
+      "extensible": true,
+      "addition_requires": [
+        "Update this file: add integration example to Section 【3】",
+        "Provide reproducible configuration (YAML, Dockerfile, etc.)",
+        "Document required environment variables and secrets handling",
+        "Human approval required: true"
+      ]
+    },
+    "output_formats": {
+      "current": ["JSON Lines", "human-readable terminal", "CI/CD status"],
+      "extensible": true,
+      "addition_requires": [
+        "Update this file: document new format in tool examples",
+        "Update orchestrator-engine.sh: support new output format via flag",
+        "Ensure backward compatibility with existing JSON output",
+        "Human approval required: true"
+      ]
+    }
+  },
+  "compatibility_rule": "Nuevas herramientas no deben invalidar validaciones de artefactos generados bajo versiones anteriores. Cambios breaking requieren major version bump, guía de migración y aprobación humana explícita."
 }
 ```
 
 ---
 
-## 【9】🤖 JSON TREE – METADATOS ENRIQUECIDOS PARA IA NAVIGATION (Toolchain + Routing + Validación)
+<!-- 
+═══════════════════════════════════════════════════════════
+🤖 SECCIÓN PARA IA: ÁRBOL JSON ENRIQUECIDO
+═══════════════════════════════════════════════════════════
+Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
+No está diseñada para lectura humana directa. Los humanos deben usar las secciones 【1】-【7】.
+
+Formato: JSON válido, con comentarios explicativos en claves "doc_*".
+Prioridad de ejecución: Las herramientas se ejecutan en el orden definido en "execution_order".
+Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
+═══════════════════════════════════════════════════════════
+-->
 
 ```json
 {
- "index_metadata": {
- "artifact_id": "TOOLCHAIN-REFERENCE",
- "artifact_type": "toolchain_catalog",
- "version": "3.1.0-SELECTIVE",
- "canonical_path": "TOOLCHAIN-REFERENCE.md",
- "generated_timestamp": "2026-01-27T00:00:00Z",
- "total_hooks_configured": 12,
- "total_constraints_covered": 11,
- "language_lock_enforced": true,
- "tier": 1,
- "critical_for_ai_routing": true,
- "critical_for_asian_ai": true,
- "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json --check-toolchain"
- },
- "toolchain_decision_tree": {
- "input": "artifact_a_validar_o_hook_a_ejecutar",
- "steps": [
- "1. Consultar TOOLCHAIN-REFERENCE.md para identificar hooks aplicables por constraint y dominio",
- "2. Determinar orden de ejecución: bloqueantes (C3/C4/C5/V1) → warnings (C1/C2/C6/C7/C8/V2/V3) → especializados",
- "3. Configurar flags requeridos por constraint: --check-secrets para C3, --check-vector-dims para V1, etc.",
- "4. Ejecutar hooks con output protocol: JSON stdout, logs stderr, JSONL a 08-LOGS/",
- "5. Parsear resultados: .passed para estado global, .issues[] para diagnóstico por error_code",
- "6. Si falla: aplicar fix_hint del error_code → corregir artifact → re-ejecutar hook",
- "7. Si pasa: registrar en CHRONICLE.md con hook_results, execution_time, exit_code",
- "8. Retornar exit code: 0=passed, 1=failed, 2=error_de_ejecucion"
- ],
- "blocking_conditions": [
- "HOOK_EXECUTION_ERROR: hook no encontrado o no ejecutable → exit 2",
- "C3_VIOLATION: secret hardcodeado detectado → exit 1",
- "C4_VIOLATION: query SQL sin WHERE tenant_id=$1 → exit 1",
- "C5_VIOLATION: frontmatter inválido → exit 1",
- "V1_VIOLATION: vector(n) sin V1 declarado → exit 1"
- ],
- "asian_ai_optimizations": {
- "formal_hook_validation": "Priorizar detección precisa de constraint violations con códigos de error específicos para corrección automatizada",
- "multi_hook_execution_optimization": "Evaluar trade-offs entre ejecución secuencial (fail-fast) y paralela (eficiencia) con justificación documentada",
- "delegation_decision_tree": "Usar toolchain_protocol de cada agente antes de ejecutar hooks para evitar LANGUAGE LOCK violations y validaciones inconsistentes",
- "output_protocol_compliance_toolchain": "Estricto: JSON stdout para parsing automático de resultados de validación, stderr para humanos, CHRONICLE.md para trazabilidad histórica"
- }
- },
- "hooks": [
- {
- "name": "verify-constraints.sh",
- "validates": ["C1","C2","C3","C4","C5","C6","C7","C8"],
- "description": "Hook principal para validar constraints de seguridad, aislamiento, estructura, performance y observabilidad",
- "required_flags": {
- "C3": "--check-secrets",
- "C4": "--check-tenant-isolation",
- "C5": "--check-structural",
- "C1": "--check-resource-limits",
- "C2": "--check-performance-budgets",
- "C6": "--check-auditability",
- "C7": "--check-resilience",
- "C8": "--check-observability"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/",
- "exit_codes": {
- "0": "passed: todos los constraints validados exitosamente",
- "1": "failed: al menos un constraint bloqueante violado",
- "2": "error: error de ejecución del hook (no de validación)"
- },
- "error_codes": {
- "C3_HARDCODED_SECRET": {"severity": "error", "fix_hint": "Reemplazar secret hardcodeado con os.getenv('SECRET_NAME')"},
- "C4_MISSING_TENANT_ID": {"severity": "error", "fix_hint": "Agregar 'WHERE tenant_id = $1' a queries SQL o propagar contexto de tenant"},
- "C5_INVALID_FRONTMATTER": {"severity": "error", "fix_hint": "Corregir frontmatter YAML: verificar artifact_id, canonical_path, constraints_mapped"},
- "C1_RESOURCE_LIMIT_UNDECLARED": {"severity": "warning", "fix_hint": "Declarar límites de CPU/memoria con timeout o ulimit"},
- "C2_PERFORMANCE_BUDGET_MISSING": {"severity": "warning", "fix_hint": "Documentar benchmarks de latencia/throughput esperados"},
- "C6_STRUCTURED_LOGGING_INCOMPLETE": {"severity": "warning", "fix_hint": "Usar logging.info(json.dumps({...})) para trazabilidad por tenant"},
- "C7_ERROR_HANDLING_MISSING": {"severity": "warning", "fix_hint": "Agregar try/except, defer, o patterns de resilience según lenguaje"},
- "C8_METRICS_UNDECLARED": {"severity": "warning", "fix_hint": "Incluir métricas Prometheus-ready o spans de OpenTelemetry"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file 06-PROGRAMMING/sql/query.sql.md --check-secrets --check-tenant-isolation --check-structural --json",
- "applicable_domains": ["sql", "python", "postgresql-pgvector", "javascript", "go", "bash", "yaml-json-schema"],
- "execution_order": 1,
- "fail_fast": true
- },
- {
- "name": "vector-schema-validator.py",
- "validates": ["V1","V2","V3"],
- "description": "Hook especializado para validar constraints vectoriales: dimensiones explícitas, métrica documentada, parámetros de índice justificados",
- "required_flags": {
- "V1": "--check-vector-dims",
- "V2": "--check-vector-metric",
- "V3": "--check-vector-index",
- "cross_domain": "--check-delegation"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/postgresql-pgvector/",
- "exit_codes": {
- "0": "passed: constraints vectoriales validados exitosamente",
- "1": "failed: al menos un constraint vectorial bloqueante violado (V1)",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "V1_MISSING_VECTOR_DIM": {"severity": "error", "fix_hint": "Declarar vector(768) explícitamente y agregar V1 a constraints_mapped"},
- "V1_DIMENSION_MISMATCH": {"severity": "error", "fix_hint": "Asegurar que dimensión declarada en vector(n) coincide con embedding model usado"},
- "V2_METRIC_UNDOCUMENTED": {"severity": "warning", "fix_hint": "Documentar métrica de distancia: cosine_distance, l2_distance, o inner_product"},
- "V3_INDEX_PARAMS_UNJUSTIFIED": {"severity": "warning", "fix_hint": "Justificar parámetros de índice: hnsw.m=16, ivfflat.lists=100 con benchmarks de precisión/latencia"}
- },
- "usage_example": "python3 05-CONFIGURATIONS/validation/vector-schema-validator.py --file 06-PROGRAMMING/postgresql-pgvector/query.pgvector.md --check-vector-dims --check-vector-metric --json",
- "applicable_domains": ["postgresql-pgvector"],
- "execution_order": 2,
- "fail_fast": true
- },
- {
- "name": "check-language-lock-navigation.sh",
- "validates": ["LANGUAGE_LOCK"],
- "description": "Hook para validar que operadores usados están permitidos en el dominio per LANGUAGE LOCK",
- "required_flags": {
- "all": "--check-language-lock"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/",
- "exit_codes": {
- "0": "passed: LANGUAGE LOCK compliant",
- "1": "failed: LANGUAGE LOCK violation detected",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "LANGUAGE_LOCK_VECTOR_IN_WRONG_DOMAIN": {"severity": "error", "fix_hint": "Delegar a postgresql-pgvector/ para operaciones vectoriales"},
- "LANGUAGE_LOCK_PROHIBITED_PATTERN": {"severity": "error", "fix_hint": "Remover patrón prohibido o delegar a dominio correcto"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/check-language-lock-navigation.sh --file 06-PROGRAMMING/sql/query.sql.md --check-language-lock --json",
- "applicable_domains": ["sql", "python", "javascript", "go", "bash", "yaml-json-schema"],
- "execution_order": 3,
- "fail_fast": true
- },
- {
- "name": "validate-sdd-flow.sh",
- "validates": ["HANDOFF_METADATA","CROSS_DOMAIN_VALIDATION"],
- "description": "Hook para validar flujos colaborativos SDD: handoffs, metadata, validación cruzada entre dominios",
- "required_flags": {
- "handoff": "--check-handoffs",
- "cross_domain": "--check-cross-domain"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/",
- "exit_codes": {
- "0": "passed: handoffs y validación cruzada exitosas",
- "1": "failed: handoff metadata incompleta o validación cruzada fallida",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "HANDOFF_METADATA_INCOMPLETE": {"severity": "error", "fix_hint": "Agregar metadata mínima: target_agent, reason, expected_output, timeout_seconds"},
- "CROSS_DOMAIN_CONSTRAINT_VIOLATION": {"severity": "error", "fix_hint": "Validar constraints en todos los dominios involucrados: C4 en SQL + V1 en pgvector"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/validate-sdd-flow.sh --file 06-PROGRAMMING/sql/semantic-wrapper.sql.md --check-handoffs --check-cross-domain --json",
- "applicable_domains": ["multi-domain"],
- "execution_order": 4,
- "fail_fast": true
- },
- {
- "name": "validate-bundle.sh",
- "validates": ["BUNDLE_INTEGRITY","CHECKSUM_COORDINATION"],
- "description": "Hook para validar bundles Nivel 3: estructura, checksums coordinados, deploy/rollback funcional",
- "required_flags": {
- "structure": "--check-structure",
- "checksums": "--check-checksums",
- "rollback": "--check-rollback"
- },
- "output_format": "JSON a stdout, logs humanos a stderr, JSONL a 08-LOGS/validation/",
- "exit_codes": {
- "0": "passed: bundle válido y desplegable",
- "1": "failed: estructura inválida o checksums no coordinados",
- "2": "error: error de ejecución del hook"
- },
- "error_codes": {
- "BUNDLE_STRUCTURE_INVALID": {"severity": "error", "fix_hint": "Incluir archivos requeridos: manifest.json, deploy.sh, rollback.sh, healthcheck.sh"},
- "CHECKSUM_MISMATCH": {"severity": "error", "fix_hint": "Regenerar checksums.sha256 con contenido actualizado de todos los archivos del bundle"},
- "ROLLBACK_NOT_FUNCTIONAL": {"severity": "error", "fix_hint": "Probar rollback.sh en sandbox antes de entregar para garantizar reversión segura"}
- },
- "usage_example": "bash 05-CONFIGURATIONS/validation/validate-bundle.sh --bundle-path 08-BUNDLES/rag-system-v1.0.0/ --check-structure --check-checksums --check-rollback --json",
- "applicable_domains": ["level-3-bundles"],
- "execution_order": 5,
- "fail_fast": true
- }
- ],
- "language_lock_enforcement_toolchain": {
- "vector_domain": "postgresql-pgvector/",
- "prohibited_in_others": ["<->", "<#>", "<=>", "vector\\(", "cosine_distance", "l2_distance", "USING\\s+(hnsw|ivfflat)", "CREATE EXTENSION vector", "V1", "V2", "V3"],
- "toolchain_delegation_matrix": {
- "sql_pure": "06-PROGRAMMING/sql/",
- "python_logic": "06-PROGRAMMING/python/",
- "go_microservices": "06-PROGRAMMING/go/",
- "js_frontend": "06-PROGRAMMING/javascript/",
- "bash_automation": "06-PROGRAMMING/bash/",
- "yaml_config": "06-PROGRAMMING/yaml-json-schema/",
- "vector_rag": "06-PROGRAMMING/postgresql-pgvector/",
- "embedding_generation": "06-PROGRAMMING/postgresql-pgvector/",
- "semantic_search": "06-PROGRAMMING/postgresql-pgvector/"
- },
- "validation_script": "check-language-lock-navigation.sh --check-language-lock",
- "failure_action": "exit 1 with message 'LANGUAGE LOCK VIOLATION: Delegar al dominio correcto per TOOLCHAIN-REFERENCE.md'",
- "asian_ai_optimization": "Priorizar detección de LANGUAGE LOCK violations con códigos de error específicos para corrección automatizada en flujos de validación"
- },
- "ai_navigation_hints_toolchain": {
- "for_hook_selection": "Use 'hooks[].validates' to determine which hook validates which constraint",
- "for_flag_configuration": "Consult 'hooks[].required_flags' to configure flags per constraint before execution",
- "for_output_parsing": "Parse JSON stdout with jq: '.passed' for global status, '.issues[]' for detailed diagnosis",
- "for_error_recovery": "Apply 'error_codes[].fix_hint' to correct violations, then re-execute hook with same flags",
- "for_cross_domain": "Use 'validate-sdd-flow.sh --check-cross-domain' to validate constraints across multiple domains",
- "for_asian_ai": "Prioritize formal validation of constraint violations with precise error codes; use toolchain_protocol before hook execution to avoid LANGUAGE LOCK violations and inconsistent validations; emit structured JSON per output_protocol for automated dashboard integration of validation workflows"
- }
+  "toolchain_reference_metadata": {
+    "version": "3.0.0-SELECTIVE",
+    "canonical_path": "/TOOLCHAIN-REFERENCE.md",
+    "artifact_type": "toolchain_documentation",
+    "immutable": true,
+    "requires_human_approval_for_changes": true,
+    "llm_optimizations": {
+      "oriental_models_friendly": true,
+      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
+      "numbered_sequences": true,
+      "stop_conditions_explicit": true,
+      "response_format_examples": true
+    }
+  },
+  
+  "tools_catalog": {
+    "orchestrator-engine.sh": {
+      "location": "05-CONFIGURATIONS/validation/orchestrator-engine.sh",
+      "purpose": "Motor principal de validación y scoring",
+      "applicable_tiers": [1, 2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--mode", "--json", "--checks", "--lint", "--bundle", "--checksum"],
+      "exit_codes": {"0": "passed", "1": "failed"},
+      "output_format": "JSON Lines con score, blocking_issues, constraints_applied",
+      "dependencies": [
+        "verify-constraints.sh",
+        "audit-secrets.sh",
+        "check-rls.sh",
+        "validate-frontmatter.sh",
+        "check-wikilinks.sh",
+        "schema-validator.py"
+      ],
+      "execution_order": 7,
+      "doc_example": "bash orchestrator-engine.sh --file mi-archivo.md --mode headless --json"
+    },
+    "verify-constraints.sh": {
+      "location": "05-CONFIGURATIONS/validation/verify-constraints.sh",
+      "purpose": "Validar constraints C1-C8 + LANGUAGE LOCK",
+      "applicable_tiers": [2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--dir", "--check-language-lock", "--check-vector-*", "--json"],
+      "exit_codes": {"0": "passed", "1": "failed"},
+      "output_format": "JSON con constraints_validated, language_lock.violations",
+      "dependencies": ["norms-matrix.json", "language-lock-protocol.md"],
+      "execution_order": 5,
+      "doc_example": "bash verify-constraints.sh --file mi-archivo.md --check-language-lock --json"
+    },
+    "audit-secrets.sh": {
+      "location": "05-CONFIGURATIONS/validation/audit-secrets.sh",
+      "purpose": "Detectar secrets hardcodeados (C3)",
+      "applicable_tiers": [1, 2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--dir", "--patterns", "--strict", "--json"],
+      "exit_codes": {"0": "no_secrets_found", "1": "secrets_detected"},
+      "output_format": "JSON con secrets_found, patterns_checked, findings",
+      "dependencies": [],
+      "execution_order": 3,
+      "doc_example": "bash audit-secrets.sh --file mi-archivo.md --strict --json"
+    },
+    "check-rls.sh": {
+      "location": "05-CONFIGURATIONS/validation/check-rls.sh",
+      "purpose": "Validar tenant isolation en SQL (C4)",
+      "applicable_tiers": [2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--dir", "--tenant-column", "--strict", "--json"],
+      "exit_codes": {"0": "rls_compliant", "1": "rls_violation"},
+      "output_format": "JSON con queries_analyzed, queries_with_tenant_filter",
+      "dependencies": ["01-RULES/06-MULTITENANCY-RULES.md"],
+      "execution_order": 4,
+      "doc_example": "bash check-rls.sh --file query.sql.md --tenant-column tenant_id --json"
+    },
+    "validate-frontmatter.sh": {
+      "location": "05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+      "purpose": "Verificar YAML frontmatter válido (C5)",
+      "applicable_tiers": [1, 2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--level", "--required-fields", "--json"],
+      "exit_codes": {"0": "valid", "1": "invalid"},
+      "output_format": "JSON con frontmatter_valid, required_fields_present, missing_fields",
+      "dependencies": ["SDD-COLLABORATIVE-GENERATION.md"],
+      "execution_order": 1,
+      "doc_example": "bash validate-frontmatter.sh --file mi-archivo.md --level 2 --json"
+    },
+    "check-wikilinks.sh": {
+      "location": "05-CONFIGURATIONS/validation/check-wikilinks.sh",
+      "purpose": "Validar wikilinks canónicos (C5)",
+      "applicable_tiers": [1, 2, 3],
+      "required_flags": ["--file"],
+      "optional_flags": ["--project-tree", "--allow-external", "--json"],
+      "exit_codes": {"0": "all_canonical", "1": "relative_or_broken_found"},
+      "output_format": "JSON con wikilinks_found, wikilinks_canonical, wikilinks_broken",
+      "dependencies": ["PROJECT_TREE.md"],
+      "execution_order": 2,
+      "doc_example": "bash check-wikilinks.sh --file mi-archivo.md --json"
+    },
+    "schema-validator.py": {
+      "location": "05-CONFIGURATIONS/validation/schema-validator.py",
+      "purpose": "Validar JSON/YAML contra schemas JSON Schema",
+      "applicable_tiers": [2, 3],
+      "required_flags": ["--file", "--schema"],
+      "optional_flags": ["--draft", "--json"],
+      "exit_codes": {"0": "valid", "1": "invalid"},
+      "output_format": "JSON con valid, errors, warnings",
+      "dependencies": ["05-CONFIGURATIONS/validation/schemas/*.json"],
+      "execution_order": 6,
+      "doc_example": "python schema-validator.py --file config.yml --schema docker-compose.schema.json --json"
+    },
+    "packager-assisted.sh": {
+      "location": "05-CONFIGURATIONS/scripts/packager-assisted.sh",
+      "purpose": "Empaquetar artefactos Tier 3 con manifest y checksums",
+      "applicable_tiers": [3],
+      "required_flags": ["--source"],
+      "optional_flags": ["--output", "--version", "--tenant", "--dry-run", "--json"],
+      "exit_codes": {"0": "package_created", "1": "packaging_failed"},
+      "output_format": "JSON con bundle_path, manifest_checksum, files_included",
+      "dependencies": ["GOVERNANCE-ORCHESTRATOR.md", "orchestrator-engine.sh"],
+      "execution_order": 8,
+      "doc_example": "bash packager-assisted.sh --source agent.py.md --output deploy/agent-v1.0.zip --version 1.0.0 --json"
+    }
+  },
+  
+  "execution_order": {
+    "description": "Orden de ejecución de herramientas durante validación. Críticas primero para fail-fast.",
+    "pre_generation_sequence": [
+      {"tool": "validate-frontmatter.sh", "reason": "Sin frontmatter válido, no hay validación posible"},
+      {"tool": "check-wikilinks.sh", "reason": "Wikilinks rotos rompen navegación canónica"},
+      {"tool": "audit-secrets.sh", "reason": "Secrets hardcodeados son bloqueo crítico (C3)"},
+      {"tool": "check-rls.sh", "reason": "Fuga de tenant_id es inaceptable (C4)"},
+      {"tool": "verify-constraints.sh", "reason": "Validar constraints aplicables y LANGUAGE LOCK"},
+      {"tool": "schema-validator.py", "reason": "Validar estructura JSON/YAML contra schema"}
+    ],
+    "post_generation_sequence": [
+      {"tool": "orchestrator-engine.sh", "reason": "Validación final con scoring y reporte JSON"},
+      {"tool": "packager-assisted.sh", "reason": "Empaquetar para Tier 3 solo si validación pasó"}
+    ],
+    "evaluation_logic": "1) Ejecutar pre_generation_sequence. Si alguna falla → bloqueo inmediato. 2) Ejecutar orchestrator-engine.sh para scoring final. 3) Si tier=3 y passed=true, ejecutar packager-assisted.sh."
+  },
+  
+  "dependency_graph": {
+    "critical_infrastructure": [
+      {"file": "PROJECT_TREE.md", "purpose": "Resolver rutas canónicas para wikilinks", "load_order": 1},
+      {"file": "00-STACK-SELECTOR.md", "purpose": "Determinar lenguaje por ruta para LANGUAGE LOCK", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/norms-matrix.json", "purpose": "Mapear constraints por carpeta", "load_order": 3},
+      {"file": "01-RULES/harness-norms-v3.0.md", "purpose": "Definición textual de constraints", "load_order": 4},
+      {"file": "01-RULES/language-lock-protocol.md", "purpose": "Reglas de exclusión de operadores", "load_order": 5}
+    ],
+    "validation_schemas": [
+      {"file": "05-CONFIGURATIONS/validation/schemas/stack-selection.schema.json", "purpose": "Validar decisiones de stack", "load_order": 1},
+      {"file": "05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json", "purpose": "Validar formato de skills", "load_order": 2},
+      {"file": "05-CONFIGURATIONS/validation/schemas/docker-compose.schema.json", "purpose": "Validar configuración Docker", "load_order": 3}
+    ],
+    "templates_and_specs": [
+      {"file": "05-CONFIGURATIONS/templates/skill-template.md", "purpose": "Plantilla base para nuevos artefactos", "load_order": 1},
+      {"file": "SDD-COLLABORATIVE-GENERATION.md", "purpose": "Especificación de formato de artefactos", "load_order": 2},
+      {"file": "GOVERNANCE-ORCHESTRATOR.md", "purpose": "Tiers y validación", "load_order": 3}
+    ]
+  },
+  
+  "human_readable_errors": {
+    "tool_not_found": "Herramienta '{tool}' no encontrada en ubicación esperada: {expected_path}. Verificar PROJECT_TREE.md.",
+    "flag_missing": "Flag obligatorio '--{flag}' no proporcionado para herramienta '{tool}'. Consulte TOOLCHAIN-REFERENCE.md para uso correcto.",
+    "dependency_missing": "Dependencia '{dependency}' no disponible. Instalar o verificar ruta antes de ejecutar '{tool}'.",
+    "validation_failed": "Validación fallida en herramienta '{tool}': {error_details}. Consulte salida JSON para detalles específicos.",
+    "score_below_threshold": "Score {score} < mínimo {min_score} para Tier {tier}. Revisar blocking_issues y corregir antes de reintentar.",
+    "language_lock_violation": "Violación de LANGUAGE LOCK en herramienta 'verify-constraints.sh': operador '{operator}' prohibido en lenguaje '{language}'.",
+    "secrets_detected": "Secrets hardcodeados detectados por 'audit-secrets.sh': {findings}. Usar variables de entorno o secret managers.",
+    "rls_violation": "Violación de tenant isolation en 'check-rls.sh': query sin filtro tenant_id. Agregar WHERE tenant_id = $N."
+  },
+  
+  "audit_requirements": {
+    "required_log_fields": [
+      "timestamp_rfc3339",
+      "tool_executed",
+      "artifact_path",
+      "tier_validated",
+      "validation_result",
+      "score",
+      "blocking_issues",
+      "language_lock_violations",
+      "prompt_hash",
+      "operator_id",
+      "session_id"
+    ],
+    "pii_scrubbing_rules": {
+      "enabled": true,
+      "fields_to_scrub": ["password", "secret", "token", "api_key", "credential", "tenant_data", "user_email", "user_phone"],
+      "scrub_method": "replace_with_***REDACTED***",
+      "compliance": "C3 (Zero Hardcode Secrets) + C8 (Observabilidad)"
+    },
+    "retention_policy": {
+      "debug_logs": "90_days",
+      "audit_logs": "7_years",
+      "compliance_logs": "permanent_if_tier3",
+      "rotation": "daily_with_checksum"
+    },
+    "export_formats": ["JSON Lines", "CSV for SIEM", "OpenTelemetry OTLP"]
+  },
+  
+  "expansion_hooks": {
+    "new_validation_tool": {
+      "requires_files_update": [
+        "TOOLCHAIN-REFERENCE.md (this file): add tool entry to Section 【1】with purpose, flags, examples",
+        "orchestrator-engine.sh: integrate new tool in validation flow",
+        "CI/CD workflows: include new tool in pre-commit and GitHub Actions",
+        "norms-matrix.json: if tool affects constraint validation",
+        "Human approval required: true"
+      ],
+      "requires_human_approval": true,
+      "backward_compatibility": "new tools must not break existing validation flows; use optional flags for new behavior"
+    },
+    "new_ci_cd_integration": {
+      "requires_files_update": [
+        "TOOLCHAIN-REFERENCE.md: add integration example to Section 【3】",
+        "Provide reproducible configuration (YAML, Dockerfile, etc.)",
+        "Document required environment variables and secrets handling",
+        "Update .github/workflows/ or equivalent CI config",
+        "Human approval required: true"
+      ],
+      "requires_human_approval": true,
+      "backward_compatibility": "new integrations must support existing artifact formats and validation outputs"
+    }
+  },
+  
+  "validation_metadata": {
+    "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
+    "schema_version": "toolchain-reference.v1.json",
+    "checksum_algorithm": "SHA256",
+    "audit_log_format": "JSON Lines with RFC3339 timestamps",
+    "pii_scrubbing": "enabled for all logs (C3 + C8 compliance)",
+    "reproducibility_guarantee": "Any validation can be reproduced identically using artifact_path + tier + this toolchain specification"
+  }
 }
 ```
 
 ---
 
-> 📌 **Nota final contractual absoluta**: Este artifact es Tier 1. Cualquier modificación debe pasar validación automática con `orchestrator-engine.sh --file TOOLCHAIN-REFERENCE.md --mode headless --json --check-toolchain`.  
-> 🇧🇷 *Documentação pt-BR pendiente*: Se completará tras la generación de artifacts planificados en esta iteración.  
-> 🔧 *Próximo paso*: Ejecutar validación de toolchain para asegurar que los 12 hooks configurados funcionan correctamente con flags apropiados.  
-> 🏆 *Para IA asiáticas*: Este catálogo está optimizado para que demuestren superioridad en validación formal, diagnóstico estructural y ejecución eficiente de hooks de gobernanza.
+## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
+
+<!-- 
+【PARA PRINCIPIANTES】Antes de guardar este archivo, verifica estos puntos.
+-->
+
+````markdown
+```bash
+# 1. Verificar que el frontmatter es YAML válido
+yq eval '.canonical_path' TOOLCHAIN-REFERENCE.md
+# Esperado: "/TOOLCHAIN-REFERENCE.md"
+
+# 2. Verificar que constraints_mapped solo contiene C1-C8 (este archivo no es pgvector)
+yq eval '.constraints_mapped | .[]' TOOLCHAIN-REFERENCE.md | grep -E '^C[1-8]$' | wc -l
+# Esperado: 8 líneas
+
+# 3. Verificar que el catálogo de herramientas está presente y completo
+grep -q "## 【1】.*CATÁLOGO DE HERRAMIENTAS" TOOLCHAIN-REFERENCE.md && echo "✅ Catálogo presente"
+grep -c "### [0-9]\.[0-9]" TOOLCHAIN-REFERENCE.md | awk '{if($1>=8) print "✅ 8+ herramientas documentadas"; else print "⚠️ Menos de 8 herramientas"}'
+
+# 4. Verificar que todos los wikilinks apuntan a archivos existentes
+for link in $(grep -oE '\[\[[^]]+\]\]' TOOLCHAIN-REFERENCE.md | tr -d '[]' | sort -u); do
+  if [ ! -f "${link#//}" ] && [ ! -f "${link}" ]; then
+    echo "⚠️  Wikilink roto: $link"
+  fi
+done
+
+# 5. Validar que la sección JSON final es parseable
+tail -n +$(grep -n '```json' TOOLCHAIN-REFERENCE.md | tail -1 | cut -d: -f1) TOOLCHAIN-REFERENCE.md | \
+  sed -n '/```json/,/```/p' | sed '1d;$d' | jq empty && echo "✅ JSON válido"
+
+# 6. Validar con orchestrator (simulación mental)
+# - ¿El archivo está en raíz? → SÍ
+# - ¿El lenguaje es markdown con referencia de toolchain? → SÍ
+# - ¿Constraints aplicables según norms-matrix.json? → C5 mandatory → SÍ
+# - ¿validation_command es ejecutable? → SÍ, apunta a orchestrator-engine.sh
+```
+````
+**Criterio de aceptación:**  
+- ✅ Frontmatter válido con `canonical_path: "/TOOLCHAIN-REFERENCE.md"`  
+- ✅ `constraints_mapped` contiene solo C1-C8 (este archivo no es pgvector)  
+- ✅ Catálogo de 8 herramientas documentadas con ejemplos ejecutables  
+- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
+- ✅ Todos los wikilinks apuntan a archivos existentes en `PROJECT_TREE.md`  
+- ✅ `validation_command` es ejecutable y apunta al orchestrator correcto  
 
 ---
+
+> 🎯 **Mensaje final para el lector humano**:  
+> Este toolchain es tu garantía de calidad. No es burocracia.  
+> **Frontmatter → Wikilinks → Secrets → RLS → Constraints → Orchestrator → Entrega**.  
+> Si sigues ese flujo, nunca entregarás un artefacto que no cumpla con lo prometido.  
+> La gobernanza no es una carga. Es la libertad de escalar sin miedo a romper.  
