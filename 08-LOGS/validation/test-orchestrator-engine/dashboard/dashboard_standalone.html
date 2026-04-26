@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANTIS AGENTIC - Validation Dashboard - OFFLINE</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --bg-sidebar: #151515;
+            --bg-card: #252526;
+            --bg-hover: #2d2d2d;
+            --border-color: #333333;
+            --text-primary: #cccccc;
+            --text-gold: #d4af37;
+            --text-green: #2e8b57;
+            --text-red: #c0392b;
+            --text-yellow: #f39c12;
+            --font-base: system-ui, -apple-system, "Segoe UI", Roboto, monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-base); background-color: var(--bg-color); color: var(--text-primary); height: 100vh; overflow: hidden; }
+        .layout { display: flex; height: 100%; }
+        .sidebar { width: 30%; max-width: 300px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .sidebar-header h2 { color: var(--text-gold); font-size: 1.2rem; margin-bottom: 5px; }
+        .badge { background-color: var(--text-green); color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
+        .nav-menu { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .nav-section { padding: 10px 20px 5px; font-size: 0.8rem; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+        .nav-item, .nav-tree-item { padding: 10px 20px; cursor: pointer; transition: background 0.2s; }
+        .nav-item:hover, .nav-tree-item:hover { background-color: var(--bg-hover); }
+        .nav-item.active, .nav-tree-item.active { background-color: var(--bg-card); border-left: 4px solid var(--text-gold); }
+        .nav-tree-item { padding-left: 30px; font-family: monospace; font-size: 0.9rem; }
+        .sidebar-footer { padding: 15px; border-top: 1px solid var(--border-color); text-align: center; color: #666; }
+        .content-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background-color: var(--bg-card); }
+        .search-bar input { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 15px; border-radius: 4px; width: 300px; font-family: var(--font-base); }
+        .search-bar input:focus { outline: 1px solid var(--text-gold); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
+        .kpi-card { background-color: var(--bg-card); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .kpi-title { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .kpi-value { font-size: 1.5rem; font-weight: bold; }
+        .highlight-green { color: var(--text-green); }
+        .highlight-red { color: var(--text-red); }
+        .highlight-gold { color: var(--text-gold); }
+        .alert-banner { margin: 0 20px 10px; padding: 10px 15px; border-radius: 4px; font-weight: bold; }
+        .alert-warning { background-color: rgba(243, 156, 18, 0.2); color: var(--text-yellow); border: 1px solid var(--text-yellow); }
+        .alert-danger { background-color: rgba(192, 57, 43, 0.2); color: var(--text-red); border: 1px solid var(--text-red); }
+        .table-container { flex: 1; overflow-y: auto; padding: 0 20px 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--bg-card); position: sticky; top: 0; z-index: 10; font-weight: normal; color: #888; }
+        tr:hover { background-color: var(--bg-hover); }
+        .status-icon { font-size: 1.2rem; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: var(--bg-card); margin: 10% auto; border: 1px solid var(--border-color); width: 60%; border-radius: 8px; overflow: hidden; }
+        .modal-header { padding: 15px 20px; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { color: var(--text-gold); }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .issue-block { background: var(--bg-color); border-left: 4px solid var(--text-red); padding: 15px; margin-bottom: 15px; }
+        .issue-block.warning { border-left-color: var(--text-yellow); }
+        .issue-title { font-weight: bold; margin-bottom: 8px; }
+        .issue-snippet { background: #000; padding: 10px; font-family: monospace; border-radius: 4px; margin-bottom: 8px; overflow-x: auto; }
+        .fix-hint { color: var(--text-green); font-style: italic; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-header"><h2>MANTIS AGENTIC</h2><span class="badge">v4.0.0 OFFLINE</span></div>
+        <nav class="nav-menu">
+            <div class="nav-item active" id="nav-global">📊 Métricas Globales</div>
+            <div class="nav-section">🌍 Dominios</div>
+            <div id="domain-tree" class="nav-tree"></div>
+            <div class="nav-section">Filtros</div>
+            <div class="nav-item" id="nav-passed">✅ Aprobados</div>
+            <div class="nav-item" id="nav-failed">❌ Rechazados</div>
+        </nav>
+        <div class="sidebar-footer"><small>Zero-Trust V-LOG</small></div>
+    </aside>
+    <main class="content">
+        <header class="content-header">
+            <div class="search-bar"><input type="text" id="search-input" placeholder="Buscar por ruta o archivo..."></div>
+            <div class="last-updated" id="last-updated">Cargando...</div>
+        </header>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">Total Artifacts</div><div class="kpi-value" id="kpi-total">0</div></div>
+            <div class="kpi-card"><div class="kpi-title">Pass Rate</div><div class="kpi-value highlight-green" id="kpi-prate">0%</div></div>
+            <div class="kpi-card"><div class="kpi-title">Fail Rate</div><div class="kpi-value highlight-red" id="kpi-frate">0%</div></div>
+            <div class="kpi-card"><div class="kpi-title">Total LOC</div><div class="kpi-value" id="kpi-loc">0</div></div>
+            <div class="kpi-card"><div class="kpi-title">Total Tokens</div><div class="kpi-value highlight-gold" id="kpi-tokens">0</div></div>
+            <div class="kpi-card"><div class="kpi-title">Tiempo Total</div><div class="kpi-value" id="kpi-time">0s</div></div>
+        </div>
+        <div id="alerts-container"></div>
+        <div class="table-container">
+            <table id="artifacts-table">
+                <thead><tr><th>Estado</th><th>Dominio</th><th>Ruta del Archivo</th><th>Tiempo (ms)</th><th>LOC</th><th>Tokens</th><th>Acciones</th></tr></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div id="issue-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h3 id="modal-title">Detalles del Error</h3><span class="close-btn" id="modal-close">&times;</span></div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+<script>
+    // ==================== MANTIS OFFLINE DASHBOARD ====================
+    // Datos incrustados directamente desde el orquestador
+    const EMBEDDED_MANIFEST = {
+        "timestamp": "2026-04-25T18:56:59Z",
+        "metrics": { "total_artifacts": 49, "passed": 0, "failed": 49, "pass_rate_pct": "0.00", "fail_rate_pct": "100.00", "total_loc": 47241, "total_tokens": 483868, "total_time_ms": 131591 },
+        "artifacts": [
+            {"file": "./02-SKILLS/00-INDEX.md", "domain": "ROOT", "passed": false, "time_ms": 5551, "loc": 676, "tokens": 9592, "issues": []},
+            {"file": "./02-SKILLS/AGENTIC-ASSISTANCE/ide-cli-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4699, "loc": 865, "tokens": 9350, "issues": []},
+            {"file": "./02-SKILLS/AI/deepseek-integration.md", "domain": "ROOT", "passed": false, "time_ms": 3800, "loc": 591, "tokens": 5624, "issues": []},
+            {"file": "./02-SKILLS/AI/gemini-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4014, "loc": 695, "tokens": 8070, "issues": []},
+            {"file": "./02-SKILLS/AI/gpt-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4350, "loc": 733, "tokens": 7689, "issues": []},
+            {"file": "./02-SKILLS/AI/image-gen-api.md", "domain": "ROOT", "passed": false, "time_ms": 3429, "loc": 613, "tokens": 6216, "issues": []},
+            {"file": "./02-SKILLS/AI/llama-integration.md", "domain": "ROOT", "passed": false, "time_ms": 3612, "loc": 659, "tokens": 7243, "issues": []},
+            {"file": "./02-SKILLS/AI/minimax-integration.md", "domain": "ROOT", "passed": false, "time_ms": 3850, "loc": 770, "tokens": 8371, "issues": []},
+            {"file": "./02-SKILLS/AI/mistral-ocr-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4699, "loc": 654, "tokens": 6512, "issues": []},
+            {"file": "./02-SKILLS/AI/openrouter-api-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4150, "loc": 635, "tokens": 6287, "issues": []},
+            {"file": "./02-SKILLS/AI/qwen-integration.md", "domain": "ROOT", "passed": false, "time_ms": 3388, "loc": 654, "tokens": 6771, "issues": []},
+            {"file": "./02-SKILLS/AI/video-gen-api.md", "domain": "ROOT", "passed": false, "time_ms": 3867, "loc": 623, "tokens": 7263, "issues": []},
+            {"file": "./02-SKILLS/AI/voice-agent-integration.md", "domain": "ROOT", "passed": false, "time_ms": 3994, "loc": 690, "tokens": 7952, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md", "domain": "ROOT", "passed": false, "time_ms": 7852, "loc": 1673, "tokens": 16400, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md", "domain": "ROOT", "passed": false, "time_ms": 4004, "loc": 540, "tokens": 5952, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md", "domain": "ROOT", "passed": false, "time_ms": 3780, "loc": 733, "tokens": 7377, "issues": [{"constraint":"C3","category":"API_KEY","description":"OpenAI/Anthropic key prefix","severity":"CRITICAL","line":154,"snippet":"OPENROUTER_API_KEY=sk-or-v1-cambiar","validator":"audit-secrets"},{"constraint":"C3","category":"API_KEY","description":"OpenAI/Anthropic key prefix","severity":"CRITICAL","line":212,"snippet":"- OPENROUTER_API_KEY: usa un placeholder 'sk-or-v1-REEMPLAZAR'.","validator":"audit-secrets"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md", "domain": "ROOT", "passed": false, "time_ms": 5276, "loc": 1010, "tokens": 9525, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md", "domain": "ROOT", "passed": false, "time_ms": 5070, "loc": 1182, "tokens": 9462, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":50,"snippet":"  BEFORE UPDATE ON drive_sync_state","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md", "domain": "ROOT", "passed": false, "time_ms": 6002, "loc": 1731, "tokens": 17587, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md", "domain": "ROOT", "passed": false, "time_ms": 5915, "loc": 998, "tokens": 8003, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":1,"snippet":"SELECT * FROM messages WHERE chat_id = 'abc123';","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md", "domain": "ROOT", "passed": false, "time_ms": 6179, "loc": 1072, "tokens": 10274, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":10,"snippet":"GRANT SELECT, INSERT, UPDATE ON mantis_whatsapp.mensajes TO 'mantis_app'@'10.0.1.%';","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md", "domain": "ROOT", "passed": false, "time_ms": 8501, "loc": 1901, "tokens": 19097, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":38,"snippet":"                                          ON UPDATE CURRENT_TIMESTAMP,","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md", "domain": "ROOT", "passed": false, "time_ms": 4679, "loc": 1081, "tokens": 8438, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md", "domain": "ROOT", "passed": false, "time_ms": 4915, "loc": 1001, "tokens": 7268, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":2,"snippet":"SELECT c.id, c.document_id","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md", "domain": "ROOT", "passed": false, "time_ms": 4507, "loc": 1077, "tokens": 8886, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md", "domain": "ROOT", "passed": false, "time_ms": 9530, "loc": 2332, "tokens": 23560, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":13,"snippet":"    last_updated    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md", "domain": "ROOT", "passed": false, "time_ms": 3238, "loc": 493, "tokens": 5400, "issues": []},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4833, "loc": 910, "tokens": 7047, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":46,"snippet":"  document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md", "domain": "ROOT", "passed": false, "time_ms": 12978, "loc": 1878, "tokens": 21782, "issues": [{"constraint":"C4","category":"missing_tenant_filter","description":"DML sin tenant_id","severity":"CRITICAL","line":28,"snippet":"    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,","validator":"check-rls"}]},
+            {"file": "./02-SKILLS/COMUNICACION/gmail-smtp-integration.md", "domain": "ROOT", "passed": false, "time_ms": 5636, "loc": 906, "tokens": 7838, "issues": []},
+            {"file": "./02-SKILLS/COMUNICACION/google-calendar-api-integration.md", "domain": "ROOT", "passed": false, "time_ms": 5020, "loc": 606, "tokens": 7358, "issues": []},
+            {"file": "./02-SKILLS/COMUNICACION/telegram-bot-integration.md", "domain": "ROOT", "passed": false, "time_ms": 4712, "loc": 983, "tokens": 12299, "issues": []},
+            {"file": "./02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md", "domain": "ROOT", "passed": false, "time_ms": 7494, "loc": 1693, "tokens": 14148, "issues": []},
+            {"file": "./02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md", "domain": "ROOT", "passed": false, "time_ms": 2715, "loc": 160, "tokens": 2995, "issues": []},
+            {"file": "./02-SKILLS/GENERATION-MODELS.md", "domain": "ROOT", "passed": false, "time_ms": 4859, "loc": 588, "tokens": 7782, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md", "domain": "ROOT", "passed": false, "time_ms": 6779, "loc": 1583, "tokens": 16883, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/espocrm-setup.md", "domain": "ROOT", "passed": false, "time_ms": 3875, "loc": 630, "tokens": 13590, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/fail2ban-configuration.md", "domain": "ROOT", "passed": false, "time_ms": 6588, "loc": 1592, "tokens": 18066, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md", "domain": "ROOT", "passed": false, "time_ms": 9025, "loc": 1807, "tokens": 16144, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md", "domain": "ROOT", "passed": false, "time_ms": 7867, "loc": 1373, "tokens": 10634, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/ssh-key-management.md", "domain": "ROOT", "passed": false, "time_ms": 4106, "loc": 750, "tokens": 6405, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md", "domain": "ROOT", "passed": false, "time_ms": 7017, "loc": 1658, "tokens": 15988, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md", "domain": "ROOT", "passed": false, "time_ms": 4763, "loc": 838, "tokens": 7087, "issues": []},
+            {"file": "./02-SKILLS/INFRASTRUCTURA/vps-interconnection.md", "domain": "ROOT", "passed": false, "time_ms": 4715, "loc": 915, "tokens": 8026, "issues": []},
+            {"file": "./02-SKILLS/README.md", "domain": "ROOT", "passed": false, "time_ms": 5593, "loc": 744, "tokens": 9546, "issues": []},
+            {"file": "./02-SKILLS/SEGURIDAD/backup-encryption.md", "domain": "ROOT", "passed": false, "time_ms": 2794, "loc": 313, "tokens": 4173, "issues": []},
+            {"file": "./02-SKILLS/SEGURIDAD/rsync-automation.md", "domain": "ROOT", "passed": false, "time_ms": 3037, "loc": 331, "tokens": 4320, "issues": []},
+            {"file": "./02-SKILLS/SEGURIDAD/security-hardening-vps.md", "domain": "ROOT", "passed": false, "time_ms": 4051, "loc": 541, "tokens": 6546, "issues": []},
+            {"file": "./02-SKILLS/skill-domains-mapping.md", "domain": "ROOT", "passed": false, "time_ms": 4887, "loc": 760, "tokens": 11042, "issues": []}
+        ]
+    };
+
+    const FIX_HINTS = {
+        "explicit_bypass": "Eliminar 'SET rls = false'. El bypass explícito de RLS está prohibido por C4.",
+        "explicit_bypass_marker": "Eliminar el comentario '-- bypass-rls'.",
+        "missing_tenant_filter": "Añadir cláusula 'WHERE tenant_id = current_setting('app.current_tenant')' o el id correspondiente en el DML.",
+        "missing_join_scoping": "Asegurar de cruzar en el JOIN 'ON a.tenant_id = b.tenant_id'.",
+        "API_KEY": "Mover la credencial hardcodeada a una variable de entorno o config.yaml (Zero Hardcode C3).",
+        "DB_PASSWORD": "Usar secrets vault o env vars en lugar de contraseña hardcodeada.",
+        "AWS_CRED": "Remover credenciales de AWS del código. Usar perfiles o env vars.",
+        "BROKEN_LINK": "Actualizar el enlace roto apuntando a una ruta canónica existente.",
+        "FILE_NOT_FOUND": "Asegurar que el archivo exista antes de enviarlo a validación."
+    };
+
+    let manifestData = EMBEDDED_MANIFEST;
+    let currentFilter = { status: null, domain: null, search: "" };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        renderDashboard();
+        setupEventListeners();
+    });
+
+    function renderDashboard() {
+        document.getElementById('last-updated').innerText = `Actualizado: ${new Date(manifestData.timestamp).toLocaleString()}`;
+        const m = manifestData.metrics;
+        document.getElementById('kpi-total').innerText = m.total_artifacts;
+        document.getElementById('kpi-prate').innerText = `${m.pass_rate_pct}%`;
+        document.getElementById('kpi-frate').innerText = `${m.fail_rate_pct}%`;
+        document.getElementById('kpi-loc').innerText = m.total_loc.toLocaleString();
+        document.getElementById('kpi-tokens').innerText = m.total_tokens.toLocaleString();
+        document.getElementById('kpi-time').innerText = `${(m.total_time_ms / 1000).toFixed(2)}s`;
+
+        const alertsContainer = document.getElementById('alerts-container');
+        alertsContainer.innerHTML = '';
+        if (parseFloat(m.fail_rate_pct) > 15) alertsContainer.innerHTML += `<div class="alert-banner alert-danger">⚠️ THRESHOLD BREACH: Fail rate exceeds 15%</div>`;
+        if ((m.total_time_ms / m.total_artifacts) > 2500) alertsContainer.innerHTML += `<div class="alert-banner alert-warning">⚠️ THRESHOLD BREACH: Average time > 2500ms</div>`;
+
+        const domains = [...new Set(manifestData.artifacts.map(a => a.domain))].sort();
+        const tree = document.getElementById('domain-tree');
+        tree.innerHTML = '';
+        domains.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'nav-tree-item';
+            div.innerText = `📁 ${d}`;
+            div.onclick = () => setFilter('domain', d, div);
+            tree.appendChild(div);
+        });
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        let filtered = manifestData.artifacts.filter(a => {
+            if (currentFilter.status !== null && a.passed !== currentFilter.status) return false;
+            if (currentFilter.domain !== null && a.domain !== currentFilter.domain) return false;
+            if (currentFilter.search) return a.file.toLowerCase().includes(currentFilter.search.toLowerCase());
+            return true;
+        });
+        filtered.slice(0, 100).forEach((a) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="status-icon" style="cursor:${a.issues && a.issues.length ? 'pointer' : 'default'}" onclick="${a.issues && a.issues.length ? `openModal(${manifestData.artifacts.indexOf(a)})` : ''}">${a.passed ? '✅' : '❌'}</span></td>
+                <td><span class="badge">${a.domain}</span></td>
+                <td style="font-family: monospace; font-size: 0.9em">${a.file}</td>
+                <td>${a.time_ms}</td>
+                <td>${a.loc}</td>
+                <td>${a.tokens}</td>
+                <td>${a.issues && a.issues.length ? `<button onclick="openModal(${manifestData.artifacts.indexOf(a)})" style="background:var(--text-red); border:none; color:#fff; padding:4px 8px; border-radius:4px; cursor:pointer;">Issues</button>` : ''}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function setFilter(type, value, element) {
+        document.querySelectorAll('.nav-item, .nav-tree-item').forEach(el => el.classList.remove('active'));
+        if (element) element.classList.add('active');
+        if (type === 'global') currentFilter = { status: null, domain: null, search: document.getElementById('search-input').value };
+        else if (type === 'domain') { currentFilter.domain = value; currentFilter.status = null; }
+        else if (type === 'status') { currentFilter.status = value; currentFilter.domain = null; }
+        renderTable();
+    }
+
+    function setupEventListeners() {
+        document.getElementById('nav-global').onclick = (e) => setFilter('global', null, e.target);
+        document.getElementById('nav-passed').onclick = (e) => setFilter('status', true, e.target);
+        document.getElementById('nav-failed').onclick = (e) => setFilter('status', false, e.target);
+        document.getElementById('search-input').addEventListener('input', (e) => { currentFilter.search = e.target.value; renderTable(); });
+        document.getElementById('modal-close').onclick = () => document.getElementById('issue-modal').style.display = "none";
+        window.onclick = (e) => { if (e.target == document.getElementById('issue-modal')) document.getElementById('issue-modal').style.display = "none"; };
+    }
+
+    window.openModal = function(index) {
+        const artifact = manifestData.artifacts[index];
+        document.getElementById('modal-title').innerText = `Issues in: ${artifact.file.split('/').pop()}`;
+        const body = document.getElementById('modal-body');
+        body.innerHTML = '';
+        if (artifact.issues && artifact.issues.length > 0) {
+            artifact.issues.forEach(issue => {
+                let hint = "Revisar logs y normativas MANTIS C1-C8/V1-V3.";
+                Object.keys(FIX_HINTS).forEach(key => { if ((issue.category && issue.category.includes(key)) || (issue.description && issue.description.includes(key))) hint = FIX_HINTS[key]; });
+                body.innerHTML += `
+                    <div class="issue-block ${issue.severity === 'WARNING' ? 'warning' : ''}">
+                        <div class="issue-title">[${issue.severity || 'ERROR'}] ${issue.category || issue.constraint} - Valiator: ${issue.validator || 'unknown'}</div>
+                        <div>${issue.description || ''} (Línea ${issue.line || '?'})</div>
+                        ${issue.snippet ? `<div class="issue-snippet">${issue.snippet.replace(/</g, "&lt;")}</div>` : ''}
+                        <div class="fix-hint">💡 Hint: ${hint}</div>
+                    </div>
+                `;
+            });
+        } else {
+            body.innerHTML = '<p>No se reportaron issues estructurados. Revisa stderr logs.</p>';
+        }
+        document.getElementById('issue-modal').style.display = "block";
+    };
+</script>
+</body>
+</html>
+

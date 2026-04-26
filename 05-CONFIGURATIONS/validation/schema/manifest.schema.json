@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MANTIS AGENTIC - Validation Manifest Schema",
+  "description": "Schema for the orchestrator-engine aggregated manifest v4.0",
+  "type": "object",
+  "required": ["timestamp", "metrics", "artifacts"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["total_artifacts", "passed", "failed", "pass_rate_pct", "fail_rate_pct", "total_loc", "total_tokens", "total_time_ms"],
+      "properties": {
+        "total_artifacts": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "pass_rate_pct": { "type": "string" },
+        "fail_rate_pct": { "type": "string" },
+        "total_loc": { "type": "integer", "minimum": 0 },
+        "total_tokens": { "type": "integer", "minimum": 0 },
+        "total_time_ms": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "domain", "passed", "time_ms", "loc", "tokens", "issues"],
+        "properties": {
+          "file": { "type": "string" },
+          "domain": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "time_ms": { "type": "integer", "minimum": 0 },
+          "loc": { "type": "integer", "minimum": 0 },
+          "tokens": { "type": "integer", "minimum": 0 },
+          "issues": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        }
+      }
+    }
+  }
+}

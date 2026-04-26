@@ -1,0 +1,1015 @@
+{
+  "timestamp": "2026-04-25T18:22:48Z",
+  "metrics": {
+    "total_artifacts": 100,
+    "passed": 0,
+    "failed": 100,
+    "pass_rate_pct": "0.00",
+    "fail_rate_pct": "100.00",
+    "total_loc": 1420,
+    "total_tokens": 9375,
+    "total_time_ms": 75514
+  },
+  "artifacts": [
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_12.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1562,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_18.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1163,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_21.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1344,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_24.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1228,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_27.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1678,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_3.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1185,
+      "loc": 14,
+      "tokens": 90,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_33.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1398,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_36.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1176,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_39.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1236,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_42.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1367,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_48.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1209,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_51.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1630,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_54.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1784,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_57.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1730,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_6.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1864,
+      "loc": 14,
+      "tokens": 90,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_63.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1441,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_66.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1192,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_69.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1405,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_72.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1336,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_78.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1362,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_81.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1128,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_84.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1102,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_87.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1238,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_9.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1162,
+      "loc": 14,
+      "tokens": 90,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_93.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1354,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_96.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1806,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/04-WORKFLOWS/artifact_99.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1324,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_10.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1236,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_100.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1273,
+      "loc": 16,
+      "tokens": 114,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_15.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 2159,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_20.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1777,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_25.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1827,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_30.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1786,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_35.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1832,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_40.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1359,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_45.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1480,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_5.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1129,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_50.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1814,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_55.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1166,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_60.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1554,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_65.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1783,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_70.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1338,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_75.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1263,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_80.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1382,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_85.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1295,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_90.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1162,
+      "loc": 16,
+      "tokens": 113,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "export API_KEY=\\\"sk-1234567890abcdef1234567890abcdef\\\"",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/05-CONFIGURATIONS/artifact_95.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1212,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_1.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1246,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_11.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 2637,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_13.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1278,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_14.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1172,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_16.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1313,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_17.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1235,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_19.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1724,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_2.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1270,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_22.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1242,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_23.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1209,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_26.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1281,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_28.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1365,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_29.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1703,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_31.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1532,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_32.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1270,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_34.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1183,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_37.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1952,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_38.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1508,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_4.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1329,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_41.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1156,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_43.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1410,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_44.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1421,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_46.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1484,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_47.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1483,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_49.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1649,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_52.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1691,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_53.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1492,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_56.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1295,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_58.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1300,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_59.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1353,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_61.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1470,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_62.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1321,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_64.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1335,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_67.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1383,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_68.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1817,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_7.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1631,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_71.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1202,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_73.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1504,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_74.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1415,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_76.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1521,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_77.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1271,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_79.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1452,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_8.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1267,
+      "loc": 14,
+      "tokens": 91,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_82.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1266,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_83.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1414,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_86.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 2513,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_88.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1374,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_89.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1716,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_91.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1173,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_92.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1542,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_94.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1649,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_97.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1385,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    },
+    {
+      "file": "09-TEST-SANDBOX/stress-test-pool/06-PROGRAMMING/artifact_98.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 1326,
+      "loc": 14,
+      "tokens": 92,
+      "issues": []
+    }
+  ]
+}

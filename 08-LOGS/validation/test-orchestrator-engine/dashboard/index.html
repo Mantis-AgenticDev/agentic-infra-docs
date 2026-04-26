@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANTIS AGENTIC - Validation Dashboard</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>MANTIS AGENTIC</h2>
+        <span class="badge">v4.0.0</span>
+      </div>
+      
+      <nav class="nav-menu">
+        <div class="nav-item active" id="nav-global">📊 Métricas Globales</div>
+        
+        <div class="nav-section">🌍 Dominios</div>
+        <div id="domain-tree" class="nav-tree">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="nav-section">Filtros</div>
+        <div class="nav-item" id="nav-passed">✅ Aprobados</div>
+        <div class="nav-item" id="nav-failed">❌ Rechazados</div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <small>Zero-Trust V-LOG</small>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <header class="content-header">
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Buscar por ruta o archivo...">
+        </div>
+        <div class="last-updated" id="last-updated">Cargando...</div>
+      </header>
+
+      <!-- KPI CARDS -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Artifacts</div>
+          <div class="kpi-value" id="kpi-total">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Pass Rate</div>
+          <div class="kpi-value highlight-green" id="kpi-prate">0%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Fail Rate</div>
+          <div class="kpi-value highlight-red" id="kpi-frate">0%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Total LOC</div>
+          <div class="kpi-value" id="kpi-loc">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Total Tokens</div>
+          <div class="kpi-value highlight-gold" id="kpi-tokens">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Tiempo Total</div>
+          <div class="kpi-value" id="kpi-time">0s</div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div id="alerts-container"></div>
+
+      <!-- DATA TABLE -->
+      <div class="table-container">
+        <table id="artifacts-table">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Dominio</th>
+              <th>Ruta del Archivo</th>
+              <th>Tiempo (ms)</th>
+              <th>LOC</th>
+              <th>Tokens</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div id="issue-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Detalles del Error</h3>
+        <span class="close-btn" id="modal-close">&times;</span>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Issues populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1905 @@
+{
+  "timestamp": "2026-04-25T18:56:59Z",
+  "metrics": {
+    "total_artifacts": 49,
+    "passed": 0,
+    "failed": 49,
+    "pass_rate_pct": "0.00",
+    "fail_rate_pct": "100.00",
+    "total_loc": 47241,
+    "total_tokens": 483868,
+    "total_time_ms": 131591
+  },
+  "artifacts": [
+    {
+      "file": "./02-SKILLS/00-INDEX.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5551,
+      "loc": 676,
+      "tokens": 9592,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AGENTIC-ASSISTANCE/ide-cli-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4699,
+      "loc": 865,
+      "tokens": 9350,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/deepseek-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3800,
+      "loc": 591,
+      "tokens": 5624,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/gemini-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4014,
+      "loc": 695,
+      "tokens": 8070,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/gpt-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4350,
+      "loc": 733,
+      "tokens": 7689,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/image-gen-api.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3429,
+      "loc": 613,
+      "tokens": 6216,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/llama-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3612,
+      "loc": 659,
+      "tokens": 7243,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/minimax-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3850,
+      "loc": 770,
+      "tokens": 8371,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/mistral-ocr-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4699,
+      "loc": 654,
+      "tokens": 6512,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/openrouter-api-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4150,
+      "loc": 635,
+      "tokens": 6287,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/qwen-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3388,
+      "loc": 654,
+      "tokens": 6771,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/video-gen-api.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3867,
+      "loc": 623,
+      "tokens": 7263,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/AI/voice-agent-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3994,
+      "loc": 690,
+      "tokens": 7952,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/airtable-database-patterns.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 7852,
+      "loc": 1673,
+      "tokens": 16400,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/db-selection-decision-tree.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4004,
+      "loc": 540,
+      "tokens": 5952,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/environment-variable-management.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3780,
+      "loc": 733,
+      "tokens": 7377,
+      "issues": [
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 154,
+          "snippet": "OPENROUTER_API_KEY=sk-or-v1-cambiar",
+          "validator": "audit-secrets"
+        },
+        {
+          "constraint": "C3",
+          "category": "API_KEY",
+          "description": "OpenAI/Anthropic key prefix",
+          "severity": "CRITICAL",
+          "line": 212,
+          "snippet": "- OPENROUTER_API_KEY: usa un placeholder 'sk-or-v1-REEMPLAZAR'.",
+          "validator": "audit-secrets"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/espocrm-api-analytics.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5276,
+      "loc": 1010,
+      "tokens": 9525,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/google-drive-qdrant-sync.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5070,
+      "loc": 1182,
+      "tokens": 9462,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 50,
+          "snippet": "  BEFORE UPDATE ON drive_sync_state",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/google-sheets-as-database.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 6002,
+      "loc": 1731,
+      "tokens": 17587,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/multi-tenant-data-isolation.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5915,
+      "loc": 998,
+      "tokens": 8003,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 1,
+          "snippet": "SELECT * FROM messages WHERE chat_id = 'abc123';",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 12,
+          "snippet": "  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 22,
+          "snippet": "    ON DELETE CASCADE,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "INSERT INTO tenants (id, name, subscription_plan) VALUES",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 6,
+          "snippet": "  FOR SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 11,
+          "snippet": "  FOR INSERT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 16,
+          "snippet": "  FOR UPDATE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 22,
+          "snippet": "  FOR DELETE",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/mysql-optimization-4gb-ram.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 6179,
+      "loc": 1072,
+      "tokens": 10274,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 10,
+          "snippet": "GRANT SELECT, INSERT, UPDATE ON mantis_whatsapp.mensajes TO 'mantis_app'@'10.0.1.%';",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 11,
+          "snippet": "GRANT SELECT, INSERT ON mantis_whatsapp.interacciones TO 'mantis_app'@'10.0.1.%';",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 12,
+          "snippet": "GRANT SELECT ON mantis_whatsapp.tenants TO 'mantis_app'@'10.0.1.%';",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 26,
+          "snippet": "        ON DELETE RESTRICT    -- No borrar tenant si tiene mensajes",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 20,
+          "snippet": "    FOREIGN KEY (mensaje_id)  REFERENCES mensajes(id) ON DELETE CASCADE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 3,
+          "snippet": "SELECT m.id, m.telefono, m.mensaje, i.respuesta_ia, i.costo_usd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 14,
+          "snippet": "SELECT m.id, m.telefono, m.mensaje, i.respuesta_ia, i.costo_usd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 45,
+          "snippet": "SELECT m.id, m.telefono, m.mensaje, i.respuesta_ia, i.costo_usd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 4,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "DELETE FROM mensajes",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 14,
+          "snippet": "        SELECT 1",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 4,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 11,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 8,
+          "snippet": "SELECT COUNT(*), MAX(fecha)",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/mysql-sql-rag-ingestion.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 8501,
+      "loc": 1901,
+      "tokens": 19097,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 38,
+          "snippet": "                                          ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 78,
+          "snippet": "                                          ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 88,
+          "snippet": "        REFERENCES rag_documents(id) ON DELETE CASCADE ON UPDATE CASCADE,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 151,
+          "snippet": "        REFERENCES rag_conversations(id) ON DELETE CASCADE,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 174,
+          "snippet": "                                              ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 8,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 23,
+          "snippet": "FOR UPDATE SKIP LOCKED;  -- Permite múltiples workers sin deadlock",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 27,
+          "snippet": "UPDATE rag_documents",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 6,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 13,
+          "snippet": "LEFT JOIN rag_chunks c",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 24,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 36,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 41,
+          "snippet": "LEFT JOIN rag_documents rd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 51,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 7,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 18,
+          "snippet": "UPDATE rag_conversations",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 27,
+          "snippet": "INSERT INTO rag_audit_log",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 29,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 5,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 5,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 7,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 22,
+          "snippet": "DELETE m",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 35,
+          "snippet": "DELETE FROM rag_conversations",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 5,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/pdf-mistralocr-processing.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4679,
+      "loc": 1081,
+      "tokens": 8438,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/postgres-prisma-rag.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4915,
+      "loc": 1001,
+      "tokens": 7268,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT c.id, c.document_id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 4,
+          "snippet": "LEFT JOIN documents d ON c.document_id = d.id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 10,
+          "snippet": "SELECT document_id, array_agg(chunk_index ORDER BY chunk_index) as indices",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 14,
+          "snippet": "       (SELECT array_agg(i) FROM generate_series(0, COUNT(*)-1) i);",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/qdrant-rag-ingestion.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4507,
+      "loc": 1077,
+      "tokens": 8886,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/rag-system-updates-all-engines.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 9530,
+      "loc": 2332,
+      "tokens": 23560,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 13,
+          "snippet": "    last_updated    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 35,
+          "snippet": "    updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 6,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 16,
+          "snippet": "UPDATE rag_documents",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 26,
+          "snippet": "DELETE FROM rag_chunks",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 32,
+          "snippet": "SELECT COUNT(*) AS chunks_restantes",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 6,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 10,
+          "snippet": "LEFT JOIN rag_documents rd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 18,
+          "snippet": "DELETE rc",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 20,
+          "snippet": "LEFT JOIN rag_documents rd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 28,
+          "snippet": "UPDATE rag_documents",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 36,
+          "snippet": "SELECT status, COUNT(*) AS total",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 22,
+          "snippet": "    document_id    UUID NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 6,
+          "snippet": "SELECT set_tenant('restaurante_001');",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 8,
+          "snippet": "SELECT rc.id, rc.document_id, rc.chunk_index",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 10,
+          "snippet": "LEFT JOIN rag_documents rd",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 17,
+          "snippet": "DELETE FROM rag_chunks rc",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 19,
+          "snippet": "    SELECT rc2.id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 21,
+          "snippet": "    LEFT JOIN rag_documents rd ON rc2.document_id = rd.id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 29,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/redis-session-management.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3238,
+      "loc": 493,
+      "tokens": 5400,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/supabase-rag-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4833,
+      "loc": 910,
+      "tokens": 7047,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 46,
+          "snippet": "  document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 83,
+          "snippet": "  document_id UUID REFERENCES documents(id) ON DELETE SET NULL,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 115,
+          "snippet": "  FOR SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 119,
+          "snippet": "  FOR INSERT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT tablename, rowsecurity",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 15,
+          "snippet": "SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 30,
+          "snippet": "SELECT COUNT(*) FROM documents;  -- Debe retornar 1, no 2",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/BASE DE DATOS-RAG/vertical-db-schemas.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 12978,
+      "loc": 1878,
+      "tokens": 21782,
+      "issues": [
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 28,
+          "snippet": "    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 69,
+          "snippet": "    updated_at      DATETIME       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 110,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 154,
+          "snippet": "    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 177,
+          "snippet": "    FOREIGN KEY (pedido_id)  REFERENCES pedidos(id) ON DELETE CASCADE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 213,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT m.numero, m.capacidade, m.tipo",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 7,
+          "snippet": "    SELECT r.mesa_id FROM reservas r",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 16,
+          "snippet": "SELECT p.id, p.mesa_id, p.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 28,
+          "snippet": "SELECT c.nome AS categoria, c.icono_emoji,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 39,
+          "snippet": "SELECT DATE(created_at) AS data,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 52,
+          "snippet": "SELECT mi.nome, mi.categoria_id, COUNT(pi.id) AS vezes_pedido,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 64,
+          "snippet": "SELECT nome, telefone, total_visitas, total_gasto,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 73,
+          "snippet": "SELECT r.id, r.nome_cliente, r.telefone, r.hora_reserva,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 85,
+          "snippet": "SELECT e.titulo, e.artista, e.genero_musical, e.data_evento,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 99,
+          "snippet": "SELECT forma_pagamento,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 112,
+          "snippet": "SELECT",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 125,
+          "snippet": "SELECT nome, descricao, alergenos, preco",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 44,
+          "snippet": "    updated_at       DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 99,
+          "snippet": "    updated_at          DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 121,
+          "snippet": "    FOREIGN KEY (reserva_id) REFERENCES reservas_hospedagem(id) ON DELETE CASCADE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 160,
+          "snippet": "    FOREIGN KEY (reserva_id) REFERENCES reservas_hospedagem(id) ON DELETE CASCADE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT u.numero, u.tipo, u.capacidade_adultos, u.vista,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 12,
+          "snippet": "    SELECT unidade_id FROM reservas_hospedagem",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 20,
+          "snippet": "SELECT u.numero, u.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 34,
+          "snippet": "SELECT r.id, r.nome_hospede, r.telefone, u.numero,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 46,
+          "snippet": "SELECT MONTH(r.checkin_data) AS mes,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 48,
+          "snippet": "       (SELECT COUNT(*) FROM unidades_hospedagem",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 51,
+          "snippet": "         (SELECT COUNT(*) FROM unidades_hospedagem",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 62,
+          "snippet": "SELECT r.id, r.nome_hospede, r.telefone, r.email,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 74,
+          "snippet": "SELECT r.nome_hospede, u.numero, r.checkin_data, r.checkout_data,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 87,
+          "snippet": "SELECT ROUND(AVG(nota_geral), 1) AS media_geral,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 96,
+          "snippet": "SELECT u.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 110,
+          "snippet": "SELECT numero, area_m2, sombra, ponto_eletrico, preco_diaria, aceita_pets",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 120,
+          "snippet": "SELECT canal,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 61,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 108,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 185,
+          "snippet": "    FOREIGN KEY (orcamento_id) REFERENCES orcamentos(id) ON DELETE CASCADE",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 200,
+          "snippet": "    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT c.hora_inicio, c.hora_fim, c.tipo, c.status,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 13,
+          "snippet": "SELECT c.id, p.nome, p.telefone, p.preferencia_contato,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 26,
+          "snippet": "SELECT c.data_consulta, c.tipo, c.status,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 39,
+          "snippet": "SELECT o.id, p.nome AS paciente, p.telefone,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 53,
+          "snippet": "SELECT MONTH(data_consulta) AS mes,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 56,
+          "snippet": "         SELECT COUNT(*) FROM consultas",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 66,
+          "snippet": "SELECT COUNT(*) AS conflitos",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 79,
+          "snippet": "SELECT d.nome AS dentista, c.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 93,
+          "snippet": "SELECT nome, categoria, quantidade, quantidade_minima,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 102,
+          "snippet": "SELECT p.nome, p.telefone, p.ultima_consulta,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 113,
+          "snippet": "SELECT p.nome, p.telefone,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 57,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT status,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 13,
+          "snippet": "SELECT l.id, l.contato_nome, l.nome_empresa, l.telefone,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 22,
+          "snippet": "SELECT c.titulo, c.tipo, c.plataforma,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 33,
+          "snippet": "SELECT cs.data_publicacao, cs.plataforma, cs.tipo_conteudo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 37,
+          "snippet": "LEFT JOIN clientes_agencia ca ON cs.cliente_agencia_id = ca.id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 44,
+          "snippet": "SELECT segmento, COUNT(*) AS total_clientes,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 54,
+          "snippet": "SELECT nome, destino, duracao_dias,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 63,
+          "snippet": "SELECT c.titulo, c.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 65,
+          "snippet": "       c.conversoes * (SELECT AVG(valor_mensal) FROM clientes_agencia",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 68,
+          "snippet": "         (c.conversoes * (SELECT AVG(valor_mensal) FROM clientes_agencia",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 78,
+          "snippet": "SELECT DATE(created_at) AS data, modelo_ia,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 89,
+          "snippet": "SELECT l.nome_empresa, l.contato_nome, l.telefone,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 101,
+          "snippet": "SELECT plataforma,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 23,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 61,
+          "snippet": "    updated_at      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 2,
+          "snippet": "SELECT d.id, d.titulo, d.tipo, d.origem, d.source_id,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 11,
+          "snippet": "FOR UPDATE SKIP LOCKED;",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 14,
+          "snippet": "SELECT kc.pergunta,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 28,
+          "snippet": "SELECT kg.pergunta, kg.vezes_perguntada, kg.qdrant_score_max,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 39,
+          "snippet": "SELECT u.nome, u.cargo, u.setor,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_join_scoping",
+          "description": "JOIN sin scoping cruzado por tenant_id",
+          "severity": "HIGH",
+          "line": 44,
+          "snippet": "LEFT JOIN kb_consultas kc ON kc.usuario_id = u.id",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 54,
+          "snippet": "SELECT kb.nome,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 69,
+          "snippet": "SELECT d.titulo, d.categoria, d.versao,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 82,
+          "snippet": "SELECT modelo_ia,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 95,
+          "snippet": "SELECT u.nome, u.cargo, u.setor, u.telefone, u.data_admissao,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 105,
+          "snippet": "SELECT kd.titulo, kd.categoria, kd.tipo,",
+          "validator": "check-rls"
+        },
+        {
+          "constraint": "C4",
+          "category": "missing_tenant_filter",
+          "description": "DML sin tenant_id",
+          "severity": "CRITICAL",
+          "line": 121,
+          "snippet": "SELECT u.nome, u.cargo, u.setor,",
+          "validator": "check-rls"
+        }
+      ]
+    },
+    {
+      "file": "./02-SKILLS/COMUNICACION/gmail-smtp-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5636,
+      "loc": 906,
+      "tokens": 7838,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/COMUNICACION/google-calendar-api-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5020,
+      "loc": 606,
+      "tokens": 7358,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/COMUNICACION/telegram-bot-integration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4712,
+      "loc": 983,
+      "tokens": 12299,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/COMUNICACION/whatsapp-rag-openrouter.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 7494,
+      "loc": 1693,
+      "tokens": 14148,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/DEPLOYMENT/multi-channel-deploymen.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 2715,
+      "loc": 160,
+      "tokens": 2995,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/GENERATION-MODELS.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4859,
+      "loc": 588,
+      "tokens": 7782,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/docker-compose-networking.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 6779,
+      "loc": 1583,
+      "tokens": 16883,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/espocrm-setup.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3875,
+      "loc": 630,
+      "tokens": 13590,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/fail2ban-configuration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 6588,
+      "loc": 1592,
+      "tokens": 18066,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 9025,
+      "loc": 1807,
+      "tokens": 16144,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/n8n-concurrency-limiting.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 7867,
+      "loc": 1373,
+      "tokens": 10634,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/ssh-key-management.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4106,
+      "loc": 750,
+      "tokens": 6405,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/ssh-tunnels-remote-services.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 7017,
+      "loc": 1658,
+      "tokens": 15988,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/ufw-firewall-configuration.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4763,
+      "loc": 838,
+      "tokens": 7087,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/INFRASTRUCTURA/vps-interconnection.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4715,
+      "loc": 915,
+      "tokens": 8026,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/README.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 5593,
+      "loc": 744,
+      "tokens": 9546,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/SEGURIDAD/backup-encryption.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 2794,
+      "loc": 313,
+      "tokens": 4173,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/SEGURIDAD/rsync-automation.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 3037,
+      "loc": 331,
+      "tokens": 4320,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/SEGURIDAD/security-hardening-vps.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4051,
+      "loc": 541,
+      "tokens": 6546,
+      "issues": []
+    },
+    {
+      "file": "./02-SKILLS/skill-domains-mapping.md",
+      "domain": "ROOT",
+      "passed": false,
+      "time_ms": 4887,
+      "loc": 760,
+      "tokens": 11042,
+      "issues": []
+    }
+  ]
+}
