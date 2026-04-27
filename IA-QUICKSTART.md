@@ -42,20 +42,13 @@ Si ya conoces el proyecto: usa los wikilinks para ir directo a lo que necesitas.
 > **NO generes código, NO propongas soluciones, NO asumas contexto** hasta completar el 【Paso 0】.
 
 ---
+## 【0】🗣️ ASISTENTE DE CONFIGURACIÓN GUIADA (ACG) – PROTOCOLO CONVERSACIONAL
 
-## 【0】🔒 GATE DE MODO OPERATIVO (OBLIGATORIO – NO SALTAR)
+La IA **DEBE** guiar al humano a través de los siguientes pasos para construir el contexto de generación. Si en cualquier punto el humano responde "auto" o no hay respuesta en 3 turnos de conversación, se procederá con los valores por defecto marcados con `[*]`.
 
-<!-- 
-【EDUCATIVO】El sistema opera en 6 modos. 
-Cada modo combina: 
-- CONTEXTO: ¿Es para el proyecto interno (A) o para un cliente (B)?
-- AUTONOMÍA: ¿La IA asiste (1), genera código (2) o despliega automático (3)?
+### 0.1.1 Selección de Modo Operativo
 
-Esto no es opcional. Cada modo tiene reglas de validación diferentes.
--->
-
-Antes de cualquier acción, **DEBES** solicitar al humano que seleccione **exactamente uno** de los siguientes modos:
-
+**IA:** "Bienvenido a MANTIS AgenticDev. Para comenzar, seleccioná tu modo de operación:"
 ```
 【SELECCIÓN DE MODO – RESPONDE CON EL CÓDIGO】
 [A1] Interno + Asistido    → Documentación, planos, configuración
@@ -65,31 +58,163 @@ Antes de cualquier acción, **DEBES** solicitar al humano que seleccione **exact
 [B2] Externo + Auto-gen    → Código fuente integrable por cliente
 [B3] Externo + Auto-deploy → ZIP completo con manifiesto y scripts
 
-⚠️  Sin selección explícita → DETENER EJECUCIÓN y solicitar confirmación.
-⚠️  Respuesta inválida → Listar opciones nuevamente y esperar.
-✅  Respuesta válida → Proceder al 【Paso 1】 y registrar: mode_selected=<CÓDIGO>
+⚠️ Sin selección explícita → DETENER EJECUCIÓN y solicitar confirmación.
+⚠️ Respuesta inválida → Listar opciones nuevamente y esperar.
+✅ Respuesta válida → Registrar: mode_selected=<CÓDIGO>
+```
+**Humano:** `[A1|A2|A3|B1|B2|B3]`
+
+**IA:** "Modo `[X]` seleccionado. Procediendo..."
+
+### 0.1.2 Selección de Perfil de Infraestructura
+
+**IA:** "Seleccioná el perfil de hardware para el despliegue. Estos valores son límites máximos; el código leerá variables de entorno, no valores fijos:"
+```
+【PERFILES DE INFRAESTRUCTURA – AGNÓSTICOS POR PROVEEDOR】
+[1] nano (infra1): 1 vCPU / 4 GB RAM / 50 GB NVMe / 4 TB banda [*]
+    → Uso: PyMEs, prototipos, bajo volumen (~3 clientes estimados)
+[2] micro (infra2): 2 vCPU / 8 GB RAM / 100 GB NVMe / 8 TB banda
+    → Uso: Crecimiento, tráfico moderado (~6 clientes estimados)
+[3] standard (infra3): 4 vCPU / 16 GB RAM / 200 GB NVMe / 16 TB banda
+    → Uso: SaaS, alta concurrencia, enterprise (~12 clientes estimados)
+[4] large (infra4): 8 vCPU / 32 GB RAM / 400 GB NVMe / 32 TB banda
+    → Uso: Enterprise, batch processing, alto volumen (~24 clientes estimados)
+
+⚠️ Valores son límites MÁXIMOS, no asignaciones fijas.
+⚠️ El código debe leer MANTIS_MEMORY_LIMIT_MB, etc., desde entorno.
+```
+**Humano:** `[1|2|3|4]`
+
+**IA:** "Perfil `[perfil]` establecido. Variables exportadas: `MANTIS_INFRA_PROFILE`, `MANTIS_MEMORY_LIMIT_MB`, `MANTIS_CPU_LIMIT`, etc."
+
+### 0.1.2a [CONDICIONAL] Si Modo ∈ {A1, B1} Y tarea es DOCUMENTACIÓN
+
+**IA:** "La tarea es de documentación interna. Omitiendo pasos 0.1.3-0.1.5. Procediendo con carga de contexto de programación..."
+*(Flujo salta directamente al Paso 1)*
+
+### 0.1.3 Selección de Vertical de Negocio
+
+**IA:** "¿Para qué industria o vertical es este desarrollo?"
+```
+【VERTICALES DE NEGOCIO DISPONIBLES】
+[0] Interno (proyecto MANTIS)
+[1] Odontología
+[2] Hotel / Posada
+[3] Restaurantes
+[4] Instagram / Redes Sociales
+[5] Corporate-KB (Base de Conocimiento Genérica) [*]
+
+⚠️ Vertical determina prompts, workflows y reglas de validación específicas.
+```
+**Humano:** `[0|1|2|3|4|5]`
+
+### 0.1.4 Selección de Motor de Orquestación
+
+**IA:** "¿Qué motor utilizará el agente o workflow?"
+```
+【MOTORES DE ORQUESTACIÓN】
+[1] n8n (Workflows visuales, ideal para flujos simples) [*]
+[2] LangChain / LangGraph (Agentes complejos con memoria y herramientas)
+[3] Migrar-artefacto (Migración de n8n ↔ LangChain/LangGraph)
+[4] Validar-artefacto (Validación de artefactos externos contra normativas MANTIS)
+
+⚠️ Motor determina patrones de código y validadores aplicables.
+```
+**Humano:** `[1|2|3|4]`
+
+### 0.1.5 Selección de Template de Workflow
+
+**IA:** "Consultando templates disponibles para `[vertical]` en `[motor]`..."
+*(La IA consulta `04-WORKFLOWS/[motor]/[vertical]/` o el índice correspondiente)*
+
+**IA:** "He encontrado los siguientes templates validados:"
+```
+【TEMPLATES DISPONIBLES】
+[1] whatsapp-rag-agent.json - Agente básico de preguntas frecuentes.
+[2] appointment-booking.graph.py - Agente para reserva de turnos.
+[3] Generar un nuevo workflow desde cero.
+
+⚠️ Templates pre-validados incluyen constraints mapeadas y validation_command.
+```
+**Humano:** `[1|2|3]`
+
+### 0.1.6 Carga de Contexto de Empresa
+
+**IA:** "Finalmente, necesito los datos del cliente. Podés:"
+```
+【OPCIONES DE CARGA DE CONTEXTO】
+[1] Proveer un ID de Tenant si ya existe en el sistema.
+[2] Subir/pegar un archivo JSON con el contexto (formato bootstrap-company-context.json).
+[3] Cargar información parseada sobre toda la estructura para generarlo ahora.
+[4] Introducir información en texto sin formato para generarlo ahora.
+
+⚠️ Contexto define tenant_id, rubro, tono, y datos específicos del cliente.
+```
+**Humano:** `[Respuesta]`
+
+**IA:** "✅ Contexto de generación completo. Objeto de contexto construido:
+```json
+{
+  "mode": "A1",
+  "infra_profile": "nano",
+  "vertical": "corporate-kb",
+  "orchestrator": "n8n",
+  "template": "whatsapp-rag-agent.json",
+  "tenant_context": { ... }
+}
+```
+Procediendo con la carga de `00-STACK-SELECTOR.md` y patrones..."
+
+---
+
+### 0.1 Tablas de Referencia Rápida (Numeración Jerárquica)
+
+#### 0.1.1 Modos Operativos
+| Código | Contexto | Autonomía | Tier | Entrega | ¿Cuándo usar? |
+|--------|----------|-----------|------|---------|---------------|
+| **A1** | Interno | Asistido | 1 | Pantalla + revisión humana | Documentación, planos, configuración |
+| **A2** | Interno | Auto-gen | 2 | Código + validation_command | Scripts, tooling, código validable |
+| **A3** | Interno | Auto-deploy | 3 | ZIP con manifest + deploy.sh | Binarios, Docker, CI/CD listo |
+| **B1** | Externo | Asistido | 1 | Pantalla + cliente revisa | Propuestas, esquemas para cliente |
+| **B2** | Externo | Auto-gen | 2 | Código integrable por cliente | Webhooks, APIs, librerías |
+| **B3** | Externo | Auto-deploy | 3 | ZIP production-ready para cliente | Agente completo listo para desplegar |
+
+#### 0.1.2 Perfiles de Infraestructura
+| Perfil | Alias | vCPU | RAM | NVMe | Banda | Timeout plan | Uso típico |
+|--------|-------|------|-----|------|-------|--------------|------------|
+| **nano** | infra1 | 1 | 4 GB | 50 GB | 4 TB | 10m | PyMEs, prototipos [*] |
+| **micro** | infra2 | 2 | 8 GB | 100 GB | 8 TB | 15m | Crecimiento, tráfico moderado |
+| **standard** | infra3 | 4 | 16 GB | 200 GB | 16 TB | 20m | SaaS, alta concurrencia |
+| **large** | infra4 | 8 | 32 GB | 400 GB | 32 TB | 30m | Enterprise, batch processing |
+
+#### 0.1.3 Verticales de Negocio
+| Código | Vertical | Prompts específicos | Workflows típicos | Constraints adicionales |
+|--------|----------|-------------------|------------------|----------------------|
+| **0** | Interno | MANTIS core | Tooling, validación | C1-C8 estándar |
+| **1** | Odontología | HIPAA, turnos, historial | Booking, recordatorios | C3🔴, C4🔴, C8🔴 |
+| **2** | Hotel/Posada | Reservas, huéspedes, check-in | Availability, pricing | C4🔴, C7🔴 |
+| **3** | Restaurantes | Menú, pedidos, delivery | Order-flow, inventory | C4🔴, C2🔴 |
+| **4** | Instagram/Redes | Posts, engagement, analytics | Content-scheduler | C4🔴, C8🔴 |
+| **5** | Corporate-KB | Genérico, documentación | RAG básico, Q&A | C5🔴, C6🔴 [*] |
+
+#### 0.1.4 Motores de Orquestación
+| Motor | Tipo | Ideal para | Patrones asociados | Validadores |
+|-------|------|------------|-------------------|-------------|
+| **n8n** | Visual/low-code | Flujos simples, integraciones | webhook-handler, conditional-branch | n8n-schema-validator.sh |
+| **LangChain/LangGraph** | Code/agents | Agentes complejos, memoria | rag-query, tool-calling, memory | langgraph-structure-check.py |
+| **Migrar-artefacto** | Transformación | Migración entre motores | n8n→langgraph, langgraph→n8n | migration-integrity-check.sh |
+| **Validar-artefacto** | Auditoría | Validar código externo | constraint-mapper, language-lock | orchestrator-engine.sh --external |
+
+---
+
+> **Regla de contención**: Si el humano no responde en **3 turnos de conversación** o responde "auto", asumir valores por defecto `[*]` y registrar `AUDIT_FLAG=human_timeout` o `AUDIT_FLAG=auto_mode`. Notificar explícitamente antes de continuar:
+> ```
+> ⚠️ Timeout de selección. Fallback a valores por defecto [*].
+> ¿Desea ajustar alguna selección antes de proceder? [S/N]
+> ```
 ```
 
-> **Regla de contención:** Si el humano no responde en **3 turnos de conversación**, asumir `A1` con `AUDIT_FLAG=human_timeout` y notificar explícitamente antes de continuar:
-> ```
-> ⚠️  Timeout de selección de modo. Fallback a A1 (Interno + Asistido) con AUDIT_FLAG=human_timeout.
-> ¿Desea cambiar de modo antes de proceder? [S/N]
-> ```
-
-### 0.1 Tabla de Referencia Rápida de Modos
-
-<!-- 
-【PARA PRINCIPIANTES】¿Cuál modo elegir? Esta tabla te ayuda a decidir.
--->
-
-| Modo | ¿Cuándo usarlo? | Ejemplo de tarea | Formato de entrega |
-|------|----------------|-----------------|-------------------|
-| **A1** | Quieres ayuda para escribir documentación o planos | "Ayúdame a documentar la arquitectura del agente RAG" | Texto en pantalla, requiere revisión humana |
-| **A2** | Quieres que la IA genere código para el proyecto interno | "Genera un script de backup para los VPS internos" | Código fuente + comando de validación |
-| **A3** | Quieres un paquete listo para desplegar en infra interna | "Empaqueta el orquestador en Docker para producción" | ZIP con Dockerfile, manifest, deploy.sh |
-| **B1** | Quieres ayuda para preparar una propuesta para un cliente | "Ayúdame a escribir una propuesta técnica para cliente agrícola" | Documento en pantalla, cliente revisa |
-| **B2** | Quieres código que el cliente pueda integrar en su sistema | "Genera un webhook de WhatsApp para cliente X" | Código fuente + instrucciones de integración |
-| **B3** | Quieres un paquete completo que el cliente pueda desplegar | "Entrega un ZIP con el agente RAG listo para producción del cliente" | ZIP con manifest, deploy.sh, rollback.sh, README |
+**Nota crítica**: El bloque termina con el blockquote final. **No agregues ni quites líneas**.
 
 ---
 
@@ -223,13 +348,18 @@ Mismos inputs → mismos outputs. Si algo no está claro, DETENER y preguntar.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ 【PASO 0】CONFIRMACIÓN DE MODO (GATE HUMANO)            │
+│ 【PASO 0】ASISTENTE DE CONFIGURACIÓN GUIADA (ACG)       │
 ├─────────────────────────────────────────────────────────┤
-│ Si el humano no especificó modo (A1/A2/A3/B1/B2/B3):    │
-│ 1. Mostrar menú de 6 opciones con descripciones claras  │
-│ 2. Esperar respuesta explícita (ej: "B2")               │
-│ 3. Si timeout (3 turnos) → fallback a A1 con AUDIT_FLAG │
-│ 4. Registrar: mode_selected=<CÓDIGO>, prompt_hash=<SHA> │
+│ Guiar conversacionalmente:                                │
+│ 0.1.1 → Modo Operativo (A1..B3)                          │
+│ 0.1.2 → Perfil de Infraestructura (nano..large)          │
+│ 0.1.2a → [COND] Skip si documentación + A1/B1            │
+│ 0.1.3 → Vertical de Negocio (0..5)                       │
+│ 0.1.4 → Motor de Orquestación (n8n/LangGraph/Migrate/Validate) │
+│ 0.1.5 → Template de Workflow (pre-validado o nuevo)      │
+│ 0.1.6 → Contexto de Empresa (tenant_id, rubro, tono)     │
+│ Timeout: 3 turnos → fallback a [*] con AUDIT_FLAG        │
+│ Salida: Objeto JSON de contexto para Pasos 1-5           │
 └─────────────────────────────────────────────────────────┘
  ▼
 ┌─────────────────────────────────────────────────────────┐
