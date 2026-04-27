@@ -380,6 +380,57 @@
       "auto_deploy_allowed": true,
       "orchestrator_flags": "--checks C1-C8 --bundle --checksum --mode headless"
     }
+  },  "infrastructure_profiles": {
+    "description": "Perfiles de infraestructura agnósticos por proveedor. Valores son límites máximos, no asignaciones fijas. El código debe leer variables de entorno (MANTIS_MEMORY_LIMIT_MB, etc.), no hardcodear valores.",
+    "default_profile": "nano",
+    "fallback_behavior": "restrictive",
+    "profiles": {
+      "nano": {
+        "alias": "infra1",
+        "vcpu_limit": 1,
+        "memory_limit_mb": 4096,
+        "disk_limit_gb": 50,
+        "bandwidth_tb": 4,
+        "terraform_plan_timeout": "10m",
+        "use_case": "PyMEs, prototipos, clientes con bajo volumen",
+        "estimated_clients": 3
+      },
+      "micro": {
+        "alias": "infra2",
+        "vcpu_limit": 2,
+        "memory_limit_mb": 8192,
+        "disk_limit_gb": 100,
+        "bandwidth_tb": 8,
+        "terraform_plan_timeout": "15m",
+        "use_case": "PyMEs en crecimiento, tráfico moderado",
+        "estimated_clients": 6
+      },
+      "standard": {
+        "alias": "infra3",
+        "vcpu_limit": 4,
+        "memory_limit_mb": 16384,
+        "disk_limit_gb": 200,
+        "bandwidth_tb": 16,
+        "terraform_plan_timeout": "20m",
+        "use_case": "SaaS, alta concurrencia, clientes enterprise",
+        "estimated_clients": 12
+      },
+      "large": {
+        "alias": "infra4",
+        "vcpu_limit": 8,
+        "memory_limit_mb": 32768,
+        "disk_limit_gb": 400,
+        "bandwidth_tb": 32,
+        "terraform_plan_timeout": "30m",
+        "use_case": "Enterprise, batch processing, alto volumen",
+        "estimated_clients": 24
+      }
+    },
+    "validation_rules": {
+      "c1_resource_limits": "Los validadores de C1 deben leer el perfil activo y comparar contra estos límites, no contra valores fijos.",
+      "profile_mode_compatibility": "Si mode in ['B3'] AND profile == 'nano', emitir warning estructurado (C8) pero no bloquear.",
+      "env_var_propagation": "El resolvedor de perfil debe exportar MANTIS_INFRA_PROFILE, MANTIS_MEMORY_LIMIT_MB, etc., para que los scripts los lean."
+    }
   },
   "folder_routing_table": {
     "description_doc": "【EDUCATIVO】Tabla maestra: patrón de ruta → lenguaje obligatorio → constraints permitidas/denegadas → reglas de LANGUAGE LOCK. El orchestrator usa esto para validar coherencia ruta/lenguaje/constraints.",
