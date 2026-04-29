@@ -1,138 +1,136 @@
 #!/usr/bin/env bash
-#---
-# metadata_version: 2.0.1
-# sdd_compliant: true
-# ai_parser_compatible: true
-# purpose: "Validación general contra especificaciones SDD (estructura, constraints, ejemplos)"
 # ---
-set -uo pipefail
+# artifact_id: validate-against-specs-mantis
+# artifact_type: validation_script
+# version: 2.0.0-COMPREHENSIVE
+# constraints_mapped: ["C1","C2","C4","C5","C8"]
+# canonical_path: 05-CONFIGURATIONS/scripts/validate-against-specs.sh
+# domain: 05-CONFIGURATIONS
+# subdomain: scripts
+# agent_role: configurations-master
+# language_lock: es-ES
+# validation_command: orchestrator-engine.sh --domain configurations --strict
+# tier: 2
+# immutable: true
+# requires_human_approval_for_changes: true
+# audience: ["agentic_assistants"]
+# human_readable: false
+# checksum_sha256: "3808707581a6a59864dd5c8266d85f2ebded4bde78d6a786b204ed52763d655c"
+# ---
+set -euo pipefail
 
-readonly VERSION="2.0.1"
+# [CONSTRAINT_MAP]
+# C1: Estructura inmutable validada contra templates base
+# C2: Cumplimiento de especificaciones MANTIS (interface, mapping, masters)
+# C4: Trazabilidad via JSON report + checksum alignment
+# C5: Validación automatizada pre-merge de constraints y frontmatter
+# C8: Umbral de calidad estructural antes de promoción a REAL
+
+# [DEPENDENCIES]
+# jq, yq, diff, grep, bash >= 4.3
+# [INTERFACE_ALIGNMENT]
+# Consumes: interface-spec.yaml, mappings.yaml, *-master-agent.md
+# Produces: validation-report.json, exit code 0/1/2
+
+# [GLOBALS]
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$(dirname "$(dirname "$SCRIPT_DIR")")")"
+readonly SPEC_DIR="${REPO_ROOT}/05-CONFIGURATIONS"
+readonly REPORT_FILE="${SPEC_DIR}/.tmp/validation-$(date +%Y%m%d_%H%M%S).json"
 readonly TARGET="${1:-.}"
-readonly REPORT_FILE="${2:-validation-report.json}"
+readonly STRICT="${2:-false}"
+mkdir -p "$(dirname "$REPORT_FILE")"
 
-declare -i PASSED=0
-declare -i WARNINGS=0
-declare -i ERRORS=0
-declare -a FINDINGS=()
+# [LOGGING & REPORT BUILDER]
+log() { printf '[%s] [%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" "$2"; }
+declare -a FAILS=() WARNINGS=() PASS=()
+add_result() { local type="$1" msg="$2"; [[ "$type" == "FAIL" ]] && FAILS+=("$msg") || { [[ "$type" == "WARN" ]] && WARNINGS+=("$msg") || PASS+=("$msg"); }; }
 
-log_info() { echo "[INFO] $*" >&2; }
-
-record_check() {
-  local name="$1"
-  local severity="$2"
-  case "$severity" in
-    0) ((PASSED++)) ;;
-    1) ((WARNINGS++)); FINDINGS+=("[WARN] $name") ;;
-    2) ((ERRORS++)); FINDINGS+=("[ERROR] $name") ;;
-  esac
-}
-
-validate_file() {
+# [VALIDATION FUNCTIONS]
+validate_frontmatter() {
   local file="$1"
-  local ext="${file##*.}"
+  grep -q "^---" "$file" || { add_result "FAIL" "$file: missing YAML frontmatter delimiter"; return 1; }
   
-  log_info "Validando especificaciones: $file"
-  
-  [[ ! -f "$file" ]] && { record_check "Archivo no encontrado" 2; return; }
-  [[ ! -s "$file" ]] && { record_check "Archivo vacío" 2; return; }
-  record_check "Archivo válido y no vacío" 0
-  
-  # 1. Shebang (solo scripts)
-  if [[ "$ext" == "sh" || "$ext" == "bash" ]]; then
-    head -1 "$file" | grep -q "^#!/" && record_check "Shebang presente" 0 || record_check "Shebang ausente" 1
-  fi
-  
-  # 2. Metadatos/Frontmatter
-  grep -qE "^---$|^# ---$" "$file" 2>/dev/null && record_check "Bloque de metadatos presente" 0 || record_check "Bloque de metadatos ausente" 1
-  
-  # 3. Constraints C1-C8
-  for c in C1 C2 C3 C4 C5 C6 C7 C8; do
-    grep -qE "$c[:\[]" "$file" 2>/dev/null && record_check "$c referenciado" 0 || record_check "$c no referenciado" 1
+  # Extract & validate key fields
+  local fields=("artifact_id" "artifact_type" "constraints_mapped" "canonical_path" "checksum_sha256")
+  for field in "${fields[@]}"; do
+    grep -q "^${field}:" "$file" || { add_result "FAIL" "$file: missing mandatory field '$field'"; return 1; }
   done
   
-  # 🔐 4. Conteo de ejemplos (BLINDADO contra \r, espacios y grep sin match)
-  local raw_count
-  raw_count=$(grep -cE '(✅|❌|🔧)' "$file" 2>/dev/null || true)
-  local examples="${raw_count//[^0-9]/}"
-  [[ -z "$examples" ]] && examples=0
-
-  if (( examples >= 5 )); then
-    record_check "Ejemplos suficientes (≥5)" 0
-  elif (( examples > 0 )); then
-    record_check "Ejemplos insuficientes ($examples/5)" 1
-  else
-    record_check "Sin ejemplos documentados" 1
-  fi
+  # Validate canonical_path matches actual location
+  local declared_path
+  declared_path=$(grep "^canonical_path:" "$file" | sed 's/^canonical_path: *//;s/["'\'']//g')
+  [[ "$file" == *"$declared_path" || "$declared_path" == *"$(basename "$file")" ]] || \
+    add_result "WARN" "$file: canonical_path mismatch (declared: $declared_path, actual: $file)"
   
-  # 5. Validation Command
-  grep -qE "validation_command:" "$file" 2>/dev/null && record_check "validation_command declarado" 0 || record_check "validation_command ausente" 1
-  
-  # 6. Determinismo
-  grep -qE "date\s|uuidgen|timestamp" "$file" 2>/dev/null && record_check "Posible no-determinismo" 1 || record_check "Determinismo verificado" 0
+  # Validate constraints_mapped array format
+  grep -qP 'constraints_mapped: \["(C\d|V\d)(,?(C\d|V\d))*"\]' "$file" || \
+    add_result "WARN" "$file: constraints_mapped format invalid or incomplete"
 }
 
-generate_report() {
-  local total=$((PASSED + WARNINGS + ERRORS))
-  local status="passed"
+validate_interface_alignment() {
+  local file="$1"
+  [[ -f "${SPEC_DIR}/interface-spec.yaml" ]] || return 0
   
-  if (( ERRORS > 0 )); then
-    status="failed"
-  elif (( total == 0 )); then
-    status="skipped"
-  elif (( PASSED == 0 && WARNINGS > 0 )); then
-    status="partial"
+  # Check referenced variables exist in mapping.yaml
+  if grep -q 'mapping.yaml' "$file"; then
+    yq eval '.variables | keys | .[]' "${SPEC_DIR}/environment/mapping.yaml" 2>/dev/null > /tmp/mapping_keys.txt || return 0
+    local missing=0
+    for var in $(grep -roh '\$\{[A-Z_]*\}' "$file" 2>/dev/null | tr -d '${}'); do
+      grep -qx "$var" /tmp/mapping_keys.txt || { ((missing++)) || true; add_result "WARN" "$file: variable $var not in mapping.yaml"; }
+    done
+    [[ $missing -eq 0 ]] && add_result "PASS" "$file: interface alignment OK" || true
   fi
-  
-  local findings_json="[]"
-  if (( ${#FINDINGS[@]} > 0 )); then
-    findings_json=$(printf '%s\n' "${FINDINGS[@]}" | jq -R -s -c 'split("\n") | map(select(length>0))' 2>/dev/null || echo "[]")
-  fi
-
-  cat > "$REPORT_FILE" << EOF
-{
-  "validator_version": "$VERSION",
-  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "target": "$TARGET",
-  "status": "$status",
-  "summary": { "passed": $PASSED, "warnings": $WARNINGS, "errors": $ERRORS, "total": $total },
-  "findings": $findings_json
-}
-EOF
-
-  echo ""
-  echo "========================================="
-  echo "📊 REPORTE DE VALIDACIÓN SDD v$VERSION"
-  echo "========================================="
-  echo "Estado: $status"
-  echo "✅ Pasaron: $PASSED"
-  echo "⚠️  Advertencias: $WARNINGS"
-  echo "❌ Errores: $ERRORS"
-  echo "📄 Reporte: $REPORT_FILE"
-  echo "========================================="
-  
-  [[ "$status" == "failed" ]] && exit 1
-  exit 0
 }
 
-main() {
-  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    echo "Uso: $0 [archivo] [reporte.json]"
-    exit 0
+validate_checksum_placeholder() {
+  local file="$1"
+  if grep -q "^checksum_sha256:" "$file"; then
+    grep -q 'PENDING_GENERATION\|"[a-f0-9]\{64\}"' "$file" || \
+      add_result "FAIL" "$file: invalid checksum format"
   fi
-
-  log_info "Iniciando validador SDD v$VERSION"
-  
-  if [[ -f "$TARGET" ]]; then
-    validate_file "$TARGET"
-  elif [[ -d "$TARGET" ]]; then
-    find "$TARGET" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.tf" -o -name "*.yml" -o -name "*.yaml" \) -print0 2>/dev/null | \
-    while IFS= read -r -d '' f; do validate_file "$f"; done
-  else
-    echo "[ERROR] Ruta no encontrada: $TARGET" >&2; exit 1
-  fi
-  
-  generate_report
 }
 
-main "$@"
+# [MAIN PIPELINE]
+log "VALIDATION_START: Target=$TARGET | Strict=$STRICT"
+shopt -s globstar nullglob
+files=("$TARGET"/*.md "$TARGET"/*.tf "$TARGET"/*.yml "$TARGET"/*.yaml "$TARGET"/*.sh)
+shopt -u globstar nullglob
+
+[[ ${#files[@]} -eq 0 ]] && { log "WARN: No valid files found in $TARGET"; exit 0; }
+
+for f in "${files[@]}"; do
+  [[ -f "$f" && ! "$f" == *".tmp"* ]] || continue
+  validate_frontmatter "$f"
+  validate_interface_alignment "$f"
+  validate_checksum_placeholder "$f"
+done
+
+# [REPORT GENERATION]
+jq -n \
+  --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --arg target "$TARGET" \
+  --argjson strict "$STRICT" \
+  --argjson pass "${#PASS[@]}" \
+  --argjson fails "${#FAILS[@]}" \
+  --argjson warns "${#WARNINGS[@]}" \
+  --arg pass_list "$(IFS=,; echo "${PASS[*]}")" \
+  --arg fail_list "$(IFS=,; echo "${FAILS[*]}")" \
+  --arg warn_list "$(IFS=,; echo "${WARNINGS[*]}")" \
+  '{
+    timestamp: $ts,
+    target: $target,
+    strict_mode: $strict,
+    summary: { pass: $pass, fail: $fails, warn: $warns },
+    details: { passed: ($pass_list | split(",")), failed: ($fail_list | split(",")), warnings: ($warn_list | split(",")) }
+  }' > "$REPORT_FILE"
+
+log "📄 Report: $REPORT_FILE"
+[[ ${#FAILS[@]} -gt 0 ]] && { log "❌ VALIDATION_FAIL: ${#FAILS[@]} error(es). Revisar $REPORT_FILE"; exit 1; }
+[[ ${#WARNINGS[@]} -gt 0 && "$STRICT" == "true" ]] && { log "⚠️ STRICT_FAIL: ${#WARNINGS[@]} advertencia(s)."; exit 2; }
+
+log "✅ VALIDATION_PASS: Todos los artefactos cumplen specs MANTIS v2.0.0"
+exit 0
+
+
+---

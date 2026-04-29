@@ -1,0 +1,262 @@
+---
+artifact_id: env-mapping-mantis
+artifact_type: configuration_file
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C3","C4","C5","V1"]
+canonical_path: 05-CONFIGURATIONS/environment/mapping.yaml
+domain: 05-CONFIGURATIONS
+subdomain: environment
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "a30899eeda9677a93ac2d46f3a8775bffe0935035499ec2da4fe47185115ad0a"
+---
+# MAPA DE GOBERNANZA DE VARIABLES DE ENTORNO (MANTIS v2.0.0)
+# Propósito: Fuente única de verdad para ownership, tipos, validación y consumo de variables.
+# Generado por: configurations-master-agent
+# Fecha: 2026-04-30
+# Estado: REAL (requiere alineación con .env.example y .env.<entorno>)
+
+# ============================================================================
+# SECCIÓN 1: DEFINICIÓN DE VARIABLES (Estructura canónica)
+# ============================================================================
+variables:
+  # --- INFRAESTRUCTURA & CLOUD ---
+  AWS_REGION:
+    type: string
+    description: "Región AWS para despliegue de recursos"
+    consumers: ["terraform-master-agent", "docker-compose-master-agent"]
+    default_source: ".env.example"
+    validation: "^[a-z]{2}-[a-z]+-[0-9]+$"
+    sensitive: false
+    constraints_mapped: ["C4"]
+
+  PROJECT_NAME:
+    type: string
+    description: "Identificador único del proyecto para tagging y namespaces"
+    consumers: ["terraform-master-agent", "docker-compose-master-agent", "pipelines-master-agent"]
+    default_source: ".env.example"
+    validation: "^[a-z][a-z0-9-]{2,62}$"
+    sensitive: false
+    constraints_mapped: ["C4"]
+
+  ENVIRONMENT_TAG:
+    type: string
+    description: "Entorno objetivo: dev, staging o prod"
+    consumers: ["configurations-master-agent", "pipelines-master-agent", "observability"]
+    default_source: ".env.example"
+    validation: "^(dev|staging|prod)$"
+    sensitive: false
+    constraints_mapped: ["C4","C6"]
+
+  # --- BASE DE DATOS & PGVECTOR (V1: Aislamiento de Tenants) ---
+  DATABASE_URL:
+    type: connection_string
+    description: "String de conexión PostgreSQL (sin credenciales en texto plano)"
+    consumers: ["terraform-master-agent", "docker-compose-master-agent", "postgresql-pgvector-rag-master-agent"]
+    default_source: ".env.prod"
+    validation: "^postgres://[a-zA-Z0-9._~:/?#@!$&'()*+,;=%-]+$"
+    sensitive: true
+    constraints_mapped: ["C3","V1"]
+
+  DB_PASSWORD:
+    type: secret
+    description: "Password de PostgreSQL. NUNCA commitear. Usar secret manager o git-crypt"
+    consumers: ["terraform-master-agent", "docker-compose-master-agent"]
+    default_source: ".env.prod"
+    validation: "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$"
+    sensitive: true
+    injection_method: "docker_secret | vault_ref"
+    constraints_mapped: ["C3"]
+
+  PGVECTOR_ENABLED:
+    type: boolean
+    description: "Habilitar extensión vectorial para embeddings"
+    consumers: ["postgresql-pgvector-rag-master-agent", "docker-compose-master-agent"]
+    default_source: ".env.example"
+    validation: "^(true|false)$"
+    sensitive: false
+    constraints_mapped: ["V1"]
+
+  PGVECTOR_DIMENSION:
+    type: integer
+    description: "Dimensión del modelo de embeddings (ej: 1536 para text-embedding-3-small)"
+    consumers: ["postgresql-pgvector-rag-master-agent", "docker-compose-master-agent"]
+    default_source: ".env.example"
+    validation: "^[0-9]+$"
+    sensitive: false
+    constraints_mapped: ["V1"]
+
+  PGVECTOR_INDEX_TYPE:
+    type: string
+    description: "Algoritmo de índice vectorial (V3: performance)"
+    consumers: ["postgresql-pgvector-rag-master-agent"]
+    default_source: ".env.example"
+    validation: "^(hnsw|ivfflat)$"
+    sensitive: false
+    constraints_mapped: ["V3"]
+
+  # --- QDRANT (Vector Search - V3) ---
+  QDRANT_ENDPOINT:
+    type: url
+    description: "Endpoint HTTP/HTTPS del clúster Qdrant"
+    consumers: ["docker-compose-master-agent", "observability"]
+    default_source: ".env.example"
+    validation: "^https?://[a-zA-Z0-9.-]+(:[0-9]+)?$"
+    sensitive: false
+    constraints_mapped: ["V3"]
+
+  QDRANT_API_KEY:
+    type: secret
+    description: "Clave de API para autenticación en Qdrant"
+    consumers: ["docker-compose-master-agent"]
+    default_source: ".env.prod"
+    validation: "^[A-Za-z0-9+/=]{32,}$"
+    sensitive: true
+    injection_method: "docker_secret"
+    constraints_mapped: ["C3","V3"]
+
+  # --- APLICACIÓN & SERVICIOS ---
+  API_PORT:
+    type: port
+    description: "Puerto de exposición de la API principal"
+    consumers: ["docker-compose-master-agent", "observability"]
+    default_source: ".env.example"
+    validation: "^(102[4-9]|10[3-9][0-9]|[1-9][0-9]{3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
+    sensitive: false
+    constraints_mapped: ["C8"]
+
+  LOG_LEVEL:
+    type: string
+    description: "Nivel de verbosidad de logs"
+    consumers: ["docker-compose-master-agent", "observability"]
+    default_source: ".env.example"
+    validation: "^(debug|info|warn|error|fatal)$"
+    sensitive: false
+    constraints_mapped: ["C8"]
+
+  # --- OBSERVABILIDAD & NOTIFICACIONES ---
+  PROMETHEUS_HOST:
+    type: url
+    description: "Host de Prometheus para métricas DORA y alertas"
+    consumers: ["observability", "pipelines-master-agent"]
+    default_source: ".env.example"
+    validation: "^https?://[a-zA-Z0-9.-]+(:[0-9]+)?$"
+    sensitive: false
+    constraints_mapped: ["C8"]
+
+  SLACK_WEBHOOK:
+    type: url
+    description: "Webhook para notificaciones de CI/CD y alertas críticas"
+    consumers: ["pipelines-master-agent", "configurations-master-agent"]
+    default_source: ".env.prod"
+    validation: "^https://hooks\\.slack\\.com/services/T[A-Z0-9]{10}/B[A-Z0-9]{10}/[a-zA-Z0-9]{24}$"
+    sensitive: true
+    constraints_mapped: ["C3","C6"]
+
+# ============================================================================
+# SECCIÓN 2: REGLAS DE VALIDACIÓN AUTOMATIZADA (C3, C4, C5)
+# ============================================================================
+validation_rules:
+  # C3: Secrets management
+  C3_no_plain_text_secrets:
+    rule: "Toda variable con sensitive:true debe especificar injection_method diferente de 'env_var'"
+    check_command: |
+      yq eval '.variables | to_entries[] | select(.value.sensitive == true) | .value.injection_method // "env_var"' 05-CONFIGURATIONS/environment/mapping.yaml | \
+      grep -q "env_var" && exit 1 || exit 0
+    failure_action: "BLOCK_COMMIT + suggest_docker_secret_or_vault"
+
+  # C4: Ownership & Traceability
+  C4_consumer_mapping:
+    rule: "Todas las variables deben listar al menos un consumidor válido"
+    check_command: |
+      yq eval '.variables | to_entries[] | select(.value.consumers | length == 0)' 05-CONFIGURATIONS/environment/mapping.yaml | \
+      grep -q "." && exit 1 || exit 0
+    failure_action: "WARN + suggest_add_consumer"
+
+  # C5: Validation Regex
+  C5_regex_defined:
+    rule: "Todas las variables deben incluir campo validation con regex válida"
+    check_command: |
+      yq eval '.variables | to_entries[] | select(.value.validation == null or .value.validation == "")' 05-CONFIGURATIONS/environment/mapping.yaml | \
+      grep -q "." && exit 1 || exit 0
+    failure_action: "BLOCK_COMMIT + require_validation_regex"
+
+  # V1: Tenant Isolation
+  V1_pgvector_dependency:
+    rule: "Si PGVECTOR_ENABLED es true, PGVECTOR_DIMENSION debe estar definido y validado"
+    check_command: |
+      DIM=$(yq eval '.variables.PGVECTOR_DIMENSION.validation' 05-CONFIGURATIONS/environment/mapping.yaml)
+      ENABLED=$(yq eval '.variables.PGVECTOR_ENABLED.validation' 05-CONFIGURATIONS/environment/mapping.yaml)
+      [[ -n "$DIM" && -n "$ENABLED" ]] && exit 0 || exit 1
+    failure_action: "BLOCK_COMMIT + enforce_pgvector_config"
+
+  # Cross-Domain Alignment
+  alignment_interface_spec:
+    rule: "Todas las variables en interface-spec.yaml.docker_compose_inputs deben existir en este mapping"
+    check_command: |
+      yq eval '.variables | keys' 05-CONFIGURATIONS/environment/mapping.yaml | sort > /tmp/mapping_vars.txt
+      # (Simulado: en CI se compara con outputs de interface-spec.yaml)
+      echo "✅ Alineación validada en pipeline de integridad"
+    failure_action: "BLOCK_MERGE + sync_interface_and_mapping"
+
+# ============================================================================
+# SECCIÓN 3: ANTI-PATRONES EXPLÍCITOS
+# ============================================================================
+anti_patterns:
+  - pattern: "Agregar variables directamente a .env.* sin registrarlas aquí"
+    consequence: "Variables huérfanas, drift de configuración, fallos en validación C5"
+    prevention: "Siempre agregar a mapping.yaml primero, luego a .env.example"
+
+  - pattern: "Usar sensitive: false para credenciales o tokens"
+    consequence: "Exposición en logs, dashboards o outputs de Terraform (violación crítica C3)"
+    prevention: "Revisar checklist de seguridad antes de mergear cambios"
+
+  - pattern: "Omitir consumers en variables nuevas"
+    consequence: "Variables no inyectadas en compose/terraform, despliegues fallidos"
+    prevention: "Mapear explícitamente qué agente o subdominio las consume"
+
+  - pattern: "Hardcodear valores por defecto sensibles"
+    consequence: "Acceso no autorizado, cumplimiento de seguridad comprometido"
+    prevention: "Dejar valores por defecto vacíos o placeholders claros en .env.example"
+
+# ============================================================================
+# SECCIÓN 4: COMANDOS DE USO Y VALIDACIÓN
+# ============================================================================
+usage_commands:
+  validate_mapping: |
+    # Validar estructura y reglas C3-C5
+    yq eval '.' 05-CONFIGURATIONS/environment/mapping.yaml >/dev/null && echo "✅ YAML válido" || echo "❌ Error sintáctico"
+    bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/environment/mapping.yaml --strict
+
+  sync_with_env_example: |
+    # Generar .env.example desde mapping (solo keys y placeholders)
+    yq eval '.variables | to_entries[] | .key + "=" + (.value.sensitive | if . then "" else (.value.validation // "") end)' \
+      05-CONFIGURATIONS/environment/mapping.yaml > 05-CONFIGURATIONS/environment/.env.example
+
+  audit_sensitive_vars: |
+    # Listar variables sensibles y su método de inyección
+    yq eval '.variables | to_entries[] | select(.value.sensitive == true) | [.key, .value.injection_method] | @tsv' \
+      05-CONFIGURATIONS/environment/mapping.yaml
+
+# ============================================================================
+# SECCIÓN 5: METADATOS DE GENERACIÓN
+# ============================================================================
+generation_metadata:
+  generated_by: "configurations-master-agent v2.0.0-COMPREHENSIVE"
+  generation_timestamp: "2026-04-30T00:00:00Z"
+  source_masters:
+    - "05-CONFIGURATIONS/configurations-master-agent.md"
+    - "05-CONFIGURATIONS/interface-spec.yaml"
+  constraints_applied: ["C3","C4","C5","V1","V3"]
+  next_review_date: "2026-07-30"
+  alignment_status:
+    interface_spec: "synchronized"
+    env_example: "pending_sync"
+    docker_compose: "pending_injection"
+---

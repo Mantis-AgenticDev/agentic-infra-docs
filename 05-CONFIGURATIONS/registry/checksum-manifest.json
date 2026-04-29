@@ -1,0 +1,327 @@
+{
+  "artifacts": {
+    "05-CONFIGURATIONS/interface-spec.yaml": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "3655fed7cb3656acdf89b72df1584b119618ffeec2347cb2517043628b339d5c",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/terraform/backend.tf": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "7f1a3e2e5c468e3c87110e28e322888f035b1562ab9f03213e2216fa74444281",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/scripts/deploy-all.sh": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "6945152a9bc836724d438e7d5c55fe6ada025b69cc3dbc5e37ffe63c4146c92a",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/environment/mapping.yaml": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "a30899eeda9677a93ac2d46f3a8775bffe0935035499ec2da4fe47185115ad0a",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/terraform/modules/vps-base/main.tf": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "01b7e36d59dec7ed4fbb1a117f609e66f88ac855fa350049c8301265fac7c084",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/terraform/modules/postgres-rls/main.tf": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "e507ecc8e2e4b2a38b27b631b0434c07d7114a38f05164c44c0552a4899a635a",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/terraform/modules/qdrant-cluster/main.tf": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "bb3858b11e6f36b85524a7cad8cfcc0635cbbbb9155906d474a45e6f4c265ca9",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/scripts/onboard-tenant.sh": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "89165a612057674830f628dce1b11603abaebf7c60bde89d2a372385200497bf",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/security/vps-hardening.sh": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "a5e08e40c9ba0533d00971f4f3c65e7db4123f121e11bab8f7885f7059670d25",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    ".github/workflows/integrity-check.yml": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "66d9a6dd43a731622a287e3896bba143bf826e619f57290b1ff1f92402145121",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    ".github/workflows/validate-skill.yml": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "337a22a5900ac04e02bef4fdb89b92e49690fb056cc071cd045684fb1c3c93fa",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/scripts/health-check.sh": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "0643ac32702d67bf24ab62c8cad9fb40aed5f1fdd232bb6b208a2fa7b694ff12",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/scripts/validate-against-specs.sh": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "3808707581a6a59864dd5c8266d85f2ebded4bde78d6a786b204ed52763d655c",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/environment/.env.example": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "5deb0e8f544c168ff8f22790ff9162cd8a439fbdbe2f1d2a79dc600dd347452c",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/templates/skill-template.md": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "488d54f0da705cb35435be721d1ebb8fdadad48821553913175aa8b6b071af2c",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/templates/terraform-module-template/main.tf": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "ef944def0a5403127d2801c4cb1c241db1e126daf26f860249305e77df1894dc",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    },
+    "05-CONFIGURATIONS/configurations-master-agent.md": {
+      "version": "2.0.0-COMPREHENSIVE",
+      "sha256": "2c295ce431f474a897078d399b84d1f495afcb414b038ba0c57ab185bac1ec31",
+      "last_modified": "2026-04-29T18:06:16Z",
+      "validated_by": "orchestrator-engine.sh",
+      "constraints": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "V1",
+        "V2",
+        "V3"
+      ]
+    }
+  }
+}

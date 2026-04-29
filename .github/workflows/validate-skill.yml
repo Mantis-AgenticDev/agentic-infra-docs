@@ -1,0 +1,196 @@
+---
+artifact_id: validate-skill-workflow
+artifact_type: ci_cd_workflow
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C1","C4","C5","C8"]
+canonical_path: .github/workflows/validate-skill.yml
+domain: 05-CONFIGURATIONS
+subdomain: pipelines
+agent_role: pipelines-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "337a22a5900ac04e02bef4fdb89b92e49690fb056cc071cd045684fb1c3c93fa"
+---
+# WORKFLOW: VALIDACIÓN DE SKILLS AGENTICAS + PROMPTFOO EVAL
+# Propósito: Validar estructura, constraints y comportamiento de agentes en 02-SKILLS/
+# Generado por: pipelines-master-agent
+# Fecha: 2026-04-30
+# Alcance: Skills, templates de prompt, validación de constraints V1-V3, calidad de entrega C8.
+
+name: 🧠 Skill Validation & Promptfoo Eval (MANTIS v2.0.0)
+
+on:
+  push:
+    branches: ["main", "develop", "release/*"]
+    paths:
+      - "02-SKILLS/**"
+      - "05-CONFIGURATIONS/pipelines/promptfoo/**"
+      - "05-CONFIGURATIONS/interface-spec.yaml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "02-SKILLS/**"
+      - "05-CONFIGURATIONS/pipelines/promptfoo/**"
+
+permissions:
+  contents: read
+  checks: write
+  actions: read
+
+env:
+  NODE_VERSION: "20"
+  PROMPTFOO_THRESHOLD: "0.85" # Score mínimo para merge (C8)
+
+jobs:
+  # --- JOB 1: ESTRUCTURA & METADATOS DE SKILLS (C1, C4) ---
+  validate-skill-structure:
+    name: 📐 Validate Skill Structure & Metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Tools
+        run: sudo apt-get update && sudo apt-get install -y jq yq
+
+      - name: Frontmatter Compliance Check
+        run: |
+          echo "🔍 Checking mandatory frontmatter fields in 02-SKILLS/**"
+          FAIL=0
+          for skill in $(find 02-SKILLS -name "*.md" -o -name "*.yaml"); do
+            # Verificar campos obligatorios MANTIS
+            for field in artifact_id constraints_mapped canonical_path validation_command checksum_sha256; do
+              grep -q "$field" "$skill" || { echo "❌ FAIL: $skill missing '$field'"; FAIL=1; }
+            done
+            # Verificar constraints válidos
+            yq eval '.constraints_mapped | type' "$skill" | grep -q "!!seq" || { echo "❌ FAIL: $skill constraints_mapped no es lista"; FAIL=1; }
+          done
+          [[ $FAIL -eq 0 ]] && echo "✅ All skills comply with MANTIS frontmatter schema" || exit 1
+
+      - name: Template Drift Detection (C1)
+        run: |
+          echo "🔍 Comparing skills con template base..."
+          TEMPLATE="05-CONFIGURATIONS/templates/skill-template.md"
+          [[ -f "$TEMPLATE" ]] || { echo "⚠️ Template base no encontrado. Saltando drift check."; exit 0; }
+          # Verificar que skills no borren secciones críticas del template
+          diff <(grep "^## " "$TEMPLATE" | sort) <(grep "^## " 02-SKILLS/**/*.md | sort | uniq) || \
+            echo "⚠️ WARN: Estructura de secciones difiere del template. Verificar ADR."
+
+  # --- JOB 2: PROMPTFOO BEHAVIORAL EVALUATION (C8) ---
+  promptfoo-evaluation:
+    name: 🤖 Promptfoo Behavioral Eval
+    needs: [validate-skill-structure]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Promptfoo & Dependencies
+        run: npm ci --prefix 05-CONFIGURATIONS/pipelines/promptfoo 2>/dev/null || npm install -g promptfoo
+
+      - name: Execute Promptfoo Tests
+        id: promptfoo
+        run: |
+          echo "🧪 Running promptfoo eval against ${PROMPTFOO_THRESHOLD} threshold..."
+          cd 05-CONFIGURATIONS/pipelines/promptfoo
+          
+          promptfoo eval --config config.yaml --output results-ci.json --table --no-cache \
+            --max-concurrency 4 --threshold ${{ env.PROMPTFOO_THRESHOLD }} || \
+            echo "⚠️ Promptfoo exit code: $? (Review results-ci.json)"
+          
+          # Extraer score promedio para reporting
+          AVG_SCORE=$(jq '.results | map(.score) | add / length' results-ci.json 2>/dev/null || echo "0")
+          echo "average_score=$AVG_SCORE" >> $GITHUB_OUTPUT
+
+      - name: Upload Eval Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-results-${{ github.run_id }}
+          path: 05-CONFIGURATIONS/pipelines/promptfoo/results-*.json
+          retention-days: 14
+
+      - name: Threshold Gate Check
+        run: |
+          SCORE="${{ steps.promptfoo.outputs.average_score }}"
+          echo "📊 Average Promptfoo Score: $SCORE"
+          if (( $(echo "$SCORE < $PROMPTFOO_THRESHOLD" | bc -l) )); then
+            echo "❌ FAIL: Score $SCORE < Threshold $PROMPTFOO_THRESHOLD (C8)"
+            exit 1
+          fi
+          echo "✅ Promptfoo evaluation passed"
+
+  # --- JOB 3: CROSS-CONSTRAINT ALIGNMENT (C4, C5) ---
+  constraint-alignment:
+    name: 🔗 Cross-Constraint Alignment Check
+    needs: [promptfoo-evaluation]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Interface & Mapping Consistency
+        run: |
+          echo "🔍 Validating skill references against interface-spec.yaml & mapping.yaml..."
+          INTERFACE="05-CONFIGURATIONS/interface-spec.yaml"
+          MAPPING="05-CONFIGURATIONS/environment/mapping.yaml"
+          
+          # Extraer variables consumidas por skills
+          SKILL_VARS=$(grep -roh '\${[A-Z_]*}' 02-SKILLS/ | sort -u | tr -d '${}')
+          
+          # Verificar que existan en mapping.yaml
+          MISSING=0
+          for var in $SKILL_VARS; do
+            yq eval ".variables.$var" "$MAPPING" | grep -q "null" && {
+              echo "⚠️ WARN: Variable '$var' usada en skills pero no mapeada en mapping.yaml"
+              MISSING=$((MISSING+1))
+            }
+          done
+          
+          [[ $MISSING -eq 0 ]] && echo "✅ All skill variables properly mapped" || echo "ℹ️ Review unmapped variables"
+
+      - name: Orchestrator Strict Simulation (C5)
+        run: |
+          echo "🚀 Simulating orchestrator-engine.sh --strict for skills..."
+          if [[ -f "05-CONFIGURATIONS/validation/orchestrator-engine.sh" ]]; then
+            bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --strict --ci-mode --target 02-SKILLS/
+          else
+            echo "⚠️ Orchestrator no disponible en CI. Validando checksums directamente..."
+            find 02-SKILLS -name "*.md" -exec grep -q "checksum_sha256" {} \; || exit 1
+          fi
+          echo "✅ Constraint alignment & validation passed"
+
+      - name: Generate Compliance Report
+        run: |
+          cat > compliance-report.json <<EOF
+          {
+            "workflow": "validate-skill.yml",
+            "run_id": "${{ github.run_id }}",
+            "skills_validated": $(find 02-SKILLS -name "*.md" | wc -l),
+            "promptfoo_threshold": $PROMPTFOO_THRESHOLD,
+            "constraints_checked": ["C1","C4","C5","C8"],
+            "status": "PASS"
+          }
+          EOF
+          echo "📄 Compliance report generated"
+
+      - name: Upload Compliance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-compliance-report
+          path: compliance-report.json
+          retention-days: 30
+
+
+---

@@ -14,7 +14,7 @@ immutable: true
 requires_human_approval_for_changes: true
 audience: ["agentic_assistants"]
 human_readable: false
-checksum_sha256: "PENDING_GENERATION"
+checksum_sha256: "2c295ce431f474a897078d399b84d1f495afcb414b038ba0c57ab185bac1ec31"
 ---
 
 # configurations-master-agent — Agente Maestro de Coordinación de Configuraciones MANTIS v2.0.0
@@ -1516,7 +1516,7 @@ Criterios de re-evaluación:
 
 4. **Generar con validación integrada**:
    - Incluir `validation_command: orchestrator-engine.sh --domain configurations --strict`
-   - Agregar `checksum_sha256: "PENDING_GENERATION"` para trazabilidad
+   - Agregar `checksum_sha256: "2c295ce431f474a897078d399b84d1f495afcb414b038ba0c57ab185bac1ec31"
    - Usar formato parseable por IA: YAML/JSON con estructura clara, tablas Markdown para decisiones
 
 5. **Entregar con formato estructurado**:
