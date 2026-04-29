@@ -22,7 +22,8 @@ activation_rule: >
 
 # 📊 TRAZABILIDAD
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file IA-QUICKSTART.md --mode headless --json"
-checksum_sha256: "PENDING_GENERATION"
+checksum_sha256: "90d121b6aa814226fbe908bc99ef9166bc5d049fb79b43b95e50068295495294"
+
 ---
 
 # 🚀 ACTIVACIÓN INMEDIATA

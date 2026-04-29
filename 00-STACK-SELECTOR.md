@@ -13,7 +13,7 @@ read_after: ["IA-QUICKSTART.md"]
 read_before_generation: true
 ai_role: "routing_oracle"
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-STACK-SELECTOR.md --mode headless --json"
-checksum_sha256: "PENDING_GENERATION"
+checksum_sha256: "9826eb39ae85bbc59f1b89585ffc795cb0c64a9e025618fb67266a18733d151a"
 llm_oriental_optimized: true
 human_readable: false
 audience: ["agentic_assistants"]
