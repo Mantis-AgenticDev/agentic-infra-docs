@@ -1,750 +1,962 @@
 ---
 canonical_path: "/00-STACK-SELECTOR.md"
-artifact_id: stack-selector-canonical
-version: "1.0.0"
-artifact_type: governance_oracle
-audience: ["human_developers", "agentic_assistants", "newcomers"]
-ai_optimized: true
-llm_oriental_friendly: true
-wikilinks_enabled: true
-constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
-vector_constraints_mapped: ["V1", "V2", "V3"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-STACK-SELECTOR.md --mode headless --json"
+artifact_id: "stack-selector-kernel"
+artifact_type: "routing_kernel"
+version: "2.0.0-PURE-JSON"
+mode_gate_required: false
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","V1","V2","V3"]
 tier: 3
 immutable: true
 requires_human_approval_for_changes: true
-related_files:
-  - "[[PROJECT_TREE.md]]"
-  - "[[IA-QUICKSTART.md]]"
-  - "[[AI-NAVIGATION-CONTRACT.md]]"
-  - "[[GOVERNANCE-ORCHESTRATOR.md]]"
-  - "[[05-CONFIGURATIONS/validation/norms-matrix.json]]"
-  - "[[01-RULES/harness-norms-v3.0.md]]"
-  - "[[06-PROGRAMMING/00-INDEX.md]]"
+read_order: 2
+read_after: ["IA-QUICKSTART.md"]
+read_before_generation: true
+ai_role: "routing_oracle"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-STACK-SELECTOR.md --mode headless --json"
 checksum_sha256: "PENDING_GENERATION"
+llm_oriental_optimized: true
+human_readable: false
+audience: ["agentic_assistants"]
 ---
-
-# 📄 00-STACK-SELECTOR.md – MOTOR DE DECISIÓN CANÓNICO
-
-> **Nota para lectores nuevos en desarrollo:** Este documento está diseñado con comentarios educativos (`<!-- como este -->`) y explicaciones paso a paso. Si eres principiante, lee las secciones en orden. Si eres experto, salta a la matriz JSON al final.
- 
- 
-# 🧭 STACK SELECTOR: Motor de Decisión para Desarrollo Colaborativo Humano+IA
-
-<!-- 
-【PARA PRINCIPIANTES】¿Qué es este archivo?
-Este documento es el "cerebro" que le dice a cualquier IA (Qwen, DeepSeek, MiniMax, Claude, etc.) 
-qué lenguaje, framework y estructura usar para cada tarea en el proyecto MANTIS AGENTIC.
-
-No es código. Es un contrato de gobernanza que previene errores antes de que ocurran.
--->
-
-## 1. 🎯 PROPÓSITO (Explicado para humanos)
-
-<!-- 
-【EDUCATIVO】Imagina que eres un nuevo desarrollador. 
-Llegas al proyecto y ves 7 lenguajes diferentes (Go, Python, Bash, SQL, TypeScript, YAML, pgvector). 
-¿Cómo sabes cuál usar para tu tarea?
-
-RESPUESTA: Consultas este archivo. Él te guía paso a paso.
--->
-
-Este archivo resuelve **tres preguntas críticas** antes de generar cualquier código:
-
-| Pregunta | Por qué importa | Cómo se responde aquí |
-|----------|----------------|----------------------|
-| **¿En qué modo estoy trabajando?** (Interno/Externo + Nivel de autonomía) | Define cuánta libertad tiene la IA y qué validaciones aplicar | Sección 2: Matriz de 6 modos (A1-B3) |
-| **¿Dónde debe vivir el artefacto?** (Ruta canónica) | La ubicación dicta el lenguaje permitido (LANGUAGE LOCK) | Sección 3: Mapa ruta→lenguaje desde `[[PROJECT_TREE.md]]` |
-| **¿Qué normas debo aplicar?** (C1-C8, V1-V3) | Garantiza seguridad, multi-tenancy y calidad automática | Sección 4: Mapeo desde `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` |
-
-> 🔐 **Regla de Oro para IA y humanos**: Si una combinación ruta+lenguaje+constraint no está explícita en este documento, **NO EXISTE**. No inventes. Detén la ejecución y solicita aclaración.
-
----
-
-## 2. 🔄 MATRIZ DE MODOS OPERATIVOS (A1-B3)
-
-<!-- 
-【EDUCATIVO】El sistema opera en 6 modos. 
-Cada modo combina: 
-- CONTEXTO: ¿Es para el proyecto interno (A) o para un cliente (B)?
-- AUTONOMÍA: ¿La IA asiste (1), genera código (2) o despliega automático (3)?
-
-Esto no es opcional. Cada modo tiene reglas de validación diferentes.
--->
-
-```mermaid
-graph TD
-    A[Solicitud] --> B{¿Contexto?}
-    B -->|Interno (proyecto)| C[Modos A1/A2/A3]
-    B -->|Externo (cliente)| D[Modos B1/B2/B3]
-    
-    C --> E{¿Autonomía?}
-    D --> F{¿Autonomía?}
-    
-    E -->|Asistido| A1[A1: Tier 1 - Revisión humana]
-    E -->|Auto-gen| A2[A2: Tier 2 - Merge automático]
-    E -->|Auto-deploy| A3[A3: Tier 3 - ZIP desplegable]
-    
-    F -->|Asistido| B1[B1: Tier 1 - Propuesta cliente]
-    F -->|Auto-gen| B2[B2: Tier 2 - Código integrable]
-    F -->|Auto-deploy| B3[B3: Tier 3 - Paquete producción]
-```
-
-### 2.1 Tabla de Decisión por Modo
-
-<!-- 
-【PARA IA】Esta tabla es ejecutable. 
-Cada fila define: modo, carpeta destino, lenguaje permitido, constraints y formato de entrega.
--->
-
-| Modo | Carpeta Destino (desde `[[PROJECT_TREE.md]]`) | Lenguaje Primario | Framework / Herramienta | Constraints Aplicables | Formato de Entrega |
-|------|-----------------------------------------------|-------------------|------------------------|----------------------|-------------------|
-| **A1, B1** | `00-CONTEXT/`, `01-RULES/`, `02-SKILLS/*/` | Markdown + YAML frontmatter | `yamllint`, `validate-frontmatter.sh` | C5 (frontmatter), C8 (si menciona logging) | Pantalla / Editor (Tier 1) |
-| **A1, B1** | `04-WORKFLOWS/diagrams/` | Mermaid (en Markdown) | - | C5 | Pantalla / Editor |
-| **A2, B2** | `05-CONFIGURATIONS/scripts/` | Bash | `shellcheck`, `jq` | C1, C2, C3, C4, C5, C6, C7, C8 | Código fuente + validation_command |
-| **A2, B2** | `06-PROGRAMMING/bash/` | Bash | Patrones de `bash/00-INDEX.md` | C1-C8 | Código fuente + ejemplos ✅/❌/🔧 |
-| **A2, B2** | `06-PROGRAMMING/python/` | Python | LangChain, FastAPI, Pydantic | C1-C8 | Código fuente + type hints |
-| **A2, B2** | `06-PROGRAMMING/javascript/` | TypeScript | Node.js, Express, n8n webhooks | C1-C8 | Código fuente + ESLint config |
-| **A2, B2** | `06-PROGRAMMING/sql/` | SQL (genérico) | PostgreSQL, MySQL | C4 (tenant_id), C5 (hashes) | Queries con RLS + tenant enforcement |
-| **A2, B2** | `02-SKILLS/BASE DE DATOS-RAG/` | SQL + pgvector | PostgreSQL + pgvector | C4 (mandatory) + V1-V3 (contextual) | Queries vectoriales con tenant isolation |
-| **A3, B3** | `06-PROGRAMMING/go/` | **Go** (prioritario) | Gin, Cobra, Viper | C1-C8 + LANGUAGE LOCK (cero pgvector) | Binario estático + Dockerfile + manifest |
-| **A3, B3** | `05-CONFIGURATIONS/docker-compose/` | YAML | Docker Compose v3.8+ | C1-C8 (todas mandatory) | docker-compose.yml + healthcheck + ZIP |
-| **A3, B3** | `05-CONFIGURATIONS/terraform/modules/` | HCL (Terraform) | Terraform 1.5+ | C1-C8 + sensitive=true | Módulo con validation blocks + outputs |
-| **A3, B3** | `deploy/` (nueva) | Bash + YAML + Terraform | Scripts de orquestación | C1-C8 + checksums SHA256 | ZIP con manifest.json + deploy.sh + rollback.sh |
-
-> ⚠️ **LANGUAGE LOCK CRÍTICO**: 
-> - `06-PROGRAMMING/go/` → **PROHIBIDO** usar operadores pgvector (`<->`, `<=>`, `<#>`, `vector(n)`, `USING hnsw/ivfflat`). 
-> - `06-PROGRAMMING/sql/` → **PROHIBIDO** usar operadores pgvector. Solo SQL estándar + C4.
-> - `06-PROGRAMMING/postgresql-pgvector/` → **ÚNICO** lugar permitido para V1-V3. Requiere `artifact_type: skill_pgvector`.
-
----
-
-## 3. 🗺️ MAPA DE RUTAS CANÓNICAS → LENGUAJE
-
-<!-- 
-【EDUCATIVO】La estructura del repositorio ES la decisión. 
-No elijas lenguaje primero. Primero identifica DÓNDE va el archivo. 
-La carpeta te dice QUÉ lenguaje usar.
-
-Ejemplo: Si tu tarea es "script de backup", PROJECT_TREE.md te dice que va en 05-CONFIGURATIONS/scripts/. 
-Esa carpeta → Bash. Fin de la discusión.
--->
-
-### 3.1 Tabla de Enrutamiento por Carpeta
-
-| Carpeta Canónica | Lenguaje Obligatorio | Extensión | Por qué esta decisión |
-|-----------------|---------------------|-----------|----------------------|
-| `00-CONTEXT/` | Markdown | `.md` | Documentación base, sin ejecución |
-| `01-RULES/` | Markdown | `.md` | Normas canónicas, legibles por humanos |
-| `02-SKILLS/AI/` | Markdown + ejemplos de código | `.md` | Patrones de integración, no código ejecutable |
-| `02-SKILLS/INFRAESTRUCTURA/` | Markdown + snippets Bash/YAML | `.md` | Guías de infra, código en ejemplos |
-| `02-SKILLS/BASE DE DATOS-RAG/` | Markdown + SQL inline | `.md` | Documentación de queries, SQL en bloques |
-| `03-AGENTS/*/` | Markdown + JSON/Python snippets | `.md` | Definiciones de agentes, lógica en ejemplos |
-| `04-WORKFLOWS/n8n/` | JSON (n8n export) | `.json` | Workflows ejecutables, validados por schema |
-| `05-CONFIGURATIONS/scripts/` | **Bash** | `.sh` | Scripts operativos, portables, sin dependencias |
-| `05-CONFIGURATIONS/docker-compose/` | **YAML** | `.yml` | Configuración de contenedores, estándar Docker |
-| `05-CONFIGURATIONS/terraform/modules/` | **HCL (Terraform)** | `.tf` | Infraestructura como código, idempotente |
-| `06-PROGRAMMING/bash/` | **Bash** | `.go.md` (patrones documentados) | Patrones reutilizables para scripts |
-| `06-PROGRAMMING/python/` | **Python** | `.md` (patrones documentados) | Patrones para IA, APIs, procesamiento |
-| `06-PROGRAMMING/javascript/` | **TypeScript** | `.md` (patrones documentados) | Patrones para webhooks, n8n, frontend |
-| `06-PROGRAMMING/sql/` | **SQL estándar** | `.md` (patrones documentados) | Queries genéricas, sin extensiones vectoriales |
-| `06-PROGRAMMING/postgresql-pgvector/` | **SQL + pgvector** | `.md` (patrones documentados) | ÚNICO lugar para búsqueda vectorial |
-| `06-PROGRAMMING/go/` | **Go** | `.go.md` (patrones documentados) | Microservicios, alta concurrencia, binarios estáticos |
-| `06-PROGRAMMING/yaml-json-schema/` | **YAML + JSON Schema** | `.md` (patrones documentados) | Validación estructural de configuraciones |
-
-> 🔍 **Cómo usar esta tabla**: 
-> 1. Identifica la función de tu tarea (ej: "script de backup")
-> 2. Busca en `[[PROJECT_TREE.md]]` la carpeta canónica (ej: `05-CONFIGURATIONS/scripts/`)
-> 3. Esta tabla te dice: Bash + `.sh`
-> 4. Carga los patrones desde `06-PROGRAMMING/bash/00-INDEX.md`
-> 5. Genera aplicando constraints C1-C8 según `norms-matrix.json`
-
----
-
-## 4. 🛡️ APLICACIÓN DE NORMAS (C1-C8 + V1-V3)
-
-<!-- 
-【PARA PRINCIPIANTES】Las constraints son reglas de calidad. 
-C1-C8 son obligatorias en casi todo. 
-V1-V3 son especiales: solo aplican si trabajas con búsqueda vectorial (pgvector).
-
-No las memorices. Este documento y norms-matrix.json las aplican automáticamente.
--->
-
-### 4.1 Resumen Ejecutivo de Constraints
-
-| Constraint | Nombre | ¿Cuándo aplica? | Ejemplo de cumplimiento |
-|-----------|--------|----------------|------------------------|
-| **C1** | Límites de recursos | Scripts, servicios, containers | `mem_limit: 512M`, `timeout: 30s` |
-| **C2** | Concurrencia/CPU | Servicios concurrentes | `cpus: 0.5`, `pids_limit: 100` |
-| **C3** | Zero Hardcode Secrets | TODO con datos sensibles | `${DB_PASS:?missing}`, `sensitive = true` |
-| **C4** | Tenant Isolation | Cualquier cosa multi-usuario | `WHERE tenant_id = $1`, labels con tenant |
-| **C5** | Contrato Estructural | Todos los artefactos | Frontmatter YAML válido, schema JSON |
-| **C6** | Cloud-Only Inference | Integraciones con LLMs | `https://api.openrouter.ai/v1` (no localhost:11434) |
-| **C7** | Resiliencia | Servicios, scripts críticos | `retry: 3`, `healthcheck:`, `rollback.sh` |
-| **C8** | Observabilidad | Servicios, pipelines | `logging: json`, `trace_id: ${TRACE_ID}` |
-| **V1** | Vector Dimension Declaration | **Solo** pgvector | `vector(1536)`, comentario con modelo de embedding |
-| **V2** | Distance Metric Explicit | **Solo** pgvector | `<=>` documentado como "cosine distance" |
-| **V3** | Index-Type Justified | **Solo** pgvector | `USING hnsw WITH (m=16, ef_construction=100)` + justificación |
-
-### 4.2 Matriz de Aplicación por Carpeta (Resumen de norms-matrix.json)
-
-<!-- 
-【PARA IA】Esta es la fuente de verdad para validación. 
-No inventes intensidades. Usa exactamente lo que dice norms-matrix.json.
--->
-
-| Carpeta | C3 (Secrets) | C4 (Tenant) | V1-V3 (Vector) | Validadores Activos |
-|---------|-------------|-------------|---------------|-------------------|
-| `00-CONTEXT/` | ⚪ | ⚪ | ⚪ (hard block) | `check-wikilinks.sh` |
-| `01-RULES/` | 🟢 | 🟢 | ⚪ (hard block) | `verify-constraints.sh`, `audit-secrets.sh` |
-| `02-SKILLS/AI/` | 🟢 | ⚪ | ⚪ (hard block) | `audit-secrets.sh`, `validate-frontmatter.sh` |
-| `02-SKILLS/BASE DE DATOS-RAG/` | 🔴 | 🔴 | 🟡 (contextual) | `check-rls.sh`, `schema-validator.py` |
-| `05-CONFIGURATIONS/scripts/` | 🔴 | 🔴 | ⚪ (hard block) | `shellcheck`, `audit-secrets.sh` |
-| `06-PROGRAMMING/go/` | 🔴 | 🔴 | ⚪ (hard block + LANGUAGE LOCK) | `gofmt`, `govulncheck`, `verify-constraints.sh` |
-| `06-PROGRAMMING/postgresql-pgvector/` | 🔴 | 🔴 | 🔴 (mandatory si usa pgvector) | `verify-constraints.sh --check-vector-*` |
-
-*Legenda*: 🔴 = mandatory (bloqueo si falla), 🟢 = applicable (advertencia), 🟡 = contextual (solo si el contenido lo requiere), ⚪ = not_applicable
-
----
-
-## 5. 🧭 PROTOCOLO DE NAVEGACIÓN PARA IA (PASO A PASO)
-
-<!-- 
-【EDUCATIVO】Este es el flujo que DEBE seguir cualquier IA antes de generar código. 
-Es determinista: mismos inputs → mismos outputs. 
-Si algo no está claro, DETENER y preguntar.
--->
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ PASO 0: CONFIRMACIÓN DE MODO (GATE HUMANO)              │
-├─────────────────────────────────────────────────────────┤
-│ Si el humano no especificó modo (A1/A2/A3/B1/B2/B3):    │
-│ 1. Mostrar menú de 6 opciones con descripciones claras  │
-│ 2. Esperar respuesta explícita (ej: "B2")               │
-│ 3. Si timeout (60s) → fallback a A1 con AUDIT_FLAG      │
-│ 4. Registrar: mode_selected=<CÓDIGO>, prompt_hash=<SHA> │
-└─────────────────────────────────────────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────┐
-│ PASO 1: CARGA DE CONTEXTO CANÓNICO                      │
-├─────────────────────────────────────────────────────────┤
-│ Leer en orden estricto:                                  │
-│ 1. [[PROJECT_TREE.md]] → resolver ruta destino          │
-│ 2. [[00-STACK-SELECTOR]] (este archivo) → lenguaje      │
-│ 3. [[05-CONFIGURATIONS/validation/norms-matrix.json]] → constraints │
-│ 4. [[GOVERNANCE-ORCHESTRATOR.md]] → tier y validación   │
-│ Si algún archivo no está disponible → NOTIFICAR y DETENER │
-└─────────────────────────────────────────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────┐
-│ PASO 2: VALIDACIÓN PRE-GENERACIÓN                       │
-├─────────────────────────────────────────────────────────┤
-│ Verificar:                                               │
-│ • ¿La ruta destino existe en PROJECT_TREE.md?           │
-│ • ¿El lenguaje asignado coincide con LANGUAGE LOCK?     │
-│ • ¿Las constraints declaradas ⊆ norms-matrix[carpeta]?  │
-│ Si NO → Error estructurado: "blocking_issue: X"         │
-└─────────────────────────────────────────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────┐
-│ PASO 3: GENERACIÓN CON PATRONES                         │
-├─────────────────────────────────────────────────────────┤
-│ 1. Cargar plantilla desde 05-CONFIGURATIONS/templates/  │
-│ 2. Aplicar frontmatter canónico con:                    │
-│    • canonical_path exacto                              │
-│    • constraints_mapped según norms-matrix              │
-│    • validation_command ejecutable                      │
-│ 3. Generar cuerpo con ≥10 ejemplos ✅/❌/🔧 (Tier 2-3)  │
-│ 4. Incluir comentarios educativos si artifact_type lo permite │
-└─────────────────────────────────────────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────┐
-│ PASO 4: VALIDACIÓN POST-GENERACIÓN                      │
-├─────────────────────────────────────────────────────────┤
-│ Ejecutar:                                               │
-│   bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \ │
-│     --file <ruta> --mode headless --json                │
-│ Esperar:                                                │
-│   • score >= 30                                         │
-│   • blocking_issues == []                               │
-│   • language_lock_violations == 0                       │
-│ Si falla → Iterar corrección (máx 3 intentos)           │
-└─────────────────────────────────────────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────┐
-│ PASO 5: ENTREGA SEGÚN TIER                              │
-├─────────────────────────────────────────────────────────┤
-│ Tier 1 (A1/B1): Pantalla + nota "Requiere revisión humana" │
-│ Tier 2 (A2/B2): Código + validation_command + checksum  │
-│ Tier 3 (A3/B3): ZIP con manifest.json + deploy.sh + rollback.sh │
-└─────────────────────────────────────────────────────────┘
-```
-
-> 💡 **Consejo para principiantes**: Si te pierdes en algún paso, vuelve al inicio. Este protocolo está diseñado para ser repetible y auditable.
-
----
-
-## 6. 🚫 ANTI-PATRONES (DECISIONES PROHIBIDAS)
-
-<!-- 
-【EDUCATIVO】Estos errores son comunes en principiantes. 
-Evítalos desde el inicio para ahorrar tiempo de depuración.
--->
-
-| Anti-patrón | Por qué está prohibido | Alternativa correcta |
-|------------|----------------------|---------------------|
-| **Elegir lenguaje antes que ruta** | Viola LANGUAGE LOCK, genera inconsistencias | Primero ruta (PROJECT_TREE.md) → luego lenguaje (esta tabla) |
-| **Usar Bash para orquestadores >200 líneas** | Inmantenible, sin tests, frágil | Go para lógica compleja, Bash solo para glue scripts |
-| **Hardcodear `tenant_id` o secrets** | Viola C3/C4, fuga de datos entre clientes | `${VAR:?missing}`, variables de entorno, secret managers |
-| **Aplicar V1-V3 en carpetas no-pgvector** | Violación crítica de LANGUAGE LOCK | V1-V3 solo en `06-PROGRAMMING/postgresql-pgvector/` |
-| **Omitir frontmatter o validation_command** | Rompe validación automática, Tier 1 imposible | Siempre incluir frontmatter canónico + command ejecutable |
-| **Generar sin confirmar modo (A1-B3)** | Deriva de gobernanza, validación inconsistente | Gate de modo obligatorio (Paso 0 del protocolo) |
-| **Inventar constraints no mapeadas** | Falsa sensación de seguridad, auditoría imposible | Solo usar C1-C8 y V1-V3 definidas en norms-matrix.json |
-
----
-
-## 7. 📚 GLOSARIO PARA PRINCIPIANTES
-
-<!-- 
-【EDUCATIVO】Términos técnicos explicados en lenguaje simple.
--->
-
-| Término | Significado simple | Ejemplo |
-|---------|-------------------|---------|
-| **Canonical Path** | La ruta "oficial" donde debe vivir un archivo en el proyecto | `06-PROGRAMMING/go/orchestrator-engine.go.md` |
-| **Frontmatter** | Metadatos al inicio de un archivo Markdown (entre `---`) | `version: "1.0.0"`, `constraints_mapped: ["C1","C3"]` |
-| **LANGUAGE LOCK** | Regla que prohíbe ciertos operadores en ciertas carpetas | No usar `<->` en `go/`, solo en `postgresql-pgvector/` |
-| **Tenant Isolation (C4)** | Aislar datos de cada cliente para que no se mezclen | `WHERE tenant_id = $1` en cada query |
-| **Tier 1/2/3** | Niveles de madurez: 1=borrador, 2=código listo, 3=desplegable | Tier 3 incluye healthcheck, rollback, checksums |
-| **Validation Command** | Comando que cualquiera puede ejecutar para verificar el artefacto | `bash orchestrator-engine.sh --file mi-archivo.md --json` |
-| **Wikilink** | Enlace interno al proyecto con doble corchete | `[[PROJECT_TREE.md]]` se resuelve a la ruta real |
-| **Constraint** | Regla de calidad que debe cumplirse | C3: "Nunca escribas contraseñas en el código" |
-
----
-
-## 8. 🔗 REFERENCIAS CANÓNICAS (WIKILINKS)
-
-<!-- 
-【PARA IA】Estos enlaces deben resolverse usando PROJECT_TREE.md. 
-No uses rutas relativas. Usa siempre la forma canónica [[RUTA]].
--->
-
-- `[[PROJECT_TREE.md]]` → Mapa maestro de rutas del repositorio
-- `[[IA-QUICKSTART.md]]` → Punto de entrada para IAs, define modos A1-B3
-- `[[AI-NAVIGATION-CONTRACT.md]]` → Reglas de interacción y navegación
-- `[[GOVERNANCE-ORCHESTRATOR.md]]` → Motor de validación y certificación por Tiers
-- `[[05-CONFIGURATIONS/validation/norms-matrix.json]]` → Matriz de aplicación de constraints por carpeta
-- `[[01-RULES/harness-norms-v3.0.md]]` → Definición textual de C1-C8
-- `[[01-RULES/language-lock-protocol.md]]` → Reglas de exclusión de operadores por lenguaje
-- `[[06-PROGRAMMING/00-INDEX.md]]` → Índice agregador de patrones por lenguaje
-- `[[05-CONFIGURATIONS/templates/skill-template.md]]` → Plantilla base para nuevos artefactos
-- `[[SDD-COLLABORATIVE-GENERATION.md]]` → Especificación de formato de artefactos
-
----
-
-## 9. 🧪 SANDBOX DE PRUEBA (OPCIONAL)
-
-<!-- 
-【PARA DESARROLLADORES】Pega esta sección en un chat nuevo para validar que la IA sigue el protocolo sin contexto previo.
--->
-
-```
-【TEST MODE: STACK-SELECTOR VALIDATION】
-Prompt de prueba: "Generar script de interconexión de VPS para cliente agrícola"
-
-Respuesta esperada de la IA:
-1. 【GATE MODO】Solicitar selección: [A1]...[B3]
-2. Si humano responde "B3":
-   - Cargar PROJECT_TREE.md → ruta: deploy/vps-interconnect/
-   - Consultar STACK-SELECTOR → lenguaje: Bash + YAML
-   - Cargar norms-matrix.json → constraints: C3🔴, C4🔴, C7🟢
-   - Aplicar LANGUAGE LOCK → Bash: cero pgvector
-3. Generar artefacto con:
-   - Frontmatter: canonical_path, constraints_mapped, validation_command
-   - Cuerpo: script Bash con ${VAR:?missing}, tenant_id en logs, timeout en SSH
-   - ≥10 ejemplos ✅/❌/🔧
-   - Bloque de validación: orchestrator-engine.sh --file ...
-4. Entregar: ZIP simulado con manifest.json + deploy.sh + README-DEPLOY.md
-
-Si la IA omite el Paso 1 o usa lenguaje incorrecto → FALLA DE GOBERNANZA.
-```
-
----
-
-## 10. 📦 METADATOS DE EXPANSIÓN (PARA FUTURAS VERSIONES)
-
-<!-- 
-【PARA MANTENEDORES】Nuevas secciones deben seguir este formato para no romper compatibilidad.
--->
 
 ```json
 {
-  "expansion_registry": {
-    "modes": {
-      "current": ["A1", "A2", "A3", "B1", "B2", "B3"],
-      "extensible": true,
-      "schema": "enum[A1..B3]",
-      "addition_requires": ["IA-QUICKSTART.md update", "GOVERNANCE-ORCHESTRATOR.md sync"]
+  "stack_selector_kernel": {
+
+    "metadata": {
+      "artifact_id": "stack-selector-kernel",
+      "version": "2.0.0-PURE-JSON",
+      "artifact_type": "routing_kernel",
+      "canonical_path": "/00-STACK-SELECTOR.md",
+      "read_order": 2,
+      "read_after": "IA-QUICKSTART.md",
+      "read_before_generation": true,
+      "ai_role": "routing_oracle",
+      "purpose": "Single source of truth for: language resolution, agent assignment, constraint mapping, harness selection, infra profiling, and language override governance.",
+      "anti_drift_policy": "This file is the ONLY place where language and agent decisions are made. Any deviation must be recorded as AUDIT_FLAG=routing_override with justification.",
+      "human_readable": false,
+      "changes_in_this_version": "Full rewrite as pure JSON routing kernel. Separated from IA-QUICKSTART. Added language override governance, agent fiscalization, token budget policy, and session token resolution."
     },
-    "languages": {
-      "current": ["bash", "python", "javascript", "sql", "postgresql-pgvector", "go", "yaml-json-schema"],
-      "extensible": true,
-      "addition_requires": ["PROJECT_TREE.md update", "norms-matrix.json extension", "LANGUAGE LOCK definition"]
+
+    "session_token_resolution": {
+      "description": "Resolves all dynamic tokens required before any bundle can be loaded. Must execute BEFORE any artifact generation.",
+      "tokens": {
+        "{ia_name}": {
+          "resolution_order": 0,
+          "source": "user_input_at_session_start",
+          "prompt": "Identificador de sesión para esta IA (ej: claude-session-01, qwen-dev-02)",
+          "default": "ia-unnamed",
+          "used_in": ["chronique_protocol", "audit_logs", "08-LOGS/chronique-ia/{ia_name}/"],
+          "on_missing": "use_default_and_flag: AUDIT_FLAG=ia_name_not_provided"
+        },
+        "{language}": {
+          "resolution_order": 1,
+          "source": "routing_rules",
+          "resolution_method": "match task description + target path against routing_rules[*].pattern",
+          "fallback_chain": [
+            "1. Explicit path match in routing_rules",
+            "2. Task keyword match in language_keyword_map",
+            "3. User explicit request → validate against override_governance",
+            "4. HALT_AND_AUDIT if no match"
+          ],
+          "on_missing": "HALT_AND_AUDIT: 'No se pudo resolver {language}. Proveer ruta canónica destino o descripción de tarea.'",
+          "on_invalid": "HALT_AND_AUDIT: 'Lenguaje {value} no registrado en agent_registry.'"
+        },
+        "{vertical_slug}": {
+          "resolution_order": 2,
+          "source": "user_selection_in_ACG_step_2",
+          "transform": "kebab-case lowercase",
+          "examples": {
+            "Odontología": "odontologia",
+            "Hotel/Posada": "hotel-posada",
+            "Restaurantes": "restaurantes",
+            "Instagram/Redes Sociales": "instagram-social-media",
+            "Corporate-KB": "corporate-kb"
+          },
+          "on_missing": "use_default: corporate-kb and flag: AUDIT_FLAG=vertical_not_specified"
+        }
+      },
+      "execution_guarantee": "ALL tokens resolved BEFORE loading any bundle. Token resolution failure = HALT. No partial loads."
     },
-    "constraints": {
-      "current_c": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-      "current_v": ["V1", "V2", "V3"],
-      "extensible": false,
-      "change_requires": ["harness-norms-v3.0.md update", "orchestrator-engine.sh extension", "human approval"]
-    }
-  },
-  "compatibility_rule": "Nuevas secciones deben usar formato ## 【N】<TÍTULO> y declarar EXPANSION_POINT en comentario HTML. La IA debe ignorar secciones desconocidas sin fallar."
-}
-```
 
----
-
-<!-- 
-═══════════════════════════════════════════════════════════
-🤖 SECCIÓN PARA IA: ÁRBOL DE DECISIÓN JSON ENRIQUECIDO
-═══════════════════════════════════════════════════════════
-Esta sección contiene metadatos estructurados para consumo automático por agentes de IA.
-No está diseñada para lectura humana directa. Los humanos deben usar las secciones 1-10.
-
-Formato: JSON válido, con comentarios explicativos en claves "doc_*".
-Prioridad de ejecución: Las normas se aplican en el orden definido en "norm_execution_order".
-Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterales.
-═══════════════════════════════════════════════════════════
--->
-
-```json
-{
-  "stack_decision_tree": {
-    "version": "1.0.0",
-    "canonical_path": "/00-STACK-SELECTOR.md",
-    "artifact_type": "governance_oracle",
-    "llm_optimizations": {
-      "oriental_models_friendly": true,
-      "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
-      "numbered_sequences": true,
-      "stop_conditions_explicit": true,
-      "response_format_examples": true
-    },
-    "modes": {
-      "A1": {
-        "context": "internal",
-        "autonomy": "assisted",
-        "tier": 1,
-        "delivery_format": "screen_editor",
-        "validation_profile": "tier1-doc",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C5,C6 --mode headless --json",
-        "human_approval_required": true,
-        "auto_merge_allowed": false,
-        "doc_description": "Documentación interna, planos, configuración. Revisión humana obligatoria."
-      },
-      "A2": {
-        "context": "internal",
-        "autonomy": "auto_generation",
-        "tier": 2,
-        "delivery_format": "code_block_with_validation",
-        "validation_profile": "tier2-code",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --lint --mode headless --json",
-        "human_approval_required": false,
-        "auto_merge_allowed": true,
-        "ci_gate_required": true,
-        "doc_description": "Código validable para el proyecto interno. Merge automático tras gate CI."
-      },
-      "A3": {
-        "context": "internal",
-        "autonomy": "auto_deploy",
-        "tier": 3,
-        "delivery_format": "zip_with_manifest",
-        "validation_profile": "tier3-deploy",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --bundle --checksum --mode headless --json",
-        "human_approval_required": false,
-        "auto_merge_allowed": true,
-        "auto_deploy_allowed": true,
-        "requires_packager": true,
-        "doc_description": "Binarios, Docker, CI/CD listo para despliegue interno autónomo."
-      },
-      "B1": {
-        "context": "external",
-        "autonomy": "assisted",
-        "tier": 1,
-        "delivery_format": "screen_editor",
-        "validation_profile": "tier1-doc",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C5,C6 --mode headless --json",
-        "human_approval_required": true,
-        "client_customization_allowed": true,
-        "doc_description": "Propuestas, esquemas para cliente. El humano es responsable final de la entrega."
-      },
-      "B2": {
-        "context": "external",
-        "autonomy": "auto_generation",
-        "tier": 2,
-        "delivery_format": "integrable_code",
-        "validation_profile": "tier2-code",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --lint --mode headless --json",
-        "human_approval_required": false,
-        "client_integration_ready": true,
-        "doc_description": "Código fuente listo para que el cliente lo integre en su entorno."
-      },
-      "B3": {
-        "context": "external",
-        "autonomy": "auto_deploy",
-        "tier": 3,
-        "delivery_format": "production_zip",
-        "validation_profile": "tier3-deploy",
-        "validation_command_template": "orchestrator-engine.sh --file {path} --checks C1-C8 --bundle --checksum --mode headless --json",
-        "human_approval_required": false,
-        "client_deploy_ready": true,
-        "requires_packager": true,
-        "doc_description": "ZIP completo con manifiesto, scripts de despliegue y rollback, listo para producción del cliente."
+    "agent_registry": {
+      "description": "Canonical registry of all available master agents. Source of truth for agent loading.",
+      "agents": {
+        "bash": {
+          "id": "bash",
+          "master_agent_path": "06-PROGRAMMING/bash/bash-master-agent.md",
+          "language": "Bash",
+          "version_lock": ">=5.0",
+          "domain": "scripting, automation, CI/CD, deploy",
+          "tier_affinity": [1, 2, 3],
+          "mode_affinity": ["A2", "A3", "B2", "B3"],
+          "can_be_primary_in": ["A3", "B3"],
+          "can_be_support_in": ["A1", "A2", "B1", "B2"],
+          "harness": ["shellcheck", "audit-secrets.sh"],
+          "language_lock": {
+            "deny_operators": ["pgvector_operators", "<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION"
+          },
+          "infra_constraints": {
+            "reads_from_env": ["MANTIS_MEMORY_LIMIT_MB", "MANTIS_CPU_LIMIT", "MANTIS_INFRA_PROFILE"],
+            "never_hardcode": ["mem_limit", "cpu_quota", "timeout_seconds"]
+          },
+          "status": "REAL"
+        },
+        "go": {
+          "id": "go",
+          "master_agent_path": "06-PROGRAMMING/go/go-master-agent.md",
+          "language": "Go",
+          "version_lock": ">=1.21",
+          "domain": "microservices, high-concurrency, binary compilation, orchestration",
+          "tier_affinity": [2, 3],
+          "mode_affinity": ["A2", "A3", "B2", "B3"],
+          "can_be_primary_in": ["A2", "B2"],
+          "can_be_support_in": ["A3", "B3"],
+          "harness": ["gofmt", "govulncheck", "verify-constraints.sh --check-language-lock", "audit-secrets.sh"],
+          "language_lock": {
+            "deny_operators": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat", "pgx.Vector", "cosine_distance"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "deny_imports": ["pgvector", "pgvector-go"],
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION + suggest_pgvector_domain"
+          },
+          "infra_constraints": {
+            "reads_from_env": ["MANTIS_MEMORY_LIMIT_MB", "MANTIS_CPU_LIMIT"],
+            "binary_output": true,
+            "static_linking_preferred": true
+          },
+          "status": "REAL"
+        },
+        "javascript": {
+          "id": "javascript",
+          "master_agent_path": "06-PROGRAMMING/javascript/javascript-typescript-master-agent.md",
+          "language": "TypeScript",
+          "version_lock": "Node.js >=18 LTS, TypeScript >=5.0",
+          "domain": "webhooks, n8n Code Nodes, frontend, REST APIs",
+          "tier_affinity": [2, 3],
+          "mode_affinity": ["A2", "B2", "B3"],
+          "can_be_primary_in": ["B2"],
+          "can_be_support_in": ["A2", "A3", "B3"],
+          "harness": ["eslint", "tsc --noEmit", "audit-secrets.sh"],
+          "language_lock": {
+            "deny_operators": ["pgvector_operators", "<->", "<=>", "<#", "vector(n)"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION"
+          },
+          "status": "REAL"
+        },
+        "postgresql-pgvector": {
+          "id": "postgresql-pgvector",
+          "master_agent_path": "06-PROGRAMMING/postgresql-pgvector/postgresql-pgvector-rag-master-agent.md",
+          "language": "SQL + pgvector extension",
+          "version_lock": "PostgreSQL >=15, pgvector >=0.5.0",
+          "domain": "vector search, RAG pipelines, hybrid search, embedding storage",
+          "tier_affinity": [2, 3],
+          "mode_affinity": ["A2", "B2", "B3"],
+          "can_be_primary_in": ["A2", "B2"],
+          "can_be_support_in": ["B3"],
+          "harness": ["verify-constraints.sh --check-vector-dims", "check-rls.sh", "schema-validator.py"],
+          "language_lock": {
+            "exclusive_domain": "06-PROGRAMMING/postgresql-pgvector/",
+            "allowed_operators": ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat"],
+            "requires_artifact_type": "skill_pgvector",
+            "requires_tenant_isolation": true,
+            "violation_action": "N/A — this is the only domain where pgvector operators are permitted"
+          },
+          "mandatory_constraints": ["V1", "V3"],
+          "optional_constraints": ["V2"],
+          "status": "REAL"
+        },
+        "python": {
+          "id": "python",
+          "master_agent_path": "06-PROGRAMMING/python/python-master-agent.md",
+          "language": "Python",
+          "version_lock": ">=3.11",
+          "domain": "AI/ML pipelines, LangChain, FastAPI, data processing, RAG orchestration",
+          "tier_affinity": [2, 3],
+          "mode_affinity": ["A2", "B2", "B3"],
+          "can_be_primary_in": ["A2", "B2"],
+          "can_be_support_in": ["A1", "B1", "B3"],
+          "harness": ["mypy", "ruff", "schema-validator.py", "audit-secrets.sh"],
+          "language_lock": {
+            "deny_operators": ["pgvector_operators", "<->", "<=>", "<#", "vector(n)"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "note": "Python may call pgvector via psycopg2/asyncpg but vector operators are SQL-level, routed to postgresql-pgvector agent",
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION + route_to_pgvector_agent"
+          },
+          "status": "REAL"
+        },
+        "sql": {
+          "id": "sql",
+          "master_agent_path": "06-PROGRAMMING/sql/sql-master-agent.md",
+          "language": "SQL (standard)",
+          "version_lock": "ANSI SQL + PostgreSQL 15 / MySQL 8",
+          "domain": "schema design, migrations, reporting, tenant-safe queries",
+          "tier_affinity": [1, 2],
+          "mode_affinity": ["A1", "A2", "B1", "B2"],
+          "can_be_primary_in": ["A2", "B2"],
+          "can_be_support_in": ["A1", "B1", "B3"],
+          "harness": ["check-rls.sh", "audit-secrets.sh"],
+          "language_lock": {
+            "deny_operators": ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION + suggest_pgvector_domain"
+          },
+          "status": "REAL"
+        },
+        "yaml-json-schema": {
+          "id": "yaml-json-schema",
+          "master_agent_path": "06-PROGRAMMING/yaml-json-schema/yaml-json-schema-master-agent.md",
+          "language": "YAML + JSON Schema",
+          "version_lock": "YAML 1.2, JSON Schema Draft 2020-12",
+          "domain": "configuration, frontmatter, schemas, docker-compose, terraform variables, n8n exports",
+          "tier_affinity": [1, 2, 3],
+          "mode_affinity": ["A1", "A2", "A3", "B1", "B2", "B3"],
+          "can_be_primary_in": ["A1", "B1"],
+          "can_be_support_in": ["A2", "A3", "B2", "B3"],
+          "harness": ["yamllint", "validate-frontmatter.sh", "schema-validator.py"],
+          "language_lock": {
+            "deny_operators": ["pgvector_operators"],
+            "deny_constraints": ["V1", "V2", "V3"],
+            "violation_action": "BLOCKING: LANGUAGE_LOCK_VIOLATION"
+          },
+          "status": "REAL"
+        }
       }
     },
-    "routing_rules": [
-      {
-        "condition": "file_path starts_with '00-CONTEXT/' OR '01-RULES/'",
-        "language": "markdown",
-        "extension": ".md",
-        "primary_stack": "documentation",
-        "constraints_applicable": ["C5"],
-        "constraints_mandatory": [],
-        "language_lock": {
-          "deny_operators": [],
-          "deny_constraints": ["V1", "V2", "V3"],
-          "hard_block_violation": true
+
+    "mode_agent_matrix": {
+      "description": "Deterministic mapping of mode to agent invocation. Primary agent is loaded first, support agents loaded only if task requires them. Fiscalization rules prevent unauthorized agent substitution.",
+      "matrix": {
+        "A1": {
+          "primary_agent": "yaml-json-schema",
+          "support_agents": ["bash"],
+          "task_type": "documentation_structural_analysis",
+          "dominant_artifacts": [".md", ".json", ".yaml", "canonical_registry", "indexes"],
+          "harness_mandatory": ["validate-frontmatter.sh", "check-wikilinks.sh"],
+          "harness_optional": ["verify-constraints.sh --checks C5"],
+          "forbidden_agents": ["go", "python", "javascript", "sql", "postgresql-pgvector"],
+          "forbidden_reason": "A1 produces documentation artifacts only. Executable code agents are outside scope.",
+          "infra_constraint_active": false,
+          "language_override_policy": "DENY — A1 does not produce executable code. Override requests must redirect to A2.",
+          "delivery_format": "screen + human_review"
         },
-        "dependencies": ["PROJECT_TREE.md", "harness-norms-v3.0.md"],
-        "side_effects": ["update_wikilinks_index"],
-        "priority": 1,
-        "doc_description": "Documentación base y normas. Solo requiere frontmatter válido (C5)."
-      },
-      {
-        "condition": "file_path contains '06-PROGRAMMING/go/'",
-        "language": "go",
-        "extension": ".go.md",
-        "primary_stack": "microservices",
-        "constraints_applicable": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-        "constraints_mandatory": ["C3", "C4", "C5"],
-        "language_lock": {
-          "deny_operators": ["<->", "<=>", "<#", "vector(n)", "USING hnsw", "USING ivfflat"],
-          "deny_constraints": ["V1", "V2", "V3"],
-          "hard_block_violation": true,
-          "validator": "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/go/"
+        "A2": {
+          "primary_agent": "{language}",
+          "support_agents": ["bash", "yaml-json-schema"],
+          "task_type": "code_generation_with_harness",
+          "dominant_artifacts": [".go", ".py", ".ts", ".sql", ".sh", "tests", "migrations"],
+          "harness_mandatory": ["orchestrator-engine.sh", "verify-constraints.sh", "audit-secrets.sh"],
+          "harness_optional": ["schema-validator.py", "check-rls.sh"],
+          "forbidden_agents": [],
+          "language_override_policy": "ADVISORY — if user requests a language different from routing_rules resolution, evaluate via override_governance before accepting.",
+          "infra_constraint_active": true,
+          "infra_allowed": ["nano", "micro"],
+          "infra_blocked": ["standard", "large"],
+          "delivery_format": "code + validation_command + sha256"
         },
-        "dependencies": ["06-PROGRAMMING/go/00-INDEX.md", "norms-matrix.json"],
-        "side_effects": ["generate_binary_stub", "update_go_index"],
-        "priority": 10,
-        "doc_description": "Microservicios en Go. LANGUAGE LOCK estricto: cero operadores pgvector."
-      },
-      {
-        "condition": "file_path contains '06-PROGRAMMING/postgresql-pgvector/'",
-        "language": "sql_pgvector",
-        "extension": ".pgvector.md",
-        "primary_stack": "vector_search",
-        "constraints_applicable": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "V1", "V2", "V3"],
-        "constraints_mandatory": ["C3", "C4", "V1", "V3"],
-        "language_lock": {
-          "require_artifact_type": "skill_pgvector",
-          "require_vector_declaration": true,
-          "validator": "verify-constraints.sh --check-vector-dims --check-vector-index"
+        "A3": {
+          "primary_agent": "bash",
+          "support_agents": ["yaml-json-schema"],
+          "task_type": "ci_cd_infra_deploy",
+          "dominant_artifacts": [".tf", ".yml", ".sh", "docker-compose.yml", "deploy.zip"],
+          "harness_mandatory": ["health-check.sh", "packager-assisted.sh", "orchestrator-engine.sh"],
+          "harness_optional": ["sync-to-sandbox.sh"],
+          "required_output_artifacts": ["deploy.sh", "rollback.sh", "manifest.json"],
+          "forbidden_agents": ["python", "javascript"],
+          "forbidden_reason": "A3 produces infrastructure artifacts. Python/JS have no role in IaC output.",
+          "language_override_policy": "DENY — A3 stack is bash+yaml+terraform. No override accepted.",
+          "infra_constraint_active": true,
+          "infra_allowed": ["nano", "micro"],
+          "infra_blocked": ["standard", "large"],
+          "delivery_format": "zip + manifest.json + deploy.sh + rollback.sh"
         },
-        "dependencies": ["06-PROGRAMMING/postgresql-pgvector/00-INDEX.md", "norms-matrix.json"],
-        "side_effects": ["update_vector_schema_registry"],
-        "priority": 10,
-        "doc_description": "ÚNICO lugar para búsqueda vectorial. Requiere declaración explícita de dimensiones y justificación de índices."
-      },
-      {
-        "condition": "file_path contains '05-CONFIGURATIONS/docker-compose/'",
-        "language": "yaml",
-        "extension": ".yml",
-        "primary_stack": "container_orchestration",
-        "constraints_applicable": ["C1", "C2", "C3", "C4", "C5", "C7", "C8"],
-        "constraints_mandatory": ["C1", "C2", "C3", "C4", "C7", "C8"],
-        "language_lock": {
-          "deny_operators": [],
-          "deny_constraints": ["V1", "V2", "V3"],
-          "hard_block_violation": true
+        "B1": {
+          "primary_agent": "yaml-json-schema",
+          "support_agents": [],
+          "task_type": "proposal_architecture_planning",
+          "dominant_artifacts": ["proposal.md", "architecture-diagram.mermaid", "bootstrap-company-context.json"],
+          "harness_mandatory": ["validate-frontmatter.sh"],
+          "harness_optional": ["check-wikilinks.sh"],
+          "forbidden_agents": ["go", "python", "javascript", "bash", "sql", "postgresql-pgvector"],
+          "forbidden_reason": "B1 produces planning artifacts only. No executable code.",
+          "language_override_policy": "DENY — B1 does not produce code. Redirect to B2 if code is required.",
+          "infra_constraint_active": false,
+          "required_context": "05-CONFIGURATIONS/templates/bootstrap-company-context.json",
+          "delivery_format": "screen + client_review"
         },
-        "dependencies": ["05-CONFIGURATIONS/validation/norms-matrix.json"],
-        "side_effects": ["generate_healthcheck_stub", "update_deploy_manifest"],
-        "priority": 9,
-        "doc_description": "Configuración de contenedores. Todas las constraints de infra son mandatory."
+        "B2": {
+          "primary_agent": "{language}",
+          "support_agents": ["sql", "postgresql-pgvector"],
+          "task_type": "integrable_code_with_validation",
+          "dominant_artifacts": ["source_code", "tests", "docker-compose.dev.yml"],
+          "harness_mandatory": ["orchestrator-engine.sh", "check-rls.sh", "audit-secrets.sh"],
+          "harness_optional": ["schema-validator.py", "shellcheck"],
+          "rag_trigger": {
+            "condition": "task_description contains any of: ['RAG', 'vector', 'embedding', 'similarity', 'pgvector', 'semantic search']",
+            "action": "add postgresql-pgvector to support_agents",
+            "audit_flag": "rag_agent_activated"
+          },
+          "forbidden_agents": [],
+          "language_override_policy": "ADVISORY — evaluate via override_governance. Senior engineer must justify deviation from routing_rules.",
+          "infra_constraint_active": true,
+          "infra_profile_defaults": {
+            "B2": "nano",
+            "override_allowed_to": "micro"
+          },
+          "delivery_format": "integrable_code + validation_command + sha256"
+        },
+        "B3": {
+          "primary_agent": "bash",
+          "support_agents": ["yaml-json-schema", "sql"],
+          "task_type": "production_delivery_llave_en_mano",
+          "dominant_artifacts": [".zip", "deploy.sh", "rollback.sh", "manifest.json", "docker-compose.prod.yml"],
+          "harness_mandatory": ["health-check.sh", "packager-assisted.sh", "orchestrator-engine.sh", "audit-secrets.sh"],
+          "harness_optional": ["check-rls.sh", "schema-validator.py"],
+          "required_output_artifacts": ["deploy.sh", "rollback.sh", "manifest.json", "README-DEPLOY.md", "checksums.sha256"],
+          "forbidden_agents": ["python", "javascript"],
+          "forbidden_reason": "B3 is a delivery package. Python/JS are source concerns, not delivery concerns.",
+          "language_override_policy": "DENY — B3 delivery stack is fixed. No override accepted.",
+          "infra_constraint_active": true,
+          "infra_profile_default": "micro",
+          "delivery_format": "production_zip + manifest + deploy_scripts"
+        }
       }
-    ],
-    "norm_execution_order": {
-      "description": "Orden de aplicación de constraints durante validación. Críticas primero para fail-fast.",
-      "sequence": [
-        {"constraint": "C3", "reason": "Zero Hardcode Secrets - bloqueo crítico inmediato si falla"},
-        {"constraint": "C4", "reason": "Tenant Isolation - fuga de datos es inaceptable"},
-        {"constraint": "C5", "reason": "Contrato estructural - sin frontmatter válido, no hay validación posible"},
-        {"constraint": "C1", "reason": "Límites de recursos - previene DoS por configuración"},
-        {"constraint": "C6", "reason": "Cloud-only inference - seguridad de endpoints"},
-        {"constraint": "C2", "reason": "Concurrencia - estabilidad del sistema"},
-        {"constraint": "C7", "reason": "Resiliencia - tolerancia a fallos"},
-        {"constraint": "C8", "reason": "Observabilidad - auditabilidad post-mortem"},
-        {"constraint": "V1", "reason": "Vector dimensions - solo si aplica, después de C-constraints"},
-        {"constraint": "V2", "reason": "Distance metric - validación semántica de operadores"},
-        {"constraint": "V3", "reason": "Index justification - optimización justificada"}
-      ],
-      "fail_fast_constraints": ["C3", "C4", "C5"],
-      "contextual_constraints": ["C1", "C2", "C7", "C8", "V1", "V2", "V3"]
     },
-    "dependency_graph": {
-      "critical_infrastructure": [
-        "PROJECT_TREE.md",
-        "05-CONFIGURATIONS/validation/norms-matrix.json",
-        "01-RULES/harness-norms-v3.0.md",
-        "01-RULES/language-lock-protocol.md"
-      ],
-      "navigation_contracts": [
-        "IA-QUICKSTART.md",
-        "AI-NAVIGATION-CONTRACT.md",
-        "GOVERNANCE-ORCHESTRATOR.md"
-      ],
-      "pattern_indices": [
-        "06-PROGRAMMING/00-INDEX.md",
-        "06-PROGRAMMING/go/00-INDEX.md",
-        "06-PROGRAMMING/python/00-INDEX.md",
-        "06-PROGRAMMING/bash/00-INDEX.md",
-        "06-PROGRAMMING/sql/00-INDEX.md",
-        "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md",
-        "06-PROGRAMMING/javascript/00-INDEX.md",
-        "06-PROGRAMMING/yaml-json-schema/00-INDEX.md"
-      ],
-      "validation_toolchain": [
-        "05-CONFIGURATIONS/validation/orchestrator-engine.sh",
-        "05-CONFIGURATIONS/validation/verify-constraints.sh",
-        "05-CONFIGURATIONS/validation/audit-secrets.sh",
-        "05-CONFIGURATIONS/validation/check-rls.sh",
-        "05-CONFIGURATIONS/validation/schema-validator.py"
+
+    "routing_rules": {
+      "description": "Deterministic path-to-language mapping. Evaluated top-down, first match wins. Priority field breaks ties.",
+      "resolution_algorithm": "1. Match canonical path → exact or prefix. 2. Match task_keywords. 3. Match file extension. 4. Invoke override_governance if no match or conflict.",
+      "rules": [
+        {
+          "id": "RR-01",
+          "priority": 100,
+          "condition": "path_starts_with",
+          "patterns": ["00-CONTEXT/", "01-RULES/", "docs/"],
+          "language": "markdown",
+          "extension": ".md",
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C5"],
+          "constraints_applicable": ["C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["check-wikilinks.sh", "validate-frontmatter.sh"],
+          "infra_profile_irrelevant": true,
+          "task_keywords": ["documentation", "rules", "norms", "context", "readme"]
+        },
+        {
+          "id": "RR-02",
+          "priority": 100,
+          "condition": "path_contains",
+          "patterns": ["02-SKILLS/"],
+          "language": "markdown",
+          "extension": ".md",
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C5"],
+          "constraints_applicable": ["C3", "C4", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "harness": ["validate-frontmatter.sh", "validate-skill-integrity.sh"],
+          "infra_profile_irrelevant": true,
+          "task_keywords": ["skill", "skill file", "base de datos", "RAG skill", "documentation skill"]
+        },
+        {
+          "id": "RR-03",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/go/"],
+          "language": "go",
+          "extension": ".go",
+          "agent": "go",
+          "constraints_mandatory": ["C1", "C2", "C3", "C4", "C5", "C7", "C8"],
+          "constraints_applicable": ["C6"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat", "pgx.Vector", "pgvector"],
+          "harness": ["gofmt", "govulncheck", "verify-constraints.sh --check-language-lock --dir 06-PROGRAMMING/go/", "audit-secrets.sh"],
+          "infra_notes": "C1/C2 limits read from MANTIS_MEMORY_LIMIT_MB and MANTIS_CPU_LIMIT env vars. Never hardcode.",
+          "task_keywords": ["microservice", "binary", "orchestrator", "go service", "high concurrency", "saas-deployment", "packager"]
+        },
+        {
+          "id": "RR-04",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/postgresql-pgvector/", "02-SKILLS/BASE DE DATOS-RAG/"],
+          "language": "sql_pgvector",
+          "extension": ".sql",
+          "agent": "postgresql-pgvector",
+          "constraints_mandatory": ["C3", "C4", "V1", "V3"],
+          "constraints_applicable": ["C1", "C2", "C5", "C7", "C8", "V2"],
+          "constraints_hard_block": [],
+          "language_lock_violation": "NONE — exclusive pgvector domain",
+          "allowed_operators": ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat"],
+          "harness": ["verify-constraints.sh --check-vector-dims --check-vector-index", "check-rls.sh", "schema-validator.py"],
+          "requires_artifact_type": "skill_pgvector",
+          "requires_tenant_isolation": true,
+          "task_keywords": ["RAG", "vector", "embedding", "similarity search", "pgvector", "semantic search", "hybrid search", "RRF", "cosine distance"]
+        },
+        {
+          "id": "RR-05",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/python/"],
+          "language": "python",
+          "extension": ".py",
+          "agent": "python",
+          "constraints_mandatory": ["C1", "C3", "C4", "C5"],
+          "constraints_applicable": ["C2", "C6", "C7", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators_in_python_code"],
+          "language_lock_note": "Python may call pgvector via psycopg2/asyncpg. Vector operators are SQL-level — route SQL fragment to postgresql-pgvector agent. Python code itself must not contain raw pgvector operator strings.",
+          "harness": ["mypy", "ruff", "schema-validator.py", "audit-secrets.sh"],
+          "task_keywords": ["langchain", "langgraph", "fastapi", "pydantic", "openrouter", "pipeline", "rag orchestration", "webhook python"]
+        },
+        {
+          "id": "RR-06",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/javascript/"],
+          "language": "typescript",
+          "extension": ".ts",
+          "agent": "javascript",
+          "constraints_mandatory": ["C3", "C4", "C5"],
+          "constraints_applicable": ["C1", "C2", "C6", "C7", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["eslint", "tsc --noEmit", "audit-secrets.sh"],
+          "task_keywords": ["n8n code node", "webhook", "typescript", "javascript", "node.js", "express", "rest api js"]
+        },
+        {
+          "id": "RR-07",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/sql/"],
+          "language": "sql",
+          "extension": ".sql",
+          "agent": "sql",
+          "constraints_mandatory": ["C3", "C4"],
+          "constraints_applicable": ["C5", "C7", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat"],
+          "harness": ["check-rls.sh", "audit-secrets.sh"],
+          "task_keywords": ["schema", "migration", "tenant query", "reporting", "stored procedure", "standard sql", "rls", "row level security"]
+        },
+        {
+          "id": "RR-08",
+          "priority": 95,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/bash/", "05-CONFIGURATIONS/scripts/"],
+          "language": "bash",
+          "extension": ".sh",
+          "agent": "bash",
+          "constraints_mandatory": ["C1", "C2", "C3", "C7"],
+          "constraints_applicable": ["C4", "C5", "C6", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["shellcheck", "audit-secrets.sh", "verify-constraints.sh"],
+          "task_keywords": ["script", "shell", "bash", "automation", "cron", "deploy script", "health check", "backup", "sync"]
+        },
+        {
+          "id": "RR-09",
+          "priority": 90,
+          "condition": "path_contains",
+          "patterns": ["05-CONFIGURATIONS/docker-compose/"],
+          "language": "yaml",
+          "extension": ".yml",
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C1", "C2", "C3", "C4", "C7", "C8"],
+          "constraints_applicable": ["C5"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["yamllint", "validate-frontmatter.sh"],
+          "task_keywords": ["docker compose", "container", "service definition", "compose file", "vps config"]
+        },
+        {
+          "id": "RR-10",
+          "priority": 90,
+          "condition": "path_contains",
+          "patterns": ["05-CONFIGURATIONS/terraform/", "05-CONFIGURATIONS/terraform/modules/"],
+          "language": "hcl",
+          "extension": ".tf",
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C1", "C2", "C3", "C7"],
+          "constraints_applicable": ["C4", "C5", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["terraform validate", "tflint", "audit-secrets.sh"],
+          "terraform_rules": {
+            "sensitive_fields": "sensitive = true required for all credential outputs",
+            "backend_state": "remote state only, never local",
+            "variable_validation": "validation blocks mandatory for all input variables"
+          },
+          "task_keywords": ["terraform", "infrastructure as code", "IaC", "cloud provision", "module"]
+        },
+        {
+          "id": "RR-11",
+          "priority": 85,
+          "condition": "path_contains",
+          "patterns": ["06-PROGRAMMING/yaml-json-schema/", "05-CONFIGURATIONS/validation/schemas/"],
+          "language": "yaml_json_schema",
+          "extension": [".yaml", ".json"],
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C5"],
+          "constraints_applicable": ["C3"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["yamllint", "schema-validator.py"],
+          "task_keywords": ["json schema", "yaml schema", "validation schema", "openapi", "schema definition"]
+        },
+        {
+          "id": "RR-12",
+          "priority": 80,
+          "condition": "path_contains",
+          "patterns": ["04-WORKFLOWS/n8n/"],
+          "language": "json",
+          "extension": ".json",
+          "agent": "yaml-json-schema",
+          "constraints_mandatory": ["C3", "C4", "C5"],
+          "constraints_applicable": ["C7", "C8"],
+          "constraints_hard_block": ["V1", "V2", "V3"],
+          "language_lock_violation": ["pgvector_operators"],
+          "harness": ["n8n-schema-validator.sh"],
+          "task_keywords": ["n8n workflow", "n8n export", "workflow json", "automation flow"]
+        }
       ]
     },
-    "interaction_protocols": {
-      "mode_confirmation_gate": {
-        "trigger": "mode not specified in user prompt",
-        "action": "present 6-mode menu with descriptions",
-        "timeout_seconds": 60,
-        "fallback_mode": "A1",
-        "fallback_audit_flag": "human_timeout",
-        "required_response_format": "single code: A1|A2|A3|B1|B2|B3",
-        "invalid_response_action": "re-prompt with validation error",
-        "audit_fields": ["mode_selected", "source:human_confirmed|human_timeout", "prompt_sha256", "timestamp"]
-      },
-      "missing_context_handling": {
-        "trigger": "required canonical file not available in context",
-        "action": "notify user with specific missing file list",
-        "options": ["proceed_with_reduced_validation", "wait_for_context_sync"],
-        "default": "wait_for_context_sync",
-        "audit_flag": "context_sync_required"
-      },
-      "language_lock_violation": {
-        "trigger": "detected operator/constraint not allowed in target folder",
-        "action": "blocking error with specific violation details",
-        "suggestion": "propose correct folder based on required operators",
-        "audit_flag": "language_lock_violation"
+
+    "language_keyword_map": {
+      "description": "Secondary resolution: if path is unavailable, match task description keywords to language. Lower confidence than routing_rules.",
+      "confidence": "MEDIUM — always prefer routing_rules. This is fallback only.",
+      "map": {
+        "python": ["langchain", "langgraph", "fastapi", "pydantic", "openai sdk python", "rag python", "huggingface", "celery"],
+        "go": ["gin", "cobra", "viper", "goroutine", "channel", "go binary", "microservice go", "gRPC", "go module"],
+        "javascript": ["n8n code node", "typescript", "node.js", "express", "fetch api", "webhook ts"],
+        "bash": ["shellscript", "bash script", "deploy.sh", "cron job", "health-check", "bash automation"],
+        "sql": ["create table", "alter table", "migration sql", "rls policy", "row level security", "stored procedure", "view sql"],
+        "postgresql-pgvector": ["cosine similarity", "embedding search", "pgvector", "hnsw", "ivfflat", "vector(", "RAG pipeline", "semantic search"],
+        "yaml-json-schema": ["docker-compose", "compose file", "json schema", "yaml config", "frontmatter", "openapi spec", "terraform variables"]
       }
     },
+
+    "override_governance": {
+      "description": "Governs user requests to deviate from routing_rules agent assignment. AI must evaluate and respond according to this policy before accepting any override.",
+      "policy_levels": {
+        "DENY": {
+          "applies_to_modes": ["A1", "A3", "B1", "B3"],
+          "reason": "These modes have fixed agent stacks by architecture. Override breaks delivery contract.",
+          "ai_response": "⛔ Modo {mode} tiene stack fijo: {fixed_stack}. No se acepta override de lenguaje. Si la tarea requiere {requested_language}, cambiar a modo {suggested_mode}.",
+          "audit_flag": "override_denied_fixed_mode"
+        },
+        "ADVISORY": {
+          "applies_to_modes": ["A2", "B2"],
+          "process": [
+            "1. Identify routing_rules match for current task.",
+            "2. Compare requested_language vs routing_rules resolved language.",
+            "3. Evaluate advisory_criteria.",
+            "4. Emit structured advisory to user.",
+            "5. Await explicit human confirmation before proceeding.",
+            "6. Record decision in audit_log regardless of outcome."
+          ],
+          "advisory_criteria": [
+            {
+              "scenario": "requested_language has lower concurrency support than resolved_language",
+              "example": "user requests Python instead of Go for high-concurrency microservice",
+              "ai_advice": "⚠️ ADVISORY: {resolved_language} es preferido para este patrón ({reason}). {requested_language} es viable pero requiere: {mitigation}. ¿Confirma override? [S/N]"
+            },
+            {
+              "scenario": "requested_language is not in agent_registry",
+              "example": "user requests Rust, Ruby, Java",
+              "ai_advice": "⛔ {requested_language} no está registrado en agent_registry. Lenguajes disponibles: {agent_registry.keys}. ¿Desea solicitar incorporación formal del lenguaje al proyecto?"
+            },
+            {
+              "scenario": "requested_language violates LANGUAGE_LOCK for target path",
+              "example": "user requests Python in 06-PROGRAMMING/go/",
+              "ai_advice": "⛔ LANGUAGE_LOCK activo: {target_path} requiere {locked_language}. Override no permitido. Reubicar el artefacto o cambiar la ruta destino."
+            },
+            {
+              "scenario": "requested_language is valid alternative for the task",
+              "example": "user requests Go instead of Python for a FastAPI-style API",
+              "ai_advice": "✅ ADVISORY: {requested_language} es una alternativa válida. Ventajas vs {resolved_language}: {pros}. Consideraciones: {cons}. Cargando agente {requested_language}. AUDIT_FLAG=language_override_accepted."
+            }
+          ],
+          "audit_fields": ["original_resolved_language", "requested_language", "advisory_issued", "human_confirmed", "final_language", "justification"],
+          "audit_flag_on_accept": "language_override_accepted",
+          "audit_flag_on_reject": "language_override_rejected"
+        }
+      },
+      "new_language_request_governance": {
+        "description": "User requests a language not in agent_registry (e.g., Rust, Java, Ruby).",
+        "ai_response_template": "⚠️ {language} no está registrado en agent_registry. Evaluación de viabilidad: {viability_assessment}. Para incorporar formalmente: (1) Crear master agent en 06-PROGRAMMING/{language}/. (2) Actualizar routing_rules en 00-STACK-SELECTOR.md. (3) Registrar LANGUAGE_LOCK. (4) Requiere aprobación humana (requires_human_approval_for_changes: true). ¿Proceder con evaluación de incorporación? [S/N]",
+        "viability_assessment_criteria": [
+          "Exists a mature ecosystem for the target domain?",
+          "Does it offer advantages over current registered languages for this specific task?",
+          "Is there a senior maintainer available for the new agent?",
+          "Does it require changes to orchestrator-engine.sh harness?"
+        ],
+        "audit_flag": "new_language_incorporation_requested"
+      }
+    },
+
+    "infra_profile_constraints": {
+      "description": "Maps infra profiles to allowed patterns and code complexity limits. C1/C2 values are read from environment, never hardcoded.",
+      "env_vars": {
+        "MANTIS_INFRA_PROFILE": "nano | micro | standard | large",
+        "MANTIS_MEMORY_LIMIT_MB": "4096 | 8192 | 16384 | 32768",
+        "MANTIS_CPU_LIMIT": "1 | 2 | 4 | 8",
+        "MANTIS_STORAGE_GB": "50 | 100 | 200 | 400",
+        "MANTIS_BANDWIDTH_TB": "4 | 8 | 16 | 32"
+      },
+      "profiles": {
+        "nano": {
+          "id": 1,
+          "alias": "infra1",
+          "vcpu": 1,
+          "ram_mb": 4096,
+          "storage_gb": 50,
+          "bandwidth_tb": 4,
+          "max_complexity": "low",
+          "allowed_patterns": ["monolith", "single-container", "sqlite-local"],
+          "forbidden_patterns": ["distributed-tracing", "high-availability-clusters", "multi-db-sharding", "kafka", "kubernetes"],
+          "c1_config": { "mem_limit": "${MANTIS_MEMORY_LIMIT_MB}M", "pids_limit": 50, "timeout_s": 30 },
+          "c2_config": { "cpus": 0.5, "max_concurrent_requests": 10 },
+          "mode_allowed": ["A1", "A2", "B1", "B2"],
+          "mode_blocked": ["A3", "B3"],
+          "mode_blocked_reason": "A3/B3 production deploy requires minimum micro profile."
+        },
+        "micro": {
+          "id": 2,
+          "alias": "infra2",
+          "vcpu": 2,
+          "ram_mb": 8192,
+          "storage_gb": 100,
+          "bandwidth_tb": 8,
+          "max_complexity": "medium",
+          "allowed_patterns": ["docker-compose", "sidecars", "n8n-whatsapp-agent", "qdrant-local", "postgres-rls"],
+          "forbidden_patterns": ["multi-region-replication", "kubernetes", "kafka-cluster"],
+          "c1_config": { "mem_limit": "${MANTIS_MEMORY_LIMIT_MB}M", "pids_limit": 100, "timeout_s": 60 },
+          "c2_config": { "cpus": 1.0, "max_concurrent_requests": 30 },
+          "mode_allowed": ["A1", "A2", "A3", "B1", "B2", "B3"]
+        },
+        "standard": {
+          "id": 3,
+          "alias": "infra3",
+          "vcpu": 4,
+          "ram_mb": 16384,
+          "storage_gb": 200,
+          "bandwidth_tb": 16,
+          "max_complexity": "high",
+          "allowed_patterns": ["multi-container", "pgvector-hnsw", "qdrant-cluster", "n8n-cluster", "redis-sidecar"],
+          "forbidden_patterns": ["multi-region-replication"],
+          "c1_config": { "mem_limit": "${MANTIS_MEMORY_LIMIT_MB}M", "pids_limit": 200, "timeout_s": 120 },
+          "c2_config": { "cpus": 2.0, "max_concurrent_requests": 100 },
+          "mode_allowed": ["A1", "A2", "A3", "B1", "B2", "B3"]
+        },
+        "large": {
+          "id": 4,
+          "alias": "infra4",
+          "vcpu": 8,
+          "ram_mb": 32768,
+          "storage_gb": 400,
+          "bandwidth_tb": 32,
+          "max_complexity": "enterprise",
+          "allowed_patterns": ["kubernetes", "multi-db-sharding", "distributed-tracing", "kafka", "multi-region"],
+          "forbidden_patterns": [],
+          "c1_config": { "mem_limit": "${MANTIS_MEMORY_LIMIT_MB}M", "pids_limit": 500, "timeout_s": 300 },
+          "c2_config": { "cpus": 4.0, "max_concurrent_requests": 500 },
+          "mode_allowed": ["A1", "A2", "A3", "B1", "B2", "B3"]
+        }
+      },
+      "internal_modes_restriction": {
+        "applies_to": ["A1", "A2", "A3"],
+        "allowed_profiles": ["nano", "micro"],
+        "blocked_profiles": ["standard", "large"],
+        "blocked_reason": "Internal MANTIS development targets VPS environments. Standard/Large profiles are external client concerns.",
+        "audit_flag_on_violation": "infra_profile_exceeds_internal_limit"
+      }
+    },
+
+    "norm_execution_order": {
+      "description": "Deterministic constraint application sequence. Fail-fast on critical constraints. Contextual constraints evaluated only if applicable to current domain.",
+      "fail_fast_sequence": [
+        {
+          "constraint": "C3",
+          "name": "Zero Hardcode Secrets",
+          "check": "No passwords, tokens, API keys, connection strings in artifact body",
+          "on_fail": "BLOCKING: C3_VIOLATION — immediate halt, no partial output",
+          "validator": "audit-secrets.sh"
+        },
+        {
+          "constraint": "C4",
+          "name": "Tenant Isolation",
+          "check": "Every query/operation scoped to tenant_id. No cross-tenant data access.",
+          "on_fail": "BLOCKING: C4_VIOLATION — immediate halt",
+          "validator": "check-rls.sh"
+        },
+        {
+          "constraint": "C5",
+          "name": "Structural Contract",
+          "check": "Valid YAML frontmatter with required fields: canonical_path, artifact_id, version, constraints_mapped, validation_command, tier",
+          "on_fail": "BLOCKING: C5_VIOLATION — frontmatter invalid or missing required fields",
+          "validator": "validate-frontmatter.sh"
+        }
+      ],
+      "standard_sequence": [
+        {
+          "constraint": "C1",
+          "name": "Resource Limits",
+          "check": "All resource limits read from env vars. No hardcoded values.",
+          "on_fail": "WARNING: C1_SOFTFAIL — flag and continue if non-production"
+        },
+        {
+          "constraint": "C6",
+          "name": "Cloud-Only Inference",
+          "check": "LLM endpoints use https://api.openrouter.ai/v1 or equivalent. No localhost:11434.",
+          "on_fail": "BLOCKING: C6_VIOLATION in production artifacts"
+        },
+        {
+          "constraint": "C2",
+          "name": "Concurrency Control",
+          "check": "Concurrency limits defined via env vars. No unbounded goroutines/threads.",
+          "on_fail": "WARNING: C2_SOFTFAIL"
+        },
+        {
+          "constraint": "C7",
+          "name": "Resilience",
+          "check": "Retry logic, circuit breakers, healthchecks present in service artifacts.",
+          "on_fail": "WARNING: C7_SOFTFAIL in Tier 1. BLOCKING in Tier 3."
+        },
+        {
+          "constraint": "C8",
+          "name": "Observability",
+          "check": "Structured JSON logging with trace_id propagation.",
+          "on_fail": "WARNING: C8_SOFTFAIL"
+        }
+      ],
+      "vector_sequence": {
+        "applicable_when": "agent == postgresql-pgvector OR path contains postgresql-pgvector OR RAG trigger active",
+        "constraints": [
+          {
+            "constraint": "V1",
+            "name": "Vector Dimension Declaration",
+            "check": "vector(N) declared with explicit N. Comment with embedding model name and provider.",
+            "on_fail": "BLOCKING: V1_VIOLATION"
+          },
+          {
+            "constraint": "V2",
+            "name": "Distance Metric Explicit",
+            "check": "Operator documented: <-> = L2, <=> = cosine, <#> = inner product.",
+            "on_fail": "WARNING: V2_SOFTFAIL"
+          },
+          {
+            "constraint": "V3",
+            "name": "Index Type Justified",
+            "check": "USING hnsw or USING ivfflat accompanied by justification comment with m, ef_construction params.",
+            "on_fail": "BLOCKING: V3_VIOLATION in production artifacts"
+          }
+        ]
+      },
+      "language_lock_sequence": {
+        "applicable_when": "always — evaluated before any code generation",
+        "check": "Scanned artifact body for deny_operators and deny_constraints from agent_registry[language].language_lock",
+        "on_fail": "BLOCKING: LANGUAGE_LOCK_VIOLATION — emit specific operator detected + suggest correct domain",
+        "validator": "verify-constraints.sh --check-language-lock"
+      }
+    },
+
+    "token_budget_policy": {
+      "description": "Controls agent loading to prevent context window contamination and attention dilution. Anti-drift by design.",
+      "rules": {
+        "core_bundle_load": "Mandatory once at session start. Not reloaded unless context_refresh_protocol triggers.",
+        "overlay_load": "Load ONLY the overlay matching active mode. Never load multiple mode overlays simultaneously.",
+        "agent_load_policy": "Load primary agent first. Load support agents only when task explicitly requires them. Trigger: rag_trigger, explicit user mention, or routing_rules support requirement.",
+        "never_load_simultaneously": [
+          ["go master agent", "python master agent"],
+          ["postgresql-pgvector master agent", "sql master agent"],
+          ["A1 overlay", "A2 overlay"],
+          ["A1 overlay", "A3 overlay"],
+          ["B1 overlay", "B2 overlay"]
+        ],
+        "eviction_policy": {
+          "trigger": "Estimated context usage > 75% of window",
+          "action": [
+            "Trigger chronique_protocol immediately regardless of turn count",
+            "Evict current overlay from active context",
+            "Retain: core_bundle, active agent, audit_flags",
+            "Reload overlay selectively on next generation task",
+            "AUDIT_FLAG=context_eviction_triggered"
+          ]
+        },
+        "mode_change_policy": {
+          "trigger": "User requests mode change within same session (e.g., A2 → B3)",
+          "action": [
+            "Re-execute ACG from step_1a_branch_selection",
+            "Evict previous mode overlay",
+            "Load new mode overlay",
+            "Re-resolve {language} token if mode changes A→B or B→A",
+            "AUDIT_FLAG=mode_change_mid_session"
+          ]
+        }
+      }
+    },
+
+    "harness_registry": {
+      "description": "Complete registry of all validation tools. Maps tool to invocation pattern and failure action.",
+      "tools": {
+        "orchestrator-engine.sh": {
+          "path": "05-CONFIGURATIONS/validation/orchestrator-engine.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {path} --mode headless --json",
+          "checks": ["frontmatter", "constraints", "language_lock", "wikilinks"],
+          "acceptance_criteria": { "score_minimum": 30, "blocking_issues": "empty", "language_lock_violations": 0 },
+          "status": "REAL"
+        },
+        "verify-constraints.sh": {
+          "path": "05-CONFIGURATIONS/validation/verify-constraints.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --check-language-lock --dir {dir}",
+          "checks": ["language_lock", "constraint_mapping"],
+          "status": "REAL"
+        },
+        "audit-secrets.sh": {
+          "path": "05-CONFIGURATIONS/validation/audit-secrets.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/audit-secrets.sh --file {path}",
+          "checks": ["C3_hardcoded_secrets", "env_var_usage"],
+          "status": "REAL"
+        },
+        "check-rls.sh": {
+          "path": "05-CONFIGURATIONS/validation/check-rls.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/check-rls.sh --file {path}",
+          "checks": ["C4_tenant_isolation", "rls_policies"],
+          "status": "REAL"
+        },
+        "check-wikilinks.sh": {
+          "path": "05-CONFIGURATIONS/validation/check-wikilinks.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/check-wikilinks.sh --file {path}",
+          "checks": ["wikilink_canonical_format", "broken_links"],
+          "status": "REAL"
+        },
+        "validate-frontmatter.sh": {
+          "path": "05-CONFIGURATIONS/validation/validate-frontmatter.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh --file {path}",
+          "checks": ["C5_required_fields", "yaml_validity"],
+          "status": "REAL"
+        },
+        "validate-skill-integrity.sh": {
+          "path": "05-CONFIGURATIONS/validation/validate-skill-integrity.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/validate-skill-integrity.sh --file {path}",
+          "checks": ["skill_template_compliance", "section_completeness"],
+          "status": "REAL"
+        },
+        "schema-validator.py": {
+          "path": "05-CONFIGURATIONS/validation/schema-validator.py",
+          "invocation": "python3 05-CONFIGURATIONS/validation/schema-validator.py --file {path} --schema {schema_path}",
+          "checks": ["json_schema_validity", "required_properties"],
+          "status": "REAL"
+        },
+        "shellcheck": {
+          "path": "external_tool",
+          "invocation": "shellcheck {path}",
+          "checks": ["bash_syntax", "common_errors", "portability"],
+          "status": "REAL"
+        },
+        "yamllint": {
+          "path": "external_tool",
+          "invocation": "yamllint {path}",
+          "checks": ["yaml_syntax", "indentation", "trailing_spaces"],
+          "status": "REAL"
+        },
+        "health-check.sh": {
+          "path": "05-CONFIGURATIONS/scripts/health-check.sh",
+          "invocation": "bash 05-CONFIGURATIONS/scripts/health-check.sh",
+          "checks": ["service_availability", "endpoint_responsiveness"],
+          "status": "REAL"
+        },
+        "packager-assisted.sh": {
+          "path": "05-CONFIGURATIONS/scripts/packager-assisted.sh",
+          "invocation": "bash 05-CONFIGURATIONS/scripts/packager-assisted.sh --mode {mode} --output {output_path}",
+          "checks": ["manifest_completeness", "checksum_generation", "zip_integrity"],
+          "status": "REAL"
+        },
+        "n8n-schema-validator.sh": {
+          "path": "05-CONFIGURATIONS/validation/n8n-schema-validator.sh",
+          "invocation": "bash 05-CONFIGURATIONS/validation/n8n-schema-validator.sh --file {path}",
+          "checks": ["n8n_workflow_schema", "node_connectivity", "credential_references"],
+          "status": "PLANNED"
+        }
+      }
+    },
+
+    "diagram_protocol": {
+      "description": "All diagrams in this project use Mermaid syntax embedded in Markdown. PNG files are not AI-parseable and are replaced progressively as documentation is updated.",
+      "format": "mermaid",
+      "location": "04-WORKFLOWS/diagrams/",
+      "index": "04-WORKFLOWS/diagrams/00-INDEX.md",
+      "ai_ingestion": "Read 04-WORKFLOWS/diagrams/00-INDEX.md to discover all available diagrams. Load specific .mermaid or .md files as needed. Never attempt to load *.png files.",
+      "conversion_status": "IN_PROGRESS — PNG files being converted to Mermaid. New diagrams MUST use Mermaid only.",
+      "png_policy": "DEPRECATED — existing PNG files are human reference only. AI must not attempt to load or interpret PNG files. Use index to find Mermaid equivalent.",
+      "audit_flag_on_png_load_attempt": "png_load_attempted_deprecated"
+    },
+
+    "dependency_graph": {
+      "description": "Files this kernel depends on and files that depend on this kernel. Used for impact analysis on changes.",
+      "this_file_depends_on": [
+        { "file": "PROJECT_TREE.md", "reason": "Path resolution for routing_rules", "load_order": 1 },
+        { "file": "05-CONFIGURATIONS/validation/norms-matrix.json", "reason": "Constraint per-folder mapping validation", "load_order": 2 },
+        { "file": "01-RULES/harness-norms-v3.0.md", "reason": "C1-C8 textual definitions", "load_order": 3 },
+        { "file": "01-RULES/language-lock-protocol.md", "reason": "Operator exclusion rules", "load_order": 4 }
+      ],
+      "this_file_is_required_by": [
+        { "file": "IA-QUICKSTART.md", "reason": "Token {language} resolution and agent loading" },
+        { "file": "GOVERNANCE-ORCHESTRATOR.md", "reason": "Tier validation and certification" },
+        { "file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "reason": "Runtime constraint enforcement" }
+      ],
+      "change_impact": {
+        "adding_new_language": ["agent_registry", "routing_rules", "language_keyword_map", "mode_agent_matrix", "06-PROGRAMMING/00-INDEX.md", "norms-matrix.json"],
+        "adding_new_mode": ["mode_agent_matrix", "IA-QUICKSTART.md", "GOVERNANCE-ORCHESTRATOR.md"],
+        "modifying_language_lock": ["routing_rules", "agent_registry", "norm_execution_order", "orchestrator-engine.sh"],
+        "requires_human_approval": true
+      }
+    },
+
     "expansion_hooks": {
-      "new_mode_addition": {
-        "requires_files_update": ["IA-QUICKSTART.md", "GOVERNANCE-ORCHESTRATOR.md", "norms-matrix.json"],
-        "requires_schema_update": "stack-selection.schema.json",
-        "requires_human_approval": true,
-        "backward_compatibility": "new modes must not break existing A1-B3 flows"
+      "new_agent_addition": {
+        "requires": [
+          "Create 06-PROGRAMMING/{language}/{language}-master-agent.md",
+          "Add entry to agent_registry in this file",
+          "Add routing_rule in routing_rules array",
+          "Add keywords to language_keyword_map",
+          "Update mode_agent_matrix for applicable modes",
+          "Add to 06-PROGRAMMING/00-INDEX.md",
+          "Define LANGUAGE_LOCK rules",
+          "Update norms-matrix.json for new path",
+          "Human approval: requires_human_approval_for_changes = true"
+        ],
+        "backward_compatibility": "Existing agents and routing_rules must not be modified during addition."
       },
-      "new_language_addition": {
-        "requires_files_update": ["PROJECT_TREE.md", "norms-matrix.json", "06-PROGRAMMING/00-INDEX.md"],
-        "requires_language_lock_definition": true,
-        "requires_human_approval": true,
-        "backward_compatibility": "existing LANGUAGE LOCK rules must remain unchanged"
+      "new_vertical_addition": {
+        "requires": [
+          "Add to vertical_options in IA-QUICKSTART.md step_2_context_prompt.external",
+          "Create 02-SKILLS/{VERTICAL}/00-INDEX.md",
+          "Add bundle in IA-QUICKSTART.md context_injection_matrix",
+          "Human approval required"
+        ]
       }
     },
-    "validation_metadata": {
-      "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
-      "schema_version": "stack-selection.v1.json",
-      "checksum_algorithm": "SHA256",
-      "audit_log_format": "JSON Lines with RFC3339 timestamps",
-      "pii_scrubbing": "enabled for all logs (C8 compliance)"
+
+    "validation_self_check": {
+      "description": "Commands to validate this file's own integrity.",
+      "commands": [
+        "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 00-STACK-SELECTOR.md --mode headless --json",
+        "bash 05-CONFIGURATIONS/validation/validate-frontmatter.sh --file 00-STACK-SELECTOR.md",
+        "jq '.stack_selector_kernel.agent_registry.agents | keys' 00-STACK-SELECTOR.md",
+        "jq '.stack_selector_kernel.routing_rules.rules | length' 00-STACK-SELECTOR.md"
+      ],
+      "acceptance_criteria": {
+        "frontmatter_valid": true,
+        "json_parseable": true,
+        "agent_count": 7,
+        "routing_rules_count": 12,
+        "no_hardcoded_secrets": true
+      }
     }
+
   }
 }
 ```
-
-```
-<!-- 
-═══════════════════════════════════════════════════════════
-FIN DEL DOCUMENTO 00-STACK-SELECTOR.md
-
-Resumen para humanos:
-• Este archivo es el oráculo de decisión: ruta → lenguaje → constraints.
-• Siempre consulta PROJECT_TREE.md primero para resolver rutas.
-• El gate de modo (Paso 0) es obligatorio: sin modo explícito, no hay generación.
-• LANGUAGE LOCK es inamovible: go/ no acepta pgvector, sql/ no acepta V1-V3.
-• La sección JSON final es para consumo automático de IAs. Los humanos deben usar las secciones 1-10.
-
-Próximos pasos después de crear este archivo:
-1. Crear stack-selection.schema.json en 05-CONFIGURATIONS/validation/schemas/
-2. Actualizar orchestrator-engine.sh para validar contra este selector
-3. Actualizar IA-QUICKSTART.md para incluir el Paso 0 de confirmación de modo
-4. Actualizar AI-NAVIGATION-CONTRACT.md con la Regla 0: Modo Explícito Obligatorio
-
-Para principiantes: Si algo no queda claro, revisa el Glosario (Sección 7) 
-o ejecuta el Sandbox de Prueba (Sección 9) en un chat nuevo.
-
-✅ Validación recomendada:
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-  --file 00-STACK-SELECTOR.md \
-  --mode headless \
-  --json
-═══════════════════════════════════════════════════════════
--->
-```
-
----
-
-## ✅ CHECKLIST DE VALIDACIÓN POST-GENERACIÓN
-
-<!-- 
-【PARA PRINCIPIANTES】Antes de guardar este archivo, ejecuta mentalmente (o en terminal) esta validación.
--->
-
-```bash
-# 1. Verificar que el frontmatter es YAML válido
-yq eval '.canonical_path' 00-STACK-SELECTOR.md
-# Esperado: "/00-STACK-SELECTOR.md"
-
-# 2. Verificar que constraints_mapped solo contiene C1-C8 y V1-V3 válidos
-yq eval '.constraints_mapped | .[]' 00-STACK-SELECTOR.md | grep -E '^C[1-8]$|^V[1-3]$'
-# Esperado: 11 líneas (8 C + 3 V)
-
-# 3. Verificar LANGUAGE LOCK en sección JSON
-grep -A5 '"language_lock"' 00-STACK-SELECTOR.md | grep -q '"deny_operators"' && echo "✅ LANGUAGE LOCK presente"
-
-# 4. Validar con orchestrator (simulación mental)
-# - ¿El archivo está en raíz? → SÍ
-# - ¿El lenguaje es markdown? → SÍ
-# - ¿Constraints aplicables según norms-matrix.json? → C5 mandatory, C8 contextual → SÍ
-# - ¿validation_command es ejecutable? → SÍ, apunta a orchestrator-engine.sh
-
-# 5. Verificar wikilinks canónicos
-grep -oE '\[\[[^]]+\]\]' 00-STACK-SELECTOR.md | sort -u
-# Esperado: Lista de archivos que existen en PROJECT_TREE.md
-```
-
-**Criterio de aceptación:**  
-- ✅ Frontmatter válido con `canonical_path: "/00-STACK-SELECTOR.md"`  
-- ✅ `constraints_mapped` contiene solo C1-C8 y V1-V3  
-- ✅ Sección JSON final es válida (puede parsearse con `jq .`)  
-- ✅ Wikilinks apuntan a archivos existentes en `PROJECT_TREE.md`  
-- ✅ `validation_command` es ejecutable y apunta al orchestrator correcto  
-
----
-
-> 🎯 **Mensaje final para el lector humano**:  
-> Este documento es tu brújula. No memorices cada regla. Confía en el protocolo:  
-> **Ruta → Lenguaje → Constraints → Validación**.  
-> Si sigues ese flujo, nunca generarás un artefacto fuera de norma.  
-> La gobernanza no es una carga. Es la libertad de crear sin miedo a romper.  
