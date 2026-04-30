@@ -14,6 +14,7 @@ immutable: true
 requires_human_approval_for_changes: true
 audience: ["agentic_assistants"]
 human_readable: false
+checksum_sha256: "checksum_sha256: "a67e8bb90c14aa38e198aea31fc4ac84de1776c2ce8f1b87ae1e86fae84c51df""
 ---
 
 # pipelines-master-agent — Agente Maestro de Pipelines MANTIS v2.0.0

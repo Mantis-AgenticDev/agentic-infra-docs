@@ -1,0 +1,145 @@
+---
+artifact_id: prometheus-alerts-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C4","C5","C8","V2","V3"]
+canonical_path: 05-CONFIGURATIONS/observability/alerts/mantis-alerts.yml
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "sre_ops"]
+human_readable: false
+checksum_sha256: "a1b135e8d2a5aa1ee2db09769ad4f9c88ab8b053ed35125a8f3f688f4923de3b"
+---
+# PROMETHEUS ALERTING RULES (MANTIS v2.0.0)
+# Propósito: Detección proactiva de anomalías en infra, DB, vector search, backups y APIs.
+# Generado por: configurations-master-agent / observability-master
+# Fecha: 2026-04-30
+# Alineación: otel-tracing-config.yaml, mapping.yaml, interface-spec.yaml §observability
+
+groups:
+  - name: mantis_infrastructure_health
+    rules:
+      - alert: HighInstanceCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+          constraint: "C8"
+        annotations:
+          summary: "CPU sostenido >85% en {{ $labels.instance }}"
+          description: "La instancia mantiene carga elevada. Verificar picos de indexing o compilación."
+
+      - alert: HighInstanceMemory
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          constraint: "C8"
+        annotations:
+          summary: "Memoria RAM >90% en {{ $labels.instance }}"
+          description: "Riesgo de OOM killer. Validar límites de contenedores y fuga de conexiones."
+
+  - name: mantis_database_rlsv1
+    rules:
+      - alert: PostgreSQLConnectionsHigh
+        expr: pg_stat_activity_count{datname!~"template.*|postgres"} > 150
+        for: 5m
+        labels:
+          severity: warning
+          constraint: "V1"
+        annotations:
+          summary: "Conexiones PG activas >150"
+          description: "Posible saturación del pool. Revisar configuración de PgBouncer o fugas en n8n/CRM."
+
+      - alert: PostgreSQLReplicationLag
+        expr: pg_replication_lag > 30
+        for: 5m
+        labels:
+          severity: critical
+          constraint: "C7,V2"
+        annotations:
+          summary: "Lag de replicación >30s"
+          description: "Riesgo de inconsistencia en reads secundarios. Verificar red, IOPS o load del primary."
+
+  - name: mantis_qdrant_v3
+    rules:
+      - alert: QdrantHighMemoryUsage
+        expr: process_resident_memory_bytes{job="qdrant"} / container_spec_memory_limit_bytes{job="qdrant"} > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          constraint: "V3"
+        annotations:
+          summary: "Qdrant consumo memoria >85%"
+          description: "Índices HNSW en RAM se aproximan al límite. Evaluar escalar o compactar colecciones."
+
+      - alert: QdrantVectorSearchLatencyHigh
+        expr: histogram_quantile(0.95, rate(qdrant_vector_search_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          constraint: "V3,C8"
+        annotations:
+          summary: "Latencia búsqueda vectorial p95 >500ms"
+          description: "Degradación en performance de embeddings. Revisar HNSW params, CPU throttling o red."
+
+  - name: mantis_backup_v2
+    rules:
+      - alert: BackupFailedOrMissing
+        expr: mantis_backup_last_success_timestamp_seconds < time() - 86400
+        for: 1h
+        labels:
+          severity: critical
+          constraint: "V2"
+        annotations:
+          summary: "Backup no ejecutado o fallido >24h"
+          description: "RPO comprometido. Verificar scripts de backup, permisos S3 y conectividad a DB/Qdrant."
+
+  - name: mantis_api_proxy_c8
+    rules:
+      - alert: APIHighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          constraint: "C8"
+        annotations:
+          summary: "Tasa de errores 5xx en API >1%"
+          description: "Degradación de servicio activa. Revisar logs de OpenRouter proxy, timeouts o DB locks."
+
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="api"}[5m])) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          constraint: "C8"
+        annotations:
+          summary: "Latencia API p95 >2.0s"
+          description: "Respuestas lentas afectando UX. Validar queries complejas, cache miss o rate limiting."
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS (C5, C8, V2, V3)
+# ============================================================================
+# ❌ NUNCA: Omitir cláusula `for` en alertas (causa notificaciones falsas por picos transitorios)
+# ❌ NUNCA: Usar `expr: ... > 100` sin normalizar o comparar con límites reales (falso positivo C5)
+# ❌ NUNCA: Mezclar métricas de entornos sin `environment` label (dificulta routing, viola C4)
+# ❌ NUNCA: Definir `severity: critical` para alertas de warning operativo (fatiga de alertas C8)
+# ✅ SIEMPRE: Validar con `promtool check rules` antes de deploy
+# ✅ SIEMPRE: Mantener labels `severity`, `constraint` y `service` consistentes para routing en Alertmanager
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# yq eval '.' 05-CONFIGURATIONS/observability/alerts/mantis-alerts.yml > /dev/null && echo "✅ YAML válido"
+# promtool check rules 05-CONFIGURATIONS/observability/alerts/mantis-alerts.yml 2>&1 | grep -q "SUCCESS" && echo "✅ PromQL válido"
+# orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/observability/alerts/mantis-alerts.yml --strict
+# CHECKSUM=$(sha256sum 05-CONFIGURATIONS/observability/alerts/mantis-alerts.yml | awk '{print $1}') && sed -i "s/^checksum_sha256: "a1b135e8d2a5aa1ee2db09769ad4f9c88ab8b053ed35125a8f3f688f4923de3b"
+
+
+---

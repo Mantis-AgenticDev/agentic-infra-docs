@@ -1,0 +1,78 @@
+---
+artifact_id: alertmanager-notification-template-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C3","C4","C5","C8"]
+canonical_path: 05-CONFIGURATIONS/observability/alertmanager/templates/notification.tmpl
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "sre_ops"]
+human_readable: false
+checksum_sha256: "3c3b0ab88abda8016fbde9547777bfd6cc07d9297ccfb52f54c8fe5e85014f6f"
+---
+{{/* MANTIS v2.0.0 - Alertmanager Notification Templates */}}
+{{/* Propósito: Estandarización visual y contextual de alertas para Slack, Email y PagerDuty */}}
+{{/* Constraints: C3 (sin secrets), C4 (labels contextuales), C5 (sintaxis validada), C8 (legibilidad) */}}
+
+{{ define "slack.mantis.title" }}
+[{{ .Status | toUpper | default "UNKNOWN" }}] {{ .CommonLabels.alertname }} | Env: {{ .CommonLabels.environment | default "dev" }}
+{{ end }}
+
+{{ define "slack.mantis.text" }}
+{{ range .Alerts }}
+*Severity:* `{{ .Labels.severity | upper }}`
+*Service:* `{{ .Labels.service | default "unknown" }}`
+*Instance:* `{{ .Labels.instance | default "cluster-wide" }}`
+*Constraint:* `{{ .Labels.constraint | default "N/A" }}`
+*Description:* {{ .Annotations.description | markdown }}
+*Value:* {{ .Value | humanize }} {{ .Labels.unit | default "" }}
+*Runbook:* <https://runbook.mantis.ag/{{ .Labels.alertname }}|📖 Ver guía de recuperación>
+{{ end }}
+{{ end }}
+
+{{ define "slack.mantis.footer" }}
+🤖 _MANTIS Observability v2.0.0 | Timestamp: {{ .CommonAnnotations.startsAt.Format "2006-01-02 15:04:05 UTC" }}_
+{{ end }}
+
+{{ define "email.mantis.subject" }}
+[MANTIS {{ .Status | toUpper }}] {{ .CommonLabels.alertname }} - {{ .CommonLabels.environment }}
+{{ end }}
+
+{{ define "email.mantis.html" }}
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; line-height: 1.5;">
+  <div style="background: #f8f9fa; padding: 16px; border-left: 4px solid {{ if eq .CommonLabels.severity "critical" }}#dc3545{{ else }}#ffc107{{ end }}; margin-bottom: 12px;">
+    <h2 style="margin: 0 0 8px;">{{ template "email.mantis.subject" . }}</h2>
+    <p><strong>Ambiente:</strong> {{ .CommonLabels.environment | default "dev" }} | <strong>Servicio:</strong> {{ .CommonLabels.service | default "general" }}</p>
+  </div>
+  {{ range .Alerts }}
+  <div style="background: #fff; border: 1px solid #dee2e6; padding: 12px; margin-bottom: 8px; border-radius: 4px;">
+    <h3 style="margin: 0 0 8px; font-size: 16px;">{{ .Labels.alertname }}</h3>
+    <p style="margin: 0 0 4px;"><strong>Severidad:</strong> <span style="color: {{ if eq .Labels.severity "critical" }}#dc3545{{ else }}#ffc107{{ end }}; font-weight: bold;">{{ .Labels.severity | upper }}</span></p>
+    <p style="margin: 0 0 4px;"><strong>Descripción:</strong> {{ .Annotations.description }}</p>
+    <p style="margin: 0 0 4px;"><strong>Valor actual:</strong> {{ .Value | humanize }} {{ .Labels.unit | default "" }}</p>
+    <p style="margin: 0;"><strong>Runbook:</strong> <a href="https://runbook.mantis.ag/{{ .Labels.alertname }}">https://runbook.mantis.ag/{{ .Labels.alertname }}</a></p>
+  </div>
+  {{ end }}
+  <footer style="color: #6c757d; font-size: 12px; margin-top: 16px; border-top: 1px solid #dee2e6; padding-top: 8px;">
+    Generado por MANTIS v2.0.0 | {{ .CommonAnnotations.startsAt.Format "2006-01-02 15:04:05 UTC" }}
+  </footer>
+</body>
+</html>
+{{ end }}
+
+{{/* ANTI-PATRONES EXPLÍCITOS */}}
+{{/* ❌ NUNCA: Inyectar URLs con tokens, passwords o API keys en templates (viola C3) */}}
+{{/* ❌ NUNCA: Omitir fallbacks (| default "unknown") para labels opcionales (rompe renderizado, viola C5) */}}
+{{/* ❌ NUNCA: Usar HTML/Markdown no sanitizado en descripciones dinámicas (riesgo XSS, viola C8) */}}
+{{/* ✅ SIEMPRE: Mantener runbook URLs genéricas y resolver IDs de instancia en el cuerpo de la alerta */}}
+{{/* ✅ SIEMPRE: Validar con `amtool template verify` o `gotemplate` CLI pre-deploy */}}
+
+
+---

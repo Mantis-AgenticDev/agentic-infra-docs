@@ -1,230 +1,319 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "vps-hardening-v1.0.0"
+artifact_type: "script"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C3", "C6", "C7", "C8"]
+canonical_path: "05-CONFIGURATIONS/security/vps-hardening.sh"
+domain: "05-CONFIGURATIONS"
+subdomain: "security"
+agent_role: "vps-hardening"
+language_lock: "bash"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain security --file 05-CONFIGURATIONS/security/vps-hardening.sh --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "ecce674ffc181d75a8e64b372fe64b7449b0cf95f705ea6970dac0ebe415fefa"
+# FIN FRONTMATTER
+---
+
 #!/usr/bin/env bash
-# ---
-# artifact_id: vps-hardening-mantis
-# artifact_type: security_script
-# version: 2.0.0-COMPREHENSIVE
-# constraints_mapped: ["C2","C3","C4","C5","C6","C7"]
-# canonical_path: 05-CONFIGURATIONS/security/vps-hardening.sh
-# domain: 05-CONFIGURATIONS
-# subdomain: security
-# agent_role: configurations-master
-# language_lock: es-ES
-# validation_command: orchestrator-engine.sh --domain configurations --strict
-# tier: 3
-# immutable: true
-# requires_human_approval_for_changes: true
-# audience: ["agentic_assistants"]
-# human_readable: false
-# checksum_sha256: "a5e08e40c9ba0533d00971f4f3c65e7db4123f121e11bab8f7885f7059670d25"
-# ---
+# =============================================================================
+# SCRIPT: vps-hardening.sh
+# DOMINIO: 05-CONFIGURATIONS/security
+# PROPÓSITO: Endurecimiento de seguridad a nivel de SO (UFW, Fail2Ban, SSH,
+#            actualizaciones automáticas, parámetros de kernel). Idempotente,
+#            con backup de configs críticos y registro de auditoría.
+# USO: ./vps-hardening.sh [--env dev|staging|prod] [--dry-run] [--confirm]
+# DEPENDENCIAS: bash >= 5.0, ufw, fail2ban, unattended-upgrades, sed, grep
+# AUTOR: configurations-master-agent (MANTIS)
+# VERSIÓN: 1.0.0
+# CONSTRAINTS: C3 (Seguridad), C6 (Cumplimiento), C7 (Resiliencia), C8 (Auditoría)
+# =============================================================================
 set -euo pipefail
 
-# [CONSTRAINT_MAP]
-# C2: Todo cambio aplicado vía script; cero configuración manual en VPS
-# C3: Cero hardcodeo de credenciales; claves SSH gestionadas externamente
-# C4: Backups de configs originales + logging con timestamp y commit hash
-# C5: Validación de distro, dependencias y sintaxis estricta
-# C6: Gate explícito para producción; requiere confirmación o flag --env prod
-# C7: Idempotente; backups atómicos para rollback; operaciones reversibles
+# --- Configuración -----------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKUP_DIR="/opt/mantis/backups/hardening/$(date +%Y%m%d_%H%M%S)"
+LOG_FILE="/var/log/mantis-hardening.log"
+DRY_RUN="false"
+CONFIRMED="false"
+ENVIRONMENT="prod"
 
-# [DEPENDENCIES]
-# ufw, fail2ban, unattended-upgrades, apt, journalctl, bash >= 4.3
-# [INTERFACE_ALIGNMENT]
-# Consumes: environment_tag, ssh_admin_cidr (from mapping.yaml)
-# Produces: hardened SSH/UFW/Fail2Ban state, audit log, backup archive
+# Puertos por defecto (sobreescribibles via .env)
+SSH_PORT="22"
+ALLOWED_TCP_PORTS="80,443"
 
-# [GLOBALS]
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly BACKUP_DIR="/opt/mantis-hardening-backups/$(date +%Y%m%d_%H%M%S)"
-readonly AUDIT_LOG="/var/log/mantis-hardening-audit.log"
-readonly SSHD_CONF="/etc/ssh/sshd_config"
-readonly UFW_CONF="/etc/default/ufw"
-readonly F2B_JAIL="/etc/fail2ban/jail.local"
-readonly UNATTENDED_CONF="/etc/apt/apt.conf.d/50unattended-upgrades"
-
-mkdir -p "$BACKUP_DIR" "$(dirname "$AUDIT_LOG")"
-
-# [LOGGING]
-log() { printf '[%s] [%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" "$2" | tee -a "$AUDIT_LOG"; }
-log_info()  { log "INFO"  "$1"; }
-log_warn()  { log "WARN"  "$1"; }
-log_error() { log "ERROR" "$1"; }
-
-# [ARGS & ENV]
-ENV="${1:-dev}"
-SSH_ADMIN_CIDR="${SSH_ADMIN_CIDR:-10.0.0.0/8}" # Default internal CIDR; override via mapping.yaml
-SSH_PORT="${SSH_PORT:-22}"
-
-if [[ "$ENV" == "prod" ]]; then
-  log_warn "PROD_GATE: Hardening en producción. Requiere validación previa o ejecución vía pipeline CI/CD"
-  if [[ "${CI:-false}" != "true" && -z "${FORCE_PROD:-}" ]]; then
-    log_error "BLOCKED: Ejecutar con FORCE_PROD=true o desde pipeline con approval gate"
-    exit 1
-  fi
-fi
-
-# [VALIDATION]
-for cmd in ufw fail2ban-client apt-get journalctl; do
-  command -v "$cmd" >/dev/null 2>&1 || { log_error "DEPENDENCY_FAIL: $cmd requerido"; exit 1; }
-done
-
-# Detect distro compatibility
-if ! grep -qi "ubuntu\|debian" /etc/os-release 2>/dev/null; then
-  log_warn "DISTRO_COMPAT: Script optimizado para Ubuntu/Debian. Verificar paths en otras distros"
-fi
-
-# [BACKUP & ROLLBACK PREP (C7)]
-backup_configs() {
-  log_info "BACKUP_START: Guardando configs originales en $BACKUP_DIR"
-  [[ -f "$SSHD_CONF" ]] && cp -a "$SSHD_CONF" "$BACKUP_DIR/" || true
-  [[ -f "$F2B_JAIL" ]] && cp -a "$F2B_JAIL" "$BACKUP_DIR/" || touch "$BACKUP_DIR/jail.local.bak"
-  [[ -f "$UNATTENDED_CONF" ]] && cp -a "$UNATTENDED_CONF" "$BACKUP_DIR/" || true
-  
-  cat > "$BACKUP_DIR/ROLLBACK.sh" <<'EOF'
-#!/bin/bash
-set -euo pipefail
-echo "🔄 Restaurando configs desde backup..."
-[[ -f sshd_config ]] && cp -f sshd_config /etc/ssh/sshd_config
-[[ -f jail.local ]] && cp -f jail.local /etc/fail2ban/jail.local
-[[ -f 50unattended-upgrades ]] && cp -f 50unattended-upgrades /etc/apt/apt.conf.d/50unattended-upgrades
-systemctl restart sshd fail2ban || true
-echo "✅ Rollback completado. Verificar servicios."
-EOF
-  chmod +x "$BACKUP_DIR/ROLLBACK.sh"
-  log_info "BACKUP_COMPLETE: ROLLBACK.sh listo en $BACKUP_DIR"
+# --- Logging -----------------------------------------------------------------
+log() {
+    local level="$1"; shift
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $*"
+    echo "$msg" | tee -a "$LOG_FILE"
+    if [[ "$level" == "ERROR" ]]; then exit 1; fi
 }
 
-# [PHASE_1: SSH HARDENING (C3, C4)]
-phase_ssh() {
-  log_info "PHASE_1_START: Hardening SSH"
-  
-  # Idempotencia: solo modificar si el valor actual difiere
-  sed -i "s/^#PermitRootLogin.*/PermitRootLogin no/" "$SSHD_CONF"
-  sed -i "s/^PermitRootLogin.*/PermitRootLogin no/" "$SSHD_CONF"
-  
-  sed -i "s/^#PasswordAuthentication.*/PasswordAuthentication no/" "$SSHD_CONF"
-  sed -i "s/^PasswordAuthentication.*/PasswordAuthentication no/" "$SSHD_CONF"
-  
-  sed -i "s/^#PubkeyAuthentication.*/PubkeyAuthentication yes/" "$SSHD_CONF"
-  sed -i "s/^PubkeyAuthentication.*/PubkeyAuthentication yes/" "$SSHD_CONF"
-  
-  sed -i "s/^#MaxAuthTries.*/MaxAuthTries 3/" "$SSHD_CONF"
-  sed -i "s/^MaxAuthTries.*/MaxAuthTries 3/" "$SSHD_CONF"
-  
-  # Deshabilitar login root directo sin romper sesión actual (C7)
-  systemctl reload sshd || systemctl restart sshd
-  log_info "PHASE_1_COMPLETE: SSH configurado (root=no, password=no, pubkey=yes)"
+# --- Validación y Args -------------------------------------------------------
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --env) ENVIRONMENT="$2"; shift 2 ;;
+            --dry-run) DRY_RUN="true"; shift ;;
+            --confirm) CONFIRMED="true"; shift ;;
+            -h|--help)
+                echo "Uso: $0 [--env dev|staging|prod] [--dry-run] [--confirm]"
+                exit 0 ;;
+            *) log ERROR "Opción desconocida: $1" ;;
+        esac
+    done
 }
 
-# [PHASE_2: UFW FIREWALL (C2, C6)]
-phase_ufw() {
-  log_info "PHASE_2_START: Configurando UFW"
-  
-  ufw --force reset >/dev/null 2>&1 || true
-  ufw default deny incoming
-  ufw default allow outgoing
-  
-  # SSH restringido (C3: solo CIDR de gestión)
-  ufw allow from "$SSH_ADMIN_CIDR" to any port "$SSH_PORT" proto tcp comment "SSH-Management"
-  
-  # HTTP/HTTPS público
-  ufw allow 80/tcp comment "HTTP"
-  ufw allow 443/tcp comment "HTTPS"
-  
-  # Rate limiting para puertos críticos
-  ufw limit 22/tcp comment "SSH-BruteForce-Protect"
-  
-  [[ "$ENV" == "prod" ]] && ufw logging on || ufw logging low
-  
-  ufw --force enable
-  log_info "PHASE_2_COMPLETE: UFW activo | Default: deny in / allow out"
+pre_flight_checks() {
+    # Verificar root (necesario para cambios de SO)
+    if [[ "$EUID" -ne 0 ]]; then
+        log ERROR "Este script requiere privilegios de root. Use: sudo $0"
+    fi
+
+    # Verificar distribución (optimizado para Debian/Ubuntu)
+    if ! command -v apt-get &>/dev/null; then
+        log WARN "Distribución no Debian/Ubuntu detectada. Algunos pasos pueden requerir ajuste manual."
+    fi
+
+    # Verificar conectividad a repositorios
+    if ! ping -c1 -W2 archive.ubuntu.com &>/dev/null && ! ping -c1 -W2 security.ubuntu.com &>/dev/null; then
+        log WARN "Sin acceso a Internet. Se omitirán actualizaciones de paquetes."
+    fi
+
+    # Confirmación de seguridad
+    if [[ "$DRY_RUN" == "false" && "$CONFIRMED" == "false" ]]; then
+        log INFO "⚠️  Este script modificará configuraciones críticas del SO."
+        read -rp "¿Confirmar ejecución en entorno ${ENVIRONMENT}? [y/N]: " ans
+        [[ "$ans" =~ ^[Yy]$ ]] || { log INFO "🚫 Abortado por usuario."; exit 0; }
+    fi
+
+    mkdir -p "$BACKUP_DIR" "$LOG_FILE" 2>/dev/null || true
+    log INFO "✅ Pre-flight completado. Backup dir: $BACKUP_DIR"
 }
 
-# [PHASE_3: FAIL2BAN (C5, C8)]
-phase_fail2ban() {
-  log_info "PHASE_3_START: Configurando Fail2Ban"
-  
-  cat > "$F2B_JAIL" <<EOF
+# --- Funciones de Hardening --------------------------------------------------
+backup_config() {
+    local file="$1"
+    if [[ -f "$file" ]]; then
+        cp -p "$file" "$BACKUP_DIR/"
+        log INFO "📦 Backup de $file → $BACKUP_DIR/"
+    fi
+}
+
+secure_ssh() {
+    log INFO "🔐 Aplicando hardening a SSH..."
+    local sshd_config="/etc/ssh/sshd_config"
+    backup_config "$sshd_config"
+
+    # Función auxiliar para modificar sshd_config de forma idempotente
+    set_ssh_opt() {
+        local key="$1" val="$2"
+        if grep -qE "^${key}\s" "$sshd_config"; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                log INFO "[DRY-RUN] Actualizaría $key $val"
+            else
+                sed -i "s/^${key}\s.*/${key} ${val}/" "$sshd_config"
+            fi
+        else
+            if [[ "$DRY_RUN" == "true" ]]; then
+                log INFO "[DRY-RUN] Agregaría $key $val"
+            else
+                echo "${key} ${val}" >> "$sshd_config"
+            fi
+        fi
+    }
+
+    # Aplicar directivas de seguridad (C6: Cumplimiento CIS)
+    set_ssh_opt "PermitRootLogin" "no"
+    set_ssh_opt "PasswordAuthentication" "no"
+    set_ssh_opt "PubkeyAuthentication" "yes"
+    set_ssh_opt "MaxAuthTries" "3"
+    set_ssh_opt "X11Forwarding" "no"
+    set_ssh_opt "AllowTcpForwarding" "no"
+    set_ssh_opt "Port" "$SSH_PORT"
+
+    # Reiniciar servicio si no es dry-run
+    if [[ "$DRY_RUN" == "false" ]]; then
+        systemctl restart sshd || systemctl restart ssh
+        log INFO "✅ SSH hardening aplicado y servicio reiniciado."
+    fi
+}
+
+configure_ufw() {
+    log INFO "🛡️ Configurando UFW (Firewall)..."
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log INFO "[DRY-RUN] Habilitaría UFW con política default deny incoming, allow outgoing"
+        log INFO "[DRY-RUN] Permitiría puertos: ${SSH_PORT}/tcp, ${ALLOWED_TCP_PORTS}/tcp"
+        return 0
+    fi
+
+    ufw default deny incoming
+    ufw default allow outgoing
+    
+    # Permitir SSH
+    ufw allow "${SSH_PORT}/tcp" comment 'SSH Hardened'
+    
+    # Permitir puertos de aplicación
+    IFS=',' read -ra PORTS <<< "$ALLOWED_TCP_PORTS"
+    for port in "${PORTS[@]}"; do
+        ufw allow "${port}/tcp" comment 'App/Traefik/Nginx'
+    done
+
+    ufw --force enable
+    log INFO "✅ UFW habilitado y reglas aplicadas."
+}
+
+configure_fail2ban() {
+    log INFO "🚫 Instalando/configurando Fail2Ban..."
+    if ! command -v fail2ban-server &>/dev/null; then
+        if [[ "$DRY_RUN" == "false" ]]; then
+            apt-get update && apt-get install -y fail2ban
+        else
+            log INFO "[DRY-RUN] Instalaría fail2ban"
+            return 0
+        fi
+    fi
+
+    local jail_local="/etc/fail2ban/jail.local"
+    backup_config "$jail_local"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log INFO "[DRY-RUN] Configuraría jail.local con bantime=3600, findtime=600, maxretry=3"
+        return 0
+    fi
+
+    cat > "$jail_local" <<'EOF'
 [DEFAULT]
-bantime = 3600
+bantime  = 3600
 findtime = 600
 maxretry = 3
 backend = systemd
 
 [sshd]
 enabled = true
-port = ${SSH_PORT}
-filter = sshd
+port    = 22
+filter  = sshd
 logpath = /var/log/auth.log
 maxretry = 3
-bantime = 7200
+bantime  = 7200
 EOF
 
-  systemctl enable fail2ban
-  systemctl restart fail2ban
-  
-  # Validación post-config
-  if fail2ban-client status sshd >/dev/null 2>&1; then
-    log_info "PHASE_3_COMPLETE: Fail2Ban activo (maxretry=3, bantime=2h)"
-  else
-    log_error "FAIL2BAN_START_FAIL: Verificar logs con journalctl -u fail2ban"
-    exit 1
-  fi
-}
-
-# [PHASE_4: AUTOMATED UPDATES (C7, C2)]
-phase_updates() {
-  log_info "PHASE_4_START: Habilitando actualizaciones de seguridad automáticas"
-  
-  if ! dpkg -l unattended-upgrades | grep -q "ii"; then
-    apt-get update -qq && apt-get install -y unattended-upgrades >/dev/null 2>&1
-  fi
-  
-  cat > "$UNATTENDED_CONF" <<EOF
-Unattended-Upgrade::Allowed-Origins {
-    "\${distro_id}:\${distro_codename}-security";
-    "\${distro_id}:\${distro_codename}-updates";
-};
-Unattended-Upgrade::Automatic-Reboot "true";
-Unattended-Upgrade::Automatic-Reboot-Time "04:00";
-Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
-Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
-EOF
-
-  systemctl enable unattended-upgrades
-  systemctl restart unattended-upgrades
-  log_info "PHASE_4_COMPLETE: Auto-updates habilitados (reboot 04:00 UTC)"
-}
-
-# [PHASE_5: AUDIT & VERIFICATION (C4, C5)]
-phase_audit() {
-  log_info "PHASE_5_START: Verificación final y auditoría"
-  
-  # Verificar servicios activos
-  for svc in sshd ufw fail2ban unattended-upgrades; do
-    if systemctl is-active "$svc" >/dev/null 2>&1; then
-      log_info "SERVICE_OK: $svc activo"
-    else
-      log_warn "SERVICE_WARN: $svc inactivo o no requerido en este entorno"
+    # Reemplazar puerto si es distinto a 22
+    if [[ "$SSH_PORT" != "22" ]]; then
+        sed -i "s/^port    = 22/port    = ${SSH_PORT}/" "$jail_local"
     fi
-  done
-  
-  # Registrar hash de configs aplicadas
-  sha256sum "$SSHD_CONF" "$F2B_JAIL" "$UNATTENDED_CONF" >> "$AUDIT_LOG"
-  
-  log_info "PHASE_5_COMPLETE: Hardening finalizado. Audit log: $AUDIT_LOG"
+
+    systemctl enable fail2ban
+    systemctl restart fail2ban
+    log INFO "✅ Fail2Ban configurado y activo."
 }
 
-# [EXECUTION PIPELINE]
-log_info "HARDENING_START: Env=$ENV | CIDR=$SSH_ADMIN_CIDR"
-backup_configs
-phase_ssh
-phase_ufw
-phase_fail2ban
-phase_updates
-phase_audit
+apply_sysctl_hardening() {
+    log INFO "⚙️ Aplicando hardening de red (sysctl)..."
+    local sysctl_conf="/etc/sysctl.d/99-mantis-hardening.conf"
+    backup_config "$sysctl_conf"
 
-log_info "HARDENING_SUCCESS: VPS hardened bajo normas MANTIS v2.0.0"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log INFO "[DRY-RUN] Aplicaría parámetros de kernel anti-spoofing y SYN-flood"
+        return 0
+    fi
+
+    cat > "$sysctl_conf" <<'EOF'
+# Protección contra IP Spoofing
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+
+# Ignorar pings broadcast
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+
+# Protección contra SYN Flood
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 2048
+net.ipv4.tcp_synack_retries = 2
+
+# Deshabilitar redirecciones ICMP
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv6.conf.all.send_redirects = 0
+EOF
+
+    sysctl -p "$sysctl_conf" >/dev/null 2>&1 || true
+    log INFO "✅ Parámetros de kernel aplicados."
+}
+
+setup_unattended_upgrades() {
+    log INFO "🔄 Configurando actualizaciones de seguridad automáticas..."
+    if ! dpkg -l unattended-upgrades | grep -q '^ii'; then
+        if [[ "$DRY_RUN" == "false" ]]; then
+            apt-get install -y unattended-upgrades
+            dpkg-reconfigure --priority=low unattended-upgrades
+        else
+            log INFO "[DRY-RUN] Instalaría y configuraría unattended-upgrades"
+            return 0
+        fi
+    fi
+
+    # Asegurar que está habilitado para seguridad
+    if [[ "$DRY_RUN" == "false" ]]; then
+        systemctl enable unattended-upgrades
+        systemctl start unattended-upgrades
+    fi
+    log INFO "✅ Actualizaciones automáticas de seguridad configuradas."
+}
+
+# --- Verificación Post-Hardening (C8) ----------------------------------------
+verify_hardening() {
+    log INFO "🔍 Verificando estado post-hardening..."
+    
+    local status_pass=0
+    
+    # SSH
+    if grep -q "PermitRootLogin no" /etc/ssh/sshd_config; then log INFO "✅ SSH RootLogin: disabled"; else ((status_pass++)); fi
+    if grep -q "PasswordAuthentication no" /etc/ssh/sshd_config; then log INFO "✅ SSH PasswordAuth: disabled"; else ((status_pass++)); fi
+    
+    # UFW
+    if ufw status verbose | grep -q "Status: active"; then log INFO "✅ UFW: active"; else ((status_pass++)); fi
+    
+    # Fail2Ban
+    if systemctl is-active --quiet fail2ban; then log INFO "✅ Fail2Ban: running"; else ((status_pass++)); fi
+    
+    if [[ $status_pass -gt 0 ]]; then
+        log WARN "⚠️ $status_pass verificaciones fallaron. Revisar manualmente."
+    else
+        log INFO "✅ Todas las verificaciones de hardening superadas."
+    fi
+}
+
+# --- Ejecución Principal -----------------------------------------------------
+main() {
+    parse_args "$@"
+    pre_flight_checks
+    
+    log INFO "🚀 Iniciando endurecimiento de VPS (Env: $ENVIRONMENT)..."
+    
+    secure_ssh
+    configure_ufw
+    configure_fail2ban
+    apply_sysctl_hardening
+    setup_unattended_upgrades
+    
+    verify_hardening
+    
+    log INFO "🎉 Hardening completado. Backup de configs original en: $BACKUP_DIR"
+    log INFO "👉 Próximos pasos:"
+    log INFO "   1. Verificar acceso SSH desde nueva terminal ANTES de cerrar sesión actual."
+    log INFO "   2. Ejecutar: sudo ufw status verbose | sudo fail2ban-client status sshd"
+    log INFO "   3. Continuar con despliegue: docker-compose up -d"
+}
+
+main "$@"
 
 
 ---

@@ -1,0 +1,203 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "docker-compose-template-v1.0.0"
+artifact_type: "template"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C1","C2","C5","C8"]
+canonical_path: "05-CONFIGURATIONS/templates/docker-compose-template.yml"
+domain: "05-CONFIGURATIONS"
+subdomain: "templates"
+agent_role: "docker-compose-templating"
+language_lock: "yaml-json-schema"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain templates --file 05-CONFIGURATIONS/templates/docker-compose-template.yml --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "3f9945abd04e0949e7ab333f64311c74fa2be922ee6a518c6c2369c35f420bce"
+# FIN FRONTMATTER
+---
+
+# =============================================================================
+# DOCKER COMPOSE TEMPLATE — MANTIS AGENTIC ECOSYSTEM v2.0.0
+# =============================================================================
+# Propósito: Plantilla base estandarizada para nuevos servicios. Incluye:
+#            anchors de seguridad, health checks, límites de recursos (C1/C2),
+#            secrets como archivos, logging rotativo y labels OCI (C4/C8).
+# Uso: Copiar a 05-CONFIGURATIONS/docker-compose/compose.{env}.yaml y adaptar.
+# Versión: 1.0.0-COMPREHENSIVE | Estado: READY_FOR_DEPLOY
+# =============================================================================
+
+# --- YAML Anchors para Reutilización (C5: Consistencia estructural) ---
+x-service-security: &service-security
+  cap_drop:
+    - ALL
+  cap_add:
+    - NET_BIND_SERVICE  # Solo si puerto < 1024
+  security_opt:
+    - no-new-privileges:true
+  read_only: true
+  tmpfs:
+    - /tmp:noexec,nosuid,size=64M
+    - /var/run:noexec,nosuid,size=16M
+  user: "1001:1001"  # Ejecutar como non-root
+
+x-service-health: &service-health
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
+
+x-service-logging: &service-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+      labels: "service,env,version"
+
+x-service-resources: &service-resources
+  deploy:
+    resources:
+      limits:
+        cpus: '${CPU_LIMIT:-2}'
+        memory: '${MEM_LIMIT:-2G}'
+      reservations:
+        cpus: '${CPU_RESERVE:-0.5}'
+        memory: '${MEM_RESERVE:-512M}'
+
+# --- Servicios ---
+services:
+  # Aplicación principal
+  app:
+    image: ${REGISTRY}/${APP_NAME}:${VERSION:-latest}@${IMAGE_DIGEST:?IMAGE_DIGEST obligatorio (C1)}
+    container_name: mantis-${APP_NAME}
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DATABASE_URL_FILE=/run/secrets/db_url
+      - REDIS_URL=redis://redis:6379
+      - ENABLE_PGVECTOR=${ENABLE_PGVECTOR:-false}
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    secrets:
+      - db_url
+      - jwt_secret
+    <<: [*service-security, *service-health, *service-logging, *service-resources]
+    labels:
+      org.opencontainers.image.source: "${REPO_URL}"
+      org.opencontainers.image.version: "${VERSION}"
+      org.opencontainers.image.revision: "${GIT_SHA}"
+      com.mantis.team: "${TEAM:-platform}"
+      com.mantis.env: "${ENVIRONMENT}"
+
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15-alpine@sha256:${PG_DIGEST}
+    container_name: mantis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ${DB_NAME:-mantis}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${DB_NAME:-mantis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: '${DB_MEM_LIMIT:-4G}'
+    secrets:
+      - db_password
+    <<: *service-logging
+
+  # Caché Redis
+  redis:
+    image: redis:7-alpine@sha256:${REDIS_DIGEST}
+    container_name: mantis-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: '${REDIS_MEM_LIMIT:-1G}'
+    <<: [*service-security, *service-logging]
+
+# --- Redes (Aislamiento C2/C4) ---
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true  # Sin acceso a Internet, solo comunicación interna
+
+# --- Volúmenes Persistentes ---
+volumes:
+  pg_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/mantis/data/postgres  # Ruta host configurable
+  redis_data:
+    driver: local
+
+# --- Secrets (C3: Nunca en texto plano ni env vars) ---
+secrets:
+  db_url:
+    file: ./secrets/db_url.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+
+# =============================================================================
+# NOTAS DE USO Y ANTI-PATRÓNES
+# =============================================================================
+# ✅ DO:
+# - Reemplazar ${VARIABLES} con valores de .env.{environment}
+# - Usar IMAGE_DIGEST y *_DIGEST para inmutabilidad (C1)
+# - Montar secrets como archivos en /run/secrets/ (C3)
+# - Mantener healthcheck endpoints profundos (/health/ready) (C8)
+#
+# ❌ DON'T:
+# - Usar :latest sin digest SHA256
+# - Hardcodear contraseñas en environment: []
+# - Exponer puertos de DB/Redis al host (usar expose + redes internas)
+# - Omitir user: "1001:1001" o cap_drop: [ALL] en producción
+#
+# 🔧 VALIDACIÓN:
+# docker compose -f compose.template.yml config --quiet
+# orchestrator-engine.sh --domain templates --file compose.template.yml --strict
+# =============================================================================
+
+
+---

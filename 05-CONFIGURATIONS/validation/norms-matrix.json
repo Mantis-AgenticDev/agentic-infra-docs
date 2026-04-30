@@ -510,9 +510,9 @@
         "wikilink": "[[PROJECT_TREE.md#05-CONFIGURATIONS]]"
       },
       {
-        "path_pattern": "^/06-PROGRAMMING/bash/.*\\.go\\.md$",
+        "path_pattern": "^/06-PROGRAMMING/bash/.*\\.md$",
         "language": "bash",
-        "extension": ".go.md",
+        "extension": ".md",
         "artifact_type": "skill_bash",
         "constraints_allowed": [
           "C1",
@@ -1254,7 +1254,7 @@
   },
   "domain_context_overrides": {
     "description_doc": "【EDUCATIVO】Reglas contextuales de validación. Define anti-patrones permitidos o prohibidos según el dominio.",
-    "05-WORKFLOWS/n8n/": {
+    "04-WORKFLOWS/n8n/": {
       "allowed_constraints": ["C1", "C2", "C3", "C4", "C5"],
       "forbidden_patterns": ["anti-pattern", "deprecated", "example-only"],
       "severity_on_violation": "error"

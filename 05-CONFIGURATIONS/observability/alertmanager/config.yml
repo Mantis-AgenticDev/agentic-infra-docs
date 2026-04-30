@@ -1,0 +1,128 @@
+---
+artifact_id: alertmanager-config-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C3","C4","C5","C8"]
+canonical_path: 05-CONFIGURATIONS/observability/alertmanager/config.yml
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "sre_ops"]
+human_readable: false
+checksum_sha256: "d0ee846603b0067e5744559f76914c30286d7697dd5aa38a05753627c8094806"
+---
+# ALERTMANAGER CONFIGURATION (MANTIS v2.0.0)
+# Propósito: Enrutamiento, agrupación e inhibición de alertas Prometheus para notificación controlada.
+# Generado por: configurations-master-agent
+# Fecha: 2026-04-30
+# Alineación: mantis-alerts.yml (#49), prometheus.yml (#53), mapping.yaml
+
+global:
+  resolve_timeout: 5m
+  # SMTP placeholders (C3: inyectar vía Docker secrets o CI env)
+  smtp_smarthost: '${SMTP_HOST}'
+  smtp_from: '${SMTP_FROM}'
+  smtp_auth_username: '${SMTP_USER}'
+  smtp_auth_password: '${SMTP_PASS}'
+  # Slack webhook (C3: never hardcoded)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+route:
+  receiver: 'slack-default'
+  group_by: ['alertname', 'severity', 'service', 'environment'] # C4: trazabilidad dimensional
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: false
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+      group_wait: 2m
+      repeat_interval: 8h
+    - match_re:
+        service: qdrant|postgresql
+      receiver: 'slack-database-vector'
+      continue: true
+
+receivers:
+  - name: 'slack-default'
+    slack_configs:
+      - channel: '#mantis-alerts'
+        title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          **Severity:** `{{ .Labels.severity }}`
+          **Service:** `{{ .Labels.service }}`
+          **Environment:** `{{ .Labels.environment }}`
+          **Description:** {{ .Annotations.description }}
+          **Value:** {{ .Value }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#mantis-warnings'
+        title: '⚠️ {{ .CommonLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}'
+        send_resolved: true
+
+  - name: 'slack-database-vector'
+    slack_configs:
+      - channel: '#mantis-infra-alerts'
+        title: '🗄️/🔍 {{ .CommonLabels.alertname }}'
+        text: '{{ range .Alerts }}**{{ .Labels.instance }}**: {{ .Annotations.description }}\n{{ end }}'
+        send_resolved: true
+
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_ROUTING_KEY}' # C3: inyectar post-deploy
+        description: '{{ .CommonLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+        details:
+          instance: '{{ .Labels.instance }}'
+          severity: '{{ .CommonLabels.severity }}'
+          environment: '{{ .Labels.environment }}'
+
+inhibit_rules: # C8: Prevención de fatiga de alertas
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'environment']
+  - source_match:
+      alertname: 'HighInstanceCPU'
+    target_match:
+      alertname: 'QdrantHighMemoryUsage'
+    equal: ['instance']
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS (C3, C4, C5, C8)
+# ============================================================================
+# ❌ NUNCA: Hardcodear `slack_api_url`, `smtp_auth_password` o `routing_key` en este archivo (viola C3)
+# ❌ NUNCA: Omitir `inhibit_rules` (causa alertas duplicadas y fatiga operativa, viola C8)
+# ❌ NUNCA: `group_wait < 10s` o `repeat_interval < 1h` para warnings (ruido innecesario, viola C8)
+# ❌ NUNCA: Usar `continue: true` sin justificación en ADR (duplica notificaciones accidentalmente)
+# ✅ SIEMPRE: Validar con `amtool check-config` antes de deploy (C5)
+# ✅ SIEMPRE: Alinear `group_by` con labels de `prometheus.yml` y `otel-tracing-config.yaml` (C4)
+# ✅ SIEMPRE: Mantener `resolve_timeout` consistente con `evaluation_interval` de Prometheus
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# yq eval '.' 05-CONFIGURATIONS/observability/alertmanager/config.yml > /dev/null && echo "✅ YAML válido"
+# amtool check-config 05-CONFIGURATIONS/observability/alertmanager/config.yml 2>&1 | grep -q "Checking" && echo "✅ Config Alertmanager OK"
+# orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/observability/alertmanager/config.yml --strict
+# CHECKSUM=$(sha256sum 05-CONFIGURATIONS/observability/alertmanager/config.yml | awk '{print $1}') && sed -i "s/^checksum_sha256: "d0ee846603b0067e5744559f76914c30286d7697dd5aa38a05753627c8094806"
+
+
+---

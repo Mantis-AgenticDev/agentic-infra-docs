@@ -1,0 +1,231 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "observability-template-v1.0.0"
+artifact_type: "template"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C4","C5","C8"]
+canonical_path: "05-CONFIGURATIONS/templates/observability-template.yaml"
+domain: "05-CONFIGURATIONS"
+subdomain: "templates"
+agent_role: "observability-templating"
+language_lock: "yaml"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain templates --file 05-CONFIGURATIONS/templates/observability-template.yaml --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "e30431b11dcb4c38a188d481e3c3020f4bd643a1936ba8842546f1cc239917c4"
+# FIN FRONTMATTER
+---
+
+# =============================================================================
+# OBSERVABILITY CONFIGURATION TEMPLATE — MANTIS AGENTIC ECOSYSTEM v2.0.0
+# =============================================================================
+# Propósito: Plantilla unificada para desplegar Prometheus, Alertmanager y 
+#            Grafana. Define estándares de métricas, labels de trazabilidad (C4),
+#            rutas de alertas y estructura de dashboards (C8).
+# Uso: Copiar a 05-CONFIGURATIONS/observability/config.{env}.yaml y renderizar.
+# Versión: 1.0.0-COMPREHENSIVE | Estado: READY_FOR_DEPLOY
+# =============================================================================
+
+# --- Variables Globales (Renderizar con envsubst o CI/CD template engine) ---
+template_metadata:
+  environment: "${ENVIRONMENT:-dev}"
+  cluster_id: "${CLUSTER_ID:-mantis-core}"
+  retention_days: "${RETENTION_DAYS:-30}"
+  slack_channel: "${ALERT_SLACK_CHANNEL:-#ops-alerts}"
+
+# =============================================================================
+# SECCIÓN 1: PROMETHEUS — SCRAPE CONFIG & EXTERNAL LABELS (C4/C8)
+# =============================================================================
+prometheus_config:
+  global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+    scrape_timeout: 10s
+    external_labels:
+      environment: "${ENVIRONMENT}"
+      cluster: "${CLUSTER_ID}"
+      managed_by: "mantis-agentic"
+      constraint_mapping: "C4,C8"
+
+  rule_files:
+    - "/etc/prometheus/rules/mantis-alerts.yml"
+    - "/etc/prometheus/rules/vector-alerts.yml"
+
+  scrape_configs:
+    # Aplicación MANTIS (RED Method)
+    - job_name: "mantis-app"
+      metrics_path: "/metrics"
+      static_configs:
+        - targets: ["app:8080"]
+          labels:
+            service: "mantis-api"
+            tenant_id: "${TENANT_ID:-internal}"
+            language: "${APP_LANG:-nodejs}"
+
+    # Base de datos PostgreSQL + pgvector (USE Method)
+    - job_name: "postgres-pgvector"
+      metrics_path: "/metrics"
+      static_configs:
+        - targets: ["pg-exporter:9187"]
+          labels:
+            service: "postgres"
+            tenant_id: "${TENANT_ID:-internal}"
+            extension: "pgvector"
+
+    # Qdrant Vector DB (USE Method)
+    - job_name: "qdrant"
+      metrics_path: "/qdrant/metrics"
+      static_configs:
+        - targets: ["qdrant:6333"]
+          labels:
+            service: "qdrant-vector"
+            index_type: "${VECTOR_INDEX:-hnsw}"
+
+    # Infraestructura Base (Node Exporter)
+    - job_name: "node-exporter"
+      static_configs:
+        - targets: ["node-exporter:9100"]
+          labels:
+            service: "vps-infra"
+            profile: "${INFRA_PROFILE:-micro}"
+
+  # Relabeling para normalizar labels (C4: Consistencia de trazabilidad)
+  relabel_configs_standard:
+    - source_labels: [__address__]
+      target_label: instance
+      regex: "([^:]+)(?::\\d+)?"
+      replacement: "$1"
+    - target_label: __metrics_path__
+      replacement: "/metrics"
+
+# =============================================================================
+# SECCIÓN 2: ALERTMANAGER — ROUTING & INHIBITION (C7/C8)
+# =============================================================================
+alertmanager_config:
+  global:
+    resolve_timeout: 5m
+    slack_api_url: "${SLACK_WEBHOOK_URL}"
+
+  route:
+    receiver: "slack-default"
+    group_by: ["alertname", "environment", "service"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      - match:
+          severity: critical
+        receiver: "pagerduty-critical"
+        continue: false
+      - match:
+          constraint: "V3"
+        receiver: "slack-vector-team"
+        group_wait: 10s
+
+  receivers:
+    - name: "slack-default"
+      slack_configs:
+        - channel: "${ALERT_SLACK_CHANNEL}"
+          send_resolved: true
+          title: "{{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})"
+          text: "{{ .CommonAnnotations.summary }}\n*Env*: {{ .CommonLabels.environment }}\n*Service*: {{ .CommonLabels.service }}"
+    - name: "pagerduty-critical"
+      pagerduty_configs:
+        - service_key: "${PAGERDUTY_SERVICE_KEY}"
+          severity: "{{ .CommonLabels.severity }}"
+    - name: "slack-vector-team"
+      slack_configs:
+        - channel: "#vector-search-alerts"
+          send_resolved: true
+          title: "⚠️ Degradación Vectorial: {{ .CommonLabels.alertname }}"
+
+  inhibition_rules:
+    # Suprimir warnings de servicio si hay alerta crítica de infra
+    - source_match:
+        severity: "critical"
+        alertname: "NodeExporterHighMemory"
+      target_match:
+        severity: "warning"
+        alertname: "VectorServiceMemoryPressure"
+      equal: ["instance", "environment"]
+
+# =============================================================================
+# SECCIÓN 3: GRAFANA — PROVISIONING & DATASOURCES (C8)
+# =============================================================================
+grafana_provisioning:
+  datasources:
+    - name: "Prometheus"
+      type: "prometheus"
+      access: "proxy"
+      url: "http://prometheus:9090"
+      isDefault: true
+      editable: false
+      jsonData:
+        timeInterval: "15s"
+        httpMethod: "POST"
+
+  dashboards:
+    - name: "MANTIS Core"
+      folder: "Infrastructure"
+      editable: true
+      json:
+        __file__: "grafana/dashboards/core-mantis.json"
+    - name: "Vector Performance"
+      folder: "AI/ML"
+      editable: true
+      json:
+        __file__: "grafana/dashboards/vector-performance.json"
+
+  # Notificación de cambios en dashboards
+  annotations:
+    - name: "Deployment Markers"
+      type: "dashboard"
+      enable: true
+      iconColor: "rgba(0, 211, 255, 1)"
+
+# =============================================================================
+# SECCIÓN 4: ESTÁNDARES DE MÉTRICAS (RED / USE)
+# =============================================================================
+metric_standards:
+  red_method: # Rate, Errors, Duration (Aplicaciones/Servicios)
+    rate: "http_requests_total{job=~\"mantis.*\"}"
+    errors: "http_requests_total{status=~\"5..\"}"
+    duration: "http_request_duration_seconds_bucket"
+
+  use_method: # Utilization, Saturation, Errors (Infra/DB)
+    utilization: "node_cpu_seconds_total{mode=\"idle\"}"
+    saturation: "node_load1"
+    errors: "node_disk_io_time_weighted_seconds_total"
+
+  label_conventions:
+    mandatory: ["environment", "service", "tenant_id", "instance"]
+    optional: ["language", "index_type", "profile"]
+    forbidden_high_cardinality: ["request_id", "trace_id", "user_email", "sql_query"]
+
+# =============================================================================
+# ANTI-PATRÓNES Y NOTAS DE DESPLIEGUE
+# =============================================================================
+anti_patterns:
+  - violation: "Usar request_id o trace_id como label en Prometheus"
+    correction: "Mover a structured logs o structured_metadata. Los labels indexados aumentan cardinalidad exponencialmente."
+  - violation: "Omitir external_labels en Prometheus"
+    correction: "Siempre incluir environment, cluster y constraint_mapping para trazabilidad C4."
+  - violation: "Alertas sin group_by o con group_wait=0s"
+    correction: "Agrupar por alertname, environment y service. Usar group_wait >= 30s para evitar spam."
+  - violation: "Dashboards hardcodeados sin provisioning"
+    correction: "Usar grafana_provisioning para versionado en Git y CI/CD."
+
+self_validation:
+  commands:
+    - name: "Validar sintaxis YAML"
+      command: "yq eval '.' 05-CONFIGURATIONS/templates/observability-template.yaml > /dev/null"
+    - name: "Verificar claves obligatorias"
+      command: "yq 'has(\"prometheus_config\") and has(\"alertmanager_config\") and has(\"grafana_provisioning\")' 05-CONFIGURATIONS/templates/observability-template.yaml"
+    - name: "Renderizar con envsubst (prueba)"
+      command: "envsubst < 05-CONFIGURATIONS/templates/observability-template.yaml | yq eval '.' > /dev/null"
+
+
+---

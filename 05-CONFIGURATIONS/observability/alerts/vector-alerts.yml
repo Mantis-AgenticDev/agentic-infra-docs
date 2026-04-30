@@ -1,0 +1,158 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "vector-alerts-v1.0.0"
+artifact_type: "prometheus_rules"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C7","C8","V3"]
+canonical_path: "05-CONFIGURATIONS/observability/alerts/vector-alerts.yml"
+domain: "05-CONFIGURATIONS"
+subdomain: "observability"
+agent_role: "vector-alerting"
+language_lock: "yaml"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain observability --file 05-CONFIGURATIONS/observability/alerts/vector-alerts.yml --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "b92a8f46b02f6f6c77826d481d5394147c31ec7767b219eafda184b23dfcfb14"
+# FIN FRONTMATTER
+---
+
+# =============================================================================
+# PROMETHEUS ALERT RULES — VECTOR SEARCH PERFORMANCE (V3)
+# =============================================================================
+# Propósito: Detectar degradación temprana en índices HNSW/IVFFlat y servicios
+#            vectoriales (Qdrant/pgvector) antes de impactar la experiencia.
+# Versión: 1.0.0-COMPREHENSIVE | Estado: READY_FOR_DEPLOY
+# =============================================================================
+
+groups:
+  - name: mantis-vector-alerts
+    rules:
+      # =========================================================================
+      # LATENCIA ANÓMALA (Umbral V3: p95 > 500ms, p99 > 1000ms)
+      # =========================================================================
+      - alert: VectorSearchHighLatencyP95
+        expr: >
+          histogram_quantile(0.95, sum(rate(qdrant_search_duration_seconds_bucket[5m])) by (le, job)) > 0.5
+          or
+          histogram_quantile(0.95, sum(rate(pgvector_query_duration_seconds_bucket[5m])) by (le, job)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          domain: observability
+          constraint: V3
+        annotations:
+          summary: "⚠️ Latencia p95 de búsqueda vectorial > 500ms ({{ $value | humanizeDuration }})"
+          description: "El percentil 95 de latencia supera el umbral V3. Verificar fragmentación de índice, carga de CPU o límites de `ef_search`."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-high-latency"
+
+      - alert: VectorSearchHighLatencyP99
+        expr: >
+          histogram_quantile(0.99, sum(rate(qdrant_search_duration_seconds_bucket[5m])) by (le, job)) > 1.0
+          or
+          histogram_quantile(0.99, sum(rate(pgvector_query_duration_seconds_bucket[5m])) by (le, job)) > 1.0
+        for: 2m
+        labels:
+          severity: critical
+          domain: observability
+          constraint: V3, C7
+        annotations:
+          summary: "🛑 Latencia p99 de búsqueda vectorial > 1s ({{ $value | humanizeDuration }})"
+          description: "Degradación severa. Riesgo de timeouts en agentes RAG. Revisar métricas de memoria y considerar reindexación o escalado."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-p99-latency"
+
+      # =========================================================================
+      # PRECISIÓN/RECALL DEL ÍNDICE (V2: Validación de integridad de datos)
+      # =========================================================================
+      - alert: VectorIndexRecallDegradation
+        expr: vector_recall_accuracy_ratio{job=~"pgvector|qdrant-exporter"} < 0.90
+        for: 10m
+        labels:
+          severity: warning
+          domain: observability
+          constraint: V2
+        annotations:
+          summary: "📉 Recall del índice vectorial caído por debajo del 90%"
+          description: "Aproximate Nearest Neighbor está perdiendo precisión. Ajustar parámetros `m`, `ef_construction` o ejecutar `REINDEX`/`VACUUM`."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-recall-fix"
+
+      # =========================================================================
+      # CONSUMO DE RECURSOS (C1/C7: Prevención de OOM y cuellos de botella)
+      # =========================================================================
+      - alert: VectorServiceMemoryPressure
+        expr: process_resident_memory_bytes{job=~"qdrant|pgvector"} / (node_memory_MemTotal_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes) > 0.85
+        for: 5m
+        labels:
+          severity: critical
+          domain: observability
+          constraint: C1, C7
+        annotations:
+          summary: "💾 Presión de memoria > 85% en servicio vectorial"
+          description: "HNSW consume RAM intensivamente. Riesgo inminente de OOM Killer. Escalar verticalmente o migrar a IVFFlat para perfiles nano/micro."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-oom-prevention"
+
+      - alert: VectorQueryQueueBacklog
+        expr: vector_query_pending_requests{job=~"qdrant|pgvector"} > 50
+        for: 3m
+        labels:
+          severity: warning
+          domain: observability
+          constraint: V3, C2
+        annotations:
+          summary: "📦 Cola de queries vectoriales saturada (>50 pendientes)"
+          description: "Workers saturados. Verificar throughput máximo del índice o habilitar réplicas de lectura."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-queue-backlog"
+
+      # =========================================================================
+      # ERRORES Y ESTADO DEL SERVICIO (C8: Calidad de entrega)
+      # =========================================================================
+      - alert: VectorSearchErrorRateHigh
+        expr: >
+          sum(rate(vector_search_errors_total[5m])) / sum(rate(vector_search_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          domain: observability
+          constraint: C8
+        annotations:
+          summary: "❌ Tasa de errores en búsqueda vectorial > 1%"
+          description: "Queries fallando masivamente. Revisar logs por embeddings mal formados, índices corruptos o límites de timeout."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-error-rate"
+
+      - alert: VectorIndexBuildFailed
+        expr: vector_index_build_status{status="failed"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          domain: observability
+          constraint: V3
+        annotations:
+          summary: "🚨 Fallo crítico en construcción/reconstrucción de índice"
+          description: "Indexación falló. Verificar espacio en disco, permisos o memoria insuficiente. Requiere intervención manual."
+          runbook_url: "https://mantis-agentic.dev/runbooks/vector-index-rebuild"
+
+# =============================================================================
+# ANTI-PATRÓNES Y NOTAS DE OPERACIÓN
+# =============================================================================
+anti_patterns:
+  - violation: "Alertas sin campo `for` o con duración < 1m"
+    correction: "Siempre incluir `for` para evitar alertas efímeras por picos de carga."
+  - violation: "Umbrales hardcodeados sin contexto de perfil (nano vs large)"
+    correction: "Usar `{{ $labels.infra_profile }}` en descripción o crear reglas separadas por entorno."
+  - violation: "Falta de `runbook_url` en anotaciones"
+    correction: "Toda alerta crítica/degradación debe enlazar a procedimiento de resolución."
+
+# =============================================================================
+# VALIDACIÓN AUTOMÁTICA (C5/C8)
+# =============================================================================
+self_validation:
+  commands:
+    - name: "Validar sintaxis con promtool"
+      command: "promtool check rules 05-CONFIGURATIONS/observability/alerts/vector-alerts.yml"
+    - name: "Verificar carga en Prometheus"
+      command: "curl -s http://localhost:9090/api/v1/rules | jq '.status' | grep -q success"
+
+
+---

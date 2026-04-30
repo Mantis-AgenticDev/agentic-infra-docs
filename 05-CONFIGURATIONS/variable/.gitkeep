@@ -1,0 +1,86 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "variable-gitkeep-v1.0.0"
+artifact_type: "directory_placeholder"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C3","C4","C5"]
+canonical_path: "05-CONFIGURATIONS/variable/.gitkeep"
+domain: "05-CONFIGURATIONS"
+subdomain: "variable"
+agent_role: "variable-coordinator"
+language_lock: "markdown"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/variable/.gitkeep --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "ci_cd_team"]
+human_readable: true
+checksum_sha256: "c05553cc46138d8a4b7bc85df38841df51861f2bf30a61cb52048c033bdc56c4"
+# FIN FRONTMATTER
+---
+
+# 🔑 05-CONFIGURATIONS/variable/ — Directorio de Variables Dinámicas (Runtime)
+
+> **Propósito**: Directorio reservado para variables generadas o inyectadas en tiempo de ejecución por pipelines CI/CD, orquestadores (`orchestrator-engine.sh`), scripts de init o agentes maestros. **NUNCA commitear valores reales**; solo placeholders, templates o metadatos de referencia.
+
+## 🗂️ Estructura Esperada
+
+```
+variable/
+├── .gitkeep                      # ← Este archivo (placeholder + documentación)
+├── .gitignore                    # Reglas para bloquear valores sensibles
+├── README.md                     # Instrucciones de uso para pipelines/agentes
+├── templates/
+│   ├── runtime-vars.env.example  # Formato esperado para inyección
+│   └── dynamic-config.yaml.tpl   # Plantilla con variables interpolables
+└── metadata/
+    └── injection-log.jsonl       # Registro de auditoría de inyecciones (solo logs)
+```
+
+## 📜 Reglas de Uso (C3/C4/C5)
+
+| Regla | Descripción | Herramienta/Flag |
+|-------|-------------|------------------|
+| **Cero valores en Git** | Solo se permiten `.example`, `.tpl` o `.md`. Valores reales van a `environment/.env.*` cifrados o a vaults externos. | `.gitignore: *.{key,pem,crt,env,secret}`, `audit-secrets.sh` |
+| **Inyección segura** | Las variables se inyectan via CI/CD secrets, Docker `--env-file`, o mount `/run/secrets/`. | `docker compose`, `github actions secrets`, `vault kv get` |
+| **Trazabilidad de origen** | Cada variable inyectada debe registrar `source`, `timestamp` y `injected_by` en `metadata/injection-log.jsonl`. | `jq`, `tee -a` |
+| **Validación pre-uso** | Scripts/agentes deben validar existencia y formato antes de consumir. | `bash: [[ -v VAR_NAME ]]`, `yq eval` |
+| **Limpieza automática** | Variables temporales se eliminan al finalizar ejecución (`trap cleanup EXIT`). | `rm -f /tmp/mantis-var-*.env` |
+
+## 🛡️ Comandos de Verificación
+
+```bash
+# Verificar que no hay valores reales commiteados
+git ls-files 05-CONFIGURATIONS/variable/ | grep -E '\.(env|key|pem|crt|secret)$' && echo "❌ VIOLACIÓN C3" || echo "✅ Limpio"
+
+# Auditar posibles fugas en historial
+bash 05-CONFIGURATIONS/validation/audit-secrets.sh --path 05-CONFIGURATIONS/variable/ --scan-history
+
+# Validar plantilla de inyección
+yq eval '.' 05-CONFIGURATIONS/variable/templates/runtime-vars.env.example >/dev/null 2>&1 && echo "✅ Template válido"
+```
+
+## ⚠️ Anti-Patrones Explícitos (DO NOT)
+
+❌ Commitear archivos `.env`, `*.key`, `*.pem` o `*.secret` con contenido real  
+❌ Hardcodear credenciales en scripts usando `export API_KEY=abc123`  
+❌ Omitir `.gitignore` en `variable/` (permitiría track accidental)  
+❌ Inyectar variables sin registrar en `injection-log.jsonl` (pierde trazabilidad C4)  
+❌ Dejar archivos temporales en `/tmp` o `variable/` post-ejecución  
+
+✅ **Siempre** usar `.env.example` o `.yaml.tpl` como referencia de formato  
+✅ **Siempre** validar existencia de variables antes de usarlas en pipelines  
+✅ **Siempre** registrar origen y timestamp de inyección para auditoría  
+✅ **Siempre** usar `trap 'rm -f /tmp/mantis-vars-*.env' EXIT` en scripts temporales  
+
+## 🔗 Enlaces Canónicos Relacionados
+- [[../00-INDEX.md]] → Índice maestro del dominio `05-CONFIGURATIONS/`
+- [[../environment/mapping.yaml]] → Mapeo oficial de variables y consumers
+- [[../scripts/rotate-secrets.sh]] → Rotación segura de credenciales
+- [[../validation/audit-secrets.sh]] → Escaneo de fugas y hardcode
+- [[https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-actions]] → GitHub Secrets Docs
+
+---
+*Documento generado automáticamente por `generate-index.sh` v1.0.0 | Mantenido por `variable-coordinator` | Constraints: C3, C4, C5*
+
+---

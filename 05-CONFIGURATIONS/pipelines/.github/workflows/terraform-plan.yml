@@ -1,0 +1,142 @@
+---
+artifact_id: "terraform-plan-workflow-v1.0.0"
+artifact_type: "github_actions_workflow"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C1","C2","C3","C5","C6","C8"]
+canonical_path: "05-CONFIGURATIONS/pipelines/.github/workflows/terraform-plan.yml"
+domain: "05-CONFIGURATIONS"
+subdomain: "pipelines"
+agent_role: "ci-cd-orchestrator"
+language_lock: "yaml"
+validation_command: "actionlint 05-CONFIGURATIONS/pipelines/.github/workflows/terraform-plan.yml"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "devops_team"]
+human_readable: false
+checksum_sha256: "1989cd680b0d6e31bbf06c06717a6f897de101cb58b1c46a8a0d9898de0a16b3"
+---
+
+name: "Terraform Plan & Apply (MANTIS)"
+
+on:
+  pull_request:
+    paths: ['05-CONFIGURATIONS/terraform/**']
+  push:
+    branches: [main]
+    paths: ['05-CONFIGURATIONS/terraform/**']
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options: [dev, staging, prod]
+
+env:
+  TF_VERSION: "1.7.0"
+  AWS_REGION: ${{ vars.AWS_DEFAULT_REGION || 'us-east-1' }}
+  TF_WORKING_DIR: "05-CONFIGURATIONS/terraform"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
+
+  security-scan:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkov Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ env.TF_WORKING_DIR }}
+          framework: terraform
+          output_format: sarif
+          soft_fail: false
+      - name: Trivy Secret Scan
+        run: |
+          docker run --rm -v $PWD:/scan aquasec/trivy:latest fs /scan --scanners secret --exit-code 1
+
+  plan:
+    needs: [validate, security-scan]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      plan_exists: ${{ steps.plan.outputs.plan_exists }}
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform init
+          terraform plan -out=tfplan -detailed-exitcode
+          echo "plan_exists=true" >> $GITHUB_OUTPUT
+        env:
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const plan = require('fs').readFileSync('${{ env.TF_WORKING_DIR }}/tfplan.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📋 **Terraform Plan**\n\`\`\`\n${plan.substring(0, 65535)}\n\`\`\``
+            })
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.head_ref }}
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
+          retention-days: 1
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && needs.plan.outputs.plan_exists == 'true'
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: https://${{ github.event.inputs.environment || 'staging' }}.mantis.agentic
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ github.head_ref }}
+          path: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+      - name: Notify Success
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+            -H 'Content-type: application/json' \
+            -d "{\"text\": \"✅ Terraform aplicado en ${{ github.event.inputs.environment || 'staging' }}\"}"
+
+
+---

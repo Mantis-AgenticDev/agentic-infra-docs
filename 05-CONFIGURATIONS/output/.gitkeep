@@ -1,0 +1,96 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "output-gitkeep-v1.0.0"
+artifact_type: "directory_placeholder"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C1","C4"]
+canonical_path: "05-CONFIGURATIONS/output/.gitkeep"
+domain: "05-CONFIGURATIONS"
+subdomain: "output"
+agent_role: "output-coordinator"
+language_lock: "markdown"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/output/.gitkeep --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "release_team"]
+human_readable: true
+checksum_sha256: "ca4cd02fd726c9fef7b8807d8a7810e5d237bd4eec971d418c76e4f096093b11"
+# FIN FRONTMATTER
+---
+
+# 📦 05-CONFIGURATIONS/output/ — Directorio de Releases y Artefactos
+
+> **Propósito**: Directorio reservado para artefactos de salida generados por pipelines: binarios, imágenes Docker empaquetadas, SBOMs, checksums, manifests de despliegue y reportes de auditoría. **No commitear archivos grandes o binarios directamente**; usar Git LFS o almacenamiento externo (S3/GCS) con referencia aquí.
+
+## 🗂️ Estructura Esperada
+
+```
+output/
+├── releases/
+│   ├── v1.2.3/
+│   │   ├── mantis-app.zip          # Binario empaquetado
+│   │   ├── mantis-app.sha256       # Checksum de integridad
+│   │   ├── sbom.spdx.json          # Software Bill of Materials
+│   │   ├── deploy-manifest.json    # Metadata de despliegue
+│   │   └── audit-report.md         # Reporte de compliance pre-release
+│   └── v1.2.4/
+├── docker/
+│   ├── images/                     # Referencias a imágenes (no binarios)
+│   │   └── mantis-backend-v1.2.3.txt  # Contiene: registry/image@sha256:abc123
+│   └── compose-bundles/
+│       └── prod-bundle-v1.2.3.zip  # Docker Compose + .env.example + scripts
+├── reports/
+│   ├── security-audit-2026Q2.md
+│   ├── performance-baseline.json
+│   └── drift-summary-2026-04.md
+└── .gitkeep                        # ← Este archivo (placeholder)
+```
+
+## 📜 Reglas de Uso (C1/C4)
+
+| Regla | Descripción | Herramienta/Flag |
+|-------|-------------|------------------|
+| **No binarios en Git** | Archivos >1MB o binarios deben usar Git LFS o referencia externa | `git lfs track "*.zip"`, `s3 cp` |
+| **Checksum obligatorio** | Todo release debe incluir `.sha256` generado con `sha256sum` | `sha256sum file > file.sha256` |
+| **SBOM requerido** | Todo artefacto ejecutable debe incluir SBOM en formato SPDX | `syft dir:./src -o spdx-json > sbom.spdx.json` |
+| **Retención automática** | Releases antiguos (>90 días) se archivan automáticamente | `clean-old-releases.sh --retention 90` |
+| **Trazabilidad completa** | Cada release debe vincularse a commit SHA y pipeline run ID | `deploy-manifest.json` con `git_sha`, `workflow_run_id` |
+
+## 🧹 Limpieza y Mantenimiento
+
+```bash
+# Script de limpieza programada (C7: Resiliencia)
+bash 05-CONFIGURATIONS/scripts/clean-old-releases.sh --retention 90 --dry-run
+
+# Verificar integridad de releases actuales
+for f in 05-CONFIGURATIONS/output/releases/*/; do
+  sha256sum -c "${f}/*.sha256" || echo "❌ Checksum inválido en $f"
+done
+
+# Generar índice de releases disponibles
+ls -1 05-CONFIGURATIONS/output/releases/ | grep -v "^v" | sort -V > 05-CONFIGURATIONS/output/releases/INDEX.md
+```
+
+## ⚠️ Anti-Patrones Explícitos (DO NOT)
+
+❌ Commitear archivos >100MB directamente en Git (usar Git LFS o S3)  
+❌ Omitir `.sha256` o SBOM en nuevos releases  
+❌ Modificar releases existentes sin incrementar versión semántica  
+❌ Almacenar secrets o credenciales en `output/` (usar `security/` o gestor externo)  
+
+✅ **Siempre** generar checksum con `sha256sum` post-build  
+✅ **Siempre** incluir `deploy-manifest.json` con metadata trazable  
+✅ **Siempre** ejecutar `clean-old-releases.sh` mensual para liberar espacio  
+
+## 🔗 Enlaces Canónicos Relacionados
+- [[../00-INDEX.md]] → Índice maestro del dominio `05-CONFIGURATIONS/`
+- [[../scripts/packager-assisted.sh]] → Empaquetado de releases con SBOM
+- [[../scripts/clean-old-releases.sh]] → Limpieza programada de artefactos antiguos
+- [[../validation/orchestrator-engine.sh]] → Validación de constraints en releases
+- [[https://github.com/anchore/syft]] → Generación de SBOM con Syft
+
+---
+*Documento generado automáticamente por `generate-index.sh` v1.0.0 | Mantenido por `output-coordinator` | Constraints: C1, C4*
+
+---

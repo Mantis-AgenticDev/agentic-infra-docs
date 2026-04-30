@@ -1,0 +1,106 @@
+---
+artifact_id: prometheus-config-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C4","C5","C8","V3"]
+canonical_path: 05-CONFIGURATIONS/observability/prometheus.yml
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "sre_ops"]
+human_readable: false
+checksum_sha256: "fac7d58d80f20c4f7a6161690bed3847a14ea71c062341c7c76f9078df07c3a5"
+---
+# PROMETHEUS SCRAPING CONFIGURATION (MANTIS v2.0.0)
+# Propósito: Recolección de métricas para dashboards, alertas y análisis de performance vectorial (V3).
+# Generado por: configurations-master-agent / observability-master
+# Fecha: 2026-04-30
+# Alineación: otel-tracing-config.yaml, mantis-alerts.yml, mapping.yaml, interface-spec.yaml §observability
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    project: mantis-agentic
+    environment: "${ENVIRONMENT_TAG}"
+    constraint: "C4-traceability,C8-observability"
+
+rule_files:
+  - "alerts/mantis-alerts.yml"
+
+scrape_configs:
+  # --- NODE EXPORTER (Infraestructura base) ---
+  - job_name: "node"
+    static_configs:
+      - targets: ["localhost:9100"] # Ajustar a IP/DNS de host o contenedor según topología
+        labels: { service: "infrastructure", constraint: "C8" }
+
+  # --- DOCKER EXPORTER (Container metrics) ---
+  - job_name: "docker"
+    static_configs:
+      - targets: ["localhost:9323"]
+        labels: { service: "docker-runtime", constraint: "C8" }
+
+  # --- POSTGRESQL EXPORTER (DB & RLS V1) ---
+  - job_name: "postgresql"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["pg-exporter:9187"] # Servicio interno de Docker Compose / VPC
+        labels: { service: "database", constraint: "V1, C4" }
+
+  # --- QDRANT (Vector Search V3 Performance) ---
+  - job_name: "qdrant"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["qdrant:6333"] # DNS interno del clúster
+        labels: { service: "vector-search", constraint: "V3" }
+
+  # --- API PROXY / UAZ (C8 Quality & Latency) ---
+  - job_name: "api-gateway"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["uaz-api:4000"]
+        labels: { service: "api-gateway", constraint: "C8" }
+
+  # --- OPENTELEMETRY COLLECTOR (Self-monitoring & Bridge) ---
+  - job_name: "otel-collector"
+    static_configs:
+      - targets: ["otel-collector:8888"]
+        labels: { service: "otel-collector", constraint: "C4" }
+
+# Remote Write (Opcional: Federación o Grafana Cloud / Mimir)
+# remote_write:
+#   - url: "${PROMETHEUS_REMOTE_WRITE_URL}"
+#     headers:
+#       X-Scope-OrgID: mantis-prod
+#     queue_config:
+#       max_samples_per_send: 1000
+#       batch_send_deadline: 30s
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS (C4, C5, C8, V3)
+# ============================================================================
+# ❌ NUNCA: `scrape_interval < 5s` en producción (overhead de I/O y CPU, viola C8 estabilidad)
+# ❌ NUNCA: Exponer `basic_auth`, `bearer_token` o credenciales TLS inline (viola C3)
+# ❌ NUNCA: Omitir `evaluation_interval` o dejarlo >60s (retraso en evaluación de alertas, viola C8/V2)
+# ❌ NUNCA: Hardcodear IPs estáticas en `targets`; usar DNS interno de Docker/VPC o service discovery
+# ✅ SIEMPRE: Alinear `job_name` con labels de `otel-tracing-config.yaml` para correlación cross-signal
+# ✅ SIEMPRE: Validar sintaxis con `promtool check config` pre-deploy (C5)
+# ✅ SIEMPRE: Mantener `external_labels` consistentes para agregación multi-entorno (C4)
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# yq eval '.' 05-CONFIGURATIONS/observability/prometheus.yml > /dev/null && echo "✅ YAML válido"
+# promtool check config 05-CONFIGURATIONS/observability/prometheus.yml 2>&1 | grep -q "SUCCESS" && echo "✅ Config Prometheus OK"
+# orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/observability/prometheus.yml --strict
+# CHECKSUM=$(sha256sum 05-CONFIGURATIONS/observability/prometheus.yml | awk '{print $1}') && sed -i "s/^checksum_sha256: "fac7d58d80f20c4f7a6161690bed3847a14ea71c062341c7c76f9078df07c3a5"
+
+
+---

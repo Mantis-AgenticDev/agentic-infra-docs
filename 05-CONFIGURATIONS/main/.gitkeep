@@ -1,0 +1,88 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "main-gitkeep-v1.0.0"
+artifact_type: "directory_placeholder"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C1","C2","C4","C5"]
+canonical_path: "05-CONFIGURATIONS/main/.gitkeep"
+domain: "05-CONFIGURATIONS"
+subdomain: "main"
+agent_role: "entrypoint-coordinator"
+language_lock: "markdown"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/main/.gitkeep --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "devops_team"]
+human_readable: true
+checksum_sha256: "553439950265a49a7f45b58943e5373a5517402a8b4bbe3d270cc11ac9a6344f"
+# FIN FRONTMATTER
+---
+
+# 🚀 05-CONFIGURATIONS/main/ — Directorio de Entrypoints Canónicos
+
+> **Propósito**: Directorio reservado para scripts de entrada canónicos que orquestan la inicialización, validación cruzada y ejecución unificada de subdominios. Define estructura estándar, códigos de salida normalizados, integración con CI/CD y reglas de validación pre-ejecución.
+
+## 🗂️ Estructura Esperada
+
+```
+main/
+├── .gitkeep                      # ← Este archivo (placeholder + documentación)
+├── bootstrap.sh                  # Inicialización de entorno (vars, dirs, perms)
+├── entrypoint-validate.sh        # Validación cruzada pre-despliegue
+├── run-all.sh                    # Orquestador maestro de validación/audit
+└── README.md                     # Guía de uso, mapeo de argumentos y ejemplos
+```
+
+## 📜 Reglas de Uso (C1/C2/C4/C5)
+
+| Regla | Descripción | Herramienta/Flag |
+|-------|-------------|------------------|
+| **Resolución de rutas** | Nunca hardcodear paths absolutos. Resolver dinámicamente desde `git rev-parse --show-toplevel` o `SCRIPT_DIR` | `REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"` |
+| **Códigos de salida** | 0=Éxito, 1=Error validación, 2=Error crítico/infra, 3=Gate humano requerido | `exit $CODE` explícito en cada bloque |
+| **Idempotencia** | Ejecutar múltiples veces no debe corromper estado ni duplicar recursos | Checks previos `if [[ -d ... ]]; then ...` |
+| **Logging estandarizado** | Formato `[TIMESTAMP] [LEVEL] MESSAGE` con tee a archivo y stdout | `log_info()`, `log_error()` functions |
+| **Gate de seguridad** | Ningún script en `main/` ejecuta acciones destructivas sin `--confirm` o `--force` | `read -rp` o flag explícito |
+
+## 🛡️ Comandos de Ejecución y Validación
+
+```bash
+# Inicialización segura (dry-run por defecto)
+bash 05-CONFIGURATIONS/main/bootstrap.sh --env staging --dry-run
+
+# Validación cruzada completa
+bash 05-CONFIGURATIONS/main/entrypoint-validate.sh --scope all --strict
+
+# Orquestador maestro (ejecuta lint, audit, health, report)
+bash 05-CONFIGURATIONS/main/run-all.sh --env prod --parallel
+
+# Verificar que los entrypoints pasan linting
+for f in 05-CONFIGURATIONS/main/*.sh; do
+  shellcheck "$f" && echo "✅ $f OK" || echo "❌ $f FAILED"
+done
+```
+
+## ⚠️ Anti-Patrones Explícitos (DO NOT)
+
+❌ Hardcodear `ENV=prod` o `REGION=us-east-1` dentro de entrypoints  
+❌ Ejecutar `terraform apply` o `docker compose up` sin `plan` previo o `--dry-run`  
+❌ Omitir validación de dependencias (`command -v`, `jq`, `aws cli`) al inicio  
+❌ Usar `set +e` globalmente sin manejo explícito de errores por bloque  
+❌ Commitear sin actualizar `README.md` con nuevos flags o cambios de flujo  
+
+✅ **Siempre** resolver `SCRIPT_DIR` y `REPO_ROOT` dinámicamente  
+✅ **Siempre** incluir `--help` y validación de argumentos obligatorios  
+✅ **Siempre** registrar inicio/fin de ejecución en `/var/log/mantis-main-exec.log`  
+✅ **Siempre** enlazar entrypoints a `05-CONFIGURATIONS/pipelines/` para CI/CD  
+
+## 🔗 Enlaces Canónicos Relacionados
+- [[../00-INDEX.md]] → Índice maestro del dominio `05-CONFIGURATIONS/`
+- [[../scripts/deploy-all.sh]] → Orquestador de despliegue específico por entorno
+- [[../validation/orchestrator-engine.sh]] → Motor de validación de constraints
+- [[../pipelines/provider-router.yml]] → Enrutamiento de credenciales OIDC
+- [[https://www.shellcheck.net/wiki/]] → Reglas y correcciones ShellCheck
+
+---
+*Documento generado automáticamente por `generate-index.sh` v1.0.0 | Mantenido por `entrypoint-coordinator` | Constraints: C1, C2, C4, C5*
+
+---

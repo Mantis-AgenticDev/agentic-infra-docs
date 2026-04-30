@@ -1,0 +1,143 @@
+---
+# FRONTMATTER CANÓNICO OBLIGATORIO
+artifact_id: "loki-config-v1.0.0"
+artifact_type: "loki_configuration"
+version: "1.0.0-COMPREHENSIVE"
+constraints_mapped: ["C4","C8"]
+canonical_path: "05-CONFIGURATIONS/observability/loki/config.yml"
+domain: "05-CONFIGURATIONS"
+subdomain: "observability"
+agent_role: "loki-configurator"
+language_lock: "yaml"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain observability --file 05-CONFIGURATIONS/observability/loki/config.yml --strict"
+tier: 3
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "876975b30cafcd1c35a1b13353ae707e726d9eada97d9fd44fbcd1615b21a89e"
+# FIN FRONTMATTER
+---
+
+# =============================================================================
+# LOKI CONFIGURATION — MANTIS AGENTIC ECOSYSTEM v2.0.0
+# =============================================================================
+# Propósito: Agregación de logs estructurados con labels C4 (environment, 
+#            service, tenant_id). Configuración de almacenamiento y límites 
+#            para evitar cardinalidad excesiva.
+# Versión: 1.0.0-COMPREHENSIVE | Estado: READY_FOR_DEPLOY
+# Constraints: C4 (Trazabilidad), C8 (Observabilidad)
+# =============================================================================
+
+# --- Servidor ---
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  log_level: info
+  log_format: json
+
+# --- Límites Globales y por Tenant (C4: Control de Cardinalidad) ---
+limits_config:
+  # Rechazar muestras con timestamp muy antiguo (>24h)
+  reject_old_samples: true
+  reject_old_samples_max_age: 24h
+
+  # Límites de streams y labels para evitar "Cardinality Explosion"
+  max_streams_per_user: 0 # 0 = ilimitado por usuario (controlado por cluster)
+  max_global_streams_per_user: 10000
+  max_label_names_per_series: 30
+  max_line_size: 256kb
+  
+  # Permitir logs sin métricas asociadas si es necesario
+  enforce_metric_name: false
+  
+  # Retención por defecto (sobreescribible por tenant)
+  retention_period: 720h # 30 días
+
+# --- Ingester (Ingesta de Logs) ---
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  
+  chunk_idle_period: 1h
+  max_chunk_age: 1h
+  chunk_target_size: 1048576 # 1MB
+  chunk_encoding: snappy
+  wal:
+    enabled: true
+    dir: /loki/wal
+  autoforget_unhealthy: true
+
+# --- Query Frontend & Scheduler (Optimización C8) ---
+query_scheduler:
+  max_outstanding_requests_per_tenant: 2048
+
+frontend:
+  max_outstanding_per_tenant: 2048
+  log_queries_longer_than: 5s
+  compress_responses: true
+
+querier:
+  max_concurrent: 20
+  engine:
+    timeout: 120s
+
+# --- Esquema de Almacenamiento (Boltdb-Shipper) ---
+# Permite usar un solo backend para índices y chunks (S3/GCS/FS)
+schema_config:
+  configs:
+    - from: "2024-01-01"
+      store: boltdb-shipper
+      object_store: filesystem # Cambiar a 's3', 'gcs' o 'azure' en prod
+      schema: v12
+      index:
+        prefix: loki_index_
+        period: 24h
+
+# --- Configuración de Almacenamiento ---
+storage_config:
+  boltdb_shipper:
+    shared_store: filesystem # Cambiar a 's3', 'gcs', 'azure'
+    active_index_directory: /loki/index
+    cache_location: /loki/index_cache
+    cache_ttl: 24h
+  
+  filesystem:
+    directory: /loki/chunks
+
+  # Ejemplo para S3 (descomentar y configurar en prod):
+  # aws:
+  #   s3: s3://access_key:secret_key@region/bucket_name
+  #   s3forcepathstyle: true
+  #   bucketnames: loki-chunks
+
+# --- Compactor (Limpieza y Retención) ---
+compactor:
+  working_directory: /loki/boltdb-shipper-compactor
+  shared_store: filesystem
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+
+# --- Analítica (Opcional) ---
+analytics:
+  reporting_enabled: false
+
+# =============================================================================
+# NOTAS DE DESPLIEGUE Y MANTENIMIENTO
+# =============================================================================
+# 1. Labels C4: Promtail/Fluentd deben inyectar: environment, service, tenant_id.
+# 2. Cardinalidad: Evitar labels con alta cardinalidad (ej: request_id, trace_id)
+#    en los labels indexados. Usar 'structured_metadata' si es soportado.
+# 3. Almacenamiento: Para producción, cambiar 'filesystem' por S3/GCS en
+#    schema_config y storage_config.
+# 4. Validación: Ejecutar 'loki -verify-config -config.file=config.yml'
+# =============================================================================
+
+
+---

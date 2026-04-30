@@ -14,7 +14,7 @@ immutable: true
 requires_human_approval_for_changes: true
 audience: ["agentic_assistants"]
 human_readable: false
-checksum_sha256: "PENDING_GENERATION"
+checksum_sha256: "572497f116979cdd71df3b7e5071a2a1415f1404c6b1f61f803addb1445e3b77"
 ---
 
 # docker-compose-master-agent — Agente Maestro de Orquestación de Contenedores MANTIS v2.0.0

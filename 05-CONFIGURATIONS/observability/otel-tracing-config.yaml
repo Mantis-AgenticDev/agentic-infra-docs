@@ -1,159 +1,114 @@
-# 05-CONFIGURATIONS/observability/otel-tracing-config.yaml
-# ==============================================================================
-# OpenTelemetry Collector Configuration for SDD Hardened Agents
-# ==============================================================================
-# Descripción: Configuración para la captura, procesamiento y exportación de 
-# trazas, métricas y logs estructurados desde los agentes generadores y 
-# aplicaciones desplegadas. Cumple C8 (Observabilidad) y C4 (Trazabilidad por Tenant).
-#
-# Objetivo: Permitir la auditoría completa del flujo de generación de código,
-# desde el prompt inicial hasta el ZIP final, identificando cuellos de botella,
-# costes de inferencia y violaciones de constraints.
-#
-# Reglas Aplicadas: C4, C8
-# ==============================================================================
+---
+artifact_id: otel-tracing-config-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C4","C5","C8","V3"]
+canonical_path: 05-CONFIGURATIONS/observability/otel-tracing-config.yaml
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "fe13d8003939506b82c12d939952fa4b3f7c9a5e6c9ea700d1d248b96ab66133"
+---
+# OPENTELEMETRY COLLECTOR CONFIG (MANTIS v2.0.0)
+# Propósito: Trazabilidad distribuida, métricas de latencia (V3), enmascaramiento de secrets (C3)
+# Generado por: configurations-master-agent
+# Fecha: 2026-04-30
+# Alineación: interface-spec.yaml, mapping.yaml, health-check.sh
 
 receivers:
-  # Recepción de trazas desde SDKs de aplicación (Node.js/Python)
   otlp:
     protocols:
-      grpc:
-        endpoint: "0.0.0.0:4317"
-      http:
-        endpoint: "0.0.0.0:4318"
-
-  # Recepción de logs estructurados desde stdout/stderr de contenedores
-  filelog:
-    include:
-      - /var/log/agentic-agents/*.log
-    start_at: beginning
-    operators:
-      - type: json_parser
-        timestamp:
-          parse_from: attributes.timestamp
-          layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-        severity:
-          parse_from: attributes.level
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
 
 processors:
-  # Batcheo para optimizar envío a backend
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 80
+    spike_limit_percentage: 25
   batch:
     timeout: 10s
-    send_batch_size: 1024
-
-  # Enriquecimiento con metadatos de Tenant (C4)
-  resource:
-    attributes:
-      - key: service.namespace
-        value: "mantis-agentic-sdd"
-        action: upsert
+    send_batch_size: 1000
+  probabilistic_sampler:
+    hash_seed: 22
+    sampling_percentage: ${SAMPLING_RATE:-10} # Dev: 100, Staging: 50, Prod: 10
+  attributes:
+    actions:
       - key: deployment.environment
-        value: "${ENVIRONMENT:-production}"
-        action: upsert
-
-  # Transformación para extraer tenant_id de logs JSON (C4 Enforcement)
-  transform:
-    log_statements:
-      - context: log
-        statements:
-          - set(attributes["tenant_id"], body["tenant_id"]) where IsMap(body)
-          - set(attributes["constraint_violated"], body["constraint_violated"]) where IsMap(body)
-          - set(severity_text, "ERROR") where attributes["constraint_violated"] != nil
+        from_attribute: ENVIRONMENT_TAG
+        action: insert
+      - key: project.name
+        value: mantis-agentic
+        action: insert
+      # C3: Enmascaramiento explícito de headers/attributes sensibles
+      - key: http.request.header.authorization
+        action: delete
+      - key: http.request.header.api-key
+        action: delete
+      - key: db.statement
+        action: update
+        value: "[SANITIZED_QUERY]"
+        condition: 'attributes["db.statement"] contains "password"'
 
 exporters:
-  # Exportación a Backend de Trazas (ej: Jaeger, Tempo, Honeycomb)
   otlphttp/traces:
-    endpoint: "${OTEL_TRACES_ENDPOINT}"
-    headers:
-      Authorization: "Bearer ${OTEL_AUTH_TOKEN}"
-
-  # Exportación a Backend de Métricas (ej: Prometheus, Datadog)
-  prometheusremotewrite:
-    endpoint: "${OTEL_METRICS_ENDPOINT}"
-    headers:
-      Authorization: "Bearer ${OTEL_AUTH_TOKEN}"
-
-  # Exportación a Backend de Logs (ej: Loki, Elasticsearch)
-  loki:
-    endpoint: "${OTEL_LOGS_ENDPOINT}"
-    default_labels_enabled:
-      exporter: true
-      job: true
-    labels:
-      attributes:
-        - tenant_id
-        - service.name
-        - severity_text
+    endpoint: ${TEMPO_ENDPOINT:-http://tempo:3200}
+  prometheusremotewrite/metrics:
+    endpoint: ${PROMETHEUS_REMOTE_WRITE_URL:-http://prometheus:9090/api/v1/write}
+    resource_to_telemetry_conversion:
+      enabled: true
+  logging/debug:
+    verbosity: basic
+    sampling_initial: 5
+    sampling_thereafter: 100
 
 service:
+  telemetry:
+    logs: { level: info }
+    metrics: { address: 0.0.0.0:8888 }
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch, resource]
-      exporters: [otlphttp/traces]
-
+      processors: [memory_limiter, probabilistic_sampler, attributes, batch]
+      exporters: [otlphttp/traces, logging/debug]
     metrics:
       receivers: [otlp]
-      processors: [batch, resource]
-      exporters: [prometheusremotewrite]
+      processors: [memory_limiter, attributes, batch]
+      exporters: [prometheusremotewrite/metrics]
 
-    logs:
-      receivers: [filelog, otlp]
-      processors: [batch, transform, resource]
-      exporters: [loki]
+# [CONSTRAINT_MAPPING]
+# C4: resource.attributes garantizan correlación cross-service y dashboards consistentes
+# C3: attributes processor elimina/mascara headers sensibles y queries con passwords antes de exportar
+# C8: métricas expuestas en :8888 para Prometheus scraping; thresholds alineados a interface-spec.yaml
+# V3: spans de qdrant/pgvector deben inyectar `vector.search.latency` y `db.statement` sanitizado
 
-  telemetry:
-    logs:
-      level: "info"
-    metrics:
-      address: ":8888"
+# [VALIDATION_RULES]
+# - YAML sintaxis válido y compatible con otelcol v0.95+
+# - `sampling_percentage` debe estar entre 1 y 100
+# - `memory_limiter.limit_percentage` < 90 (prevención OOM)
+# - Ningún `exporter` apunta a endpoints públicos sin TLS implícito
+# - Pipelines `traces` y `metrics` deben contener al menos 1 receiver y 1 exporter
 
-# ==============================================================================
-# INSTRUMENTATION EXAMPLES (Para incluir en código de aplicación)
-# ==============================================================================
-#
-# Ejemplo 1: Trace de Generación de Skill (TypeScript)
-# -----------------------------------------------------
-# import { trace } from '@opentelemetry/api';
-# const tracer = trace.getTracer('skill-generator');
-#
-# async function generateSkill(tenant_id: string, prompt: string) {
-#   return tracer.startActiveSpan(`generate_skill_${tenant_id}`, async (span) => {
-#     span.setAttribute('tenant_id', tenant_id); // C4
-#     span.setAttribute('model_used', 'qwen-2.5-72b');
-#     
-#     try {
-#       const result = await callLLM(prompt);
-#       span.setStatus({ code: SpanStatusCode.OK });
-#       return result;
-#     } catch (error) {
-#       span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-#       throw error;
-#     } finally {
-#       span.end();
-#     }
-#   });
-# }
-#
-# Ejemplo 2: Log Estructurado con Contexto (Python)
-# -------------------------------------------------
-# import logging
-# import json
-#
-# logger = logging.getLogger(__name__)
-#
-# def validate_constraint(tenant_id: str, constraint: str):
-#     log_entry = {
-#         "timestamp": datetime.utcnow().isoformat(),
-#         "level": "INFO",
-#         "tenant_id": tenant_id, # C4
-#         "event": "constraint_check",
-#         "constraint": constraint,
-#         "status": "pass"
-#     }
-#     logger.info(json.dumps(log_entry))
-#
-# ==============================================================================
-# END OF FILE
-# ==============================================================================
+# [ANTI-PATTERNS]
+# ❌ NUNCA: `sampling_percentage: 100` en producción (sobrecarga de almacenamiento, viola C8)
+# ❌ NUNCA: Exponer `Authorization`, `api-key` o `db.password` en traces/logs (viola C3 críticamente)
+# ❌ NUNCA: Omitir `memory_limiter` (riesgo de OOM en collector bajo carga pico)
+# ✅ SIEMPRE: Alinear `deployment.environment` con `ENVIRONMENT_TAG` de mapping.yaml
+# ✅ SIEMPRE: Validar config con `otelcol --config <file> --dry-run` pre-deploy
+# ✅ SIEMPRE: Inyectar `vector.search.latency` en spans de Qdrant/pgvector (V3)
 
+# [VALIDATION_COMMANDS]
+# yq eval '.' 05-CONFIGURATIONS/observability/otel-tracing-config.yaml > /dev/null && echo "✅ YAML válido"
+# otelcol --config 05-CONFIGURATIONS/observability/otel-tracing-config.yaml --dry-run 2>&1 | grep -q "Everything is ready" && echo "✅ OTel config OK"
+# grep -q "probabilistic_sampler" 05-CONFIGURATIONS/observability/otel-tracing-config.yaml && echo "✅ Sampling configurado"
+# grep -q "http.request.header.authorization" 05-CONFIGURATIONS/observability/otel-tracing-config.yaml && echo "✅ C3 masking activo"
+
+
+---

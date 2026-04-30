@@ -1,0 +1,176 @@
+---
+artifact_id: terraform-plan-workflow
+artifact_type: ci_cd_workflow
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C2","C4","C5","C6","C8"]
+canonical_path: .github/workflows/terraform-plan.yml
+domain: 05-CONFIGURATIONS
+subdomain: pipelines
+agent_role: pipelines-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 1
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants"]
+human_readable: false
+checksum_sha256: "5665d5e8e9519b5528cd7e3088806358634d1259cdf73e0b0fe28ae7bbd881de"
+---
+# WORKFLOW: TERRAFORM PLAN, APPLY & DRIFT DETECTION
+# Propósito: Automatizar IaC con gates humanos, escaneo de seguridad y detección de drift programado.
+# Generado por: pipelines-master-agent
+# Fecha: 2026-04-30
+# Alineación: terraform-master-agent, configurations-master, interface-spec.yaml
+
+name: 🏗️ Terraform Plan, Apply & Drift Detection (MANTIS v2.0.0)
+
+on:
+  pull_request:
+    branches: ["main", "develop"]
+    paths: ["05-CONFIGURATIONS/terraform/**"]
+  push:
+    branches: ["main"]
+    paths: ["05-CONFIGURATIONS/terraform/**"]
+  schedule:
+    - cron: "0 2 * * 1" # Drift detection semanal (C8)
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, staging, prod]
+        default: dev
+        description: "Entorno objetivo para apply manual"
+
+permissions:
+  contents: read
+  id-token: write # OIDC para AWS (C3)
+  checks: write
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.6.0"
+  TF_WORKING_DIR: "05-CONFIGURATIONS/terraform"
+  ENV: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}
+
+jobs:
+  # --- JOB 1: FORMAT & VALIDATE ---
+  tf-validate:
+    name: 🔍 Format & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: ${{ env.TF_VERSION }} }
+      - name: Format Check (C2)
+        run: terraform fmt -check -recursive ${{ env.TF_WORKING_DIR }}
+      - name: Init & Validate (C5)
+        run: |
+          cd ${{ env.TF_WORKING_DIR }}
+          terraform init -backend=false -input=false
+          terraform validate
+
+  # --- JOB 2: SECURITY & COMPLIANCE SCAN ---
+  tf-security-scan:
+    name: 🛡️ Checkov & Drift Scan
+    needs: [tf-validate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkov Security Scan (C3/C5)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ env.TF_WORKING_DIR }}
+          framework: terraform
+          soft_fail: false
+          output_format: cli
+          compact: true
+      - name: Generate Drift Report (Scheduled Only)
+        if: github.event_name == 'schedule'
+        run: |
+          echo "🔍 Ejecutando detección de drift contra backend remoto..."
+          cd ${{ env.TF_WORKING_DIR }}
+          terraform init
+          terraform plan -detailed-exitcode -no-color > drift-report.txt || true
+          cat drift-report.txt
+        env:
+          AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+  # --- JOB 3: PLAN & ARTIFACT ---
+  tf-plan:
+    name: 📐 Generate Plan
+    needs: [tf-security-scan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: ${{ env.TF_VERSION }} }
+      - name: AWS OIDC Auth (C3)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Init & Plan
+        id: plan
+        run: |
+          cd ${{ env.TF_WORKING_DIR }}
+          terraform init -backend-config="bucket=mantis-state-${{ env.ENV }}"
+          terraform plan -out=tfplan -input=false -var="environment_tag=${{ env.ENV }}" -no-color
+        env:
+          TF_VAR_environment_tag: ${{ env.ENV }}
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ env.ENV }}
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
+          retention-days: 7
+
+  # --- JOB 4: APPROVAL & APPLY (C6) ---
+  tf-apply:
+    name: 🚀 Apply with Human Gate
+    needs: [tf-plan]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
+    environment:
+      name: ${{ env.ENV }}
+      url: ${{ vars.TERRAFORM_DASHBOARD_URL || 'https://console.aws.amazon.com' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: ${{ env.TF_VERSION }} }
+      - name: AWS OIDC Auth (C3)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with: { name: tfplan-${{ env.ENV }}, path: ${{ env.TF_WORKING_DIR }} }
+      - name: Init & Apply (C6/C7)
+        run: |
+          cd ${{ env.TF_WORKING_DIR }}
+          terraform init
+          terraform apply -auto-approve tfplan
+      - name: Post-Apply Validation
+        run: |
+          echo "✅ Apply completado. Ejecutando health-check post-infra..."
+          bash 05-CONFIGURATIONS/scripts/health-check.sh ${{ env.ENV }} || echo "⚠️ WARN: Health check failed post-apply"
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS
+# ============================================================================
+# ❌ NUNCA: Omitir `environment: name` para prod (viola C6: gate humano obligatorio)
+# ❌ NUNCA: Usar `AWS_ACCESS_KEY_ID` estáticos; usar OIDC (C3)
+# ❌ NUNCA: Ejecutar `terraform apply -auto-approve` sin plan previo o sin gate
+# ❌ NUNCA: Ignorar `soft_fail: false` en Checkov para vulnerabilidades críticas
+# ✅ SIEMPRE: Subir `tfplan` como artefacto para auditoría y rollback (C4/C7)
+# ✅ SIEMPRE: Alinear `environment_tag` con `mapping.yaml` e `interface-spec.yaml`
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# yq eval '.' .github/workflows/terraform-plan.yml > /dev/null && echo "✅ YAML válido"
+# orchestrator-engine.sh --domain configurations --file .github/workflows/terraform-plan.yml --strict
+# CHECKSUM=$(sha256sum .github/workflows/terraform-plan.yml | awk '{print $1}') && sed -i "s/^checksum_sha256: "5665d5e8e9519b5528cd7e3088806358634d1259cdf73e0b0fe28ae7bbd881de"
+
+
+---

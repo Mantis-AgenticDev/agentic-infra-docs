@@ -1,0 +1,57 @@
+---
+artifact_id: grafana-provisioning-dashboards-mantis
+artifact_type: observability_config
+version: 2.0.0-COMPREHENSIVE
+constraints_mapped: ["C4","C5","C8"]
+canonical_path: 05-CONFIGURATIONS/observability/grafana/provisioning/dashboards.yml
+domain: 05-CONFIGURATIONS
+subdomain: observability
+agent_role: configurations-master
+language_lock: es-ES
+validation_command: orchestrator-engine.sh --domain configurations --strict
+tier: 2
+immutable: true
+requires_human_approval_for_changes: true
+audience: ["agentic_assistants", "sre_ops"]
+human_readable: false
+checksum_sha256: "974b644b51a4dc893e0571ff27d7838f8a23db0373fc6b69af82a99cce0e7d99"
+---
+# GRAFANA DASHBOARD PROVISIONING (MANTIS v2.0.0)
+# Propósito: Carga automática, versionada y auditada de dashboards desde el repositorio.
+# Generado por: configurations-master-agent
+# Fecha: 2026-04-30
+# Alineación: core-mantis.json (#54), prometheus.yml (#53), docker-compose stacks
+apiVersion: 1
+
+providers:
+  - name: "mantis-core-observability"
+    orgId: 1
+    folder: "MANTIS v2.0.0"
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true # Permite ajustes rápidos sin romper el pipeline de provisionado
+    updateIntervalSeconds: 60
+    options:
+      path: /etc/grafana/provisioning/dashboards # Montado vía Docker Compose desde ./observability/grafana/dashboards
+      foldersFromFilesStructure: false
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS (C4, C5, C8)
+# ============================================================================
+# ❌ NUNCA: `disableDeletion: true` sin justificación en ADR (impone deuda técnica C4)
+# ❌ NUNCA: `updateIntervalSeconds < 30` (carga innecesaria de CPU/IO en Grafana, viola C8)
+# ❌ NUNCA: Hardcodear rutas absolutas de host; siempre usar paths relativos a volumen Docker
+# ❌ NUNCA: Dejar `allowUiUpdates: false` en entornos dev/staging (bloquea iteración rápida C5)
+# ✅ SIEMPRE: Alinear `folder` name con convenciones de tagging C4
+# ✅ SIEMPRE: Validar sintaxis YAML y estructura de provider con `yq` o CLI de Grafana pre-deploy
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# yq eval '.' 05-CONFIGURATIONS/observability/grafana/provisioning/dashboards.yml > /dev/null && echo "✅ YAML válido"
+# docker run --rm -v "$(pwd)/05-CONFIGURATIONS/observability/grafana/provisioning:/etc/grafana/provisioning/dashboards" grafana/grafana:latest grafana-cli plugins list 2>/dev/null | grep -q "OK" && echo "✅ Estructura montable OK"
+# orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/observability/grafana/provisioning/dashboards.yml --strict
+# CHECKSUM=$(sha256sum 05-CONFIGURATIONS/observability/grafana/provisioning/dashboards.yml | awk '{print $1}') && sed -i "s/^checksum_sha256: "974b644b51a4dc893e0571ff27d7838f8a23db0373fc6b69af82a99cce0e7d99"
+
+
+---

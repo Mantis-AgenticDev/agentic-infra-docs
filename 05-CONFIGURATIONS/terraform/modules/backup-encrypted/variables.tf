@@ -1,227 +1,127 @@
 # ---
-# title: "Backup Encrypted Module - Variables"
-# version: "1.0.0"
-# constraints_mapped: ["C1", "C3", "C4", "C7"]
-# validation_command: "terraform validate -no-color -json"
+# artifact_id: terraform-backup-encrypted-variables
+# artifact_type: infrastructure_config
+# version: 2.0.0-COMPREHENSIVE
+# constraints_mapped: ["C2","C3","C4","C5","V2"]
+# canonical_path: 05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf
+# domain: 05-CONFIGURATIONS
+# subdomain: terraform
+# agent_role: terraform-master
+# language_lock: es-ES
+# validation_command: orchestrator-engine.sh --domain terraform --strict
+# tier: 2
+# immutable: true
+# requires_human_approval_for_changes: true
+# audience: ["agentic_assistants"]
+# human_readable: false
+# checksum_sha256: "83eef6710959f3486418c3868e0257a39b2fcb92e9d22b419ae79eb0fa9d2e56"
 # ---
 
-# =============================================================================
-# BACKUP ENCRYPTED MODULE - VARIABLES
-# =============================================================================
-# Variables for configuring encrypted backups (rsync-automation, backup-encryption).
-# Enforces tenant isolation (C4) and no hardcoded secrets (C3).
+# ============================================================================
+# VARIABLES: MÓDULO BACKUP ENCRIPTADO (MANTIS v2.0.0)
+# Propósito: Parámetros de configuración con validación estricta para el módulo de backups.
+# Generado por: terraform-master-agent
+# Fecha: 2026-04-30
+# Alineación: main.tf del módulo, interface-spec.yaml, mapping.yaml
+# ============================================================================
 
-# ------------------------------
-# REQUIRED BACKUP TARGET
-# ------------------------------
-
-variable "backup_name" {
-  description = "Unique identifier for this backup configuration"
+# --- IDENTIFICACIÓN & ENTORNO (C4, C5) ---
+variable "bucket_name_prefix" {
+  description = "Prefijo único para el bucket de backups (se concatena con environment_tag)"
   type        = string
   validation {
-    condition     = can(regex("^[a-z0-9-]+$", var.backup_name))
-    error_message = "Backup name must be lowercase alphanumeric with hyphens."
+    condition     = can(regex("^[a-z][a-z0-9-]{2,40}$", var.bucket_name_prefix))
+    error_message = "bucket_name_prefix: minúsculas, números, guiones; 3-43 chars; iniciar con letra."
   }
 }
 
-variable "source_path" {
-  description = "Absolute path to the directory or file to backup"
+variable "environment_tag" {
+  description = "Entorno de despliegue: dev, staging, prod"
   type        = string
   validation {
-    condition     = can(regex("^/", var.source_path))
-    error_message = "Source path must be absolute."
+    condition     = contains(["dev", "staging", "prod"], var.environment_tag)
+    error_message = "environment_tag debe ser: dev, staging, o prod"
   }
 }
 
-variable "destination" {
-  description = "Remote destination (rsync URL, S3 bucket, or SSH host:path)"
-  type        = string
-  validation {
-    condition     = length(var.destination) > 0
-    error_message = "Destination cannot be empty."
-  }
-}
-
-variable "tenant_id" {
-  description = "Tenant ID for encryption context and isolation (C4)"
-  type        = string
-  validation {
-    condition     = can(regex("^tenant-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", var.tenant_id))
-    error_message = "tenant_id must be UUID prefixed with 'tenant-'."
-  }
-}
-
-# ------------------------------
-# ENCRYPTION SETTINGS
-# ------------------------------
-
-variable "encryption_enabled" {
-  description = "Enable GPG or AES encryption on backup archives"
-  type        = bool
-  default     = true
-}
-
-variable "encryption_key" {
-  description = "Encryption passphrase or key. MUST be set via TF_VAR_encryption_key (C3)."
-  type        = string
-  sensitive   = true
-  nullable    = false
-  validation {
-    condition     = var.encryption_enabled ? length(var.encryption_key) >= 32 : true
-    error_message = "Encryption key must be at least 32 characters when encryption is enabled."
-  }
-}
-
-variable "encryption_algorithm" {
-  description = "GPG symmetric cipher algorithm"
-  type        = string
-  default     = "AES256"
-  validation {
-    condition     = contains(["AES256", "AES128", "TWOFISH"], var.encryption_algorithm)
-    error_message = "Encryption algorithm must be one of AES256, AES128, TWOFISH."
-  }
-}
-
-variable "recipient_key_id" {
-  description = "Optional GPG recipient key ID for asymmetric encryption"
-  type        = string
-  default     = ""
-}
-
-# ------------------------------
-# SCHEDULE AND RETENTION (C7)
-# ------------------------------
-
-variable "schedule_cron" {
-  description = "Cron expression for backup frequency"
-  type        = string
-  default     = "0 2 * * *" # Daily at 2 AM
-  validation {
-    condition     = can(regex("^(@(hourly|daily|weekly|monthly|yearly|reboot))|((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})$", var.schedule_cron))
-    error_message = "Invalid cron expression."
-  }
-}
-
+# --- RETENCIÓN & COMPLIANCE (V2: integridad de datos) ---
 variable "retention_days" {
-  description = "Number of days to retain encrypted backups"
+  description = "Días de retención obligatoria antes de eliminación de versiones antiguas"
   type        = number
   default     = 30
   validation {
-    condition     = var.retention_days >= 1 && var.retention_days <= 365
-    error_message = "Retention days must be between 1 and 365."
+    condition     = var.retention_days >= 7 && var.retention_days <= 365
+    error_message = "retention_days debe estar entre 7 y 365 (mínimo 7 para compliance básico)"
   }
 }
 
-variable "retention_count" {
-  description = "Maximum number of backup files to keep (alternative to retention_days)"
-  type        = number
-  default     = 0
-  validation {
-    condition     = var.retention_count >= 0
-    error_message = "Retention count cannot be negative."
-  }
-}
-
-# ------------------------------
-# RESOURCE LIMITS (C1, C2)
-# ------------------------------
-
-variable "cpu_quota_percent" {
-  description = "CPU limit for backup process (percentage of one core)"
-  type        = number
-  default     = 25
-  validation {
-    condition     = var.cpu_quota_percent >= 10 && var.cpu_quota_percent <= 100
-    error_message = "CPU quota must be between 10% and 100%."
-  }
-}
-
-variable "io_nice_level" {
-  description = "I/O scheduling priority (ionice class/idle)"
-  type        = number
-  default     = 3 # Idle class
-  validation {
-    condition     = var.io_nice_level >= 0 && var.io_nice_level <= 7
-    error_message = "I/O nice level must be between 0 and 7."
-  }
-}
-
-variable "bandwidth_limit_kb" {
-  description = "Limit rsync bandwidth (KB/s, 0 = unlimited)"
-  type        = number
-  default     = 1024 # 1 MB/s
-  validation {
-    condition     = var.bandwidth_limit_kb >= 0
-    error_message = "Bandwidth limit cannot be negative."
-  }
-}
-
-# ------------------------------
-# RETRY AND BACKOFF (C7)
-# ------------------------------
-
-variable "max_retries" {
-  description = "Maximum number of retry attempts on failure"
-  type        = number
-  default     = 3
-  validation {
-    condition     = var.max_retries >= 0 && var.max_retries <= 10
-    error_message = "Max retries must be between 0 and 10."
-  }
-}
-
-variable "retry_backoff_seconds" {
-  description = "Initial backoff delay in seconds"
-  type        = number
-  default     = 60
-  validation {
-    condition     = var.retry_backoff_seconds >= 10
-    error_message = "Retry backoff must be at least 10 seconds."
-  }
-}
-
-# ------------------------------
-# SSH CONNECTION (if rsync over SSH)
-# ------------------------------
-
-variable "ssh_key_path" {
-  description = "Path to SSH private key for rsync authentication"
-  type        = string
-  default     = "~/.ssh/id_ed25519"
-  sensitive   = true
-}
-
-variable "ssh_known_hosts" {
-  description = "SSH known hosts entry for destination host verification"
-  type        = string
-  default     = ""
-}
-
-# ------------------------------
-# NOTIFICATIONS
-# ------------------------------
-
-variable "notify_on_failure" {
-  description = "Send notification on backup failure (telegram, email)"
+variable "enable_object_lock" {
+  description = "Habilitar WORM (Write-Once-Read-Many) para backups críticos"
   type        = bool
   default     = true
 }
 
-variable "notification_webhook_url" {
-  description = "Webhook URL for failure notifications (Telegram bot or similar)"
+# --- SEGURIDAD & ACCESO (C3) ---
+variable "backup_role_arn" {
+  description = "ARN del rol IAM que ejecutará los backups (inyectar desde secrets/registry)"
   type        = string
-  default     = ""
   sensitive   = true
+  validation {
+    condition     = can(regex("^arn:aws:iam::[0-9]{12}:role/.+", var.backup_role_arn))
+    error_message = "backup_role_arn debe ser un ARN IAM válido de la forma arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
+  }
 }
 
-# ------------------------------
-# TAGGING AND LABELING
-# ------------------------------
+variable "kms_key_rotation_enabled" {
+  description = "Habilitar rotación automática de la clave KMS (C3: best practice)"
+  type        = bool
+  default     = true
+}
 
-variable "tags" {
-  description = "Additional tags for backup identification"
+# --- TAGS & TRAZABILIDAD (C4) ---
+variable "tags_extra" {
+  description = "Tags adicionales para override o workload específico"
   type        = map(string)
   default     = {}
+  validation {
+    condition = alltrue([
+      for k, v in var.tags_extra :
+      can(regex("^[a-zA-Z0-9_.:/-]+$", k)) && can(regex("^[a-zA-Z0-9_.:/-]+$", v))
+    ])
+    error_message = "tags_extra: keys y values deben ser alfanuméricos con caracteres básicos de tagging AWS"
+  }
 }
 
-# 🟢 VALIDATION: terraform fmt -check -diff 05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf && terraform validate -no-color -json
+# --- LOCALS (C4: consistencia de trazabilidad) ---
+locals {
+  bucket_name = "${var.bucket_name_prefix}-backups-${var.environment_tag}"
+  base_tags = {
+    Project     = "mantis-agentic"
+    Domain      = "05-CONFIGURATIONS"
+    Environment = var.environment_tag
+    ManagedBy   = "terraform"
+    Module      = "backup-encrypted"
+    Constraint  = "V2-data-integrity,C3-encryption"
+  }
+  merged_tags = merge(local.base_tags, var.tags_extra)
+}
+
+# ============================================================================
+# ANTI-PATRONES EXPLÍCITOS (C1, C3, C5)
+# ============================================================================
+# ❌ NUNCA: Usar `default = "hardcoded-value"` para variables sensibles como backup_role_arn
+# ❌ NUNCA: Omitir `validation` blocks en nuevas variables (viola C5)
+# ❌ NUNCA: Permitir `retention_days < 7` en staging/prod (viola V2 compliance mínimo)
+# ✅ SIEMPRE: Inyectar `backup_role_arn` vía `TF_VAR_` o CI/CD secrets, nunca hardcodear
+# ✅ SIEMPRE: Mantener `sensitive = true` para evitar exposición en logs o plan outputs
+
+# ============================================================================
+# COMANDOS DE VALIDACIÓN
+# ============================================================================
+# terraform fmt -check 05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf
+# terraform init -backend=false -input=false 05-CONFIGURATIONS/terraform/modules/backup-encrypted && terraform validate
+# orchestrator-engine.sh --domain terraform --file 05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf --strict
+# CHECKSUM=$(sha256sum 05-CONFIGURATIONS/terraform/modules/backup-encrypted/variables.tf | awk '{print $1}') && sed -i "s/^# checksum_sha256: "83eef6710959f3486418c3868e0257a39b2fcb92e9d22b419ae79eb0fa9d2e56"
+
+
+---

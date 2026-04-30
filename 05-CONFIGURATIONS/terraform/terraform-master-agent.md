@@ -14,7 +14,7 @@ immutable: true
 requires_human_approval_for_changes: true
 audience: ["agentic_assistants"]
 human_readable: false
-checksum_sha256: "PENDING_GENERATION"
+checksum_sha256: "a7ed66a8620cb7332d3418a6ee081c254d36e10d49543f7651441a40a5277795"
 ---
 
 # terraform-master-agent — Agente Maestro de Infraestructura como Código MANTIS v2.0.0
