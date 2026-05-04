@@ -1,7 +1,7 @@
 ---
 title: "MANTIS Agentic - Governança Agêntica para IA Empresarial"
 description: "Framework de validação contratual, CI/CD agnóstico e hardening de infraestrutura para geração de agentes de IA com conformidade LGPD e redução de 80% em custos operacionais."
-version: "2.1.1"
+version: "2.1.2"
 status: "Em Validação (Fase 2)"
 target: "Agências de IA, CTOs e Integradores no Rio Grande do Sul"
 stack: ["Go", "Bash", "Terraform", "Docker", "n8n", "LangChain", "LangGraph"]
@@ -50,8 +50,9 @@ pie title "Causas de Violações LGPD em Projetos de IA (RS 2024)"
 
 ## 📊 Comparativo Direto: Sem DevOps vs MANTIS
 
+## 📊 Comparativo Direto: Sem DevOps vs MANTIS
+
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'pie1': '#2c5282', 'pie2': '#742a2a', 'pie3': '#4a5568', 'pie4': '#1a202c' }}}%%
 quadrantChart
     title "Maturidade em Governança de IA - Mercado vs MANTIS"
     x-axis "Baixa Governança" --> "Alta Governança"
@@ -65,12 +66,17 @@ quadrantChart
     "Consultores Tradicionais": [0.45, 0.70]
     "Agências Enterprise": [0.65, 0.60]
     "MANTIS Agentic": [0.92, 0.15]
-    
-    classDef mantis fill:#2c5282,color:#fff,stroke:#16c79a,stroke-width:3px
-    classDef risco fill:#742a2a,color:#fff,stroke:#e94560,stroke-width:2px
-    class "MANTIS Agentic" mantis
-    class "Equipes sem DevOps" risco
 ```
+
+| Perfil | Governança | Custo | Status Visual |
+|--------|-----------|-------|--------------|
+| 🔴 Equipes sem DevOps | Baixa (0.20) | Alto (0.85) | `▓▓▓▓▓▓▓▓▓░` Risco |
+| 🟠 Consultores Tradicionais | Média (0.45) | Alto (0.70) | `▓▓▓▓▓▓▓░░░` Atenção |
+| 🟡 Agências Enterprise | Alta (0.65) | Médio (0.60) | `▓▓▓▓▓░░░░░` Evoluindo |
+| 🟢 **MANTIS Agentic** | **Máxima (0.92)** | **Baixo (0.15)** | `▓▓▓▓▓▓▓▓▓▓` ✅ Ideal |
+
+> 🎯 **Legenda**: Eixo X = Maturidade em Governança | Eixo Y = Eficiência de Custo  
+> 🟢 Quadrante ideal: Alta governança + Baixo custo = **MANTIS**
 
 | Critério | Profissionais sem Background DevOps | MANTIS Agentic |
 |----------|-----------------------------------|----------------|
@@ -81,6 +87,7 @@ quadrantChart
 | **Gestão de Secrets** | ⚠️ Hardcoded ou variáveis locais | ✅ Vault integrado + `audit-secrets.go` |
 | **TDD / SDD** | ❌ "Testamos depois" | ✅ Harness Hardening desde a especificação |
 | **Rollback** | 🔔 Depende de intervenção humana | ✅ Blue-Green automático com gate manual |
+```
 
 ---
 
