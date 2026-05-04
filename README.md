@@ -1,7 +1,7 @@
 ---
 title: "MANTIS Agentic - Governança Agêntica para IA Empresarial"
 description: "Framework de validação contratual, CI/CD agnóstico e hardening de infraestrutura para geração de agentes de IA com conformidade LGPD e redução de 80% em custos operacionais."
-version: "2.1.0"
+version: "2.1.1"
 status: "Em Validação (Fase 2)"
 target: "Agências de IA, CTOs e Integradores no Rio Grande do Sul"
 stack: ["Go", "Bash", "Terraform", "Docker", "n8n", "LangChain", "LangGraph"]
@@ -51,6 +51,7 @@ pie title "Causas de Violações LGPD em Projetos de IA (RS 2024)"
 ## 📊 Comparativo Direto: Sem DevOps vs MANTIS
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'pie1': '#2c5282', 'pie2': '#742a2a', 'pie3': '#4a5568', 'pie4': '#1a202c' }}}%%
 quadrantChart
     title "Maturidade em Governança de IA - Mercado vs MANTIS"
     x-axis "Baixa Governança" --> "Alta Governança"
@@ -65,42 +66,48 @@ quadrantChart
     "Agências Enterprise": [0.65, 0.60]
     "MANTIS Agentic": [0.92, 0.15]
     
-    style "MANTIS Agentic" fill:#2c5282,color:#fff,stroke:#16c79a,stroke-width:3px
-    style "Equipes sem DevOps" fill:#742a2a,color:#fff,stroke:#e94560,stroke-width:2px
+    classDef mantis fill:#2c5282,color:#fff,stroke:#16c79a,stroke-width:3px
+    classDef risco fill:#742a2a,color:#fff,stroke:#e94560,stroke-width:2px
+    class "MANTIS Agentic" mantis
+    class "Equipes sem DevOps" risco
 ```
 
-| Critério                | Profissionais sem Background DevOps | MANTIS Agentic                              |
-|-------------------------|-------------------------------------|---------------------------------------------|
-| **Validação C1-C8**     | ❌ Inexistente ou manual            | ✅ Automatizada via Orchestrator (Go)       |
-| **Conformidade LGPD**   | ❌ Reativa (pós-incidente)          | ✅ Proativa (RLS, criptografia, audit logs) |
-| **Custo de Produção**   | 🔴 Alto (infra superdimensionada)   | 🟢 **-80%** (otimização + IA asiáticas)     |
-| **Tempo de Deploy**     | 🐌 2-5 dias (processo manual)       | ⚡ <4 horas (pipeline CI/CD)                |
-| **Gestão de Secrets**   | ⚠️ Hardcoded ou variáveis locais    | ✅ Vault integrado + `audit-secrets.go`     |
-| **TDD / SDD**           | ❌ "Testamos depois"                | ✅ Harness Hardening desde a especificação  |
-| **Rollback**            | 🔔 Depende de intervenção humana    | ✅ Blue-Green automático com gate manual    |
+| Critério | Profissionais sem Background DevOps | MANTIS Agentic |
+|----------|-----------------------------------|----------------|
+| **Validação C1-C8** | ❌ Inexistente ou manual | ✅ Automatizada via Orchestrator (Go) |
+| **Conformidade LGPD** | ❌ Reativa (pós-incidente) | ✅ Proativa (RLS, criptografia, audit logs) |
+| **Custo de Produção** | 🔴 Alto (infra superdimensionada) | 🟢 **-80%** (otimização + IA asiáticas) |
+| **Tempo de Deploy** | 🐌 2-5 dias (processo manual) | ⚡ <4 horas (pipeline CI/CD) |
+| **Gestão de Secrets** | ⚠️ Hardcoded ou variáveis locais | ✅ Vault integrado + `audit-secrets.go` |
+| **TDD / SDD** | ❌ "Testamos depois" | ✅ Harness Hardening desde a especificação |
+| **Rollback** | 🔔 Depende de intervenção humana | ✅ Blue-Green automático com gate manual |
 
 ---
 
 ## 💰 ROI Concreto para Empresas do Rio Grande do Sul
 
 ```mermaid
-xyChart
-    title "Economia Anual Estimada (Agência com 10 desenvolvedores)"
-    x-axis ["Infra Cloud", "Multas LGPD", "Horas Debug", "Deploy Manual"]
-    y-axis "Economia Anual (R$ mil)" 0 --> 120
-    bar [96, 50, 76.8, 38.4]
-    line [0, 0, 0, 0]
-    style bar fill:#2c5282,stroke:#1a365d
-    style line fill:none
+pie title "Economia Anual Estimada (Agência com 10 devs) - R$ mil"
+    "Infra Cloud" : 96
+    "Multas LGPD Evitadas" : 50
+    "Horas Debug" : 76.8
+    "Deploy Manual" : 38.4
 ```
 
-| Métrica            | Cenário Atual               | Com MANTIS                    | Economia/Ano               |
-|--------------------|-----------------------------|-------------------------------|----------------------------|
-| **Licenças de IA** | R$ 8.000/mês (OpenAI/GPT-4) | R$ 1.600/mês (Qwen/DeepSeek)  | **R$ 76.800**              |
-| **Infraestrutura** | R$ 10.000/mês (AWS padrão)  | R$ 2.000/mês (VPS otimizadas) | **R$ 96.000**              |
-| **Horas em Debug** | 80h/mês × R$ 100            | 16h/mês × R$ 100              | **R$ 76.800**              |
-| **Risco LGPD**     | Probabilidade alta          | **Zero** (compliance nativo)  | **Variável (até R$ 500k)** |
-| **Payback Médio**  |                             |                               | **< 3 meses**              |
+| Categoria | Economia Anual | Visual |
+|-----------|---------------|--------|
+| Infra Cloud | R$ 96.000 | ████████████████████ |
+| Multas LGPD | R$ 50.000+ | ██████████ |
+| Horas Debug | R$ 76.800 | ████████████████ |
+| Deploy Manual | R$ 38.400 | ████████ |
+
+| Métrica | Cenário Atual | Com MANTIS | Economia/Ano |
+|---------|--------------|------------|--------------|
+| **Licenças de IA** | R$ 8.000/mês (OpenAI/GPT-4) | R$ 1.600/mês (Qwen/DeepSeek) | **R$ 76.800** |
+| **Infraestrutura** | R$ 10.000/mês (AWS padrão) | R$ 2.000/mês (VPS otimizadas) | **R$ 96.000** |
+| **Horas em Debug** | 80h/mês × R$ 100 | 16h/mês × R$ 100 | **R$ 76.800** |
+| **Risco LGPD** | Probabilidade alta | **Zero** (compliance nativo) | **Variável (até R$ 500k)** |
+| **Payback Médio** | | | **< 3 meses** |
 
 > 📌 *Nota: Valores baseados em métricas reais de operação e otimização de infraestrutura. Projeções conservadoras para mercado gaúcho.*
 
@@ -162,26 +169,43 @@ gantt
 ## 💻 Stack Técnico e Distribuição de IA
 
 ### Linguagens Utilizadas (7)
+
 ```mermaid
-xyChart
-    title "Distribuição de Código por Linguagem"
-    x-axis ["Shell/Bash", "HCL/Terraform", "HTML", "Python", "JavaScript", "CSS", "Go"]
-    y-axis "Participação (%)" 0 --> 60
-    bar [52.2, 34.7, 6.5, 3.0, 1.6, 1.1, 0.9]
-    style bar fill:#2d3748,stroke:#1a202c
+pie title "Distribuição de Código por Linguagem"
+    "Shell/Bash" : 52.2
+    "HCL/Terraform" : 34.7
+    "HTML" : 6.5
+    "Python" : 3.0
+    "JavaScript" : 1.6
+    "CSS" : 1.1
+    "Go" : 0.9
 ```
+
 *Bash e HCL dominam pela automação de infra e orquestração declarativa. Go é o núcleo do Orchestrator e validadores.*
 
 ### Modelos de IA em Produção
+
 ```mermaid
-xyChart
-    title "Uso de Modelos de IA (Custo vs Performance)"
-    x-axis ["Qwen 2.5", "DeepSeek V3", "Claude 3.5", "Minimax", "AI Studio"]
-    y-axis "Participação (%)" 0 --> 50
-    bar [42, 31, 15, 8, 4]
-    style bar fill:#3b4d6b,stroke:#1a202c
+pie title "Uso de Modelos de IA - Participação (%)"
+    "Qwen 2.5" : 42
+    "DeepSeek V3" : 31
+    "Claude 3.5" : 15
+    "Minimax" : 8
+    "AI Studio" : 4
 ```
+
 *Estratégia focada em IA asiáticas (73% do uso) para garantir **80% de redução de custo** sem perda de qualidade em geração massiva de código e validação estrutural.*
+
+---
+
+## 📎 Documentação e Links Diretos
+
+| Recurso | Finalidade | Link |
+|---------|------------|------|
+| 📖 Índice de Contexto | Especificações de domínio e regras | `./00-CONTEXT/00-INDEX.md` |
+| 📋 Matriz de Normas | Fonte de verdade para validação C1-C8 | `./00-CONTEXT/norms-matrix.json` |
+| 🤖 Framework Master-Agent | Instruções para orquestração agnóstica | `./docs/framework/doc-agnostic-master-agent.md` |
+| 🏗️ Infraestrutura Real | VPS, Docker, Qdrant, Postgres | `./00-CONTEXT/facundo-infrastructure.md` |
 
 ---
 
