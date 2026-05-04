@@ -72,3 +72,5 @@ docker-compose.override.yml
 *.pre-fix.bak
 -report
 *-report.json
+05-CONFIGURATIONS/validation/bin/
+05-CONFIGURATIONS/validation/orchestrator-engine/bin/
