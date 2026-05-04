@@ -1,7 +1,7 @@
 ---
 title: "MANTIS Agentic - Governança Agêntica para IA Empresarial"
 description: "Framework de validação contratual, CI/CD agnóstico e hardening de infraestrutura para geração de agentes de IA com conformidade LGPD e redução de 80% em custos operacionais."
-version: "2.1.2"
+version: "2.1.3"
 status: "Em Validação (Fase 2)"
 target: "Agências de IA, CTOs e Integradores no Rio Grande do Sul"
 stack: ["Go", "Bash", "Terraform", "Docker", "n8n", "LangChain", "LangGraph"]
@@ -50,8 +50,6 @@ pie title "Causas de Violações LGPD em Projetos de IA (RS 2024)"
 
 ## 📊 Comparativo Direto: Sem DevOps vs MANTIS
 
-## 📊 Comparativo Direto: Sem DevOps vs MANTIS
-
 ```mermaid
 quadrantChart
     title "Maturidade em Governança de IA - Mercado vs MANTIS"
@@ -87,7 +85,7 @@ quadrantChart
 | **Gestão de Secrets** | ⚠️ Hardcoded ou variáveis locais | ✅ Vault integrado + `audit-secrets.go` |
 | **TDD / SDD** | ❌ "Testamos depois" | ✅ Harness Hardening desde a especificação |
 | **Rollback** | 🔔 Depende de intervenção humana | ✅ Blue-Green automático com gate manual |
-```
+
 
 ---
 
