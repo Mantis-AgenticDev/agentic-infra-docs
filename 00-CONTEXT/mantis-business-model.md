@@ -1,20 +1,20 @@
 ---
 file_id: FAC-BIZ-003
-file_name: facundo-business-model.md
+file_name: mantis-business-model.md
 version: 2.0.0
 created: 2026-04-01
 last_updated: 2026-04-01
-author: Facundo (Mantis-AgenticDev)
+author: Mantis (Mantis-AgenticDev)
 category: BUSINESS
 priority: HIGH
 tokens_estimate: 1800
 related_files:
   - PROJECT_OVERVIEW.md
-  - facundo-core-context.md
+  - mantis-core-context.md
   - ../07-PROCEDURES/onboarding-client.md
   - ../04-WORKFLOWS/BILLING-001-Generate-Invoice.json
 ai_navigation:
-  read_after: facundo-core-context.md
+  read_after: mantis-core-context.md
   required_for: [pricing, client-management, scaling-decisions, partner-split]
   update_frequency: quarterly
   validation_rules:
@@ -76,7 +76,7 @@ sdd_compliance_note: "Reglas de negocio. Constraints técnicos C1-C6 aplicados e
 | **= EBITDA**               |                             | **R$ 1.464** |
 | (-) Fondo Emergencia (10%) |                             | **- R$ 146** |
 | **= Distribución**         |                             | **R$ 1.318** |
-| Socio 1 (Facundo)          | 50% de distribución         | **R$ 659**   |
+| Socio 1 (Mantis)          | 50% de distribución         | **R$ 659**   |
 | Socio 2                    | 50% de distribución         | **R$ 659**   |
 
 *EBITDA Earnings Before Interest, Taxes, Depreciation, and Amortization
@@ -91,7 +91,7 @@ sdd_compliance_note: "Reglas de negocio. Constraints técnicos C1-C6 aplicados e
 | **= EBITDA**               |                             | **R$ 2.262** |
 | (-) Fondo Emergencia (10%) |                             | **- R$ 226** |
 | **= Distribución**         |                             | **R$ 2.036** |
-| Socio 1 (Facundo)          | 50% de distribución         | **R$ 1.018** |
+| Socio 1 (Mantis)          | 50% de distribución         | **R$ 1.018** |
 | Socio 2                    | 50% de distribución         | **R$ 1.018** |
 
 ### Escenario 3: 10 clientes (5 Básico + 5 Full) - MÁXIMO
@@ -104,7 +104,7 @@ sdd_compliance_note: "Reglas de negocio. Constraints técnicos C1-C6 aplicados e
 | **= EBITDA**               |                             | **R$ 3.060** |
 | (-) Fondo Emergencia (10%) |                             | **- R$ 306** |
 | **= Distribución**         |                             | **R$ 2.754** |
-| Socio 1 (Facundo)          | 50% de distribución         | **R$ 1.377** |
+| Socio 1 (Mantis)          | 50% de distribución         | **R$ 1.377** |
 | Socio 2                    | 50% de distribución         | **R$ 1.377** |
 
 *Costos variables incluyen: APIs OpenRouter (consumo por cliente), Deepgram, y otros servicios bajo demanda.
@@ -178,10 +178,10 @@ Key Performance Indicators
 
 ---
 
-FIN DEL ARCHIVO - facundo-business-model.md
+FIN DEL ARCHIVO - mantis-business-model.md
 
 ## 🔗 Conexiones Estructurales (Auto-generado)
 [[README.md]]
 [[00-CONTEXT/00-INDEX.md]]
 [[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[00-CONTEXT/facundo-core-context.md]]
+[[00-CONTEXT/mantis-core-context.md]]

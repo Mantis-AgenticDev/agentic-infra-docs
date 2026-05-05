@@ -1,5 +1,5 @@
 ---
-title: "Facundo Infrastructure Spec - Agentic Infra Docs"
+title: "Mantis Infrastructure Spec - Agentic Infra Docs"
 category: "Contexto"
 priority: "Alta"
 version: "1.4.0"
@@ -208,7 +208,7 @@ mysqldump -u root --all-databases | \
         ▼
 +---------------------+     +---------------------+
 | 2. Notificación a   |---->| 3. Evaluación de    |
-| Facundo (Telegram)  |     | impacto por servicio|
+| Mantis (Telegram)  |     | impacto por servicio|
 +---------------------+     +---------------------+
         │
         ▼
@@ -633,7 +633,7 @@ docker network inspect n8n-uazapi-network
 | ¿Aumenta el uso de RAM > 200 MB?         | Requiere optimización previa     |
 | ¿Añade dependencia externa nueva?        | Debe tener fallback local        |
 | ¿Modifica flujo de datos crítico?        | Requiere testing en staging      |
-| ¿Cambia política de backup/seguridad?    | Revisión obligatoria por Facundo |
+| ¿Cambia política de backup/seguridad?    | Revisión obligatoria por Mantis |
 | ¿Impacta latencia para el usuario final? | Máximo +50ms aceptable           |
 
 ---
@@ -709,42 +709,42 @@ Checksum: a3f5c8e2...
 # constraints_applied: [C1, C2, C3, C4, C5, C6]
 set -euo pipefail
 
-echo "🔍 Validando facundo-infrastructure.md para SDD compliance..."
+echo "🔍 Validando mantis-infrastructure.md para SDD compliance..."
 
 ERRORS=0
 
 # 1. Verificar que el frontmatter tiene ia_parser_compatible: true
-if ! grep -q "ia_parser_compatible: true" 00-CONTEXT/facundo-infrastructure.md; then
+if ! grep -q "ia_parser_compatible: true" 00-CONTEXT/mantis-infrastructure.md; then
   echo "❌ Falta ia_parser_compatible: true en frontmatter"
   ERRORS=$((ERRORS + 1))
 fi
 
 # 2. Verificar que todos los snippets Docker tienen memory limits
-if ! grep -q 'memory: "1500M"' 00-CONTEXT/facundo-infrastructure.md; then
+if ! grep -q 'memory: "1500M"' 00-CONTEXT/mantis-infrastructure.md; then
   echo "❌ Snippets Docker sin memory limit para n8n"
   ERRORS=$((ERRORS + 1))
 fi
 
 # 3. Verificar que los scripts bash tienen set -euo pipefail
-if ! grep -q "set -euo pipefail" 00-CONTEXT/facundo-infrastructure.md; then
+if ! grep -q "set -euo pipefail" 00-CONTEXT/mantis-infrastructure.md; then
   echo "❌ Scripts bash sin set -euo pipefail"
   ERRORS=$((ERRORS + 1))
 fi
 
 # 4. Verificar que no hay secrets hardcodeados (patrón básico)
-if grep -E "(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36})" 00-CONTEXT/facundo-infrastructure.md | grep -v "ENV_VAR\|process.env\|\${"; then
+if grep -E "(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36})" 00-CONTEXT/mantis-infrastructure.md | grep -v "ENV_VAR\|process.env\|\${"; then
   echo "❌ Posibles secrets hardcodeados detectados"
   ERRORS=$((ERRORS + 1))
 fi
 
 # 5. Verificar que las referencias usan URLs raw completas
-if grep -E "related_files:.*\.\./" 00-CONTEXT/facundo-infrastructure.md | grep -v "https://raw.githubusercontent.com"; then
+if grep -E "related_files:.*\.\./" 00-CONTEXT/mantis-infrastructure.md | grep -v "https://raw.githubusercontent.com"; then
   echo "⚠️ Algunas referencias no usan URLs raw (recomendado para IA)"
   # No es error crítico, solo advertencia
 fi
 
 if [ $ERRORS -eq 0 ]; then
-  echo "✅ facundo-infrastructure.md pasó validación SDD básica"
+  echo "✅ mantis-infrastructure.md pasó validación SDD básica"
   exit 0
 else
   echo "❌ $ERRORS errores encontrados. Revisar antes de commit."
@@ -770,18 +770,18 @@ Instrucción para IA: Al generar código basado en este archivo, incluir este ch
 
 > **Estado SDD:** 🟡 En transición (93% → 100% objetivo)  
 > **Última validación automática:** Pendiente (ejecutar scripts/validate-infra-specs.sh)  
-> **Próxima revisión humana:** Facundo - [fecha]  
+> **Próxima revisión humana:** Mantis - [fecha]  
 > **Compatibilidad IA:** ✅ Frontmatter enriquecido + snippets ejecutables + registry JSON  
 > **Licencia:** CC BY-SA 4.0 (documentación) / Propietario (código generado)  
-> **Raw URL para IA:** https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/facundo-infrastructure.md
+> **Raw URL para IA:** https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/mantis-infrastructure.md
 
 *Principio SDD aplicado: Si hay conflicto entre este texto y el código generado, la spec escrita aquí prevalece. Las desviaciones deben documentarse en validation-log.json.*
 ---
 
-<!-- FIN DEL ARCHIVO: facundo-infrastructure.md --> 
+<!-- FIN DEL ARCHIVO: mantis-infrastructure.md --> 
 
 ## 🔗 Conexiones Estructurales (Auto-generado)
 [[README.md]]
 [[00-CONTEXT/00-INDEX.md]]
 [[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[00-CONTEXT/facundo-business-model.md]]
+[[00-CONTEXT/mantis-business-model.md]]

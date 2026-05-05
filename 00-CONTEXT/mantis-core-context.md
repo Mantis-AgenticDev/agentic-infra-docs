@@ -1,5 +1,5 @@
 ---
-title: "Facundo Core Context - Agentic Infra Docs"
+title: "Mantis Core Context - Agentic Infra Docs"
 category: "Contexto"
 priority: "Siempre"
 version: "1.0.0"
@@ -21,7 +21,7 @@ tags:
   - tenant-id
 related_files:
   - "00-CONTEXT/PROJECT_OVERVIEW.md"
-  - "00-CONTEXT/facundo-business-model.md"
+  - "00-CONTEXT/mantis-business-model.md"
   - "01-RULES/06-MULTITENANCY-RULES.md"
 ---
 
@@ -30,7 +30,7 @@ priority_files:
   - "00-CONTEXT/PROJECT_OVERVIEW.md"
   - "01-RULES/02-RESOURCE-GUARDRAILS.md"
 always_keep_in_context:
-  - "facundo-core-context.md"
+  - "mantis-core-context.md"
   - "01-RULES/02-RESOURCE-GUARDRAILS.md"
 load_strategy: "full"
 max_tokens_per_session: 4000
@@ -50,7 +50,7 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 
 | Campo            | Valor                                                    |
 |------------------|----------------------------------------------------------|
-| Nombre           | Facundo                                                  |
+| Nombre           | Mantis                                                  |
 | Ubicación Base   | xxxxxxxxxxxxx / Porto Alegre, Rio Grande do Sul, Brasil  |
 | Registro         | xxxxxxxxxxxx (Brasil)                                    |
 | Enfoque Técnico  | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx        |
@@ -88,7 +88,7 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
         ▼
 +---------------------+
 | 1. Leer este archivo|
-| facundo-core-context|
+| mantis-core-context|
 +---------------------+
         │
         ▼
@@ -137,7 +137,7 @@ Este archivo establece el contexto fundamental del usuario y del proyecto para c
 > ¿Esto hace el sistema más resistente o más frágil?"
 
 ---
-FIN DEL ARCHIVO - facundo-core-context.md
+FIN DEL ARCHIVO - mantis-core-context.md
 
 ## 🔗 Conexiones Estructurales (Auto-generado)
 [[README.md]]

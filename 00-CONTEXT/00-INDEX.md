@@ -25,8 +25,8 @@ tags:
   - ai-navigation
   - context
 related_files:
-  - facundo-core-context.md
-  - facundo-infrastructure.md
+  - mantis-core-context.md
+  - mantis-infrastructure.md
   - ../01-RULES/00-INDEX.md
   - ../04-PROMPTS-OPENROUTER/system-prompt-sdd.md
   
@@ -40,7 +40,7 @@ related_files:
 |Se você é...	                    |Leia nesta ordem EXATA	                                                                                            |Por quê?                                                                        |
 |-----------------------------------|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 |IA gerando código via OpenRouter	|1. 01-RULES/00-INDEX.md → 2. 04-PROMPTS-OPENROUTER/system-prompt-sdd.md → 3. 01-RULES/05-CODE-PATTERNS-RULES.md	|Garante que o output respeita constraints C1-C6, tenant_id e limites de hardware|
-|Humano descrevendo cliente	        |1. README.md → 2. facundo-core-context.md → 3. 04-PROMPTS-OPENROUTER/workflow-generator-pt-BR.md	                |Entende o propósito, as restrições e como formatar a descrição do cliente       |
+|Humano descrevendo cliente	        |1. README.md → 2. mantis-core-context.md → 3. 04-PROMPTS-OPENROUTER/workflow-generator-pt-BR.md	                |Entende o propósito, as restrições e como formatar a descrição do cliente       |
 |Validador SDD	                    |validate-against-specs.sh + 01-RULES/00-INDEX.md	                                                                |Verifica se cada arquivo gerado passa pelos checks automáticos                  |
 
 ---
@@ -417,7 +417,7 @@ Templates de Skills:
 
 Este arquivo é revisado trimestralmente ou ante mudanças estruturais
 Qualquer modificação requer:
-Validação contra facundo-core-context.md
+Validação contra mantis-core-context.md
 Atualização de version e last_updated no frontmatter YAML
 Commit com mensagem clara: docs: atualizar 00-INDEX.md para fluxo OpenRouter v2
 
@@ -432,5 +432,5 @@ Commit com mensagem clara: docs: atualizar 00-INDEX.md para fluxo OpenRouter v2
 ## 🔗 Conexiones Estructurales (Auto-generado)
 [[README.md]]
 [[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[00-CONTEXT/facundo-business-model.md]]
-[[00-CONTEXT/facundo-core-context.md]]
+[[00-CONTEXT/mantis-business-model.md]]
+[[00-CONTEXT/mantis-core-context.md]]
