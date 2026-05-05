@@ -1,572 +1,822 @@
 ---
 artifact_id: bash-master-agent-mantis
 artifact_type: agentic_skill_definition
-version: 1.0.0
-constraints_mapped: ["C1","C2","C3","C4","C5","C7","C8"]
-canonical_path: 06-PROGRAMMING/bash/bash-master-agent.md
+version: 2.2.0
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
+canonical_path: "06-PROGRAMMING/bash/bash-master-agent.md"
 tier: 1
-language_lock: ["bash","postgresql-pgvector"]
-governance_severity: warning
-validation_hooks:
-  - verify-constraints.sh
-  - audit-secrets.sh
-  - check-rls.sh
----
-# 🐚 Bash Master Agent para MANTIS AGENTIC
-
-> **Dominio**: Referencia técnica / Fine-tuning para IAs (`06-PROGRAMMING/bash/`)  
-> **Severidad de validación**: 🟡 **AMARILLA** (warning informativo, no bloqueo)  
-> **Stack permitido**: Bash ≥4.4, POSIX sh fallback, jq, awk, sed, grep, curl  
-> **Constraints declaradas**: C1-C8 (recursos, seguridad, estructura) — **CERO operadores vectoriales V1-V3** (LANGUAGE LOCK)
-
----
-
-## 🎯 Propósito Atómico
-
-Ser el **único punto de verdad** para desarrollo Bash dentro de MANTIS AGENTIC:
-- ✅ Generar scripts production-ready con enforcement de tenant (C4) en snippets SQL embebidos
-- ✅ Aplicar LANGUAGE LOCK: **prohibido** usar `<->`, `<#>`, `cosine_distance` en Bash (solo en `postgresql-pgvector/`)
-- ✅ Validar que todo script generado declare `constraints_mapped` coherente
-- ✅ Emitir output estructurado: JSON a `stdout`, logs a `stderr`, JSONL a `08-LOGS/`
-
+mode_selected: "B1"
+prompt_hash: "sha256:framework-executable-contract-v2.2.0"
+generated_at: "2026-05-06T00:00:00Z"
+tenant_context: "nao_aplicavel"
+language: pt-BR
+domain: bash
+ai_navigation:
+  read_first: true
+  required_for: [bash-artifact-generation, tdd-validation, sdd-contract-enforcement, hardening-audit, cross-ai-compatibility]
+  update_frequency: monthly
+  compatible_models: ["qwen", "deepseek", "claude", "minimax", "mimo-xiaomi", "gpt-4", "gemini"]
+audience: ["bash-master-agent", "orchestrator-engine", "validation-hooks", "senior-engineers", "ai-agents"]
+status: ✅ Estável
+next_review: 2026-06-01
+license: "CC-BY-NC-SA-4.0"
 ---
 
-## 🔐 Contrato de Gobernanza (V-INT COMPLIANT)
+# 🐚 Bash Master Agent – Framework Executável de Construção Agéntica
 
-### Frontmatter Obligatorio en Todo Artifact Generado
+> **Propósito**: Definir contrato completo para geração, validação e hardening de artefatos Bash no domínio `06-PROGRAMMING/bash/`, alinhado a TDD, VDD, SDD e Harness Norms v3.0. Framework agnóstico para ingestão por qualquer IA (asiática ou ocidental) via IDE, CLI ou orchestrator.
+>
+> **Princípio Fundacional**: *"Cada linha de Bash é infraestrutura executável. Estabilidade precede funcionalidade. Validação precede deploy. Contrato precede código."*
+>
+> **Compatibilidade Multi-IA**: Projetado para contexto amplo (DeepSeek, Qwen, MiniMax, Mimo) e contexto restrito (Claude, GPT, Gemini). Estrutura auto-contida elimina dependência de memória externa.
+
+---
+
+## 🎯 Missão do Agente
+
+Gerar artefatos Bash que sejam:
+- ✅ **Testáveis por design** (TDD): Cada função possui caso de teste isolado com padrão Arrange-Act-Assert
+- ✅ **Validáveis por contrato** (VDD): Frontmatter YAML + constraints C1-C8 executáveis via orchestrator-engine
+- ✅ **Especificados antes da geração** (SDD): norms-matrix.json como fonte de verdade única
+- ✅ **Endurecidos por padrão** (Harness Hardening): `set -Eeuo pipefail`, traps, timeouts, isolamento por tenant
+- ✅ **Agnósticos por arquitetura**: Funcionam em qualquer shell POSIX, container minimalista ou ambiente CI/CD
+
+**Não gerar sob hipótese alguma**:
+- ❌ Scripts sem tratamento de erros estruturado
+- ❌ Variáveis não validadas ou expansão insegura (`eval`, `$VAR` sem quotes)
+- ❌ Secrets hardcoded ou credenciais em texto plano (violação C3)
+- ❌ Comandos sem `tenant_id` em contexto multi-tenant (violação C4)
+- ❌ Artefatos sem frontmatter contratual válido (violação C5)
+- ❌ Logging não estruturado (violação C6 e C8)
+
+---
+
+## 🔗 URLs Raw para Ingestão e Prevenção de Drift
+
+### 📚 Documentação de Domínio Bash (Fonte de Verdade)
 ```yaml
----
-artifact_id: <kebab-case-único>
-artifact_type: bash_script | validation_tool | ci_pipeline | system_utility
-version: <semver>
-constraints_mapped: ["C3","C4","C5", ...]  # Mínimo: C3, C4, C5 para producción
-canonical_path: 06-PROGRAMMING/bash/<archivo>.md
-tier: 1 | 2 | 3
----
+raw_urls_index:
+  domain_root: "06-PROGRAMMING/bash/"
+  canonical_index: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/00-INDEX.md"
+  master_agent: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/bash-master-agent.md"
+  
+  utilities:
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/context-compaction-utils.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/filesystem-sandbox-sync.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/filesystem-sandboxing.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/fix-sintaxis-code.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/git-disaster-recovery.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/hardening-verification.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/orchestrator-routing.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/robust-error-handling.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/scale-simulation-utils.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/yaml-frontmatter-parser.md"
 ```
 
-### Constraints Aplicadas por Contexto
-| Constraint | Qué exige | Ejemplo de declaración válida |
-|------------|-----------|------------------------------|
-| **C1-C2** (Recursos) | Límites de CPU/memoria en scripts de deploy | `timeout 300s ./deploy.sh` ✅ |
-| **C3** (Secrets) | Cero hardcode. Uso de `${VAR}` o `env` | `API_KEY="${OPENAI_API_KEY:?not set}"` ✅ |
-| **C4** (Tenant Isolation) | Queries SQL embebidos con `WHERE tenant_id = $1` | `psql -c "SELECT * FROM docs WHERE tenant_id = $1"` ✅ |
-| **C5** (Estructura) | Shebang válido + `set -Eeuo pipefail` + funciones documentadas | Ver ejemplo abajo ✅ |
-| **C7** (Resiliencia) | Manejo de errores con `trap`, retry, fallback | `trap cleanup EXIT` + `retry_command` ✅ |
-| **C8** (Observabilidad) | Logging estructurado a `stderr`, JSON a `stdout` | `log_json() { echo "$*" >&2; }` ✅ |
+### 🏗️ Governança e Validação (Tier 1 – Imutável)
+```yaml
+governance_urls:
+  root_index: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/00-INDEX.md"
+  core_context: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/mantis-core-context.md"
+  norms_matrix: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/norms-matrix.json"
+  constraints: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/10-SDD-CONSTRAINTS.md"
+  hardening: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md"
+  orchestrator: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine/main.go"
+  
+  rules_index: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/00-INDEX.md"
+  architecture: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/01-ARCHITECTURE-RULES.md"
+  resource_guardrails: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/02-RESOURCE-GUARDRAILS.md"
+  security: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md"
+  api_reliability: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/04-API-RELIABILITY-RULES.md"
+  code_patterns: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/05-CODE-PATTERNS-RULES.md"
+  multitenancy: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md"
+  scalability: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/07-SCALABILITY-RULES.md"
+  skills_ref: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/08-SKILLS-REFERENCE.md"
+  output_rules: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/09-AGENTIC-OUTPUT-RULES.md"
+  language_lock: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md"
+  validation_checklist: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md"
+  
+  project_root:
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/RAW_URLS_INDEX.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/README.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SECURITY.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/TOOLCHAIN-REFERENCE.md"
+    - "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md"
+```
 
-### 🔒 LANGUAGE LOCK: Matriz de Operadores Vectoriales (BASH)
-| Operador | Permitido en Bash | Bloqueado en Bash |
-|----------|------------------|------------------|
-| `<->` (L2 distance) | ❌ **NUNCA** en Bash | Cualquier uso en script Bash |
-| `<#>` (inner product) | ❌ **NUNCA** en Bash | Cualquier uso en script Bash |
-| `cosine_distance()` | ❌ **NUNCA** en Bash | Cualquier uso en script Bash |
-| `pgvector` extension | ❌ **NUNCA** en Bash | `CREATE EXTENSION vector` en Bash |
+### 🔄 Protocolo de Prevenção de Drift
+```bash
+# Antes de gerar ou validar qualquer artefato, executar verificação de integridade
+bash 05-CONFIGURATIONS/scripts/verify-raw-urls.sh \
+  --index 06-PROGRAMMING/bash/00-INDEX.md \
+  --check-hash \
+  --fail-on-drift \
+  --report-format jsonl
 
-> ⚠️ **Nota contractual**: Bash es para **orquestación y validación estática**, NO para ejecución de queries vectoriales. Si necesitas vectores, delega a `06-PROGRAMMING/postgresql-pgvector/`.
+# Se drift detectado:
+# 1. Parar geração imediatamente
+# 2. Notificar via orchestrator com severity=error
+# 3. Aguardar atualização manual ou auto-sync aprovado por governance
+# 4. Registrar incidente em CHRONICLE.md com hash divergente
+```
 
 ---
 
-## 🧠 Capacidades del Agente
+## 🧱 TEMPLATE INTERNO: Estrutura Contractual para Artefatos Bash
 
-### 1. Script Template Contractual (V-INT Ready)
+> ⚠️ **ATENÇÃO CRÍTICA**: Todo artefato gerado por este agente DEBE seguir EXATAMENTE esta estrutura. Este template É a especificação executável. Copiar literalmente, não interpretar.
+
+```markdown
+---
+artifact_id: "{{nome-do-artefato}}"
+artifact_type: "bash_script"  # ou "bash_function", "bash_hook", "bash_utility", "bash_validation_hook"
+version: "1.0.0"
+constraints_mapped: ["C1","C3","C4","C5","C7"]  # Mínimo obrigatório: C3+C4+C5
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
+canonical_path: "06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md"
+tier: 2  # 1=docs, 2=código validável, 3=bundle deployável
+mode_selected: "B1"  # B1=código validável, B2=handoff, B3=bundle
+prompt_hash: "sha256:{{hash_da_especificação_completa}}"
+generated_at: "{{timestamp_utc}}"
+tenant_context: "obrigatorio"  # ou "nao_aplicavel" se for utilitário global
+language: pt-BR
+domain: bash
+ai_navigation:
+  read_first: false
+  required_for: [artifact-specific-validation]
+  update_frequency: on-change
+audience: ["bash-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Em desenvolvimento"
+next_review: "{{timestamp_utc_plus_30d}}"
+---
+
+# {{Título do Artefacto em pt-BR}}
+
+## 🎯 Propósito
+{{Descrição concisa em 2-3 frases do propósito do script, em pt-BR. Responder: o que faz, por que existe, para quem serve.}}
+
+## 📋 Especificação (SDD - Specification-Driven Development)
+- **Entradas**: `{{variáveis de ambiente, argumentos posicionais, flags esperadas}}`
+- **Saídas**: `{{códigos de retorno (0=success, 1-255=error), outputs estruturados em JSON/JSONL}}`
+- **Side Effects**: `{{arquivos modificados, diretórios criados, variáveis de ambiente exportadas}}`
+- **Constraints Aplicáveis**: `{{lista explícita: C1, C3, C4, C5, C7, etc.}}`
+- **Dependências Externas**: `{{comandos ou binários requeridos: jq, yq, curl, git, docker}}`
+
+## 🛡️ Hardening (Harness Norms v3.0 - Executável)
 ```bash
 #!/usr/bin/env bash
-# VALIDATOR_DEPENDENCIES: bash>=4.4,jq>=1.6,awk,grep,sed,mkdir,date,realpath
-# bash-master-agent.sh v1.0+ CONTRACTUAL
-# Propósito: Generar scripts Bash con gobernanza MANTIS
-# Contrato: V-INT-01|02|03|04|05 | V-LOG-01|02 | V-DOC-01
+# Shebang POSIX-compliant para máxima portabilidade
 
-set -Eeuo pipefail  # Strict mode: exit on error, unset var, pipe fail
-shopt -s inherit_errexit  # Bash 4.4+: inherit ERR trap in functions
+# C7: Resilience - Fail fast, fail loud
+set -Eeuo pipefail
 
-readonly SCRIPT_NAME="$(basename -- "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-readonly LOG_DIR="${LOG_DIR:-08-LOGS/validation/test-orchestrator-engine/bash-master}"
+# C5: Structural integrity - Evitar word splitting acidental
+IFS=$'\n\t'
 
-# =============================================================================
-# CANAL SEPARATION (V-INT-03): stdout=JSON puro | stderr=logs humanos
-# =============================================================================
-log_human() {
-  local level="${1:-INFO}" msg="${2:-}"
-  printf '[%s] [%s] %s: %s\n' "$(date -u +%H:%M:%S)" "$level" "$SCRIPT_NAME" "$msg" >&2
-}
+# C8: Audit trail - Identificar script em logs
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_VERSION="${VERSION:-1.0.0}"
 
-log_json() {
-  local json="$1"
-  mkdir -p "$LOG_DIR"
-  echo "$json" >> "$LOG_DIR/$(date -u +%Y-%m-%d_%H%M%S).jsonl"
-}
-
-# =============================================================================
-# CLEANUP TRAP (C7: Resiliencia)
-# =============================================================================
-TMPFILES=()
+# Trap para cleanup em erro ou interrupção
 cleanup() {
-  for f in "${TMPFILES[@]:-}"; do
-    [[ -f "$f" ]] && rm -f -- "$f"
-  done
+  local exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
+    printf '[%s][ERROR][script:%s][tenant:%s] Falha na linha %d: código %d\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      "${SCRIPT_NAME}" \
+      "${TENANT_ID:-unknown}" \
+      "${BASH_LINENO[0]:-0}" \
+      "$exit_code" >&2
+  fi
+  # Liberar recursos temporários se existirem
+  [[ -n "${TEMP_FILE:-}" && -f "${TEMP_FILE}" ]] && rm -f "${TEMP_FILE}"
+  exit $exit_code
 }
 trap cleanup EXIT INT TERM
 
-# =============================================================================
-# VALIDACIÓN DE DEPENDENCIAS (C5: Estructura)
-# =============================================================================
-check_deps() {
-  local -a missing=()
-  for cmd in jq awk grep sed; do
-    command -v "$cmd" &>/dev/null || missing+=("$cmd")
-  done
-  [[ ${#missing[@]} -eq 0 ]] || {
-    log_human "ERROR" "Missing dependencies: ${missing[*]}"
-    exit 2
+# C4: Tenant isolation - Validação obrigatória de contexto
+: "${TENANT_ID:?Variável de ambiente TENANT_ID não definida. Abortando para evitar vazamento de contexto.}"
+
+# C3: Zero secrets - Validar que variáveis sensíveis não estão vazias (se aplicável)
+# Exemplo: : "${API_TOKEN:?API_TOKEN não definida. Usar variável de ambiente ou Vault.}"
+
+# C1: Resource limits - Timeout para operações críticas
+# Ajustar valor conforme operação: io_bound=600, cpu_bound=120, network=300, default=180
+readonly OPERATION_TIMEOUT="${OPERATION_TIMEOUT:-180}"
+```
+
+## 🧪 Testes Unitários (TDD - Test-Driven Development)
+```bash
+# Padrão mínimo: Arrange-Act-Assert com retorno 0=pass, 1=fail
+# Executável via: bash script.sh --test ou via framework bats/shunit2
+
+test_{{nome_funcao_alvo}}() {
+  # Arrange: Preparar cenário de teste isolado
+  local input_teste="valor_controlado"
+  local expected_resultado="resultado_esperado"
+  
+  # Act: Executar função alvo com entrada controlada
+  local actual_resultado
+  actual_resultado=$(minha_funcao_alvo "$input_teste" 2>/dev/null) || true
+  
+  # Assert: Validar saída contra expectativa
+  if [[ "$actual_resultado" == "$expected_resultado" ]]; then
+    return 0  # Teste passou
+  else
+    printf '[TEST_FAIL] Esperado: "%s", Obtido: "%s"\n' "$expected_resultado" "$actual_resultado" >&2
+    return 1  # Teste falhou
+  fi
+}
+
+# Execução condicional de testes (se flag --test fornecida)
+if [[ "${1:-}" == "--test" ]]; then
+  test_{{nome_funcao_alvo}}
+  exit $?
+fi
+```
+
+## 🔍 Validação (VDD - Validation-Driven Development)
+```bash
+# Comando de validação via orchestrator-engine (executável por IA ou humano)
+# Este bloco documenta como validar o artefato, não é executado no runtime do script
+
+# Validação completa:
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md \
+  --json \
+  --check-secrets \
+  --check-tenant-isolation \
+  --check-structural \
+  --check-resource-limits \
+  --check-error-handling
+
+# Validação rápida (apenas frontmatter e syntax):
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md \
+  --mode headless \
+  --checks C5,C7 \
+  --json
+
+# Output esperado em caso de sucesso:
+# {"validator":"orchestrator-engine","file":"...","passed":true,"status":"passed",...}
+```
+
+## 🔗 Referências Cruzadas (Wikilinks para Navegação de IA)
+- [[bash-master-agent.md]] ← Contrato principal de geração
+- [[01-RULES/harness-norms-v3.0.md]] ← Especificação de hardening
+- [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição das constraints C1-C8
+- [[01-RULES/language-lock-protocol.md]] ← Protocolo de handoff entre domínios
+- [[00-CONTEXT/norms-matrix.json]] ← Fonte de verdade para constraints
+
+## 📝 Histórico de Revisões (Para CHRONICLE.md Integration)
+| Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
+|--------|------|-------|------------------|---------------------|
+| 1.0.0 | {{timestamp_utc}} | {{author_agent}} | Criação inicial | C3,C4,C5,C7 |
+```
+
+---
+
+## 📦 Inventário de Artefatos: Remanufatura e Geração
+
+### 🔧 Artefatos Existentes para Remanufatura (12 itens)
+*Prioridade: Converter para Tier 2 válido antes de gerar novos artefatos.*
+
+| ID | Artefacto | Status Atual | Constraints Mapeadas | Ação de Remanufatura | Prioridade |
+|----|-----------|-------------|---------------------|---------------------|-----------|
+| EX-01 | `00-INDEX.md` | ✅ Tier 1 | C1-C8 | Manter como referência; atualizar links se necessário | P3 |
+| EX-02 | `bash-master-agent.md` | 🔄 Regenerando | C1-C8 | **Este documento**: reescrita completa com template interno | P0 |
+| EX-03 | `hardening-verification.md` | 🟡 Tier 2* | C5,C7 | Adicionar frontmatter completo + tests unitários | P1 |
+| EX-04 | `context-compaction-utils.md` | 🔴 Inconsistente | C1,C3,C4,C5,C7,C8 | Refatorar frontmatter + logging estruturado + tenant validation | P0 |
+| EX-05 | `filesystem-sandboxing.md` | 🟡 Tier 2* | C4,C7 | Adicionar frontmatter + tests + logging JSONL | P1 |
+| EX-06 | `filesystem-sandbox-sync.md` | 🟡 Tier 2* | C4,C7,C8 | Adicionar frontmatter + parametrizar MAX_FILE_SIZE | P1 |
+| EX-07 | `robust-error-handling.md` | 🟡 Tier 2* | C7 | Adicionar frontmatter + integração com orchestrator | P1 |
+| EX-08 | `yaml-frontmatter-parser.md` | 🔴 Inconsistente | C5 | Adicionar frontmatter + handling UTF-8 + fallback seguro | P1 |
+| EX-09 | `fix-sintaxis-code.md` | ❌ Tier 0 | Nenhuma | Renomear para `fix-syntax-code.md` + reescrita completa | P2 |
+| EX-10 | `git-disaster-recovery.md` | ❌ Tier 0 | Nenhuma | Adicionar validação TENANT_ID + dry-run mode + logging | P2 |
+| EX-11 | `orchestrator-routing.md` | 🔴 Inconsistente | C4,C5 | Refatorar para leitura dinâmica de norms-matrix.json | P2 |
+| EX-12 | `scale-simulation-utils.md` | ❌ Tier 0 | Nenhuma | Adicionar resource limits (C1) + propagação de tenant | P2 |
+
+> **Legenda de Status**: ✅ Pronto | 🟡 Requer ajustes menores | 🔴 Requer refatoração crítica | ❌ Requer reescrita completa | 🔄 Em regeneração
+
+### 🚀 Artefatos Projetados para Geração (21 itens)
+*Prioridade: Gerar apenas após conclusão da Fase 0 (remanufatura dos existentes).*
+
+#### Nível M0: Fundamentos Críticos (Gerar Primeiro)
+| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
+|----|-----------|------------|--------------|------------------------|
+| PR-01 | `bash-hardening-verification.md` | C5, C7 | Nenhuma | Verificar `set -Eeuo pipefail`, shebang, traps em scripts |
+| PR-02 | `safe-variable-expansion.md` | C3, C5 | PR-01 | Padrão para `"${VAR:?msg}"`, evitar `eval`, quoting seguro |
+| PR-03 | `error-handling-traps.md` | C7 | PR-02 | Template de `trap cleanup EXIT INT TERM` + manejo estruturado |
+| PR-04 | `verify-constraints-hook.md` | C5, C8 | PR-01 | Hook validador que lê frontmatter e verifica `constraints_mapped` |
+
+#### Nível M1: Segurança e Multi-tenancy (Gerar Segundo)
+| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
+|----|-----------|------------|--------------|------------------------|
+| PR-05 | `secrets-in-shell-c3.md` | C3 | PR-02 | Padrão: zero hardcode, uso de `${VAR:?}`, integração env/Vault |
+| PR-06 | `tenant-context-propagation.md` | C4 | PR-02 | Propagar `TENANT_ID` em variáveis, argumentos e queries SQL |
+| PR-07 | `filesystem-isolation-per-tenant.md` | C4, C7 | PR-03, PR-06 | Sandbox por tenant: rotas, permissões, cleanup seguro |
+| PR-08 | `audit-secrets-hook.md` | C3, C8 | PR-04 | Hook que escanea scripts em busca de padrões de secrets |
+| PR-09 | `command-audit-logging-c8.md` | C8 | PR-02 | Logging estruturado: JSON a stderr, humano a stdout, JSONL a `08-LOGS/` |
+
+#### Nível M2: Operações e Parsing Seguro (Gerar Terceiro)
+| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
+|----|-----------|------------|--------------|------------------------|
+| PR-10 | `timeout-and-retry-patterns.md` | C1, C7 | PR-03 | Padrão de `timeout N` + retry exponencial com backoff |
+| PR-11 | `resource-limits-ulimit-cgroups.md` | C1 | PR-01 | Aplicar `ulimit` e cgroups v2 em scripts de deploy/CI |
+| PR-12 | `parallel-execution-safe.md` | C1, C7 | PR-10 | Execução paralela com `xargs -P` + controle de recursos |
+| PR-13 | `safe-file-operations.md` | C5, C7 | PR-03 | Operações atômicas: `mktemp`, `mv` atômico, permissões seguras |
+| PR-14 | `json-processing-with-jq.md` | C5, C6 | PR-02 | Parsing/geração JSON com `jq` + validação de schema |
+| PR-15 | `yaml-processing-with-yq.md` | C5 | PR-14 | Parsing YAML com `yq` para frontmatter e configs |
+| PR-16 | `csv-safe-parsing.md` | C5 | PR-02 | Parsing CSV seguro: manejo de comas, quotes, encoding UTF-8 |
+
+#### Nível M3: Integração Externa e Orquestração (Gerar Último)
+| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
+|----|-----------|------------|--------------|------------------------|
+| PR-17 | `curl-with-tenant-headers.md` | C3, C4 | PR-14, PR-10 | `curl` com headers de tenant, timeout, retry e logging |
+| PR-18 | `webhook-handler-secure.md` | C3, C4, C7 | PR-17, PR-05 | Handler de webhooks: validação de firma, tenant isolation |
+| PR-19 | `git-operations-tenant-scoped.md` | C4 | PR-06, PR-13 | Git com contexto de tenant: ramas, tags, commits auditados |
+| PR-20 | `docker-cli-tenant-isolation.md` | C4, C7 | PR-07 | `docker run` com flags de isolamento por tenant |
+| PR-21 | `orchestrator-engine-bash-port.md` | C4, C5, C8 | PR-14, PR-09 | Adapter Bash para comunicar com orchestrator-engine (Go) via JSON |
+
+---
+
+## 🔗 Grafo de Inter-relações: Domínio Bash MANTIS
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#1a1a2e'
+    primaryTextColor: '#ffffff'
+    primaryBorderColor: '#E0AF68'
+    lineColor: '#E0AF68'
+    secondaryColor: '#16213e'
+    tertiaryColor: '#0f3460'
+    fontSize: '14px'
+---
+graph TD
+    %% Nós de Fundamentos (M0) - Opaque com texto branco
+    classDef foundation fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+    classDef security fill:#16213e,color:#fff,stroke:#E0AF68,stroke-width:2px
+    classDef operations fill:#0f3460,color:#fff,stroke:#E0AF68,stroke-width:2px
+    classDef integration fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:2px,stroke-dasharray: 5 5
+    classDef existing fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px,opacity:0.7
+
+    %% Artefatos Existentes (Remanufatura)
+    EX_MASTER["🐚 bash-master-agent.md<br/>(Regenerando)"]:::foundation
+    EX_INDEX["📄 00-INDEX.md"]:::existing
+    EX_HARDEN["🛡️ hardening-verification.md"]:::existing
+    EX_COMPACT["🗜️ context-compaction-utils.md"]:::existing
+    EX_SANDBOX["📦 filesystem-sandboxing.md"]:::existing
+    EX_SYNC["🔄 filesystem-sandbox-sync.md"]:::existing
+    EX_ERRORS["⚠️ robust-error-handling.md"]:::existing
+    EX_YAML["📋 yaml-frontmatter-parser.md"]:::existing
+    EX_FIX["🔧 fix-syntax-code.md*"]:::existing
+    EX_GIT["🌿 git-disaster-recovery.md"]:::existing
+    EX_ROUTE["🧭 orchestrator-routing.md"]:::existing
+    EX_SCALE["📈 scale-simulation-utils.md"]:::existing
+
+    %% Artefatos Projetados M0 (Fundamentos)
+    PR_HARDEN_VER["🔍 bash-hardening-verification.md"]:::foundation
+    PR_SAFE_VAR["🔐 safe-variable-expansion.md"]:::foundation
+    PR_ERROR_TRAP["🪤 error-handling-traps.md"]:::foundation
+    PR_VERIFY_HOOK["✅ verify-constraints-hook.md"]:::foundation
+
+    %% Artefatos Projetados M1 (Segurança/Tenant)
+    PR_SECRETS["🤫 secrets-in-shell-c3.md"]:::security
+    PR_TENANT_PROP["👤 tenant-context-propagation.md"]:::security
+    PR_FS_ISOLATION["🔒 filesystem-isolation-per-tenant.md"]:::security
+    PR_AUDIT_SECRETS["🔎 audit-secrets-hook.md"]:::security
+    PR_AUDIT_LOG["📝 command-audit-logging-c8.md"]:::security
+
+    %% Artefatos Projetados M2 (Operações)
+    PR_TIMEOUT["⏱️ timeout-and-retry-patterns.md"]:::operations
+    PR_ULIMIT["⚙️ resource-limits-ulimit-cgroups.md"]:::operations
+    PR_PARALLEL["⚡ parallel-execution-safe.md"]:::operations
+    PR_SAFE_FILE["📁 safe-file-operations.md"]:::operations
+    PR_JSON_JQ["🔷 json-processing-with-jq.md"]:::operations
+    PR_YAML_YQ["🔶 yaml-processing-with-yq.md"]:::operations
+    PR_CSV["📊 csv-safe-parsing.md"]:::operations
+
+    %% Artefatos Projetados M3 (Integração)
+    PR_CURL["🌐 curl-with-tenant-headers.md"]:::integration
+    PR_WEBHOOK["🪝 webhook-handler-secure.md"]:::integration
+    PR_GIT_TENANT["🌿 git-operations-tenant-scoped.md"]:::integration
+    PR_DOCKER["🐳 docker-cli-tenant-isolation.md"]:::integration
+    PR_ORCH_PORT["🔌 orchestrator-engine-bash-port.md"]:::integration
+
+    %% Conexões de Dependência Crítica (Topological Order)
+    EX_MASTER --> PR_HARDEN_VER
+    EX_MASTER --> PR_SAFE_VAR
+    EX_MASTER --> PR_ERROR_TRAP
+    EX_MASTER --> PR_VERIFY_HOOK
+    
+    PR_HARDEN_VER --> PR_SAFE_VAR
+    PR_HARDEN_VER --> PR_ERROR_TRAP
+    PR_HARDEN_VER --> PR_ULIMIT
+    
+    PR_SAFE_VAR --> PR_SECRETS
+    PR_SAFE_VAR --> PR_TENANT_PROP
+    PR_SAFE_VAR --> PR_JSON_JQ
+    PR_SAFE_VAR --> PR_CSV
+    
+    PR_ERROR_TRAP --> PR_FS_ISOLATION
+    PR_ERROR_TRAP --> PR_TIMEOUT
+    PR_ERROR_TRAP --> PR_SAFE_FILE
+    
+    PR_VERIFY_HOOK --> PR_AUDIT_SECRETS
+    
+    PR_SECRETS --> PR_AUDIT_SECRETS
+    PR_SECRETS --> PR_CURL
+    
+    PR_TENANT_PROP --> PR_FS_ISOLATION
+    PR_TENANT_PROP --> PR_GIT_TENANT
+    PR_TENANT_PROP --> PR_DOCKER
+    
+    PR_JSON_JQ --> PR_YAML_YQ
+    PR_JSON_JQ --> PR_ORCH_PORT
+    
+    PR_TIMEOUT --> PR_PARALLEL
+    
+    PR_CURL --> PR_WEBHOOK
+    
+    %% Conexões com Artefatos Existentes (para remanufatura)
+    EX_HARDEN -.-> PR_HARDEN_VER
+    EX_COMPACT -.-> PR_SAFE_VAR
+    EX_SANDBOX -.-> PR_FS_ISOLATION
+    EX_SYNC -.-> PR_SAFE_FILE
+    EX_ERRORS -.-> PR_ERROR_TRAP
+    EX_YAML -.-> PR_YAML_YQ
+    EX_ROUTE -.-> PR_ORCH_PORT
+    EX_GIT -.-> PR_GIT_TENANT
+    EX_SCALE -.-> PR_PARALLEL
+
+    %% Legenda interativa (comentário para IA)
+    %% foundation = M0: Fundamentos Críticos | security = M1: Segurança/Tenant
+    %% operations = M2: Operações/Parsing | integration = M3: Integração Externa
+    %% existing = Artefatos atuais para remanufatura | seta sólida = dependência obrigatória
+    %% seta tracejada = artefato existente será refatorado para alinhar com projetado
+
+    %% Estilo de destaque para o nó central
+    style EX_MASTER fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:4px
+```
+
+---
+
+## 🧭 Fluxo de Trabalho do Agente Bash
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#1a1a2e'
+    primaryTextColor: '#ffffff'
+    primaryBorderColor: '#E0AF68'
+    lineColor: '#E0AF68'
+    secondaryColor: '#16213e'
+    tertiaryColor: '#0f3460'
+    fontSize: '14px'
+---
+stateDiagram-v2
+    [*] --> Especificação: norms-matrix.json + prompt + raw URLs
+    Especificação --> Geração: Bash Master Agent (este documento)
+    Geração --> Frontmatter: Adicionar contrato YAML obrigatório
+    Frontmatter --> Hardening: Inserir set -Eeuo pipefail, traps, timeouts, tenant validation
+    Hardening --> TDD: Adicionar testes unitários padrão Arrange-Act-Assert
+    TDD --> Validação: orchestrator-engine --json --checks C1-C8
+    Validação --> Aprovado: passed=true
+    Validação --> Rejeitado: passed=false
+    Rejeitado --> Diagnóstico: Ler issues_by_severity no output JSON
+    Diagnóstico --> Correção: Aplicar fix_hint por constraint violada
+    Correção --> Validação
+    Aprovado --> Registro: CHRONICLE.md + git commit com hash
+    Registro --> [*]
+
+    note right of Validação
+      Output JSON esperado:
+      {
+        "validator": "orchestrator-engine",
+        "file": "06-PROGRAMMING/bash/...",
+        "passed": true,
+        "constraints_checked": ["C1","C3","C4","C5","C7"],
+        "performance_ms": 142.7
+      }
+    end note
+
+    classDef process fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:2px
+    class Especificação,Geração,Frontmatter,Hardening,TDD,Validação,Aprovado,Rejeitado,Diagnóstico,Correção,Registro process
+```
+
+---
+
+## 🔗 Conexões com Outros Domínios (LANGUAGE LOCK)
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#1a1a2e'
+    primaryTextColor: '#ffffff'
+    primaryBorderColor: '#E0AF68'
+    lineColor: '#E0AF68'
+    secondaryColor: '#16213e'
+    tertiaryColor: '#0f3460'
+    fontSize: '14px'
+---
+graph LR
+    Bash["🐚 bash-master-agent.md<br/>Dominio: Bash"] --> Core["🧠 mantis-core-context.md<br/>Constraints C1-C8"]
+    Bash --> Rules["📜 harness-norms-v3.0.md<br/>Hardening padrão"]
+    Bash --> Orchestrator["⚙️ orchestrator-engine/main.go<br/>Validação automatizada"]
+    Bash --> Pgvector["🔷 postgresql-pgvector/<br/>Operações vetoriais"]
+    Bash --> Sql["🗄️ sql/<br/>Queries estruturadas"]
+    Bash --> Python["🐍 python/<br/>Lógica complexa"]
+    Bash --> Go["🔷 go/<br/>Microserviços"]
+    
+    Core -.->|Define contrato C1-C8| Bash
+    Rules -.->|Especifica hardening mínimo| Bash
+    Orchestrator -.->|Valida artefatos via JSON| Bash
+    Pgvector -.->|Recebe handoff de queries vetoriais| Bash
+    Sql -.->|Recebe handoff de queries SQL| Bash
+    Python -.->|Recebe handoff de lógica não-shell| Bash
+    Go -.->|Recebe handoff de serviços de alta performance| Bash
+    
+    %% LANGUAGE LOCK: Bash NÃO gera código destes domínios
+    %% Handoff explícito via bloco JSON documentado no template interno
+    
+    style Bash fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:4px
+    style Core fill:#16213e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+    style Rules fill:#16213e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+    style Orchestrator fill:#16213e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+    style Pgvector fill:#0f3460,color:#fff,stroke:#7f7f7f,stroke-width:1px,stroke-dasharray: 3 3
+    style Sql fill:#0f3460,color:#fff,stroke:#7f7f7f,stroke-width:1px,stroke-dasharray: 3 3
+    style Python fill:#0f3460,color:#fff,stroke:#7f7f7f,stroke-width:1px,stroke-dasharray: 3 3
+    style Go fill:#0f3460,color:#fff,stroke:#7f7f7f,stroke-width:1px,stroke-dasharray: 3 3
+```
+
+---
+
+## ⚙️ Toolchain de Validação Específica para Bash
+
+### Hooks Obrigatórios por Constraint (Executáveis)
+| Constraint | Hook Bash | Flags Típicos | Error Code | Fix Hint |
+|-----------|-----------|---------------|------------|----------|
+| **C1: Resource Limits** | `check-resource-limits.sh` | `--check-timeout`, `--check-ulimit`, `--check-cgroups` | `C1_001` | "Adicionar `timeout N` ou `ulimit -t N` antes de comando crítico" |
+| **C2: Data Validation** | `check-input-validation.sh` | `--check-quotes`, `--check-escaping`, `--check-schema` | `C2_001` | "Usar `"${VAR:?msg}"` e validar input contra schema JSON" |
+| **C3: Zero Secrets** | `audit-secrets.sh` | `--scan-vars`, `--scan-args`, `--scan-env`, `--patterns gitleaks` | `C3_001` | "Remover hardcode; usar variável de ambiente ou Vault" |
+| **C4: Tenant Isolation** | `check-tenant-context.sh` | `--require-tenant-var`, `--check-queries`, `--check-paths` | `C4_001` | "Incluir `TENANT_ID` em todas as queries, rotas e logs" |
+| **C5: Structural Integrity** | `validate-frontmatter.sh` | `--require-fields`, `--check-yaml`, `--check-schema` | `C5_001` | "Frontmatter deve ter artifact_id, version, constraints_mapped válidos" |
+| **C6: Input Sanitization** | `check-input-sanitization.sh` | `--check-eval`, `--check-expansion`, `--check-injection` | `C6_001` | "Evitar `eval`; usar quoting seguro e validação de schema" |
+| **C7: Resilience** | `check-error-handling.sh` | `--require-set-eu`, `--require-trap`, `--require-timeout` | `C7_001` | "Adicionar `set -Eeuo pipefail`, `trap cleanup EXIT`, timeouts" |
+| **C8: Audit Logging** | `check-audit-logging.sh` | `--check-structured`, `--check-tenant-in-log`, `--check-jsonl` | `C8_001` | "Usar logging JSON a stderr com tenant_id, timestamp, trace_id" |
+
+### Output Protocol para Hooks Bash (JSONL)
+```json
+{
+  "validator": "bash-hook",
+  "file": "06-PROGRAMMING/bash/nome-do-artefato.sh.md",
+  "passed": true,
+  "status": "passed",
+  "issues_count": 0,
+  "issues_by_severity": {
+    "error": [],
+    "warning": [],
+    "info": []
+  },
+  "performance_ms": 142.7,
+  "constraints_checked": ["C1", "C3", "C4", "C5", "C7"],
+  "next_steps": {
+    "if_passed": "Registrar em CHRONICLE.md e prosseguir com merge",
+    "if_failed": "Corrigir issues de severidade 'error' e re-validar"
+  },
+  "ai_compatibility": {
+    "tested_with": ["qwen", "deepseek", "claude", "minimax"],
+    "context_window_min": 8192,
+    "encoding": "UTF-8"
   }
 }
 ```
 
-### 2. Generación de Scripts con Tenant Isolation (C4)
-```bash
-# Ejemplo: Script que valida queries SQL embebidos
-validate_sql_snippet() {
-  local sql_file="$1"
-  
-  # ✅ C4: Verificar que queries SELECT/INSERT/UPDATE/DELETE incluyan tenant_id
-  if grep -qE '^(SELECT|INSERT|UPDATE|DELETE)' "$sql_file"; then
-    if ! grep -qE 'WHERE.*tenant_id\s*=' "$sql_file"; then
-      log_human "ERROR" "C4 violation: Missing tenant_id filter in $sql_file"
-      return 1
-    fi
-  fi
-  
-  # 🔒 LANGUAGE LOCK: Bloquear operadores vectoriales en Bash
-  if grep -qE '<->[^a-zA-Z]|<#>[^a-zA-Z]|cosine_distance' "$sql_file"; then
-    log_human "ERROR" "LANGUAGE LOCK violation: Vector operators not allowed in Bash domain"
-    return 1
-  fi
-  
-  return 0
-}
-```
-
-### 3. Logging JSONL Dashboard-Ready (V-LOG-02)
-```bash
-emit_validation_result() {
-  local file_path="$1" passed="$2" issues_count="$3"
-  
-  # ✅ V-INT-01: JSON mínimo a stdout
-  jq -n \
-    --arg v "bash-master-agent" \
-    --arg ver "1.0.0" \
-    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    --arg f "$file_path" \
-    --arg c '["C3","C4","C5"]' \
-    --argjson p "$passed" \
-    --argjson ic "$issues_count" \
-    '{
-      validator: $v,
-      version: $ver,
-      timestamp: $ts,
-      file: $f,
-      constraint: $c,
-      passed: $p,
-      issues: [],
-      issues_count: $ic
-    }'
-  
-  # ✅ V-LOG-01: JSONL a carpeta canónica
-  log_json "$(jq -c '. + {performance_ms: 0, performance_ok: true}')"
-}
-```
-
-### 4. Safe File Operations & Temporary Resources (C7)
-```bash
-# Crear archivo temporal seguro
-create_safe_temp() {
-  local tmp
-  tmp=$(mktemp) || { log_human "ERROR" "Failed to create temp file"; return 1; }
-  TMPFILES+=("$tmp")
-  echo "$tmp"
-}
-
-# Operación atómica de escritura
-atomic_write() {
-  local target="$1" content="$2"
-  local tmp
-  tmp=$(create_safe_temp) || return 1
-  
-  printf '%s\n' "$content" > "$tmp"
-  mv -- "$tmp" "$target"  # Atomic rename
-}
-```
-
-### 5. Argument Parsing Seguro + Dry-Run (C3, C7)
-```bash
-parse_args() {
-  local dry_run=false verbose=false file=""
-  
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --dry-run|-n) dry_run=true; shift ;;
-      --verbose|-v) verbose=true; shift ;;
-      --file|-f) file="$2"; shift 2 ;;
-      --) shift; break ;;
-      *) log_human "ERROR" "Unknown arg: $1"; return 2 ;;
-    esac
-  done
-  
-  # Validar requeridos
-  : "${file:?--file is required}"
-  
-  # Exportar para uso en funciones
-  export DRY_RUN=$dry_run VERBOSE=$verbose TARGET_FILE="$file"
-}
-
-run_cmd() {
-  if [[ "${DRY_RUN:-false}" == true ]]; then
-    log_human "INFO" "[DRY RUN] Would execute: $*"
-    return 0
-  fi
-  "$@"
-}
-```
-
 ---
 
-## 🔄 Integración con Toolchain de Validación MANTIS
+## 🔄 Protocolo de Handoff para Outros Domínios (LANGUAGE LOCK)
 
-### Hook para `verify-constraints.sh`
+### Quando Delegar (Regra Imutável)
 ```bash
-# Al generar un script, auto-validar frontmatter y constraints
-./05-CONFIGURATIONS/validation/verify-constraints.sh --file "$SCRIPT_PATH" | jq -e .
-```
+# 🚫 Bash NUNCA gera código destes domínios:
+# • Queries SQL puras → delegar para sql/ via handoff JSON
+# • Operações vetoriais → delegar para postgresql-pgvector/
+# • Lógica Python complexa → delegar para python/
+# • Microserviços Go de alta performance → delegar para go/
+# • Configurações de IA/ML → delegar para ai-configs/
 
-### Hook para `audit-secrets.sh`
-```bash
-# Escanear script en busca de secrets hardcodeados
-./05-CONFIGURATIONS/validation/audit-secrets.sh --file "$SCRIPT_PATH"
-```
+# ✅ Bash PODE e DEVE gerar:
+# • Orquestração de scripts e pipelines
+# • Validação de filesystem e permissões
+# • Health checks e monitoramento de serviços
+# • Deploy automation com constraints C1-C8
+# • Wrappers seguros para ferramentas externas (curl, git, docker)
+# • Logging estruturado e auditoria de comandos
 
-### Hook para `check-rls.sh` (si contiene SQL)
-```bash
-# Validar que snippets SQL incluyan WHERE tenant_id = $1
-./05-CONFIGURATIONS/validation/check-rls.sh --file "$SCRIPT_PATH" 2>/dev/null || true
-```
-
-### Logging JSONL Dashboard-Ready (V-LOG-02)
-```bash
-# Cada ejecución genera entrada JSONL en:
-# 08-LOGS/validation/test-orchestrator-engine/bash-master/YYYY-MM-DD_HHMMSS.jsonl
-
-# Ejemplo de entrada:
+# Exemplo de handoff mínimo (executável por IA):
+if [[ "${OPERATION_TYPE}" == "vector_query" ]]; then
+  # 🔄 HANDOFF EXPLÍCITO: Delegando para postgresql-pgvector/
+  # Este bloco JSON é a interface contratual entre domínios
+  cat << 'HANDOFF_JSON'
 {
-  "validator":"bash-master-agent",
-  "version":"1.0.0",
-  "timestamp":"2026-01-22T16:00:00Z",
-  "file":"06-PROGRAMMING/bash/validate-tenant.sh",
-  "constraint":"[\"C3\",\"C4\",\"C5\"]",
-  "passed":true,
-  "issues":[],
-  "issues_count":0,
-  "performance_ms":145,
-  "performance_ok":true
+  "handoff_protocol_version": "1.0",
+  "target_agent": "postgresql-pgvector-rag-master-agent",
+  "reason": "vector_operation_requires_V1_constraints_and_specialized_tooling",
+  "expected_output": "query_vectorial_com_C4_e_V1_aplicadas",
+  "timeout_seconds": 600,
+  "input_context": {
+    "tenant_id": "${TENANT_ID}",
+    "query_text": "${QUERY}",
+    "dimensions": 768,
+    "distance_metric": "cosine",
+    "top_k": 10
+  },
+  "callback": {
+    "on_success": "processar_resultados_json.sh",
+    "on_error": "log_handoff_failure.sh",
+    "format": "JSONL"
+  }
 }
+HANDOFF_JSON
+  exit 0
+fi
+```
+
+### Regras de Handoff (Validáveis)
+1. **Sempre incluir `tenant_id`** no payload de handoff (C4)
+2. **Sempre especificar `timeout_seconds`** para evitar bloqueio infinito (C1)
+3. **Sempre documentar `expected_output`** para validação downstream (C5)
+4. **Nunca hardcodear secrets** no payload; usar referências a env vars (C3)
+5. **Sempre registrar handoff** em log estruturado para auditoria (C8)
+
+---
+
+## 📊 Métricas de Qualidade do Agente Bash
+
+| Métrica | Meta | Como Medir | Ferramenta |
+|---------|------|-----------|-----------|
+| **Pass Rate em Validação** | ≥95% | `orchestrator-engine --json \| jq '.passed'` | orchestrator-engine |
+| **Tempo Médio de Validação** | ≤200ms | Logs do orchestrator com `performance_ms` | Prometheus/Grafana |
+| **Taxa de Handoff Correto** | 100% | Auditoria de blocos `HANDOFF_JSON` em artefatos | audit-handoff-hook.sh |
+| **Zero Secrets em Produção** | 100% | `audit-secrets.sh --scan-prod --patterns gitleaks` | audit-secrets.sh |
+| **Cobertura de Testes Unitários** | ≥80% | `bats --formatter tap` ou `shunit2` report | bats/shunit2 |
+| **Consistência de Frontmatter** | 100% | `validate-frontmatter.sh --require-fields` | validate-frontmatter.sh |
+| **Compatibilidade Multi-IA** | ≥4 modelos | Teste de ingestão em Qwen, DeepSeek, Claude, MiniMax | test-ai-compatibility.sh |
+
+---
+
+## 🚫 Anti-Padrões – O Que Nunca Gerar (Lista Executável)
+
+```bash
+# ❌ SEMPRE PROIBIDO (violação contratual):
+eval "$USER_INPUT"                    # C3+C6: Injection risk crítico
+export API_KEY="sk-abc123"            # C3: Secret hardcoded em texto plano
+psql -c "SELECT * FROM users"         # C4: Missing tenant_id em query
+script.sh && script2.sh               # C7: No error propagation entre comandos
+echo "log: $var"                      # C6+C8: Unstructured logging sem tenant/timestamp
+[[ -z "$VAR" ]] && VAR="default"      # C2: Validação fraca; usar "${VAR:?msg}"
+cd "$USER_PATH"                       # C4+C7: Mudança de contexto sem validação
+curl "$URL"                           # C1+C4: Sem timeout nem tenant headers
+
+# ✅ SEMPRE OBRIGATÓRIO (contrato executável):
+set -Eeuo pipefail                    # C7: Resilience - fail fast, fail loud
+IFS=$'\n\t'                           # C5: Structural integrity - evitar word splitting
+: "${TENANT_ID:?Required}"            # C4: Tenant validation - abort se não definido
+timeout "${OPERATION_TIMEOUT:-180}" comando_critico  # C1: Resource limit
+printf '[%s][INFO][tenant:%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${TENANT_ID}" "$msg" >&2  # C8: Structured log
+[[ "${VAR:-}" =~ ^[a-zA-Z0-9_-]+$ ]] || { echo "Invalid VAR" >&2; exit 1; }  # C2: Input validation
 ```
 
 ---
 
-## 🧪 Ejemplos: Válido vs Inválido (Para Testing del Agente)
+## 📋 Checklist de Geração – Antes de Commit (Executável)
 
-### ✅ Script Válido (`validate-tenant.sh`)
 ```bash
 #!/usr/bin/env bash
-set -Eeuo pipefail
+# Checklist executável para validação pré-commit de artefatos Bash
+# Uso: bash 05-CONFIGURATIONS/scripts/pre-commit-bash-checklist.sh --file 06-PROGRAMMING/bash/meu-artefato.sh.md
 
-# ✅ C3: Secrets vía variable de entorno
-readonly DB_URL="${DATABASE_URL:?DATABASE_URL not set}"
+set -euo pipefail
+readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 
-# ✅ C4: Query con tenant isolation
-validate_query() {
-  local tenant_id="$1"
-  psql "$DB_URL" -c "SELECT * FROM docs WHERE tenant_id = $1 AND status = 'active'"
-}
+# Parsing de argumentos
+FILE_PATH=""
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --file) FILE_PATH="$2"; shift 2 ;;
+    *) echo "Uso: $0 --file <caminho-do-artefato>" >&2; exit 1 ;;
+  esac
+done
 
-# ✅ C8: Logging estructurado a stderr
-log_info() { echo "[INFO] $*" >&2; }
+# Validações sequenciais (falha rápida)
+echo "[CHECK] Verificando artefato: ${FILE_PATH}"
 
-main() {
-  log_info "Starting validation for tenant: $1"
-  validate_query "$1"
-  log_info "Validation completed"
-}
+# ✅ 1. Arquivo existe
+[[ -f "${FILE_PATH}" ]] || { echo "❌ Arquivo não encontrado: ${FILE_PATH}" >&2; exit 1; }
+echo "✅ Arquivo existe"
 
-main "$@"
+# ✅ 2. Frontmatter válido (C5)
+head -50 "${FILE_PATH}" | grep -qE "^artifact_id:" || { echo "❌ Frontmatter: artifact_id ausente" >&2; exit 1; }
+head -50 "${FILE_PATH}" | grep -qE "^constraints_mapped:" || { echo "❌ Frontmatter: constraints_mapped ausente" >&2; exit 1; }
+echo "✅ Frontmatter contém campos obrigatórios"
+
+# ✅ 3. Hardening mínimo presente (C7)
+grep -q "set -Eeuo pipefail" "${FILE_PATH}" || { echo "❌ Hardening: set -Eeuo pipefail ausente" >&2; exit 1; }
+grep -q "trap.*EXIT\|trap.*ERR" "${FILE_PATH}" || { echo "❌ Hardening: trap para cleanup ausente" >&2; exit 1; }
+echo "✅ Harness hardening aplicado"
+
+# ✅ 4. Validação de tenant (C4) - se não for utilitário global
+if ! grep -q 'tenant_context: "nao_aplicavel"' "${FILE_PATH}"; then
+  grep -qE ':\s*"\$\{TENANT_ID:\?' "${FILE_PATH}" || { echo "❌ Tenant: validação TENANT_ID ausente" >&2; exit 1; }
+  echo "✅ Validação de tenant presente"
+fi
+
+# ✅ 5. Validação via orchestrator (dry-run)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file "${FILE_PATH}" \
+  --mode headless \
+  --json 2>/dev/null | jq -e '.passed' >/dev/null || { echo "❌ Validação orchestrator falhou" >&2; exit 1; }
+echo "✅ Validação orchestrator-engine passed"
+
+# ✅ 6. Registro em CHRONICLE.md (C8)
+echo "## $(date -u +%Y-%m-%dT%H:%M:%SZ) - $(basename "${FILE_PATH}")
+- Dominio: bash/
+- Mode: B1
+- Constraints: $(head -50 "${FILE_PATH}" | grep constraints_mapped | sed 's/.*\[\(.*\)\].*/\1/')
+- Validation: passed
+- Generated_by: ${SCRIPT_NAME}
+" >> CHRONICLE.md && echo "✅ Registro em CHRONICLE.md"
+
+echo "🎉 Checklist concluído com sucesso. Artefato pronto para commit."
+exit 0
 ```
 
-### ❌ Script Inválido (`broken-vector-bash.sh`)
+---
+
+## 🗓️ Integração com CHRONICLE.md (Auditoria Distribuída)
+
+### Formato de Registro Padrão (JSONL)
+```json
+{"timestamp":"2026-05-06T00:00:00Z","event":"artifact_regenerated","artifact_id":"bash-master-agent-mantis","version":"2.2.0","author":"bash-master-agent","constraints":["C1","C2","C3","C4","C5","C6","C7","C8"],"validation_passed":true,"hash":"sha256:framework-executable-contract-v2.2.0","next_review":"2026-06-01","ai_compatibility":["qwen","deepseek","claude","minimax","mimo-xiaomi"],"notes":"Regeneração completa com template interno para framework agnóstico"}
+```
+
+### Comandos de Consulta Úteis
 ```bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
+# Consultar histórico de um artefato específico
+grep '"artifact_id":"bash-master-agent-mantis"' CHRONICLE.md | jq -s
 
-# ❌ C3: Secret hardcodeado
-API_KEY="sk-xxx-hardcoded"
+# Validar integridade de hashes registrados
+bash 05-CONFIGURATIONS/scripts/verify-chronicle-hashes.sh --artifact bash-master-agent-mantis
 
-# ❌ LANGUAGE LOCK: Operador vectorial en Bash (prohibido)
-run_vector_query() {
-  psql -c "SELECT * FROM docs WHERE embedding <-> $1 < 0.3"
-}
-
-# ❌ C4: Query sin tenant_id
-run_query() {
-  psql -c "SELECT * FROM docs WHERE status = 'active'"
-}
-```
-
-**Resultado esperado de validación**:
-- `verify-constraints.sh`: `passed=false` (LANGUAGE LOCK violation + missing C4)
-- `audit-secrets.sh`: `passed=false` (hardcoded secret)
-- Exit code: `1` (bloqueo en CI/CD)
-
----
-
-## 📋 Checklist Pre-Generación (Para el Agente)
-
-Antes de emitir cualquier script Bash, el agente debe verificar:
-
-- [ ] **Shebang y strict mode**: `#!/usr/bin/env bash` + `set -Eeuo pipefail`
-- [ ] **Constraints declaradas**: Consultar `norms-matrix.json` para la ruta destino
-- [ ] **LANGUAGE LOCK**: CERO operadores vectoriales (`<->`, `<#>`, `cosine_distance`) en Bash
-- [ ] **C3 (Secrets)**: Usar `${VAR:?message}` o `env`, nunca hardcode
-- [ ] **C4 (Tenant)**: Snippets SQL embebidos deben incluir `WHERE tenant_id = $1`
-- [ ] **Separación de canales**: JSON a `stdout`, logs humanos a `stderr`
-- [ ] **Cleanup trap**: `trap cleanup EXIT` para recursos temporales
-- [ ] **Performance target**: Script ejecutable en <3000ms para validación
-
----
-
-## 🤝 Comportamiento del Agente (Behavioral Traits)
-
-| Trait | Implementación contractual |
-|-------|---------------------------|
-| **No inventa datos** | Siempre consulta `norms-matrix.json` antes de declarar constraints |
-| **Directo y realista** | Emite warnings claros cuando detecta desviaciones, sin adular |
-| **Amiga en lo personal** | Si el usuario pregunta fuera de scope, aconseja sin rigidez, pero mantiene el contrato técnico |
-| **Validación primero** | Antes de emitir código, ejecuta hooks de validación locales (`--dry-run`) |
-| **Trazabilidad total** | Todo script generado incluye `canonical_path` y `timestamp` para auditoría forense |
-| **LANGUAGE LOCK estricto** | Bloquea cualquier intento de usar operadores vectoriales en Bash |
-
----
-
-## 🔗 Referencias Contractuales
-
-| Documento | Propósito | URL Raw |
-|-----------|-----------|---------|
-| `GOVERNANCE-ORCHESTRATOR.md` | Motor de certificación Tiers 1/2/3 | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md) |
-| `norms-matrix.json` | Fuente de verdad: constraints por carpeta | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json) |
-| `VALIDATOR_DEV_NORMS.md` | Normas para desarrollo de validadores | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/VALIDATOR_DEV_NORMS.md) |
-| `verify-constraints.sh` | Validador de coherencia declarativa | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh) |
-
----
-
-> 📌 **Nota final**: Este artifact es Tier 1 (referencia educativa). Cualquier modificación debe pasar validación automática antes de merge.  
-> 🇧🇷 *Documentação técnica completa disponível em*: `docs/pt-BR/programming/bash/bash-master-agent/README.md` (próxima entrega).
+# Gerar relatório de conformidade por constraint
+bash 05-CONFIGURATIONS/scripts/chronicle-constraint-report.sh --constraint C4 --format markdown
 ```
 
 ---
 
-## 🔗 RAW_URLS_INDEX – Bash Master Agent Reference
+## 🌐 Compatibilidade Multi-IA: Diretrizes de Ingestão
 
-> **Propósito**: Fuente de verdad para que el agente consulte normas, patrones y contratos sin inventar datos.
+### Para IAs de Contexto Amplo (Qwen, DeepSeek, MiniMax, Mimo)
+- ✅ Este documento pode ser ingerido integralmente (≈8K tokens)
+- ✅ Template interno pode ser copiado literalmente sem resumo
+- ✅ Mermaid diagrams são renderizáveis em interfaces compatíveis
+- ✅ Frontmatter YAML é parseável por qualquer modelo com suporte a YAML
 
-### 🏛️ Gobernanza Raíz (Contratos Inmutables)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/TOOLCHAIN-REFERENCE.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json
-```
+### Para IAs de Contexto Restrito (Claude, GPT-3.5, Gemini Flash)
+- ⚠️ Priorizar ingestão das seções: Frontmatter, Template Interno, Anti-Padrões
+- ⚠️ Usar `--section` flag no orchestrator para carregar apenas partes críticas
+- ⚠️ Mermaid diagrams podem ser omitidos se o token budget estiver crítico
+- ✅ Estrutura modular permite carregamento seletivo sem perda de contrato
 
-### 📜 Normas y Constraints (01-RULES)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/10-SDD-CONSTRAINTS.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md
-```
-
-### 🧰 Toolchain de Validación (05-CONFIGURATIONS/validation)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/VALIDATOR_DEV_NORMS.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/audit-secrets.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/check-rls.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schema-validator.py
-```
-
-### 🐚 Patrones Bash (06-PROGRAMMING/bash)
-```text
-Patrones Core Bash
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/context-compaction-utils.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/filesystem-sandbox-sync.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/filesystem-sandboxing.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/fix-sintaxis-code.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/git-disaster-recovery.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/hardening-verification.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/orchestrator-routing.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/robust-error-handling.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/scale-simulation-utils.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/yaml-frontmatter-parser.md
-```
-
-### 🦜 Referencias Vectoriales (SOLO para consulta, NO para uso en Bash)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md
-```
-
-### 🔄 Workflows y CI/CD
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/.github/workflows/validate-mantis.yml
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/sdd-universal-assistant.json
-```
-
-### 📚 Skills de Referencia
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/skill-domains-mapping.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
-```
-
-### 🌐 Documentación pt-BR (Obligatoria para validadores)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/verify-constraints/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/check-rls/README.md
-```
-
----
-
-## 🗂️ RUTAS CANÓNICAS LOCALES (Para Movimiento en Repo)
-
-> **Formato**: `RAW_URL` → `./ruta/local/en/repo`
-
-### 🏛️ Gobernanza Raíz
-```text
-.../GOVERNANCE-ORCHESTRATOR.md          → ./GOVERNANCE-ORCHESTRATOR.md
-.../00-STACK-SELECTOR.md                → ./00-STACK-SELECTOR.md
-.../AI-NAVIGATION-CONTRACT.md           → ./AI-NAVIGATION-CONTRACT.md
-.../IA-QUICKSTART.md                    → ./IA-QUICKSTART.md
-.../PROJECT_TREE.md                     → ./PROJECT_TREE.md
-.../SDD-COLLABORATIVE-GENERATION.md     → ./SDD-COLLABORATIVE-GENERATION.md
-.../TOOLCHAIN-REFERENCE.md              → ./TOOLCHAIN-REFERENCE.md
-.../norms-matrix.json                   → ./05-CONFIGURATIONS/validation/norms-matrix.json
-.../knowledge-graph.json                → ./knowledge-graph.json
-```
-
-### 📜 Normas y Constraints
-```text
-.../01-RULES/harness-norms-v3.0.md           → ./01-RULES/harness-norms-v3.0.md
-.../01-RULES/language-lock-protocol.md       → ./01-RULES/language-lock-protocol.md
-.../01-RULES/10-SDD-CONSTRAINTS.md           → ./01-RULES/10-SDD-CONSTRAINTS.md
-.../01-RULES/03-SECURITY-RULES.md            → ./01-RULES/03-SECURITY-RULES.md
-.../01-RULES/06-MULTITENANCY-RULES.md        → ./01-RULES/06-MULTITENANCY-RULES.md
-.../01-RULES/validation-checklist.md         → ./01-RULES/validation-checklist.md
-```
-
-### 🧰 Toolchain de Validación
-```text
-.../validation/VALIDATOR_DEV_NORMS.md        → ./05-CONFIGURATIONS/validation/VALIDATOR_DEV_NORMS.md
-.../validation/norms-matrix.json             → ./05-CONFIGURATIONS/validation/norms-matrix.json
-.../validation/orchestrator-engine.sh        → ./05-CONFIGURATIONS/validation/orchestrator-engine.sh
-.../validation/verify-constraints.sh         → ./05-CONFIGURATIONS/validation/verify-constraints.sh
-.../validation/audit-secrets.sh              → ./05-CONFIGURATIONS/validation/audit-secrets.sh
-.../validation/check-rls.sh                  → ./05-CONFIGURATIONS/validation/check-rls.sh
-.../validation/schema-validator.py           → ./05-CONFIGURATIONS/validation/schema-validator.py
-```
-
-### 🐚 Patrones Bash
-```text# Patrones Core Bash
-06-PROGRAMMING/bash/context-compaction-utils.md
-06-PROGRAMMING/bash/filesystem-sandbox-sync.md
-06-PROGRAMMING/bash/filesystem-sandboxing.md
-06-PROGRAMMING/bash/fix-sintaxis-code.md
-06-PROGRAMMING/bash/git-disaster-recovery.md
-06-PROGRAMMING/bash/hardening-verification.md
-06-PROGRAMMING/bash/orchestrator-routing.md
-06-PROGRAMMING/bash/robust-error-handling.md
-06-PROGRAMMING/bash/scale-simulation-utils.md
-06-PROGRAMMING/bash/yaml-frontmatter-parser.md
-```
-
-### 🦜 Referencias Vectoriales (Consulta ONLY)
-```text
-.../postgresql-pgvector/00-INDEX.md          → ./06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-.../postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md → ./06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
-.../postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md → ./06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md
-```
-
-### 🔄 Workflows y CI/CD
-```text
-.../04-WORKFLOWS/sdd-universal-assistant.json → ./04-WORKFLOWS/sdd-universal-assistant.json
-.../.github/workflows/validate-mantis.yml  → ./.github/workflows/validate-mantis.yml
-```
-
-### 📚 Skills de Referencia
-```text
-.../02-SKILLS/README.md                    → ./02-SKILLS/README.md
-.../02-SKILLS/skill-domains-mapping.md     → ./02-SKILLS/skill-domains-mapping.md
-.../02-SKILLS/INFRASTRUCTURA/ssh-key-management.md → ./02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
-.../02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md → ./02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
-```
-
-### 🌐 Documentación pt-BR
-```text
-.../docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md → ./docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-.../docs/pt-BR/validation-tools/verify-constraints/README.md → ./docs/pt-BR/validation-tools/verify-constraints/README.md
-.../docs/pt-BR/validation-tools/check-rls/README.md → ./docs/pt-BR/validation-tools/check-rls/README.md
-```
-
----
-
-## 🧭 GUÍA DE USO PARA EL AGENTE
-
+### Protocolo de Fallback (Universal)
 ```bash
-# Pseudocódigo para que el Bash Master Agent use estas referencias:
+# Se a IA não suportar YAML frontmatter:
+# 1. Extrair metadados via grep para variáveis de ambiente
+# 2. Validar constraints via orchestrator-engine em modo headless
+# 3. Usar template interno como string literal para geração
 
-consultar_patron_bash() {
-  local nombre_patron="$1"
-  local base_raw="https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/"
-  local base_local="./06-PROGRAMMING/bash/"
-  
-  local filename="${nombre_patron}.md"
-  echo "raw_url:${base_raw}06-PROGRAMMING/bash/${filename}"
-  echo "canonical_path:${base_local}${filename}"
-  echo "domain:06-PROGRAMMING/bash/"
-  echo "language_lock:bash"  # 🔒 CERO operadores vectoriales en Bash
-  echo "constraints_default:C3,C4,C5"  # Mínimo para producción
-}
-
-# Ejemplo de uso antes de generar script:
-# pattern_info=$(consultar_patron_bash "robust-error-handling")
-# if grep -qE '<->|<#>|cosine_distance' "$input_query"; then
-#   log_human "ERROR" "LANGUAGE LOCK: Vector operators not allowed in Bash domain"
-#   exit 1
-# fi
+# Exemplo de extração segura de metadados:
+ARTIFACT_ID=$(grep "^artifact_id:" bash-master-agent.md | cut -d: -f2 | tr -d ' "')
+CONSTRAINTS=$(grep "^constraints_mapped:" bash-master-agent.md | sed 's/.*\[\(.*\)\].*/\1/')
+# ... validar via orchestrator com variáveis extraídas
 ```
 
 ---
 
-> 📌 **Nota contractual**: El Bash Master Agent **nunca** debe hardcodear valores de constraints, secrets o rutas. Siempre debe consultar `norms-matrix.json` o las URLs raw antes de generar código.  
-> 🇧🇷 *Documentação técnica completa em pt-BR*: `./docs/pt-BR/programming/bash/bash-master-agent/README.md`
-
----
+*Documento sob licença Creative Commons CC-BY-NC-SA-4.0 para uso interno do projeto MANTIS Agentic.*  
+*Última revisão: 2026-05-06T00:00:00Z | Próxima revisão programada: 2026-06-01*  
+*🔗 Raw URL para IA: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/bash-master-agent.md*  
+*🧭 Este documento É o framework: copiar estrutura, não interpretar. Contrato precede código.*
