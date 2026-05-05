@@ -210,7 +210,7 @@ pie title "Uso de Modelos de IA - Participação (%)"
 | 📖 Índice de Contexto | Especificações de domínio e regras | `./00-CONTEXT/00-INDEX.md` |
 | 📋 Matriz de Normas | Fonte de verdade para validação C1-C8 | `./00-CONTEXT/norms-matrix.json` |
 | 🤖 Framework Master-Agent | Instruções para orquestração agnóstica | `./docs/framework/doc-agnostic-master-agent.md` |
-| 🏗️ Infraestrutura Real | VPS, Docker, Qdrant, Postgres | `./00-CONTEXT/facundo-infrastructure.md` |
+| 🏗️ Infraestrutura Real | VPS, Docker, Qdrant, Postgres | `./00-CONTEXT/mantis-infrastructure.md` |
 
 ---
 

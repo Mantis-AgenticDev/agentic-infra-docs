@@ -117,9 +117,9 @@ El orden es alfabético dentro de cada nivel, excepto documentos críticos que v
 │   ├── 📄 PROJECT_OVERVIEW.md                 # Visión general del proyecto
 │   ├── 📄 documentation-validation-checklist.md  # Checklist de validación de docs
 │   ├── 📄 documentation-validation-checklist.txt # Versión texto plano del checklist
-│   ├── 📄 facundo-business-model.md           # Modelo de negocio específico
-│   ├── 📄 facundo-core-context.md             # Contexto central del proyecto
-│   └── 📄 facundo-infrastructure.md           # Infraestructura técnica base
+│   ├── 📄 mantis-business-model.md           # Modelo de negocio específico
+│   ├── 📄 mantis-core-context.md             # Contexto central del proyecto
+│   └── 📄 mantis-infrastructure.md           # Infraestructura técnica base
 │
 ├── 📁 01-RULES/                               # Normas canónicas: HARNESS v3.0, constraints, LANGUAGE LOCK
 │   ├── 📄 .gitkeep

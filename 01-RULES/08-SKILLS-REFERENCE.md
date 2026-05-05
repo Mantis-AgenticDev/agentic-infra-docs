@@ -368,7 +368,7 @@ Fase 3 - Integración:
 
 Fase 4 - Entrega:
   • Validar artefacto → score=42, blocking_issues=[] ✅
-  • Log auditoría: {"skill_id": "qwen-whatsapp-rag", "version": "1.0.0", "invoked_by": "agent:facundo"} ✅
+  • Log auditoría: {"skill_id": "qwen-whatsapp-rag", "version": "1.0.0", "invoked_by": "agent:mantis"} ✅
 
 Resultado: ✅ Skill integrada, validada y auditada sin reinventar patrones.
 ```

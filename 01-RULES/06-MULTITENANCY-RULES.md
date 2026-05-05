@@ -430,7 +430,7 @@ func TestTenantIsolation(t *testing.T) {
   "timestamp": "2026-04-19T12:00:00Z",  // RFC3339 UTC
   "tenant_id": "cliente_001",            // Obligatorio (C4)
   "event": "query_executed|api_call|auth_attempt",
-  "actor": "user:facundo|agent:qwen-3.5",
+  "actor": "user:mantis|agent:qwen-3.5",
   "resource": "messages:select|embeddings:upsert",
   "result": "success|denied|error",
   "query_hash": "sha256:abc123...",      // Para reproducibilidad sin exposición

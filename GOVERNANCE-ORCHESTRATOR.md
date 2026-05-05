@@ -417,7 +417,7 @@ Son como la caja negra de un avión: esperas no usarlos, pero son vitales si alg
   },
   "audit": {
     "audit_flag": "human_confirmed",
-    "operator_id": "human:facundo",  # O "agent:qwen-3.5" si es automático
+    "operator_id": "human:mantis",  # O "agent:qwen-3.5" si es automático
     "session_id": "sess_abc123"
   }
 }

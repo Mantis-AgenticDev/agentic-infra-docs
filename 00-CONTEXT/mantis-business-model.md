@@ -1,187 +1,318 @@
 ---
-file_id: FAC-BIZ-003
+file_id: MANTIS-BIZ-001
 file_name: mantis-business-model.md
-version: 2.0.0
+version: 2.1.0
 created: 2026-04-01
 last_updated: 2026-04-01
-author: Mantis (Mantis-AgenticDev)
-category: BUSINESS
-priority: HIGH
-tokens_estimate: 1800
+author: MANTIS-AgenticDev
+category: BUSINESS_MODEL
+priority: CRITICAL
+tokens_estimate: 2800
 related_files:
-  - PROJECT_OVERVIEW.md
-  - mantis-core-context.md
-  - ../07-PROCEDURES/onboarding-client.md
-  - ../04-WORKFLOWS/BILLING-001-Generate-Invoice.json
+ - PROJECT_OVERVIEW.md
+ - mantis-core-context.md
+ - mantis-infrastructure.md
+ - ../04-WORKFLOWS/BILLING-001-Generate-Invoice.json
+ - ../07-PROCEDURES/onboarding-client.md
 ai_navigation:
-  read_after: mantis-core-context.md
-  required_for: [pricing, client-management, scaling-decisions, partner-split]
-  update_frequency: quarterly
-  validation_rules:
-    - revenue_target must be >= 2500 BRL/month
-    - partner_split must be 45% each after reserve
-    - emergency_fund must be 10% of net profit
-# === CAMPOS SDD ADICIONALES (para compatibilidad) ===
-sdd_compliance_note: "Este archivo contiene reglas de negocio. Los constraints técnicos C1-C6 se aplican en la infraestructura que soporta este modelo. Ver: 01-RULES/06-MULTITENANCY-RULES.md para enforcement técnico."
-technical_constraints_reference:
-  - "01-RULES/01-ARCHITECTURE-RULES.md"
-  - "01-RULES/02-RESOURCE-GUARDRAILS.md"
-  - "01-RULES/06-MULTITENANCY-RULES.md"
-sdd_compliance_note: "Reglas de negocio. Constraints técnicos C1-C6 aplicados en infraestructura soporte."
+ read_after: mantis-core-context.md
+ required_for: [pricing-decisions, client-onboarding, financial-planning, partner-agreements]
+ update_frequency: quarterly
+audience: ["partners", "finance-team", "sales", "executives"]
+status: ✅ Estable
+next_review: 2026-07-01
+currency: BRL
+contract_term_months: 12
 ---
 
-# FACUNDO BUSINESS MODEL - MANTIS AGENTIC
+# 💼 MANTIS BUSINESS MODEL - Modelo de Negócio Conceitual
 
-## 💰 ESTRUCTURA DE COSTOS FIJOS (Mensuales)
-
-| Concepto                 | Costo Mensual | Detalle                                   |
-|--------------------------|---------------|-------------------------------------------|
-| **VPS Hostinger**        | R$ 200        | 3 VPS x R$ 800/12 meses (contrato 2 años) |
-| **uazapi**               | R$ 150        | 100 celulares                             |
-| **Deepgram**             | R$ 200        | Transcripción de audio                    |
-| **OpenRouter**           | R$ 200        | LLMs (Claude, Gemini, GPT)                |
-| **WhatsApp (2 cuentas)** | R$ 120        | Cuentas propias para pruebas/demo         |
-| **MEI**                  | R$ 60         | Impuesto mensual MEI                      |
-| **TOTAL COSTOS FIJOS**   | **R$ 930**    |                                           |
-
-> ⚠️ **Nota:** Este es el costo base. Los costos variables (APIs por cliente adicional) se calculan aparte.
+> **Propósito:** Documentar a estrutura de preços, custos e projeções financeiras do MANTIS Agentic para tomada de decisão estratégica.  
+> **Princípio:** "Estabilidade financeira permite inovação técnica. Crescimento controlado protege qualidade."
 
 ---
 
-## 💼 PLANES DE SERVICIO
+## 🎯 Proposta de Valor Comercial
 
-| Característica | Plan Básico | Plan Full           | Plan Enterprise* |
-|----------------|-------------|---------------------|------------------|
-| **Precio/mes** | **R$ 399**  | **R$ 499**          | **R$ 1.199**     |
-| Clientes máx.  | 6           | 8                   | 12+              |
-| WhatsApp       | 1 número    | 2 números           | Ilimitado        |
-| RAG queries    | 500/mes     | 2.000/mes           | Ilimitado        |
-| CRM (Espo)     | Solo logs   | Gestión completa    | Personalizado    |
-| Soporte        | Email 48h   | Telegram 10min      | Dedicado 24/7    |
-| Backup         | Semanal     | Diario + validación | Multi-región     |
+**Para PMEs do Rio Grande do Sul:**
+> *"Automação inteligente com governança empresarial, sem complexidade técnica e com conformidade LGPD nativa — por um custo previsível e acessível."*
 
-*Enterprise requiere infraestructura dedicada (fuera de los 3 VPS base)
+**Para Parceiros e Integradores:**
+> *"Infraestrutura validada e orquestração agêntica pronta para revenda, com margem protegida e suporte técnico especializado."*
 
----
-
-## 📊 PROYECCIÓN FINANCIERA - ESCENARIO BASE
-
-### Escenario 1: 6 clientes (3 Básico + 3 Full)
-
-| Concepto                   | Cálculo                     | Valor        |
-|----------------------------|-----------------------------|--------------|
-| Ingreso Bruto              | (3 x R$ 399) + (3 x R$ 499) | **R$ 2.694** |
-| (-) Costos Fijos           |                             | **- R$ 930** |
-| (-) Costos Variables*      | Estimado 6 clientes         | **- R$ 300** |
-| **= EBITDA**               |                             | **R$ 1.464** |
-| (-) Fondo Emergencia (10%) |                             | **- R$ 146** |
-| **= Distribución**         |                             | **R$ 1.318** |
-| Socio 1 (Mantis)          | 50% de distribución         | **R$ 659**   |
-| Socio 2                    | 50% de distribución         | **R$ 659**   |
-
-*EBITDA Earnings Before Interest, Taxes, Depreciation, and Amortization
-
-### Escenario 2: 8 clientes (4 Básico + 4 Full) - OBJETIVO
-
-| Concepto                   | Cálculo                     | Valor        |
-|----------------------------|-----------------------------|--------------|
-| Ingreso Bruto              | (4 x R$ 399) + (4 x R$ 499) | **R$ 3.592** |
-| (-) Costos Fijos           |                             | **- R$ 930** |
-| (-) Costos Variables*      | Estimado 8 clientes         | **- R$ 400** |
-| **= EBITDA**               |                             | **R$ 2.262** |
-| (-) Fondo Emergencia (10%) |                             | **- R$ 226** |
-| **= Distribución**         |                             | **R$ 2.036** |
-| Socio 1 (Mantis)          | 50% de distribución         | **R$ 1.018** |
-| Socio 2                    | 50% de distribución         | **R$ 1.018** |
-
-### Escenario 3: 10 clientes (5 Básico + 5 Full) - MÁXIMO
-
-| Concepto                   | Cálculo                     | Valor        |
-|----------------------------|-----------------------------|--------------|
-| Ingreso Bruto              | (5 x R$ 399) + (5 x R$ 499) | **R$ 4.490** |
-| (-) Costos Fijos           |                             | **- R$ 930** |
-| (-) Costos Variables*      | Estimado 10 clientes        | **- R$ 500** |
-| **= EBITDA**               |                             | **R$ 3.060** |
-| (-) Fondo Emergencia (10%) |                             | **- R$ 306** |
-| **= Distribución**         |                             | **R$ 2.754** |
-| Socio 1 (Mantis)          | 50% de distribución         | **R$ 1.377** |
-| Socio 2                    | 50% de distribución         | **R$ 1.377** |
-
-*Costos variables incluyen: APIs OpenRouter (consumo por cliente), Deepgram, y otros servicios bajo demanda.
+**Diferenciais Comerciais:**
+- ✅ **Preço Fixo em BRL**: Sem surpresas com câmbio ou consumo de API
+- ✅ **Contrato de 12 Meses**: Estabilidade para planejamento de ambas as partes
+- ✅ **LGPD Incluído**: Conformidade nativa, sem custos adicionais de consultoria
+- ✅ **Escalabilidade Controlada**: Cresça apenas quando seus KPIs validarem
 
 ---
 
-## 🎯 OBJETIVOS FINANCIEROS
+## 📦 Perfis de Serviço e Precificação
 
-| Objetivo                          | Valor        | Plazo    |
-|-----------------------------------|--------------|----------|
-| **EBITDA mensual objetivo**       | R$ 2.500+    | Mes 6-8  |
-| **Distribución por socio**        | R$ 1.000+    | Mes 6-8  |
-| **Fondo de emergencia acumulado** | R$ 5.000     | 12 meses |
-| **Punto de equilibrio**           | 4-5 clientes | Mes 3-4  |
+### Tiers de Infraestrutura por Perfil de Cliente
 
----
+| Perfil | Capacidade | Casos de Uso Típicos | Instalação (único) | Mensalidade (12x) |
+|--------|-----------|---------------------|-------------------|-------------------|
+| **🟢 Nano** | 1-3 clientes por VPS Edge | Restaurantes, Instagram, KB leve, WhatsApp básico | **R$ 4.000** | **R$ 600/mês** |
+| **🔵 Micro** | 4-6 clientes com cache dedicado | Hotéis, clínicas, e-commerce local, CRM integrado | **R$ 6.000** | **R$ 800/mês** |
+| **🟡 Standard** | 7-12 clientes com balanceamento | Corporate, multi-serviços, RAG complexo, SLA 99% | **R$ 8.500** | **R$ 1.100/mês** |
+| **🔴 Large** | 13+ clientes ou requisitos customizados | Enterprise, multi-região, integrações legadas | **Sob análise** | **Sob análise** |
 
-## 🤝 ACUERDOS DE NIVEL DE SERVICIO (SLA)
+> 💡 **Nota:** Valores em Reais (BRL), contrato mínimo de 12 meses, pagamento mensal antecipado.
 
-| Métrica                | Compromiso | Penalización               |
-|------------------------|------------|----------------------------|
-| Uptime mensual         | 99.5%      | Crédito 10% del mes        |
-| Respuesta alertas      | < 10 min   | Revisión inmediata         |
-| Restauración backup    | < 60 min   | Compensación + post-mortem |
-| Soporte crítico (Full) | < 10 min   | Escalamiento automático    |
+### O Que Está Incluído em Cada Tier
 
----
+| Recurso | Nano | Micro | Standard | Large* |
+|---------|------|-------|----------|--------|
+| **VPS Dedicados** | Compartilhado (Edge) | Compartilhado + cache | Isolamento lógico | Dedicado físico |
+| **WhatsApp por Cliente** | 1 número | 2 números | 3 números | Ilimitado |
+| **Consultas RAG/mês** | 500 | 2.000 | 10.000 | Sob demanda |
+| **CRM (Espo)** | Logs básicos | Gestão completa | Personalização leve | Customização total |
+| **Backup** | Semanal | Diário + validação | Diário + multi-local | Real-time + DR |
+| **Suporte** | Email 48h | Telegram 4h | Telegram 1h | Dedicado 24/7 |
+| **Dashboard Cliente** | Básico HTML | Interativo + métricas | Executivo + export | White-label |
+| **Conformidade LGPD** | ✅ Nativo | ✅ Nativo + relatório | ✅ Nativo + auditoria | ✅ Nativo + consultoria |
 
-## 📈 ESTRATEGIA DE CRECIMIENTO
-
-| Fase | Clientes | Trigger                    | Acción                  |
-|------|----------|----------------------------|-------------------------|
-| 0    | 0-3      | Primeros contratos         | Operar 3 VPS base       |
-| 1    | 4-6      | EBITDA > R$ 1.500          | Optimizar + caching     |
-| 2    | 7-8      | Waitlist + 3 meses estable | Evaluar VPS-4           |
-| 3    | 9+       | Demanda Enterprise         | Qdrant cloud gestionado |
+*Large requer análise técnica prévia e contrato customizado.
 
 ---
 
-## 📊 KPIs DE NEGOCIO
-Key Performance Indicators
+## 🏗️ Infraestrutura Mínima de Partida (Cenário Base)
 
-| KPI                 | Objetivo   | Fuente                 |
-|---------------------|------------|------------------------|
-| MRR                 | ≥ R$ 3.500 | EspoCRM + Stripe       |
-| Churn mensual       | < 5%       | Registro cancelaciones |
-| NPS                 | ≥ 40       | Encuesta trimestral    |
-| Costo infra/cliente | ≤ R$ 116   | Hostinger + monitoreo  |
-| Tiempo resolución   | < 10 min   | Logs Telegram          |
+### Topologia Inicial: 6 Clientes Nano
+
+```mermaid
+graph LR
+    subgraph "🌐 Clientes (6x Nano)"
+        C1[Cliente 1-3] --> E1[VPS Edge 1]
+        C2[Cliente 4-6] --> E2[VPS Edge 2]
+    end
+    
+    subgraph "🏗️ Infraestrutura MANTIS"
+        E1["VPS Edge 1<br/>Agentes + Redis<br/>3 clientes"]
+        E2["VPS Edge 2<br/>Failover + Balanceamento<br/>3 clientes"]
+        CORE["VPS Core<br/>Dados + CRM + Vetores<br/>6 clientes"]
+        
+        E1 <-->|Túnel Seguro| CORE
+        E2 <-->|Túnel Seguro| CORE
+    end
+    
+    style CORE fill:#1a1a2e,stroke:#E0AF68,stroke-width:3px
+```
+
+### Especificações Técnicas da Topologia Inicial
+
+| Componente | Quantidade | Função | Custo Mensal Estimado |
+|------------|-----------|--------|----------------------|
+| **VPS Edge** | 2 unidades | Execução de agentes n8n + gateway WhatsApp + cache Redis | R$ 134/unidade |
+| **VPS Core** | 1 unidade | Banco de dados MySQL + CRM Espo + vetores Qdrant (RAG) | R$ 134/unidade |
+| **Serviços Complementares** | - | uazapi, Deepgram, OpenRouter, WhatsApp Business, MEI | R$ 730/mês |
+| **TOTAL INFRAESTRUTURA** | **3 VPS + serviços** | **Suporte a 6 clientes Nano** | **~R$ 930/mês** |
+
+> 💡 **Custo por cliente (cenário base):** ~R$ 155/mês de infra para receita de R$ 600/mês = margem bruta de ~74%.
 
 ---
 
-## ⚠️ NOTAS IMPORTANTES
+## 💰 Projeções Financeiras - Cenário Base (6 Clientes Nano)
 
-1. **Fondo de Emergencia (10%):** Destinado a:
-   - Fallas de hardware no cubiertas
-   - Aumento imprevisto de costos de APIs
-   - Meses de vacancia entre clientes
+### Receita Recorrente Mensal (MRR)
 
-2. **Distribución:** 50% para cada socio DESPUÉS del fondo de emergencia
+| Fonte | Cálculo | Valor Mensal |
+|-------|---------|--------------|
+| **Assinaturas Nano** | 6 clientes × R$ 600 | **R$ 3.600** |
+| **Receita Total** | | **R$ 3.600** |
 
-3. **Costos Variables:** Aumentan con:
-   - Más clientes = más queries RAG
-   - Mayor uso de transcripción (Deepgram)
-   - Más números de WhatsApp
+### Estrutura de Custos Mensais
 
-4. **Precios vs Mercado:**
-   - Básico R$ 399       → Competitivo para pequeños negocios
-   - Full R$ 499         → Principal fuente de ingresos
-   - Enterprise R$ 1.199 → Para clientes con demanda alta
+| Categoria | Item | Valor Mensal | Observações |
+|-----------|------|--------------|-------------|
+| **Infraestrutura Fixa** | 3 VPS Hostinger KVM1 | R$ 402 | Contrato 12 meses, São Paulo |
+| **Serviços de IA** | OpenRouter (Qwen/DeepSeek) | R$ 200 | Estimativa conservadora |
+| **Comunicação** | uazapi + WhatsApp Business | R$ 270 | 100 celulares + 2 contas WA |
+| **Processamento** | Deepgram (transcrição) | R$ 200 | Estimativa para 6 clientes |
+| **Legal/Contábil** | MEI + impostos | R$ 60 | Regime simplificado |
+| **Reserva Técnica** | Manutenção + imprevistos | R$ 100 | Fundo de contingência |
+| **TOTAL CUSTOS FIXOS** | | **~R$ 1.232** | |
+
+### Resultado Operacional Mensal (Cenário Base)
+
+| Indicador | Cálculo | Valor |
+|-----------|---------|-------|
+| **Receita Bruta** | 6 × R$ 600 | R$ 3.600 |
+| **(-) Custos Fixos** | Infra + serviços + legal | - R$ 1.232 |
+| **(-) Custos Variáveis*** | Estimativa 15% da receita | - R$ 540 |
+| **(=) EBITDA Mensal** | | **R$ 1.828** |
+| **(-) Fundo Emergência (10%)** | Para resiliência operacional | - R$ 183 |
+| **(=) Distribuição Disponível** | Para reinvestimento ou sócios | **R$ 1.645** |
+
+> *Custos variáveis incluem: consumo extra de API, suporte adicional, upgrades pontuais.
+
+### Receita de Instalação (One-Time)
+
+| Item | Cálculo | Valor Total |
+|------|---------|-------------|
+| **Instalação Nano** | 6 clientes × R$ 4.000 | **R$ 24.000** |
+| **Destinação Sugerida** | 50% reinvestimento em infra, 30% fundo emergência, 20% operacional | - |
+
+> 💡 **Payback da Infraestrutura Inicial:** < 2 meses com 6 clientes Nano ativos.
 
 ---
 
-FIN DEL ARCHIVO - mantis-business-model.md
+## 📈 Cenários de Crescimento Controlado
 
-## 🔗 Conexiones Estructurales (Auto-generado)
-[[README.md]]
-[[00-CONTEXT/00-INDEX.md]]
-[[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[00-CONTEXT/mantis-core-context.md]]
+### Matriz de Projeção por Mix de Clientes
+
+| Cenário | Mix de Clientes | MRR Estimado | EBITDA Mensal | Infra Necessária |
+|---------|----------------|--------------|---------------|-----------------|
+| **Validação** | 6 Nano | R$ 3.600 | R$ 1.828 | 3 VPS KVM1 (atual) |
+| **Crescimento** | 4 Nano + 2 Micro | R$ 4.000 | R$ 2.240 | 3 VPS KVM1 + otimização |
+| **Consolidação** | 2 Nano + 4 Micro | R$ 4.400 | R$ 2.580 | 3 VPS KVM1 + cache dedicado |
+| **Expansão*** | 6 Micro ou 4 Standard | R$ 4.800+ | R$ 2.900+ | Avaliação para KVM2 |
+
+*Expansão requer validação de KPIs por 30 dias consecutivos antes de upgrade.
+
+### Regras de Escalabilidade Financeira
+
+```mermaid
+graph TD
+    A[6 Clientes Nano Ativos] --> B{EBITDA > R$ 1.500<br/>por 3 meses?}
+    B -->|Sim| C[Aceitar clientes Micro]
+    B -->|Não| D[Otimizar custos antes de crescer]
+    C --> E{MRR > R$ 4.500<br/>por 2 meses?}
+    E -->|Sim| F[Avaliar upgrade para KVM2]
+    E -->|Não| C
+    F --> G{Receita líquida > R$ 3.000<br/>por 60 dias?}
+    G -->|Sim| H[Expansão controlada]
+    G -->|Não| F
+    
+    style A fill:#16213e,stroke:#16c79a
+    style C fill:#16213e,stroke:#E0AF68
+    style H fill:#16213e,stroke:#e94560,stroke-width:3px
+```
+
+> 🎯 **Princípio:** "Crescer só quando os números validarem. Estabilidade financeira permite inovação técnica."
+
+---
+
+## 🤝 Acordos de Nível de Serviço (SLA) por Tier
+
+| Métrica | Nano | Micro | Standard | Large* |
+|---------|------|-------|----------|--------|
+| **Disponibilidade** | 99% mensal | 99,5% mensal | 99,9% mensal | 99,95% |
+| **Tempo de Resposta (p95)** | <5 segundos | <3 segundos | <2 segundos | <1 segundo |
+| **Backup Recovery (RTO)** | <4 horas | <2 horas | <1 hora | <30 minutos |
+| **Suporte Crítico** | Email 48h | Telegram 4h | Telegram 1h | Dedicado 24/7 |
+| **Relatório de Conformidade** | Trimestral | Mensal | Mensal + auditoria | Semanal + consultoria |
+| **Atualizações de Sistema** | Mensal (agendadas) | Quinzenal (agendadas) | Semanal (janela definida) | Contínuo (blue-green) |
+
+*Large sob contrato customizado.
+
+---
+
+## 🔐 Conformidade LGPD - Integrada ao Modelo Comercial
+
+### Garantias por Design (Inclusas em Todos os Tiers)
+
+```mermaid
+graph LR
+    A[Dados do Cliente] --> B[Criptografia em Trânsito]
+    A --> C[RLS no PostgreSQL]
+    A --> D[Coleções Isoladas no Qdrant]
+    B --> E[Auditoria Automática]
+    C --> E
+    D --> E
+    E --> F[Relatórios para Cliente]
+    
+    style E fill:#063a2d,stroke:#16c79a,stroke-width:2px
+```
+
+| Direito LGPD | Implementação Conceitual | Disponibilidade por Tier |
+|--------------|-------------------------|-------------------------|
+| **Acesso aos Dados** | Exportação sob solicitação via dashboard | Todos os tiers |
+| **Correção de Dados** | Interface administrativa com log de alterações | Micro+ |
+| **Exclusão (Right to be Forgotten)** | Procedimento documentado com confirmação em 72h | Todos os tiers |
+| **Portabilidade** | Exportação em formato estruturado (JSON/CSV) | Standard+ |
+| **Relatório de Conformidade** | Documento mensal com evidências de controle | Micro+ |
+
+> ✅ **Diferencial Comercial:** Conformidade LGPD não é upsell — é padrão em todos os planos.
+
+---
+
+## ⚠️ Gestão de Riscos Comerciais
+
+### Matriz de Riscos e Mitigações
+
+| Risco | Impacto Potencial | Probabilidade | Mitigação Conceitual |
+|-------|------------------|---------------|---------------------|
+| **Inadimplência** | Quebra de fluxo de caixa | Média | Cobrança antecipada + fundo emergência 10% |
+| **Churn de Clientes** | Redução de MRR | Baixa-Média | SLA claro + suporte proativo + valor percebido |
+| **Aumento de Custos de IA** | Margem comprimida | Média | Estratégia multi-modelo + 73% em IA asiáticas |
+| **Mudança Regulatória LGPD** | Custos de adaptação | Baixa | Arquitetura compliance-by-design + monitoramento jurídico |
+| **Concorrência Predatória** | Pressão sobre preços | Média | Diferenciação por governança, não por preço |
+| **Falha de Infraestrutura** | Interrupção de serviço | Baixa | Backup criptografado + failover entre VPS Edge |
+
+### Fundo de Emergência Operacional
+
+- **Alocação:** 10% do EBITDA mensal
+- **Objetivo:** Cobrir imprevistos sem comprometer operações
+- **Meta de Acumulação:** R$ 5.000 em 12 meses
+- **Uso Autorizado:** Upgrade emergencial de infra, multas evitáveis, retenção de talentos
+
+---
+
+## 🔄 Ciclo de Relacionamento com o Cliente
+
+```mermaid
+stateDiagram-v2
+    [*] --> Prospecção: Lead qualificado
+    Prospecção --> Proposta: Diagnóstico + tier recomendado
+    Proposta --> Contrato: Aceite + pagamento instalação
+    Contrato --> Onboarding: Configuração + treinamento
+    Onboarding --> Ativo: Serviço em produção
+    Ativo --> Monitoramento: Métricas + alertas + relatórios
+    Monitoramento --> Renovação: 90 dias antes do vencimento
+    Renovação --> [*]
+    
+    state Onboarding {
+        [*] --> ConfigInfra: Provisionamento VPS
+        ConfigInfra --> Integrações: WhatsApp + CRM + RAG
+        Integrações --> Validação: Testes C1-C8
+        Validação --> GoLive: Gate manual + health checks
+    }
+```
+
+**Tempos de Referência:**
+| Fase | Duração Esperada | Responsável |
+|------|-----------------|-------------|
+| Proposta → Contrato | 3-7 dias | Comercial |
+| Contrato → Onboarding | 1-2 dias | Financeiro |
+| Onboarding → Ativo | 3-5 dias | Técnico |
+| Monitoramento Contínuo | Tempo real | Operações |
+
+---
+
+## 🔗 Conexões com Outros Domínios do Projeto
+
+```mermaid
+graph LR
+    Biz["mantis-business-model.md<br/>Modelo Comercial"] --> Core["mantis-core-context.md<br/>Especificação de Domínio"]
+    Biz --> Infra["mantis-infrastructure.md<br/>Arquitetura Técnica"]
+    Biz --> Rules["01-RULES/<br/>Regras de Governança"]
+    Biz --> Procedures["07-PROCEDURES/<br/>Runbooks de Onboarding"]
+    
+    Core -.->|Define constraints C1-C8| Biz
+    Infra -.->|Suporta tiers Nano-Micro-Standard| Biz
+    Rules -.->|Valida pricing e SLAs| Biz
+    Procedures -.->|Operacionaliza onboarding| Biz
+    
+    style Biz fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+```
+
+> 📌 **Nota de Navegação:** Este documento é a "fonte da verdade" comercial. Todas as decisões de pricing, contratos e expansão devem ser rastreáveis até os princípios definidos aqui.
+
+---
+
+*Documento sob licença Creative Commons para uso interno do projeto MANTIS Agentic.*  
+*Última revisão: 2026-04-01 | Próxima revisão programada: 2026-07-01*  
+*🔗 Raw URL para IA: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/mantis-business-model.md*

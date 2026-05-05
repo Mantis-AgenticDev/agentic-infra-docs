@@ -1,436 +1,187 @@
 ---
-file_id: CNT-INDEX-000
+file_id: MANTIS-IDX-000
 file_name: 00-INDEX.md
-version: 2.0.0-SDD
+version: 2.1.0
 created: 2026-04-01
 last_updated: 2026-04-01
-author: Facundo (Mantis-AgenticDev)
-category: CONTEXT_INDEX
+author: MANTIS-AgenticDev
+category: NAVIGATION_HUB
 priority: CRITICAL
-language_primary: pt-BR
-language_secondary: es-ES
-sdd_mode: true
-openrouter_enabled: true
-auto_generation_ready: true
-ai_navigation:
-  start_here: true
-  required_before_code_gen: true
-  validates_against: 
-    - 01-RULES/00-INDEX.md
-    - 01-RULES/02-RESOURCE-GUARDRAILS.md
-tags:
-  - index
-  - sdd
-  - openrouter
-  - ai-navigation
-  - context
+tokens_estimate: 1200
 related_files:
-  - mantis-core-context.md
-  - mantis-infrastructure.md
-  - ../01-RULES/00-INDEX.md
-  - ../04-PROMPTS-OPENROUTER/system-prompt-sdd.md
-  
----
-## 🗺️ 00-INDEX • Mapa de Navegação para IAs (SDD + OpenRouter)
-
-⚠️ REGRA DE OURO SDD: Nenhuma IA gera código sem ler este índice primeiro. Spec > Código. Sempre.
-
-🧭 ONDE COMEÇAR (Ordem Obrigatória para Geração Automática)
-
-|Se você é...	                    |Leia nesta ordem EXATA	                                                                                            |Por quê?                                                                        |
-|-----------------------------------|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-|IA gerando código via OpenRouter	|1. 01-RULES/00-INDEX.md → 2. 04-PROMPTS-OPENROUTER/system-prompt-sdd.md → 3. 01-RULES/05-CODE-PATTERNS-RULES.md	|Garante que o output respeita constraints C1-C6, tenant_id e limites de hardware|
-|Humano descrevendo cliente	        |1. README.md → 2. mantis-core-context.md → 3. 04-PROMPTS-OPENROUTER/workflow-generator-pt-BR.md	                |Entende o propósito, as restrições e como formatar a descrição do cliente       |
-|Validador SDD	                    |validate-against-specs.sh + 01-RULES/00-INDEX.md	                                                                |Verifica se cada arquivo gerado passa pelos checks automáticos                  |
-
----
-
-## 🤖 FLUXO DE GERAÇÃO AUTOMATIZADA VIA OPENROUTER
-
-================================================================================
-FLUXO SDD: DE DESCRIÇÃO A CÓDIGO (OpenRouter + validate-against-specs.sh)
-================================================================================
-
-[ENTRADA]
-   |
-   v
-+----------------------------------+
-| 📝 Você descreve o cliente       |
-|    em pt-BR (linguagem natural)  |
-+----------------------------------+
-   |
-   v
-+----------------------------------+
-| 🔌 OpenRouter API                |
-|    - Endpoint: chat/completions  |
-|    - Model: especificado em spec |
-|    - Temperature: 0.2-0.4        |
-+----------------------------------+
-   |
-   v
-+----------------------------------+
-| 🧠 System Prompt SDD + Specs     |
-|    + 01-RULES/00-INDEX.md        |
-|    + 04-PROMPTS-OPENROUTER/      |
-|    + Contexto do cliente (JSON)  |
-+----------------------------------+
-   |
-   v
-+----------------------------------+
-| ✨ GERAÇÃO AUTOMÁTICA (PARALELO) |
-+----------------------------------+
-   |
-   +---> [D1] 📄 workflow.json n8n
-   |        - Webhook → Router → LLM → Response
-   |        - tenant_id em cada nodo de dados
-   |        - timeout: 30000 em HTTP Request
-   |
-   +---> [D2] 🗄️ sql-migration-tenant.sql
-   |        - CREATE TABLE com tenant_id NOT NULL
-   |        - INDEX idx_tenant_{table}(tenant_id)
-   |        - FOREIGN KEY com ON DELETE CASCADE
-   |
-   +---> [D3] 🐳 docker-compose.yml
-   |        - services.n8n.deploy.resources.limits
-   |        - memory: "1500M", cpus: "0.8"
-   |        - networks internas para MySQL/Qdrant
-   |
-   +---> [D4] 🔍 qdrant-collection.yaml
-   |        - collection_name: "rag_{tenant_id}"
-   |        - on_disk_payload: true
-   |        - shard_key: tenant_id (se enterprise)
-   |
-   +---> [D5] 📚 onboarding-pt-BR.md
-   |        - Passo a passo para funcionário
-   |        - Exemplos de mensagens em pt-BR
-   |        - Tom caloroso, não robótico
-   |
-   +---> [D6] 🔧 validation-report.json
-            {
-              "spec_referenced": "01-RULES/...",
-              "files_generated": [...],
-              "validation_checks": [...],
-              "sha256": "..."
-            }
-
-   |
-   v
-+----------------------------------+
-| ✅ validate-against-specs.sh     |
-+----------------------------------+
-   |
-   |  [CHECKS AUTOMÁTICOS]
-   |  ✓ tenant_id em SQL/Qdrant?
-   |  ✓ memory/cpus em docker-compose?
-   |  ✓ timeout em HTTP nodes?
-   |  ✓ sem credenciais hardcoded?
-   |  ✓ spec_referenced presente?
-   |
-   v
-   +---------------------------+
-   |                           |
-   v                           v
-[✅ APROVADO]            [❌ REJEITADO]
-   |                           |
-   v                           v
-+----------------+    +---------------------------+
-| 📁 03-CLIENT-  |    | 🔄 IA REESCREVE           |
-| INSTANCES/     |    |    - Máximo 2 retries     |
-| cliente-XXX/   |    |    - Log de erro detalhado|
-|                |    |    - Ajusta prompt + retry|
-| generated/     |    +---------------------------+
-| overrides/     |                 |
-| deploy/        |                 |
-| validation-    |                 +---(se falhar 2x)---+
-| log.json       |                 |                    |
-+----------------+                 v                    v
-   |                    [📝 Log para humano]  [⚠️ Aborta geração]
-   |                    [🔔 Alerta Telegram]
-   v
-+---------------------------+
-| 👁️ Verificação Humana Leve |
-+---------------------------+
-   |
-   |  [CHECKS MANUAIS]
-   |  ✓ Copy em pt-BR com tom natural?
-   |  ✓ Lógica de negócio correta?
-   |  ✓ Exemplos relevantes para segmento?
-   |
-   v
-+---------------------------+
-| 🚀 Deploy Automatizado    |
-+---------------------------+
-   |
-   |  [EXECUTA]
-   |  ✓ ssh cliente@vps "bash deploy.sh"
-   |  ✓ Rollback automático se health check falhar
-   |  ✓ Registro em MySQL: deploy_log(tenant_id, timestamp, status)
-   |
-   v
-[✅ CLIENTE ATIVO • SLA 99% • MONITORAMENTO 24/7]
-
-================================================================================
-LEGENDA DE SÍMBOLOS
-================================================================================
-[ ]  = Bloco de processo
-+--+ = Borda de bloco
-|    = Fluxo vertical
-+--> = Ramificação paralela
-v    = Direção do fluxo
-✅   = Condição aprovada
-❌   = Condição rejeitada
-🔄   = Retry/loop
-👁️   = Intervenção humana
-🚀   = Deploy/produção
-
-================================================================================
-METADADOS PARA IA (PARSER-FRIENDLY)
-================================================================================
-flow_id: SDD-GENERATION-V2
-version: 2.0.0
+ - PROJECT_OVERVIEW.md
+ - mantis-core-context.md
+ - mantis-business-model.md
+ - mantis-infrastructure.md
+ - ../01-RULES/00-INDEX.md
+ai_navigation:
+ read_first: true
+ required_for: [onboarding, auditing, architecture-decisions, compliance-review]
+ update_frequency: monthly
+audience: ["all-stakeholders", "new-hires", "auditors", "partners"]
+status: ✅ Estable
+next_review: 2026-05-01
 language: pt-BR
-validation_script: validate-against-specs.sh
-max_retries: 2
-timeout_per_step: 300
-output_format: 
-  - n8n_workflow_json
-  - sql_migration
-  - docker_compose_yaml
-  - qdrant_collection_yaml
-  - markdown_onboarding
-  - validation_report_json
-constraints:
-  - C1: ram_limit_4gb_per_vps
-  - C2: cpu_limit_1vcpu
-  - C3: no_public_db_exposure
-  - C4: tenant_id_mandatory
-  - C5: backup_daily_encrypted
-  - C6: cloud_api_only
-================================================================================
-    
----  
-    
-## ⚙️ PRINCÍPIOS ABSOLUTOS PARA GERAÇÃO VIA API (System Prompt Base)
+---
 
-Estes princípios DEVEM estar no system_prompt de qualquer chamada à OpenRouter:
+# 🗺️ MANTIS CONTEXT INDEX - Portal de Navegação do Domínio
+
+> **Propósito:** Ponto de entrada único, auditável e versionado para toda documentação de contexto do projeto MANTIS Agentic.  
+> **Padrão Aplicado:** Diátaxis Framework + ISO/IEC 26514 (Documentação de Software) + Governança Versionada.
 
 ---
 
-## SYSTEM PROMPT BASE - GERAÇÃO SDD VIA OPENROUTER
+## 📋 Tabela Mestre de Documentos
 
-Você é um engenheiro de automação especializado em Specification-Driven Development (SDD) para pequenos negócios no Brasil.
+| Documento | Descrição Executiva | Categoria | Status | Público-Alvo Principal | Última Revisão | Próxima Revisão |
+|-----------|-------------------|-----------|--------|----------------------|----------------|----------------|
+| [📄 PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) | Resumo executivo do projeto, visão de mercado e métricas de impacto | 🟢 Visão Estratégica | ✅ Estável | Executivos, Investidores, Parceiros | 2026-04-01 | 2026-07-01 |
+| [🧭 mantis-core-context.md](./mantis-core-context.md) | Especificação de domínio: princípios, entidades, regras C1-C8 e limites do sistema | 🟡 Domínio & Regras | ✅ Estável | Arquitetos, Product Owners, Auditores | 2026-04-01 | 2026-07-01 |
+| [💼 mantis-business-model.md](./mantis-business-model.md) | Modelo comercial: tiers, precificação, projeções financeiras, SLAs e LGPD | 🔵 Comercial & Financeiro | ✅ Estável | Sócios, Financeiro, Comercial, Jurídico | 2026-04-01 | 2026-07-01 |
+| [🏗️ mantis-infrastructure.md](./mantis-infrastructure.md) | Arquitetura técnica: topologia, stack, segurança, backup, escalabilidade e monitoramento | 🔴 Técnico & Operacional | 🟡 Em Validação | DevOps, SREs, Engenheiros de Segurança | 2026-04-01 | 2026-05-15 |
+
+> 📌 **Legenda de Status:**  
+> ✅ `Estável` → Aprovado, validado e em produção documental  
+> 🟡 `Em Validação` → Revisão técnica em andamento ou aguardando métricas  
+> 📝 `Rascunho` → Estrutura inicial, conteúdo pendente  
+> 🔴 `Obsoleto` → Arquivado, mantido apenas para histórico
 
 ---
 
-## REGRAS ABSOLUTAS (NUNCA VIOLAR):
+## 🧭 Roteiro de Navegação por Persona
 
-1. SPEC-FIRST: Nunca gere código sem citar a spec de origem.
-   Formato obrigatório: `01-RULES/06-MULTITENANCY-RULES.md#L23`
-
-2. TENANT-AWARE: Toda query SQL, filtro Qdrant ou log DEVE conter:
-   - SQL: `WHERE tenant_id = ?`
-   - Qdrant: `"filter": {"must": [{"key": "tenant_id", ...}]}`
-   - Logs: `"tenant_id": "cliente_XXX"`
-
-3. HARDWARE-BOUND: Respeite os limites da VPS alvo:
-   - RAM total: 4GB → n8n limitado a 1.5GB
-   - CPU: 1 vCPU → sem processamento paralelo pesado
-   - Timeout HTTP: 30s máximo por nodo
-   - Backoff exponencial: 5s → 15s → 45s
-
-4. IDERPOTENTE: Scripts bash devem ser seguros para reexecução:
-   ```bash
-   #!/bin/bash
-   set -euo pipefail
-   if [ -f /path/to/marker ]; then exit 0; fi
-   # ... lógica ...
-   touch /path/to/marker
+```mermaid
+flowchart TD
+    A[Novo Stakeholder] --> B{Qual seu foco principal?}
+    B -->|Visão Estratégica & ROI| C[PROJECT_OVERVIEW.md]
+    B -->|Regras de Negócio & Compliance| D[mantis-core-context.md]
+    B -->|Precificação & Contratos| E[mantis-business-model.md]
+    B -->|Arquitetura & Deploy| F[mantis-infrastructure.md]
+    
+    C --> G[00-INDEX.md]
+    D --> G
+    E --> G
+    F --> G
+    
+    style A fill:#1a1a2e,color:#fff
+    style G fill:#E0AF68,color:#000
 ```
 
-**AUDITÁVEL:** Retorne JSON estruturado com: 
-```json
-{
-  "spec_referenced": "01-RULES/05-CODE-PATTERNS-RULES.md#L45",
-  "files_generated": [
-    {"path": "02-SKILLS/whatsapp-agent/AGENT-XXX/workflow.json", "sha256": "..."}
-  ],
-  "validation_checks": ["tenant_id_present", "memory_limit_set", "timeout_defined"],
-  "notes_human_reviewer": "Revisar copy da mensagem de boas-vindas"
-}
+| Persona | Caminho Recomendado | Tempo de Onboarding Estimado |
+|---------|-------------------|------------------------------|
+| **CTO / Arquiteto** | `OVERVIEW` → `CORE-CONTEXT` → `INFRASTRUCTURE` | 45-60 min |
+| **Diretor Comercial / Sócio** | `OVERVIEW` → `BUSINESS-MODEL` → `CORE-CONTEXT` | 30 min |
+| **Auditor / Compliance Officer** | `CORE-CONTEXT` → `BUSINESS-MODEL` → `INFRASTRUCTURE` | 60 min |
+| **Novo Engenheiro / DevOps** | `CORE-CONTEXT` → `INFRASTRUCTURE` → `../01-RULES/` | 90 min |
+| **Parceiro / Integrador** | `BUSINESS-MODEL` → `INFRASTRUCTURE` → `../07-PROCEDURES/` | 40 min |
+
+---
+
+## 📜 Governança e Ciclo de Vida Documental
+
+### Padrões Internacionais Aplicados
+- **Versionamento Semântico:** `MAJOR.MINOR.PATCH` (ex: `2.1.0` = nova estrutura + ajustes de conteúdo + correções)
+- **Frontmatter Obrigatório:** Metadados executáveis em YAML para consumo humano e de IA
+- **Rastreabilidade:** Toda alteração documentada via commit com mensagem padronizada (`docs(context): ...`)
+- **Validação Cruzada:** Links internos verificados automaticamente em pipeline CI/CD
+
+### Política de Revisão
+| Documento | Frequência | Responsável | Gatilho para Revisão Antecipada |
+|-----------|-----------|-------------|--------------------------------|
+| `PROJECT_OVERVIEW.md` | Trimestral | Product Owner | Mudança de mercado ou pivot estratégico |
+| `mantis-core-context.md` | Trimestral | Arquiteto Chefe | Nova constraint C1-C8 ou mudança de domínio |
+| `mantis-business-model.md` | Trimestral | CFO / Sócios | Alteração de pricing, custos ou regulamentação |
+| `mantis-infrastructure.md` | Mensal | SRE / DevOps Lead | Deploy de nova topologia ou alteração de stack |
+
+### Processo de Depreciação
+1. Marcar status como `🟡 Em Revisão` ou `🔴 Obsoleto` no `00-INDEX.md`
+2. Adicionar aviso no topo do documento original com link para a versão substituta
+3. Manter no repositório por 90 dias para histórico e auditoria
+4. Arquivar em `archive/` após período de carência
+
+---
+
+## 🔗 Mapeamento de Domínios Cruzados
+
+```mermaid
+graph LR
+    subgraph "📂 00-CONTEXT (Domínio)"
+        IDX[00-INDEX.md]
+    end
+    
+    subgraph "📂 01-RULES (Governança)"
+        RULES[Regras & Constraints]
+    end
+    
+    subgraph "📂 05-CONFIGURATIONS (Infra Real)"
+        CONF[Terraform, Docker, Scripts]
+    end
+    
+    subgraph "📂 07-PROCEDURES (Operação)"
+        PROC[Runbooks & Playbooks]
+    end
+    
+    subgraph "📂 docs/framework (IA Agêntica)"
+        FW[Master-Agent & Orchestrator]
+    end
+    
+    IDX -.->|Especifica| RULES
+    IDX -.->|Provisiona| CONF
+    IDX -.->|Operacionaliza| PROC
+    IDX -.->|Orquestra| FW
+    
+    style IDX fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
 ```
 
-PT-BR FIRST: Copy, mensagens de usuário e documentação em português do Brasil.
-Espanhol apenas como secundário para documentação técnica.
-NO HARDCODED SECRETS: Nunca inclua credenciais no código gerado.
-Use sempre: ${ENV_VAR} ou process.env.VAR_NAME
-ERROR HANDLING: Todo nodo HTTP deve ter:
-
-    timeout explícito
-    try/catch ou equivalente
-    fallback configurado (quando aplicável)
-    
+> 📌 **Nota de Arquitetura Documental:** `00-CONTEXT` define o **quê** e **porquê**. `01-RULES` define o **como validar**. `05-CONFIGURATIONS` define o **como implementar**. `07-PROCEDURES` define o **como operar**.
 
 ---
 
-## 🧩 EXEMPLO PRÁTICO: DE DESCRIÇÃO A CÓDIGO
+## ✅ Checklist de Conformidade do Índice
 
-### Entrada (Você descreve):
+| Critério | Status | Observação |
+|----------|--------|------------|
+| Todos os documentos listados possuem frontmatter válido | ✅ | Verificado em 2026-04-01 |
+| Links internos resolvidos (zero 404) | ✅ | Validado via `check-wikilinks` |
+| Status e datas atualizados | ✅ | Sincronizado com roadmap atual |
+| Roteiros por persona mapeados | ✅ | Baseado em padrões de onboarding enterprise |
+| Política de revisão documentada | ✅ | Alinhado a ISO/IEC 26514 |
+| Metadados para consumo de IA | ✅ | `ai_navigation` estruturado em YAML |
 
-```text
-Cliente: Pizzaria Bella Canela
-Segmento: Restaurante delivery
-Necessidades:
-- Atendimento WhatsApp 24/7 para pedidos
-- Cardápio em RAG (PDF + imagens)
-- CRM para registrar leads e vendas
-- Backup diário dos dados
-- Alertas Telegram se cair
+---
+
+## 🤖 Sumário Machine-Readable (Para Agentes e RAG)
+
+```yaml
+domain_context_index:
+  version: "2.1.0"
+  language: "pt-BR"
+  files:
+    - id: "MANTIS-OVR-000"
+      path: "./PROJECT_OVERVIEW.md"
+      purpose: "executive_summary"
+      audience: ["executives", "investors", "partners"]
+    - id: "MANTIS-CTX-001"
+      path: "./mantis-core-context.md"
+      purpose: "domain_specification"
+      audience: ["architects", "product-owners", "auditors"]
+    - id: "MANTIS-BIZ-001"
+      path: "./mantis-business-model.md"
+      purpose: "commercial_model"
+      audience: ["finance", "sales", "legal"]
+    - id: "MANTIS-INF-001"
+      path: "./mantis-infrastructure.md"
+      purpose: "technical_architecture"
+      audience: ["devops", "sre", "security"]
+  navigation_rules:
+    entry_point: "00-INDEX.md"
+    validation_required: true
+    link_integrity: "enforced"
+    update_cycle: "monthly"
 ```
 
 ---
 
-## Prompt para OpenRouter (montado automaticamente):
-
-[SYSTEM PROMPT BASE acima] + 
-
-CONTEXTO DO CLIENTE:
-{
-  "tenant_id": "pizzaria-bella-canela-001",
-  "segmento": "restaurante_delivery",
-  "necessidades": ["whatsapp_24_7", "rag_menu", "crm_leads", "backup_diario", "alertas_telegram"],
-  "hardware_target": "vps_kvm1_4gb",
-  "language": "pt-BR"
-}
-
-SPECS DE REFERÊNCIA:
-- 01-RULES/06-MULTITENANCY-RULES.md (isolamento de dados)
-- 01-RULES/02-RESOURCE-GUARDRAILS.md (limites de recursos)
-- 01-RULES/05-CODE-PATTERNS-RULES.md (padrões de código)
-
-GERE:
-1. workflow.json para n8n com:
-   - Webhook uazapi → Router por tipo → LLM + RAG → Resposta WhatsApp
-   - tenant_id em cada nodo de dados
-   - timeout 30s em HTTP Request nodes
-2. sql-migration-tenant.sql com:
-   - Tabela leads com tenant_id NOT NULL + índice
-   - Tabela pedidos com foreign key para leads
-3. docker-compose.yml com:
-   - memory: "1500M" para n8n
-   - networks internas para MySQL/Qdrant
-4. qdrant-collection.yaml com:
-   - collection_name: "rag_pizzaria_bella_canela_001"
-   - payload_schema incluindo tenant_id
-5. onboarding-pt-BR.md com:
-   - Passo a passo para funcionário novo
-   - Exemplos de mensagens em pt-BR
-
-RETORNE no formato JSON especificado no system prompt.
-
-**Saída Esperada (resumo):**
-
-```json
-{
-  "spec_referenced": "01-RULES/05-CODE-PATTERNS-RULES.md#L45",
-  "files_generated": [
-    {"path": "02-SKILLS/whatsapp-agent/AGENT-PIZZA-001/workflow.json", "sha256": "a1b2c3..."},
-    {"path": "02-SKILLS/whatsapp-agent/AGENT-PIZZA-001/migration.sql", "sha256": "d4e5f6..."},
-    {"path": "02-SKILLS/whatsapp-agent/AGENT-PIZZA-001/docker-compose.yml", "sha256": "g7h8i9..."}
-  ],
-  "validation_checks": [
-    "tenant_id_present_in_sql",
-    "memory_limit_1500M_in_compose",
-    "timeout_30s_in_http_nodes",
-    "no_hardcoded_creds",
-    "pt-BR_copy_in_onboarding"
-  ],
-  "notes_human_reviewer": "Revisar tom da mensagem de boas-vindas para mais caloroso. Ajustar RAG para aceitar imagens de cardápio."
-}
-```
-
----
-
-## 📁 ESTRUTURA ESPERADA APÓS GERAÇÃO
-
-02-SKILLS/
-├── whatsapp-agent/
-│   └── AGENT-RESTAURANTE-BASE/
-│       ├── spec.md                    ← Especificação em markdown
-│       ├── workflow.json              ← Workflow n8n gerado
-│       ├── espocrm-schema.json        ← Campos personalizados CRM
-│       ├── qdrant-collection.yaml     ← Config coleção RAG
-│       ├── sql-migration-tenant.sql   ← Migração DB com tenant_id
-│       ├── docker-compose-snippet.yml ← Trecho para deploy
-│       └── onboarding-pt-BR.md        ← Guia para funcionário
-│
-03-CLIENT-INSTANCES/
-└── cliente-001-pizzaria-bella-canela/
-    ├── generated/                     ← Código gerado (não editar manualmente)
-    │   ├── workflow.json
-    │   ├── migration.sql
-    │   └── docker-compose.yml
-    ├── overrides/                     ← Ajustes manuais pós-geração (se necessário)
-    │   └── custom-prompts.md
-    ├── deploy/                        ← Scripts de implantação específicos
-    │   ├── deploy.sh
-    │   └── rollback.sh
-    └── validation-log.json            ← Registro da validação SDD
-    
----
-    
-## ✅ CHECKLIST DE VALIDAÇÃO PRÉ-COMMIT (Para Humanos e IAs)
-Antes de qualquer commit, verifique:
-
-- [ ] tenant_id aparece em TODAS as queries SQL? (WHERE tenant_id = ?)
-- [ ] tenant_id aparece em TODOS os filtros Qdrant? ("key": "tenant_id")
-- [ ] memory: e cpus: definidos em docker-compose.yml? (memory: "1500M")
-- [ ] timeout explícito em cada node httpRequest do n8n? (timeout: 30000)
-- [ ] Nenhuma credencial hardcoded? (usar ${ENV_VAR} ou process.env)
-- [ ] spec_referenced presente no JSON de geração?
-- [ ] validate-against-specs.sh retorna exit 0?
-- [ ] Copy em pt-BR revisada para tom natural (não robótico)?
-
-    💡 Dica amiga: Se falhar em qualquer item acima, NÃO force o commit. Corrija na spec ou ajuste o prompt de geração. A paciência inicial economiza 80% do tempo de debug futuro.
-
----
-
-## 🔗 URLS RAW PARA IAs (Quando o repo for público)
-
-Base: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/
-
-Índice de Contexto:
-→ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/00-CONTEXT/00-INDEX.md
-
-Specs de Regras:
-→ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/00-INDEX.md
-→ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/01-RULES/06-MULTITENANCY-RULES.md
-
-Prompts para OpenRouter:
-→ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/04-PROMPTS-OPENROUTER/system-prompt-sdd.md
-
-Templates de Skills:
-→ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/main/02-SKILLS/whatsapp-agent/AGENT-RESTAURANTE-BASE/spec.md
-
----
-
-## 🔄 ATUALIZAÇÃO E MANUTENÇÃO
-
-Este arquivo é revisado trimestralmente ou ante mudanças estruturais
-Qualquer modificação requer:
-Validação contra mantis-core-context.md
-Atualização de version e last_updated no frontmatter YAML
-Commit com mensagem clara: docs: atualizar 00-INDEX.md para fluxo OpenRouter v2
-
- 🌟 Nota Estratégica: Este índice é a ponte entre sua descrição em linguagem natural e o código gerado.
-  Quanto mais clara e estruturada for a descrição do cliente, mais precisa será a geração automática. 
-  Invista tempo em descrever bem — o resto a IA faz.
-
-Última atualização: $(date +%Y-%m-%d) • Próxima revisão: +90 dias • Versão: 2.0.0-SDD
-
-  
-
-## 🔗 Conexiones Estructurales (Auto-generado)
-[[README.md]]
-[[00-CONTEXT/PROJECT_OVERVIEW.md]]
-[[00-CONTEXT/mantis-business-model.md]]
-[[00-CONTEXT/mantis-core-context.md]]
+*Documento sob licença Creative Commons para uso interno do projeto MANTIS Agentic.*  
+*Última revisão: 2026-04-01 | Próxima revisão programada: 2026-05-01*  
+*🔗 Raw URL para IA: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/00-INDEX.md*
