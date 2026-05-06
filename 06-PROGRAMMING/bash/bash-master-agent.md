@@ -216,58 +216,118 @@ readonly OPERATION_TIMEOUT="${OPERATION_TIMEOUT:-180}"
 
 ## 🔍 Observability Integration (OpenTelemetry Native)
 
-> **Propósito**: Definir la función canónica `mantis_log()` y su mapeo a infraestructura de observabilidad del proyecto MANTIS.
+> **Propósito**: Definir a função canônica `mantis_log()` e seu mapeamento à infraestrutura de observabilidade do projeto MANTIS.
 
-### Función Canónica: `mantis_log()`
+### Função Canônica: `mantis_log()` (V-LOG-02 + C8 + PII Scrubbing)
 ```bash
-# Firma (definida aquí, heredada por todos los artefactos)
+# Assinatura canônica atualizada (definida aqui, herdada por todos os artefatos)
 mantis_log() {
   local level="${1:-INFO}"        # DEBUG|INFO|WARN|ERROR|FATAL
-  local event="${2:-unknown}"     # Nombre del evento (ej: "sandbox_created")
-  local detail="${3:-}"           # Descripción libre o JSON stringificado
+  local event="${2:-unknown}"     # Nome do evento (ex: "sandbox_created")
+  local detail="${3:-}"           # Descrição livre ou JSON stringificado
   
-  # Variables de contexto (obligatorias en el entorno del artefacto)
+  # C3: Sanitização automática de dados sensíveis (PII Scrubbing)
+  local sanitized_detail
+  sanitized_detail=$(printf '%s' "$detail" | sed -E 's/(password|token|api_key|secret|key|auth)[=:][^[:space:]]+/\1=***REDACTED***/gi')
+  
+  # Variáveis de contexto (obrigatórias no entorno do artefato)
   # - TENANT_ID (C4)
-  # - ARTIFACT_ID (del frontmatter YAML)
-  # - CONSTRAINT (C1-C8 aplicable)
+  # - ARTIFACT_ID (do frontmatter YAML)
+  # - CONSTRAINT (C1-C8 aplicável)
   
-  # Output dual configurable:
-  # 1. stderr: formato legible para debug local
-  # 2. 08-LOGS/bash/${ARTIFACT_ID}/: JSONL canónico para Loki/Promtail
-  
-  # Schema JSONL (V-LOG-02 Compatible + OTel Mappable)
-  printf '{"timestamp":"%s","level":"%s","resource":{"tenant_id":"%s"},"body":{"event":"%s","detail":"%s"},"attributes":{"mantis.artifact":"%s","mantis.constraint":"%s","code.filepath":"%s","code.lineno":"%s","telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}\n' \
+  # V-LOG-02: Schema JSONL completo para Loki/Grafana + OTel mappable
+  printf '{"timestamp":"%s","level":"%s","resource":{"tenant_id":"%s","artifact":"%s"},"body":{"event":"%s","detail":"%s"},"attributes":{"mantis":{"tier":"%s","version":"%s","constraint":"%s","trace_id":"%s"},"code.filepath":"%s","code.lineno":"%s","telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     "$level" \
     "${TENANT_ID:-unknown}" \
-    "$event" \
-    "$detail" \
     "${ARTIFACT_ID:-unknown}" \
+    "$event" \
+    "$sanitized_detail" \
+    "${TIER:-2}" \
+    "${VERSION:-2.2.0}" \
     "${CONSTRAINT:-unknown}" \
+    "${TRACE_ID:-}" \
     "${BASH_SOURCE[1]:-unknown}" \
     "${BASH_LINENO[0]:-0}" \
     >&2
 }
 ```
 
-### Mapeo a OpenTelemetry (OTLP)
-| Campo JSONL | Atributo OTel | Propósito en Dashboards |
-|-------------|-------------|------------------------|
-| `timestamp` | `time_unix_nano` | Ordenamiento temporal en traces/logs |
-| `resource.tenant_id` | `resource.attributes["tenant.id"]` | Filtrado y aislamiento por tenant |
-| `body.event` | `body` (log) o `attributes["event.name"]` (trace) | Identificación del tipo de evento |
-| `attributes.mantis.artifact` | `attributes["mantis.artifact"]` | Correlación con artefacto generador |
-| `attributes.mantis.constraint` | `attributes["mantis.constraint"]` | Auditoría de cumplimiento contractual |
-| `attributes.code.filepath/lineno` | `code.filepath` / `code.lineno` | Debugging preciso en traces distribuidos |
+### Validação de Schema V-LOG-02 (Helper Executável)
 
-### Configuración por Variables de Entorno
+> **Propósito**: Permitir validação local de logs antes de ingestão em Loki. Executável por IA ou humano.
+
 ```bash
-# Variables reconocidas por mantis_log() (documentadas para IA)
-export MANTIS_LOG_LEVEL="${MANTIS_LOG_LEVEL:-INFO}"      # Nivel mínimo de log
-export MANTIS_LOG_PATH="${MANTIS_LOG_PATH:-08-LOGS/bash}" # Ruta base de archivos JSONL
+# Função helper para validar schema V-LOG-02 (pode ser sourceada)
+validate_vlog02() {
+  jq -e '
+    has("timestamp") and
+    has("level") and
+    has("resource.tenant_id") and
+    has("resource.artifact") and
+    has("body.event") and
+    has("attributes.mantis.tier") and
+    has("attributes.mantis.version") and
+    (.timestamp | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
+    (.level | IN("DEBUG","INFO","WARN","ERROR","FATAL"))
+  ' >/dev/null 2>&1
+}
+
+# Uso em testes unitários:
+test_mantis_log_schema() {
+  local log_output
+  log_output=$(mantis_log "INFO" "test_event" "detalhe_teste" 2>&1)
+  printf '%s\n' "$log_output" | validate_vlog02 && return 0 || return 1
+}
+
+# Validação pós-inserção:
+# mantis_log "INFO" "bootstrap" "inicio" 2>&1 | validate_vlog02 && echo "✅ Schema V-LOG-02 válido"
+```
+
+### Stub de Bootstrap para `mantis_log()` (Fallback Resiliente - C7)
+
+> **Propósito**: Garantir que artefatos filhos possam emitir logs auditáveis mesmo se o source ao master falhar.
+
+```bash
+# Inserir no início de cada artefato filho (após shebang, antes de lógica)
+if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" ]]; then
+  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" --mode=observability-only
+else
+  # Fallback minimalista: mantis_log() funcional sem dependências externas
+  mantis_log() {
+    printf '{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      "${1:-INFO}" \
+      "${TENANT_ID:-unknown}" \
+      "${2:-bootstrap_fallback}" \
+      "${3:-}" >&2
+  }
+  mantis_log "WARN" "bootstrap_fallback" "Master agent não encontrado. Logging em modo degradado."
+fi
+
+# Validação:
+# MANTIS_ROOT="/nonexistent" bash -c 'source stub.sh; mantis_log "INFO" "test" "x"' 2>&1 | jq -e '.fallback == "true"'
+```
+
+### Mapeo a OpenTelemetry (OTLP)
+| Campo JSONL | Atributo OTel | Propósito em Dashboards |
+|-------------|-------------|------------------------|
+| `timestamp` | `time_unix_nano` | Ordenamento temporal em traces/logs |
+| `resource.tenant_id` | `resource.attributes["tenant.id"]` | Filtrado e isolamento por tenant |
+| `resource.artifact` | `resource.attributes["mantis.artifact"]` | Correlação com artefato gerador |
+| `body.event` | `body` (log) ou `attributes["event.name"]` (trace) | Identificação do tipo de evento |
+| `attributes.mantis.constraint` | `attributes["mantis.constraint"]` | Auditoria de cumprimento contratual |
+| `attributes.mantis.trace_id` | `trace_id` | Correlação em traces distribuídos |
+| `attributes.code.filepath/lineno` | `code.filepath` / `code.lineno` | Debugging preciso em traces distribuídos |
+
+### Configuração por Variáveis de Entorno
+```bash
+# Variáveis reconhecidas por mantis_log() (documentadas para IA)
+export MANTIS_LOG_LEVEL="${MANTIS_LOG_LEVEL:-INFO}"      # Nível mínimo de log
+export MANTIS_LOG_PATH="${MANTIS_LOG_PATH:-08-LOGS/bash}" # Rota base de arquivos JSONL
 export OTEL_EXPORTER_ENABLED="${OTEL_EXPORTER_ENABLED:-false}" # Habilitar export OTLP
 export OTEL_ENDPOINT="${OTEL_ENDPOINT:-http://localhost:4318}" # Endpoint OTLP HTTP
-export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-mantis-bash}" # Nombre de servicio en traces
+export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-mantis-bash}" # Nome de serviço em traces
 ```
 
 ### Referencias a Infraestructura Existente

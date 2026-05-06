@@ -42,38 +42,52 @@ Fornecer funções bash para redução segura de contexto antes do envio a model
 - **Constraints Aplicáveis**: C1 (limite de tamanho/tempo), C3 (zero secrets), C4 (tenant isolation), C5 (estrutura YAML), C7 (resiliência), C8 (auditoria)
 - **Dependências Externas**: `wc`, `awk`, `grep`, `tr`, `date` (POSIX coreutils)
 
-## 🛡️ Hardening (Harness Norms v3.0 - Executável)
+## 🛡️ Bootstrap Resiliente (Hardening via Source ao Master - C3+C4+C5+C7)
 ```bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-IFS=$'\n\t'
-
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_VERSION="2.0.0"
-
-cleanup() {
-  local exit_code=$?
-  if [[ $exit_code -ne 0 ]]; then
-    printf '[%s][ERROR][script:%s][tenant:%s] Falha na linha %d: código %d\n' \
+# =============================================================================
+# BOOTSTRAP RESILIENTE: Hardening + Observabilidade (C3+C4+C7)
+# Fonte de verdade: bash-master-agent.md via source
+# =============================================================================
+if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" ]]; then
+  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" --mode=observability-only
+else
+  # Fallback minimalista: garante execução segura e auditável se master não estiver disponível
+  set -Eeuo pipefail
+  shopt -s inherit_errexit 2>/dev/null || true
+  trap 'exit 130' INT TERM
+  : "${TENANT_ID:?ERROR: TENANT_ID não definido. Defina via env ou argumento.}"
+  mantis_log() {
+    printf '{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}\n' \
       "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-      "${SCRIPT_NAME}" \
+      "${1:-INFO}" \
       "${TENANT_ID:-unknown}" \
-      "${BASH_LINENO[0]:-0}" \
-      "$exit_code" >&2
-  fi
-  [[ -n "${TEMP_FILE:-}" && -f "${TEMP_FILE}" ]] && rm -f "${TEMP_FILE}"
-  exit $exit_code
-}
-trap cleanup EXIT INT TERM
+      "${2:-bootstrap_fallback}" \
+      "${3:-}" >&2
+  }
+  mantis_log "WARN" "bootstrap_fallback" "Master agent não encontrado. Executando com hardening mínimo."
+fi
 
-: "${TENANT_ID:?Variável de ambiente TENANT_ID não definida. Abortando para evitar vazamento de contexto.}"
+# =============================================================================
+# VARIÁVEIS CANÔNICAS DO ARTEFATO (C5: Estrutura)
+# =============================================================================
+readonly SCRIPT_NAME="$(basename -- "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_VERSION="${VERSION:-2.0.0}"
+readonly LOG_DIR="${LOG_DIR:-08-LOGS/bash}"
 
+# C4: Propagação explícita de tenant_id para subshells
+export TENANT_ID="${TENANT_ID:-}"
+
+# =============================================================================
+# CONFIGURAÇÕES ESPECÍFICAS DO CONTEXTO (C1: Resource Limits)
+# =============================================================================
 readonly MAX_TOKENS="${MAX_TOKENS:-4096}"
 readonly OPERATION_TIMEOUT="${OPERATION_TIMEOUT:-30}"
 readonly SCRUB_SENSITIVE="${SCRUB_SENSITIVE:-true}"
+readonly TEMP_FILE="$(mantis_mktemp 2>/dev/null || mktemp)"
 ```
 
-## 🧪 Testes Unitários (TDD)
+## 🧪 Testes Unitários (TDD - Test-Driven Development)
 ```bash
 test_compact_context_respects_limit() {
   # Arrange
@@ -85,12 +99,14 @@ test_compact_context_respects_limit() {
   local result
   result=$(compact_context <<< "$large_context" 2>/dev/null) || true
   local token_est
-  token_est=$(compact_context <<< "$large_context" --dry-run 2>/dev/null | jq -r '.tokens_estimated' || echo "0")
+  token_est=$(compact_context <<< "$large_context" --dry-run 2>&1 | grep -oP '"tokens_estimated":\K[0-9]+' || echo "0")
   
   # Assert
   if [[ "$token_est" -le "$max_tokens" ]]; then
+    mantis_log "INFO" "test_passed" "token_limit_test: estimado=$token_est <= limite=$max_tokens"
     return 0
   else
+    mantis_log "ERROR" "test_failed" "Tokens estimados ($token_est) excedem limite ($max_tokens)"
     printf '[TEST_FAIL] Tokens estimados (%s) excedem limite (%s)\n' "$token_est" "$max_tokens" >&2
     return 1
   fi
@@ -106,21 +122,46 @@ test_scrub_secrets_removes_patterns() {
   
   # Assert
   if echo "$output" | grep -qE "(sk-[a-zA-Z0-9]{20,}|AKIA[a-zA-Z0-9]{16})"; then
+    mantis_log "ERROR" "test_failed" "Padrão de secret não foi removido"
     printf '[TEST_FAIL] Padrão de secret não foi removido\n' >&2
     return 1
   fi
+  mantis_log "INFO" "test_passed" "secrets_scrub_test: padrões removidos com sucesso"
   return 0
 }
 
+test_validate_vlog02_schema() {
+  # Arrange: gerar um log de teste
+  local log_output
+  log_output=$(mantis_log "INFO" "test_event" "detalhe_teste" 2>&1)
+  
+  # Act & Assert: validar schema V-LOG-02
+  if printf '%s\n' "$log_output" | jq -e '
+    has("timestamp") and
+    has("level") and
+    has("resource.tenant_id") and
+    has("resource.artifact") and
+    has("body.event")
+  ' >/dev/null 2>&1; then
+    return 0
+  else
+    mantis_log "ERROR" "schema_validation_failed" "Log não conforma com V-LOG-02"
+    return 1
+  fi
+}
+
+# Execução condicional de testes (se flag --test fornecida)
 if [[ "${1:-}" == "--test" ]]; then
   test_compact_context_respects_limit
   test_scrub_secrets_removes_patterns
+  test_validate_vlog02_schema
   exit $?
 fi
 ```
 
-## 🔍 Validação (VDD)
+## 🔍 Validação (VDD - Validation-Driven Development)
 ```bash
+# Validação completa via orchestrator-engine (executável por IA ou humano)
 bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
   --file 06-PROGRAMMING/bash/context-compaction-utils.md \
   --json \
@@ -128,20 +169,78 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
   --check-tenant-isolation \
   --check-structural \
   --check-resource-limits \
-  --check-error-handling
+  --check-error-handling \
+  --check-observability
+
+# Validação rápida (apenas frontmatter e syntax)
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/bash/context-compaction-utils.md \
+  --mode headless \
+  --checks C5,C8 \
+  --json
+
+# Output esperado em caso de sucesso:
+# {"validator":"orchestrator-engine","file":"...","passed":true,"status":"passed",...}
 ```
 
-## 🔗 Referências Cruzadas
-- [[bash-master-agent.md]]
-- [[01-RULES/harness-norms-v3.0.md]]
-- [[01-RULES/10-SDD-CONSTRAINTS.md]]
-- [[01-RULES/03-SECURITY-RULES.md]]
-- [[00-CONTEXT/norms-matrix.json]]
+## 🔗 Referências Cruzadas (Wikilinks para Navegação de IA)
+- [[bash-master-agent.md]] ← Contrato principal de geração e função mantis_log()
+- [[01-RULES/harness-norms-v3.0.md]] ← Especificação de hardening
+- [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição das constraints C1-C8
+- [[01-RULES/03-SECURITY-RULES.md]] ← Regras de segurança e PII scrubbing
+- [[00-CONTEXT/norms-matrix.json]] ← Fonte de verdade para constraints
+- [[/05-CONFIGURATIONS/observability/00-INDEX.md]] ← Índice de observabilidade
+- [[/05-CONFIGURATIONS/observability/loki/config.yml]] ← Configuração de ingestão de logs
 
-## 📝 Histórico de Revisões
+## 📝 Histórico de Revisões (Para CHRONICLE.md Integration)
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
 |--------|------|-------|------------------|---------------------|
 | 1.0.0 | 2024-11-10 | Dev inicial | Criação original | Parcial |
-| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura completa: frontmatter C5, tenant C4, logging C8, hardening C7, testes TDD | C1,C3,C4,C5,C7,C8 |
+| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura completa: bootstrap resiliente, mantis_log() canônica, validação V-LOG-02 | C1,C3,C4,C5,C7,C8 |
 
+---
+## 🔍 Observability (Documentação para IA)
+
+> Este artefato emite os seguintes eventos via `mantis_log()` (definida em [[bash-master-agent.md]]):
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `context_compaction_started` | INFO | C8 | `"Tenant: ${TENANT_ID}, input_size: ${#CONTEXT_INPUT}"` |
+| `token_limit_exceeded` | WARN | C1 | `"Estimado: ${token_est} > limite: ${MAX_TOKENS}"` |
+| `secrets_scrubbed` | INFO | C3 | `"Padrões detectados e sanitizados: ${scrub_count}"` |
+| `context_compaction_completed` | INFO | C8 | `"original_size: ${orig}, compacted_size: ${comp}, tokens: ${est}"` |
+| `validation_failed` | ERROR | C5 | `"Frontmatter inválido ou constraint violada: ${constraint}"` |
+| `cleanup_completed` | DEBUG | C7 | `"Temp file ${TEMP_FILE} removido com sucesso"` |
+
+### Exemplo de Output JSONL (para aprendizado de padrão por IA)
+```json
+{"timestamp":"2026-05-06T12:00:00Z","level":"INFO","resource":{"tenant_id":"tenant-xyz","artifact":"context-compaction-utils"},"body":{"event":"context_compaction_completed","detail":"original_size: 15420, compacted_size: 3840, tokens: 980"},"attributes":{"mantis":{"tier":"2","version":"2.0.0","constraint":"C1,C3,C4","trace_id":""},"code.filepath":"06-PROGRAMMING/bash/context-compaction-utils.md","code.lineno":87,"telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}
+```
+
+### Configuração Específica de Este Artefato
+```bash
+# Variáveis de entorno que afetam o comportamento de logging deste artefato
+export LOG_COMPACT_DETAILS="${LOG_COMPACT_DETAILS:-true}"   # Incluir métricas de compactação em logs
+export LOG_SCRUB_STATS="${LOG_SCRUB_STATS:-true}"           # Incluir contagem de padrões sanitizados (C3)
+export TRACE_CONTEXT_COMPACT="${TRACE_CONTEXT_COMPACT:-false}" # Habilitar trace_id para correlação OTel
+```
+
+### Validação de Schema V-LOG-02 (Helper Executável)
+```bash
+# Função helper para validação local de logs (pode ser usada em testes)
+validate_vlog02() {
+  jq -e '
+    has("timestamp") and
+    has("level") and
+    has("resource.tenant_id") and
+    has("resource.artifact") and
+    has("body.event") and
+    has("attributes.mantis.tier") and
+    has("attributes.mantis.version")
+  ' >/dev/null 2>&1
+}
+
+# Uso em testes ou validação manual:
+# mantis_log "INFO" "test" "x" 2>&1 | validate_vlog02 && echo "✅ Schema V-LOG-02 válido"
+```
 ---

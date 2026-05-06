@@ -44,38 +44,38 @@ Fornecer funções reutilizáveis para captura estruturada de falhas, retry com 
 - **Constraints Aplicáveis**: C1 (timeout/delay controlado), C5 (estrutura de funções e variáveis), C7 (resiliência/fail-fast), C8 (auditoria de tentativas)
 - **Dependências Externas**: `date`, `sleep`, `bc` (ou fallback aritmética bash pura), coreutils POSIX
 
-## 🛡️ Hardening (Harness Norms v3.0 - Executável)
+## 🛡️ Bootstrap Resiliente e Lógica de Retry (C1+C5+C7+C8)
 ```bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-IFS=$'\n\t'
+# =============================================================================
+# BOOTSTRAP RESILIENTE: Hardening + Observabilidade (C3+C4+C7)
+# Fonte de verdade: bash-master-agent.md via source
+# =============================================================================
+if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" ]]; then
+  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" --mode=observability-only
+else
+  set -Eeuo pipefail; shopt -s inherit_errexit 2>/dev/null || true
+  trap 'exit 130' INT TERM
+  : "${TENANT_ID:?ERROR: TENANT_ID não definido. Defina via env ou argumento.}"
+  mantis_log() { printf '{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${1:-INFO}" "${TENANT_ID:-unknown}" "${2:-bootstrap_fallback}" "${3:-}" >&2; }
+  mantis_log "WARN" "bootstrap_fallback" "Master agent não encontrado. Executando com hardening mínimo."
+fi
 
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_VERSION="2.0.0"
+readonly SCRIPT_NAME="$(basename -- "${BASH_SOURCE[0]}")"
+readonly SCRIPT_VERSION="${VERSION:-2.0.0}"
+export TENANT_ID="${TENANT_ID:-}"
 
-# C8: Logging estruturado JSONL
-log_retry() {
-  local level="${1:-INFO}"
-  local attempt="${2:-0}"
-  local detail="${3:-}"
-  printf '{"ts":"%s","level":"%s","tenant":"%s","script":"%s","attempt":%d,"detail":"%s"}\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    "$level" \
-    "${TENANT_ID:-unknown}" \
-    "$SCRIPT_NAME" \
-    "$attempt" \
-    "$detail" >&2
-}
-
+# =============================================================================
+# LÓGICA DE RETRY COM BACKOFF EXPONENCIAL E OBSERVABILIDADE
+# =============================================================================
 # C7: Trap global unificado
-cleanup_on_exit() {
+cleanup_retry() {
   local exit_code=$?
   if [[ $exit_code -ne 0 ]]; then
-    log_retry "ERROR" 0 "Script finalizado com código $exit_code"
+    mantis_log "ERROR" "retry_aborted" "Script finalizado com código $exit_code | Tenant: ${TENANT_ID}"
   fi
   exit $exit_code
 }
-trap cleanup_on_exit EXIT INT TERM
+trap cleanup_retry EXIT INT TERM
 
 # C4: Validação de contexto
 : "${TENANT_ID:?Variável de ambiente TENANT_ID não definida. Abortando.}"
@@ -89,20 +89,20 @@ execute_with_retry() {
   local delay=$base_delay
 
   while [[ $attempt -le $max_retries ]]; do
-    log_retry "INFO" "$attempt" "Executando: ${cmd}"
+    mantis_log "INFO" "retry_attempt" "attempt=$attempt, command=${cmd}, tenant=${TENANT_ID}"
     
     # C1: Timeout por tentativa (padrão: 2x base_delay ou mínimo 10s)
     local attempt_timeout
     attempt_timeout=$(( delay > 10 ? delay * 2 : 10 ))
     
     if timeout "$attempt_timeout" bash -c "$cmd" 2>/dev/null; then
-      log_retry "INFO" "$attempt" "Sucesso"
+      mantis_log "INFO" "retry_success" "attempt=$attempt, total_attempts=$attempt, tenant=${TENANT_ID}"
       return 0
     else
       local exit_code=$?
-      log_retry "WARN" "$attempt" "Falha com código $exit_code. Aguardando ${delay}s..."
+      mantis_log "WARN" "retry_failed" "attempt=$attempt, error_code=$exit_code, next_delay=${delay}s, tenant=${TENANT_ID}"
       if [[ $attempt -eq $max_retries ]]; then
-        log_retry "ERROR" "$attempt" "Esgotadas $max_retries tentativas"
+        mantis_log "ERROR" "retry_exhausted" "Esgotadas $max_retries tentativas para comando: ${cmd}"
         return 1
       fi
       sleep "$delay"
@@ -139,7 +139,7 @@ test_retry_succeeds_on_transient_failure() {
     rm -f "$attempt_file"
     return 0
   else
-    printf '[TEST_FAIL] Retry não recuperou falha transitória (exit: %s, count: %s)\n' "$exit_code" "$final_count" >&2
+    mantis_log "ERROR" "test_failed" "Retry não recuperou falha transitória (exit: $exit_code, count: $final_count)"
     rm -f "$attempt_file"
     return 1
   fi
@@ -159,7 +159,20 @@ test_retry_aborts_on_persistent_failure() {
   if [[ $exit_code -eq 1 ]]; then
     return 0
   else
-    printf '[TEST_FAIL] Retry não abortou após falha persistente (exit esperado: 1, obtido: %s)\n' "$exit_code" >&2
+    mantis_log "ERROR" "test_failed" "Retry não abortou após falha persistente (exit esperado: 1, obtido: $exit_code)"
+    return 1
+  fi
+}
+
+test_validate_vlog02_schema() {
+  local log_output
+  log_output=$(mantis_log "INFO" "test_event" "detalhe_teste" 2>&1)
+  if printf '%s\n' "$log_output" | jq -e '
+    has("timestamp") and has("level") and has("resource.tenant_id") and has("resource.artifact") and has("body.event")
+  ' >/dev/null 2>&1; then
+    return 0
+  else
+    mantis_log "ERROR" "schema_validation_failed" "Log não conforma com V-LOG-02"
     return 1
   fi
 }
@@ -167,6 +180,7 @@ test_retry_aborts_on_persistent_failure() {
 if [[ "${1:-}" == "--test" ]]; then
   test_retry_succeeds_on_transient_failure
   test_retry_aborts_on_persistent_failure
+  test_validate_vlog02_schema
   exit $?
 fi
 ```
@@ -180,7 +194,8 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
   --check-tenant-isolation \
   --check-structural \
   --check-resource-limits \
-  --check-error-handling
+  --check-error-handling \
+  --check-observability
 ```
 
 ## 🔗 Referências Cruzadas
@@ -188,12 +203,59 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 - [[01-RULES/harness-norms-v3.0.md]] ← Especificação de hardening C7
 - [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição de C1, C5, C8
 - [[01-RULES/02-RESOURCE-GUARDRAILS.md]] ← Limites de timeout e retry
+- [[/05-CONFIGURATIONS/observability/00-INDEX.md]] ← Índice de observabilidade
+- [[/05-CONFIGURATIONS/observability/loki/config.yml]] ← Pipeline de ingestão de logs JSONL
 - [[00-CONTEXT/norms-matrix.json]] ← Fonte de verdade para constraints
 
 ## 📝 Histórico de Revisões
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
 |--------|------|-------|------------------|---------------------|
 | 1.0.0 | 2024-10-05 | Dev inicial | Retry básico com `sleep` fixo | Parcial |
-| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura: backoff exponencial com jitter, timeout por tentativa, JSONL C8, tenant C4, testes TDD | C1,C5,C7,C8 |
+| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura: bootstrap resiliente, `mantis_log()` canônica, validação V-LOG-02, remoção de hardening inline | C1,C5,C7,C8 |
 
+---
+## 🔍 Observability (Documentación para IA)
+
+> Este artefato emite os seguintes eventos via `mantis_log()` (definida em [[bash-master-agent.md]]):
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `retry_attempt` | INFO | C8 | `"attempt=1, command=curl https://api.example.com, tenant=tenant-xyz"` |
+| `retry_success` | INFO | C7 | `"attempt=2, total_attempts=2, tenant=tenant-xyz"` |
+| `retry_failed` | WARN | C7 | `"attempt=1, error_code=124, next_delay=4s, tenant=tenant-xyz"` |
+| `retry_exhausted` | ERROR | C1 | `"Esgotadas 3 tentativas para comando: curl https://api.example.com"` |
+| `retry_aborted` | ERROR | C7 | `"Script finalizado com código 1 | Tenant: tenant-xyz"` |
+| `bootstrap_fallback` | WARN | C7 | `"Master agent não encontrado. Executando com hardening mínimo."` |
+
+### Exemplo de Output JSONL (para aprendizado de padrão por IA)
+```json
+{"timestamp":"2026-05-06T12:15:00Z","level":"INFO","resource":{"tenant_id":"tenant-xyz","artifact":"robust-error-handling"},"body":{"event":"retry_success","detail":"attempt=2, total_attempts=2, tenant=tenant-xyz"},"attributes":{"mantis":{"tier":"2","version":"2.0.0","constraint":"C1,C7,C8","trace_id":""},"code.filepath":"06-PROGRAMMING/bash/robust-error-handling.md","code.lineno":67,"telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}
+```
+
+### Configuração Específica de Este Artefato
+```bash
+# Variáveis de entorno que afetam o comportamento de logging deste artefato
+export LOG_RETRY_ATTEMPTS="${LOG_RETRY_ATTEMPTS:-true}"      # Incluir contagem de tentativas em logs
+export LOG_RETRY_DELAYS="${LOG_RETRY_DELAYS:-true}"          # Incluir delays de backoff em logs
+export TRACE_RETRY_OPS="${TRACE_RETRY_OPS:-false}"           # Habilitar trace_id para correlação OTel
+```
+
+### Validação de Schema V-LOG-02 (Helper Executável)
+```bash
+# Função helper para validação local de logs
+validate_vlog02() {
+  jq -e '
+    has("timestamp") and
+    has("level") and
+    has("resource.tenant_id") and
+    has("resource.artifact") and
+    has("body.event") and
+    has("attributes.mantis.tier") and
+    has("attributes.mantis.version")
+  ' >/dev/null 2>&1
+}
+
+# Uso em testes ou validação manual:
+# mantis_log "INFO" "test" "x" 2>&1 | validate_vlog02 && echo "✅ Schema V-LOG-02 válido"
+```
 ---

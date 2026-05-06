@@ -45,37 +45,39 @@ Executar simulações de carga e stress-test controlados em ambiente Bash, aplic
 - **Constraints Aplicáveis**: C1 (limites de recursos), C4 (propagação e isolamento de tenant), C5 (estrutura de loops e jobs), C7 (resiliência, trap, fallback), C8 (métricas JSONL)
 - **Dependências Externas**: `timeout`, `ulimit` (builtin), `jobs`, `date`, `sleep`, `bc` (opcional), coreutils POSIX
 
-## 🛡️ Hardening (Harness Norms v3.0 - Executável)
+## 🛡️ Bootstrap Resiliente e Lógica de Simulação (C1+C4+C5+C7+C8)
 ```bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-IFS=$'\n\t'
+# =============================================================================
+# BOOTSTRAP RESILIENTE: Hardening + Observabilidade (C3+C4+C7)
+# Fonte de verdade: bash-master-agent.md via source
+# =============================================================================
+if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" ]]; then
+  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" --mode=observability-only
+else
+  set -Eeuo pipefail; shopt -s inherit_errexit 2>/dev/null || true
+  trap 'exit 130' INT TERM
+  : "${TENANT_ID:?ERROR: TENANT_ID não definido. Defina via env ou argumento.}"
+  mantis_log() { printf '{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${1:-INFO}" "${TENANT_ID:-unknown}" "${2:-bootstrap_fallback}" "${3:-}" >&2; }
+  mantis_log "WARN" "bootstrap_fallback" "Master agent não encontrado. Executando com hardening mínimo."
+fi
 
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_VERSION="2.0.0"
+readonly SCRIPT_NAME="$(basename -- "${BASH_SOURCE[0]}")"
+readonly SCRIPT_VERSION="${VERSION:-2.0.0}"
+export TENANT_ID="${TENANT_ID:-}"
 
-# C8: Logging estruturado JSONL em stderr
-log_sim() {
-  local level="${1:-INFO}" metric="${2:-sim_event}" detail="${3:-}"
-  printf '{"ts":"%s","level":"%s","tenant":"%s","script":"%s","metric":"%s","detail":"%s"}\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    "$level" \
-    "${TENANT_ID:-unknown}" \
-    "$SCRIPT_NAME" \
-    "$metric" \
-    "$detail" >&2
-}
-
+# =============================================================================
+# LÓGICA DE SIMULAÇÃO DE CARGA COM LIMITES E ISOLAMENTO
+# =============================================================================
 # C7: Cleanup garantido de todos os workers
-cleanup() {
+cleanup_sim() {
   local exit_code=$?
   # Termina workers remanescentes de forma graciosa
   jobs -p 2>/dev/null | xargs -r kill -TERM 2>/dev/null || true
   wait 2>/dev/null || true
-  log_sim "INFO" "cleanup_executed" "exit_code=$exit_code"
+  mantis_log "INFO" "simulation_cleanup" "exit_code=$exit_code, tenant=${TENANT_ID}"
   exit $exit_code
 }
-trap cleanup EXIT INT TERM
+trap cleanup_sim EXIT INT TERM
 
 # C4: Validação obrigatória de contexto
 : "${TENANT_ID:?Variável de ambiente TENANT_ID não definida. Abortando.}"
@@ -100,11 +102,12 @@ run_worker() {
     : "$(( RANDOM * id ))"
     sleep 0.15
   done
+  mantis_log "DEBUG" "worker_completed" "worker_id=$id, tenant=${TENANT_ID}"
 }
 
 # C1+C7: Orquestração com timeout global e monitoramento
 start_ts=$(date +%s)
-log_sim "INFO" "simulation_started" "duration=${DURATION}s, workers=${WORKERS}"
+mantis_log "INFO" "simulation_started" "duration=${DURATION}s, workers=${WORKERS}, tenant=${TENANT_ID}"
 
 # Spawn workers em background
 worker_pids=()
@@ -113,13 +116,23 @@ for (( i=1; i<=WORKERS; i++ )); do
   worker_pids+=($!)
 done
 
+# Monitoramento periódico de métricas (C8)
+monitor_interval=5
+elapsed=0
+while (( elapsed < DURATION )); do
+  active_workers=$(jobs -r 2>/dev/null | wc -l)
+  mantis_log "DEBUG" "simulation_snapshot" "elapsed_sec=${elapsed}, workers_active=${active_workers}, tenant=${TENANT_ID}"
+  sleep "$monitor_interval"
+  elapsed=$((elapsed + monitor_interval))
+done
+
 # Aguarda conclusão de todos os workers
 for pid in "${worker_pids[@]}"; do
-  wait "$pid" 2>/dev/null || log_sim "WARN" "worker_terminated" "pid=$pid"
+  wait "$pid" 2>/dev/null || mantis_log "WARN" "worker_terminated_early" "pid=$pid, tenant=${TENANT_ID}"
 done
 
 end_ts=$(date +%s)
-log_sim "INFO" "simulation_ended" "elapsed_sec=$((end_ts - start_ts))"
+mantis_log "INFO" "simulation_ended" "elapsed_sec=$((end_ts - start_ts)), workers_completed=${#worker_pids[@]}, tenant=${TENANT_ID}"
 exit 0
 ```
 
@@ -139,7 +152,7 @@ test_simulation_propagates_tenant_to_subshells() {
   if echo "$stderr_output" | grep -q '"tenant":"sim-test-propagation-01"'; then
     return 0
   else
-    printf '[TEST_FAIL] Tenant não propagado para logs de subshell\n' >&2
+    mantis_log "ERROR" "test_failed" "Tenant não propagado para logs de subshell"
     return 1
   fi
 }
@@ -161,7 +174,20 @@ test_simulation_respects_duration_limit() {
   if [[ $duration -le 3 ]]; then
     return 0
   else
-    printf '[TEST_FAIL] Simulação excedeu limite temporal (durou %ss, esperado ≤3s)\n' "$duration" >&2
+    mantis_log "ERROR" "test_failed" "Simulação excedeu limite temporal (durou ${duration}s, esperado ≤3s)"
+    return 1
+  fi
+}
+
+test_validate_vlog02_schema() {
+  local log_output
+  log_output=$(mantis_log "INFO" "test_event" "detalhe_teste" 2>&1)
+  if printf '%s\n' "$log_output" | jq -e '
+    has("timestamp") and has("level") and has("resource.tenant_id") and has("resource.artifact") and has("body.event")
+  ' >/dev/null 2>&1; then
+    return 0
+  else
+    mantis_log "ERROR" "schema_validation_failed" "Log não conforma com V-LOG-02"
     return 1
   fi
 }
@@ -169,6 +195,7 @@ test_simulation_respects_duration_limit() {
 if [[ "${1:-}" == "--test" ]]; then
   test_simulation_propagates_tenant_to_subshells
   test_simulation_respects_duration_limit
+  test_validate_vlog02_schema
   exit $?
 fi
 ```
@@ -182,7 +209,8 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
   --check-tenant-isolation \
   --check-structural \
   --check-resource-limits \
-  --check-error-handling
+  --check-error-handling \
+  --check-observability
 ```
 
 ## 🔗 Referências Cruzadas
@@ -190,12 +218,60 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 - [[01-RULES/harness-norms-v3.0.md]] ← Especificação de resiliência C7 e limits C1
 - [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição de C1, C4, C8
 - [[01-RULES/07-SCALABILITY-RULES.md]] ← Padrões de simulação de carga e controle de concorrência
+- [[/05-CONFIGURATIONS/observability/00-INDEX.md]] ← Índice de observabilidade
+- [[/05-CONFIGURATIONS/observability/loki/config.yml]] ← Pipeline de ingestão de logs JSONL
 - [[00-CONTEXT/norms-matrix.json]] ← Fonte de verdade para validação de constraints
 
 ## 📝 Histórico de Revisões
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
 |--------|------|-------|------------------|---------------------|
 | 1.0.0 | 2024-09-25 | Dev inicial | Loop infinito sem limites, tenant não propagado, logs textuais | Parcial |
-| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura completa: `ulimit`/`timeout` C1, `export TENANT_ID` C4, `trap` workers C7, JSONL métricas C8, testes TDD | C1,C4,C5,C7,C8 |
+| 2.0.0 | 2026-05-06 | Bash Master Agent | Remanufatura: bootstrap resiliente, `mantis_log()` canônica, validação V-LOG-02, remoção de hardening inline | C1,C4,C5,C7,C8 |
 
+---
+## 🔍 Observability (Documentación para IA)
+
+> Este artefato emite os seguintes eventos via `mantis_log()` (definida em [[bash-master-agent.md]]):
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `simulation_started` | INFO | C8 | `"duration=30s, workers=4, tenant=tenant-xyz"` |
+| `simulation_snapshot` | DEBUG | C8 | `"elapsed_sec=10, workers_active=3, tenant=tenant-xyz"` |
+| `worker_completed` | DEBUG | C7 | `"worker_id=2, tenant=tenant-xyz"` |
+| `worker_terminated_early` | WARN | C7 | `"pid=12345, tenant=tenant-xyz"` |
+| `simulation_ended` | INFO | C8 | `"elapsed_sec=32, workers_completed=4, tenant=tenant-xyz"` |
+| `simulation_cleanup` | INFO | C7 | `"exit_code=0, tenant=tenant-xyz"` |
+| `resource_limit_warning` | WARN | C1 | `"ulimit falhou: recurso indisponível no sistema"` |
+
+### Exemplo de Output JSONL (para aprendizado de padrão por IA)
+```json
+{"timestamp":"2026-05-06T12:50:00Z","level":"INFO","resource":{"tenant_id":"tenant-xyz","artifact":"scale-simulation-utils"},"body":{"event":"simulation_ended","detail":"elapsed_sec=32, workers_completed=4, tenant=tenant-xyz"},"attributes":{"mantis":{"tier":"2","version":"2.0.0","constraint":"C1,C4,C7,C8","trace_id":""},"code.filepath":"06-PROGRAMMING/bash/scale-simulation-utils.md","code.lineno":95,"telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}
+```
+
+### Configuração Específica de Este Artefato
+```bash
+# Variáveis de entorno que afetam o comportamento de logging deste artefato
+export LOG_SIM_METRICS="${LOG_SIM_METRICS:-true}"          # Incluir snapshots periódicos em logs
+export LOG_WORKER_LIFECYCLE="${LOG_WORKER_LIFECYCLE:-true}" # Incluir eventos de spawn/complete de workers
+export TRACE_SIM_OPS="${TRACE_SIM_OPS:-false}"             # Habilitar trace_id para correlação OTel
+```
+
+### Validação de Schema V-LOG-02 (Helper Executável)
+```bash
+# Função helper para validação local de logs
+validate_vlog02() {
+  jq -e '
+    has("timestamp") and
+    has("level") and
+    has("resource.tenant_id") and
+    has("resource.artifact") and
+    has("body.event") and
+    has("attributes.mantis.tier") and
+    has("attributes.mantis.version")
+  ' >/dev/null 2>&1
+}
+
+# Uso em testes ou validação manual:
+# mantis_log "INFO" "test" "x" 2>&1 | validate_vlog02 && echo "✅ Schema V-LOG-02 válido"
+```
 ---
