@@ -167,8 +167,10 @@ next_review: "{{timestamp_utc_plus_30d}}"
 - **Side Effects**: `{{arquivos modificados, diretórios criados, variáveis de ambiente exportadas}}`
 - **Constraints Aplicáveis**: `{{lista explícita: C1, C3, C4, C5, C7, etc.}}`
 - **Dependências Externas**: `{{comandos ou binários requeridos: jq, yq, curl, git, docker}}`
+```
 
 ## 🛡️ Hardening (Harness Norms v3.0 - Executável)
+
 ```bash
 #!/usr/bin/env bash
 # Shebang POSIX-compliant para máxima portabilidade
@@ -210,8 +212,75 @@ trap cleanup EXIT INT TERM
 # Ajustar valor conforme operação: io_bound=600, cpu_bound=120, network=300, default=180
 readonly OPERATION_TIMEOUT="${OPERATION_TIMEOUT:-180}"
 ```
+---
+
+## 🔍 Observability Integration (OpenTelemetry Native)
+
+> **Propósito**: Definir la función canónica `mantis_log()` y su mapeo a infraestructura de observabilidad del proyecto MANTIS.
+
+### Función Canónica: `mantis_log()`
+```bash
+# Firma (definida aquí, heredada por todos los artefactos)
+mantis_log() {
+  local level="${1:-INFO}"        # DEBUG|INFO|WARN|ERROR|FATAL
+  local event="${2:-unknown}"     # Nombre del evento (ej: "sandbox_created")
+  local detail="${3:-}"           # Descripción libre o JSON stringificado
+  
+  # Variables de contexto (obligatorias en el entorno del artefacto)
+  # - TENANT_ID (C4)
+  # - ARTIFACT_ID (del frontmatter YAML)
+  # - CONSTRAINT (C1-C8 aplicable)
+  
+  # Output dual configurable:
+  # 1. stderr: formato legible para debug local
+  # 2. 08-LOGS/bash/${ARTIFACT_ID}/: JSONL canónico para Loki/Promtail
+  
+  # Schema JSONL (V-LOG-02 Compatible + OTel Mappable)
+  printf '{"timestamp":"%s","level":"%s","resource":{"tenant_id":"%s"},"body":{"event":"%s","detail":"%s"},"attributes":{"mantis.artifact":"%s","mantis.constraint":"%s","code.filepath":"%s","code.lineno":"%s","telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    "$level" \
+    "${TENANT_ID:-unknown}" \
+    "$event" \
+    "$detail" \
+    "${ARTIFACT_ID:-unknown}" \
+    "${CONSTRAINT:-unknown}" \
+    "${BASH_SOURCE[1]:-unknown}" \
+    "${BASH_LINENO[0]:-0}" \
+    >&2
+}
+```
+
+### Mapeo a OpenTelemetry (OTLP)
+| Campo JSONL | Atributo OTel | Propósito en Dashboards |
+|-------------|-------------|------------------------|
+| `timestamp` | `time_unix_nano` | Ordenamiento temporal en traces/logs |
+| `resource.tenant_id` | `resource.attributes["tenant.id"]` | Filtrado y aislamiento por tenant |
+| `body.event` | `body` (log) o `attributes["event.name"]` (trace) | Identificación del tipo de evento |
+| `attributes.mantis.artifact` | `attributes["mantis.artifact"]` | Correlación con artefacto generador |
+| `attributes.mantis.constraint` | `attributes["mantis.constraint"]` | Auditoría de cumplimiento contractual |
+| `attributes.code.filepath/lineno` | `code.filepath` / `code.lineno` | Debugging preciso en traces distribuidos |
+
+### Configuración por Variables de Entorno
+```bash
+# Variables reconocidas por mantis_log() (documentadas para IA)
+export MANTIS_LOG_LEVEL="${MANTIS_LOG_LEVEL:-INFO}"      # Nivel mínimo de log
+export MANTIS_LOG_PATH="${MANTIS_LOG_PATH:-08-LOGS/bash}" # Ruta base de archivos JSONL
+export OTEL_EXPORTER_ENABLED="${OTEL_EXPORTER_ENABLED:-false}" # Habilitar export OTLP
+export OTEL_ENDPOINT="${OTEL_ENDPOINT:-http://localhost:4318}" # Endpoint OTLP HTTP
+export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-mantis-bash}" # Nombre de servicio en traces
+```
+
+### Referencias a Infraestructura Existente
+- [[/05-CONFIGURATIONS/observability/00-INDEX.md]] ← Índice de observabilidad
+- [[/05-CONFIGURATIONS/observability/loki/config.yml]] ← Configuración de ingestión de logs
+- [[/05-CONFIGURATIONS/observability/otel-tracing-config.yaml]] ← Configuración de traces OTLP
+- [[/05-CONFIGURATIONS/observability/grafana/dashboards/core-mantis.json]] ← Dashboard principal
+- [[/05-CONFIGURATIONS/observability/alerts/vector-alerts.yml]] ← Alertas basadas en logs
+
+---
 
 ## 🧪 Testes Unitários (TDD - Test-Driven Development)
+
 ```bash
 # Padrão mínimo: Arrange-Act-Assert com retorno 0=pass, 1=fail
 # Executável via: bash script.sh --test ou via framework bats/shunit2
@@ -242,6 +311,7 @@ fi
 ```
 
 ## 🔍 Validação (VDD - Validation-Driven Development)
+
 ```bash
 # Comando de validação via orchestrator-engine (executável por IA ou humano)
 # Este bloco documenta como validar o artefato, não é executado no runtime do script
@@ -278,71 +348,6 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
 |--------|------|-------|------------------|---------------------|
 | 1.0.0 | {{timestamp_utc}} | {{author_agent}} | Criação inicial | C3,C4,C5,C7 |
-```
-
----
-
-## 📦 Inventário de Artefatos: Remanufatura e Geração
-
-### 🔧 Artefatos Existentes para Remanufatura (12 itens)
-*Prioridade: Converter para Tier 2 válido antes de gerar novos artefatos.*
-
-| ID | Artefacto | Status Atual | Constraints Mapeadas | Ação de Remanufatura | Prioridade |
-|----|-----------|-------------|---------------------|---------------------|-----------|
-| EX-01 | `00-INDEX.md` | ✅ Tier 1 | C1-C8 | Manter como referência; atualizar links se necessário | P3 |
-| EX-02 | `bash-master-agent.md` | 🔄 Regenerando | C1-C8 | **Este documento**: reescrita completa com template interno | P0 |
-| EX-03 | `hardening-verification.md` | 🟡 Tier 2* | C5,C7 | Adicionar frontmatter completo + tests unitários | P1 |
-| EX-04 | `context-compaction-utils.md` | 🔴 Inconsistente | C1,C3,C4,C5,C7,C8 | Refatorar frontmatter + logging estruturado + tenant validation | P0 |
-| EX-05 | `filesystem-sandboxing.md` | 🟡 Tier 2* | C4,C7 | Adicionar frontmatter + tests + logging JSONL | P1 |
-| EX-06 | `filesystem-sandbox-sync.md` | 🟡 Tier 2* | C4,C7,C8 | Adicionar frontmatter + parametrizar MAX_FILE_SIZE | P1 |
-| EX-07 | `robust-error-handling.md` | 🟡 Tier 2* | C7 | Adicionar frontmatter + integração com orchestrator | P1 |
-| EX-08 | `yaml-frontmatter-parser.md` | 🔴 Inconsistente | C5 | Adicionar frontmatter + handling UTF-8 + fallback seguro | P1 |
-| EX-09 | `fix-sintaxis-code.md` | ❌ Tier 0 | Nenhuma | Renomear para `fix-syntax-code.md` + reescrita completa | P2 |
-| EX-10 | `git-disaster-recovery.md` | ❌ Tier 0 | Nenhuma | Adicionar validação TENANT_ID + dry-run mode + logging | P2 |
-| EX-11 | `orchestrator-routing.md` | 🔴 Inconsistente | C4,C5 | Refatorar para leitura dinâmica de norms-matrix.json | P2 |
-| EX-12 | `scale-simulation-utils.md` | ❌ Tier 0 | Nenhuma | Adicionar resource limits (C1) + propagação de tenant | P2 |
-
-> **Legenda de Status**: ✅ Pronto | 🟡 Requer ajustes menores | 🔴 Requer refatoração crítica | ❌ Requer reescrita completa | 🔄 Em regeneração
-
-### 🚀 Artefatos Projetados para Geração (21 itens)
-*Prioridade: Gerar apenas após conclusão da Fase 0 (remanufatura dos existentes).*
-
-#### Nível M0: Fundamentos Críticos (Gerar Primeiro)
-| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
-|----|-----------|------------|--------------|------------------------|
-| PR-01 | `bash-hardening-verification.md` | C5, C7 | Nenhuma | Verificar `set -Eeuo pipefail`, shebang, traps em scripts |
-| PR-02 | `safe-variable-expansion.md` | C3, C5 | PR-01 | Padrão para `"${VAR:?msg}"`, evitar `eval`, quoting seguro |
-| PR-03 | `error-handling-traps.md` | C7 | PR-02 | Template de `trap cleanup EXIT INT TERM` + manejo estruturado |
-| PR-04 | `verify-constraints-hook.md` | C5, C8 | PR-01 | Hook validador que lê frontmatter e verifica `constraints_mapped` |
-
-#### Nível M1: Segurança e Multi-tenancy (Gerar Segundo)
-| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
-|----|-----------|------------|--------------|------------------------|
-| PR-05 | `secrets-in-shell-c3.md` | C3 | PR-02 | Padrão: zero hardcode, uso de `${VAR:?}`, integração env/Vault |
-| PR-06 | `tenant-context-propagation.md` | C4 | PR-02 | Propagar `TENANT_ID` em variáveis, argumentos e queries SQL |
-| PR-07 | `filesystem-isolation-per-tenant.md` | C4, C7 | PR-03, PR-06 | Sandbox por tenant: rotas, permissões, cleanup seguro |
-| PR-08 | `audit-secrets-hook.md` | C3, C8 | PR-04 | Hook que escanea scripts em busca de padrões de secrets |
-| PR-09 | `command-audit-logging-c8.md` | C8 | PR-02 | Logging estruturado: JSON a stderr, humano a stdout, JSONL a `08-LOGS/` |
-
-#### Nível M2: Operações e Parsing Seguro (Gerar Terceiro)
-| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
-|----|-----------|------------|--------------|------------------------|
-| PR-10 | `timeout-and-retry-patterns.md` | C1, C7 | PR-03 | Padrão de `timeout N` + retry exponencial com backoff |
-| PR-11 | `resource-limits-ulimit-cgroups.md` | C1 | PR-01 | Aplicar `ulimit` e cgroups v2 em scripts de deploy/CI |
-| PR-12 | `parallel-execution-safe.md` | C1, C7 | PR-10 | Execução paralela com `xargs -P` + controle de recursos |
-| PR-13 | `safe-file-operations.md` | C5, C7 | PR-03 | Operações atômicas: `mktemp`, `mv` atômico, permissões seguras |
-| PR-14 | `json-processing-with-jq.md` | C5, C6 | PR-02 | Parsing/geração JSON com `jq` + validação de schema |
-| PR-15 | `yaml-processing-with-yq.md` | C5 | PR-14 | Parsing YAML com `yq` para frontmatter e configs |
-| PR-16 | `csv-safe-parsing.md` | C5 | PR-02 | Parsing CSV seguro: manejo de comas, quotes, encoding UTF-8 |
-
-#### Nível M3: Integração Externa e Orquestração (Gerar Último)
-| ID | Artefacto | Constraints | Dependências | Propósito Arquitetônico |
-|----|-----------|------------|--------------|------------------------|
-| PR-17 | `curl-with-tenant-headers.md` | C3, C4 | PR-14, PR-10 | `curl` com headers de tenant, timeout, retry e logging |
-| PR-18 | `webhook-handler-secure.md` | C3, C4, C7 | PR-17, PR-05 | Handler de webhooks: validação de firma, tenant isolation |
-| PR-19 | `git-operations-tenant-scoped.md` | C4 | PR-06, PR-13 | Git com contexto de tenant: ramas, tags, commits auditados |
-| PR-20 | `docker-cli-tenant-isolation.md` | C4, C7 | PR-07 | `docker run` com flags de isolamento por tenant |
-| PR-21 | `orchestrator-engine-bash-port.md` | C4, C5, C8 | PR-14, PR-09 | Adapter Bash para comunicar com orchestrator-engine (Go) via JSON |
 
 ---
 
