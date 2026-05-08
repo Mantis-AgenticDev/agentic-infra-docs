@@ -1,10 +1,26 @@
 ---
-artifact_id: "00-INDEX-bash"
+artifact_id: "bash-index-mantis"
 artifact_type: "skill_index"
-version: "3.1.0-SELECTIVE"
+version: "2.2.0"
 constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/bash/00-INDEX.md --json"
 canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
+tier: 1
+mode_selected: "B1"
+prompt_hash: "sha256:framework-executable-contract-v2.2.0"
+generated_at: "2026-05-08T00:00:00Z"
+tenant_context: "nao_aplicavel"
+language: pt-BR
+domain: "bash"
+ai_navigation:
+  read_first: true
+  required_for: ["bash-artifact-generation", "tdd-validation", "sdd-contract-enforcement", "hardening-audit", "cross-ai-compatibility"]
+  update_frequency: monthly
+  compatible_models: ["qwen", "deepseek", "claude", "minimax", "mimo-xiaomi", "gpt-4", "gemini"]
+audience: ["bash-master-agent", "orchestrator-engine", "validation-hooks", "senior-engineers", "ai-agents"]
+status: "✅ Estável"
+next_review: "2026-06-08"
+license: "CC-BY-NC-SA-4.0"
 ---
 
 # Bash Patterns Master Index – Multi-Tenant Hardening, Shell Security & Automation
@@ -169,7 +185,11 @@ canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
  "with_validation": "Emits JSON to stdout, logs to stderr, JSONL to 08-LOGS/ per V-INT-03",
  "with_config": "Consults norms-matrix.json before declaring constraints in generated scripts",
  "with_programming": "Delegates vector operations to postgresql-pgvector/, SQL to sql/, backend logic to python/go/ per LANGUAGE LOCK"
- }
+ },
+ "hydration_weight": "heavy",
+ "entrypoint_function": "mantis_log",
+ "tenant_context_required": true,
+ "vectorizable": false
  },
  {
  "artifact_id": "bash-hardening-verification",
@@ -193,7 +213,11 @@ canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
  "with_validation": "Provides baseline checks consumed by orchestrator-engine.sh",
  "with_config": "References norms-matrix.json for constraint routing logic",
  "with_programming": "NO interaction with postgresql-pgvector/ due to LANGUAGE LOCK"
- }
+ },
+ "hydration_weight": "light",
+ "entrypoint_function": "verify_hardening_pre_flight",
+ "tenant_context_required": true,
+ "vectorizable": false
  },
  {
  "artifact_id": "tenant-context-propagation",
@@ -217,7 +241,11 @@ canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
  "with_validation": "verify-constraints.sh validates TENANT_ID propagation in subshell examples",
  "with_config": "Aligns with multi-tenant rules in 06-MULTITENANCY-RULES.md",
  "with_programming": "Context patterns consumed by scripts before calling external commands/APIs"
- }
+ },
+ "hydration_weight": "light",
+ "entrypoint_function": "propagate_tenant_context",
+ "tenant_context_required": true,
+ "vectorizable": false
  },
  {
  "artifact_id": "secrets-in-shell-c3",
@@ -241,7 +269,11 @@ canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
  "with_validation": "audit-secrets.sh validates zero hardcode secrets in examples",
  "with_config": "References .env.example for placeholder patterns",
  "with_programming": "Secrets patterns consumed by scripts at runtime via env vars"
- }
+ },
+ "hydration_weight": "light",
+ "entrypoint_function": "load_secret_safe",
+ "tenant_context_required": false,
+ "vectorizable": false
  },
  {
  "artifact_id": "verify-constraints-hook",
@@ -265,7 +297,11 @@ canonical_path: "06-PROGRAMMING/bash/00-INDEX.md"
  "with_validation": "Hook validates other artifacts; self-validation via bash-syntax-check.sh",
  "with_config": "Parametrization patterns align with norms-matrix.json for constraint routing",
  "with_programming": "Core validation template consumed by orchestrator-engine.sh pipeline"
- }
+ },
+ "hydration_weight": "light",
+ "entrypoint_function": "validate_constraints_artifact",
+ "tenant_context_required": false,
+ "vectorizable": false
  }
  ],
  "dependency_graph": {
@@ -729,6 +765,44 @@ grep -E 'psql.*<->|CREATE EXTENSION vector|cosine_distance' 06-PROGRAMMING/bash/
 
 > 📌 **Nota final**: Este índice es Tier 1 (referencia contractual). Cualquier modificación debe pasar validación automática antes de merge.  
 > 🇧🇷 *Documentação técnica completa disponível em*: `docs/pt-BR/programming/bash/00-INDEX/README.md` (próxima entrega).
+
+---
+
+## 🧭 STACKSELECTOR CANÓNICO – Hidratación Segmentada para Master Agent
+<!-- STACKSELECTOR_JSONL_START -->
+```jsonl
+{"artifact_id":"bash-master-agent","canonical_path":"06-PROGRAMMING/bash/bash-master-agent.md","function_human":"Núcleo de orquestación Bash: contiene mantis_log() V-LOG-02, bootstrap resiliente, hardening base y protocolo de handoff a otros dominios","constraints":["C1","C2","C3","C4","C5","C7","C8"],"dependencies":[],"hydration_weight":"heavy","entrypoint_function":"mantis_log","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C4,C5,C7,C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"bash-hardening-verification","canonical_path":"06-PROGRAMMING/bash/bash-hardening-verification.md","function_human":"Validación pre-flight de entorno shell: verifica set -euo pipefail, límites de recursos y cumplimiento de constraints antes de ejecutar scripts","constraints":["C3","C4","C5","C7","C8"],"dependencies":["bash-master-agent"],"hydration_weight":"light","entrypoint_function":"verify_hardening_pre_flight","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C4,C7 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"safe-variable-expansion","canonical_path":"06-PROGRAMMING/bash/safe-variable-expansion.md","function_human":"Expansión segura de variables: previene word splitting, command injection y leakage mediante quoting riguroso y ${VAR:?missing}","constraints":["C3","C4","C5","C6","C7"],"dependencies":["bash-master-agent"],"hydration_weight":"light","entrypoint_function":"safe_expand","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C5,C6 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"error-handling-traps","canonical_path":"06-PROGRAMMING/bash/error-handling-traps.md","function_human":"Manejo unificado de errores: implementa trap para EXIT/INT/TERM, cleanup de recursos y logging estructurado en fallos","constraints":["C4","C5","C7","C8"],"dependencies":["bash-master-agent","safe-variable-expansion"],"hydration_weight":"light","entrypoint_function":"setup_error_trap","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C7,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"tenant-context-propagation","canonical_path":"06-PROGRAMMING/bash/tenant-context-propagation.md","function_human":"Propagación segura de TENANT_ID: garantiza que el identificador de tenant se herede en subshells, pipes y llamadas externas","constraints":["C3","C4","C5","C7","C8"],"dependencies":["bash-master-agent","safe-variable-expansion"],"hydration_weight":"light","entrypoint_function":"propagate_tenant_context","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"filesystem-isolation-per-tenant","canonical_path":"06-PROGRAMMING/bash/filesystem-isolation-per-tenant.md","function_human":"Aislamiento de filesystem por tenant: crea directorios de trabajo efímeros con mktemp -d y valida path escape","constraints":["C3","C4","C5","C7"],"dependencies":["tenant-context-propagation","safe-variable-expansion"],"hydration_weight":"medium","entrypoint_function":"create_tenant_workspace","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C5 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"secrets-in-shell-c3","canonical_path":"06-PROGRAMMING/bash/secrets-in-shell-c3.md","function_human":"Gestión segura de secrets en shell: cero hardcode, lectura desde env/vault, masking automático en logs","constraints":["C3","C5","C7"],"dependencies":["bash-master-agent","safe-variable-expansion"],"hydration_weight":"light","entrypoint_function":"load_secret_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C5 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"command-audit-logging-c8","canonical_path":"06-PROGRAMMING/bash/command-audit-logging-c8.md","function_human":"Auditoría de comandos ejecutados: logging estructurado JSONL con correlación por tenant y scrubbing de PII","constraints":["C4","C5","C6","C8"],"dependencies":["bash-master-agent","tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"audit_command_exec","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C6,C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"timeout-and-retry-patterns","canonical_path":"06-PROGRAMMING/bash/timeout-and-retry-patterns.md","function_human":"Patrones de timeout y retry: timeout cmd con backoff exponencial, jitter y cancellation por tenant","constraints":["C1","C4","C7","C8"],"dependencies":["bash-master-agent","tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"run_with_retry","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C1,C7 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"resource-limits-ulimit-cgroups","canonical_path":"06-PROGRAMMING/bash/resource-limits-ulimit-cgroups.md","function_human":"Limitación de recursos por script: ulimit para CPU/memoria, integración con cgroups v2 y validación pre-ejecución","constraints":["C1","C2","C7","C8"],"dependencies":["bash-master-agent"],"hydration_weight":"medium","entrypoint_function":"apply_resource_limits","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C1,C2,C7 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"parallel-execution-safe","canonical_path":"06-PROGRAMMING/bash/parallel-execution-safe.md","function_human":"Ejecución paralela segura: pool de workers con xargs -P, semáforos via flock y aislamiento de outputs por tenant","constraints":["C1","C4","C7"],"dependencies":["resource-limits-ulimit-cgroups","tenant-context-propagation"],"hydration_weight":"medium","entrypoint_function":"run_parallel_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C1,C4,C7 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"orchestrator-engine-bash-port","canonical_path":"06-PROGRAMMING/bash/orchestrator-engine-bash-port.md","function_human":"Port Bash del orchestrator principal: validación de constraints C1-C8 línea a línea con output JSONL","constraints":["C1","C3","C4","C5","C6","C7","C8"],"dependencies":["bash-master-agent","verify-constraints-hook"],"hydration_weight":"heavy","entrypoint_function":"validate_artifact_constraints","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"safe-file-operations","canonical_path":"06-PROGRAMMING/bash/safe-file-operations.md","function_human":"Operaciones atómicas de archivo: validación de paths, escritura staging + rename y rollback en error","constraints":["C3","C4","C5","C7"],"dependencies":["safe-variable-expansion","error-handling-traps"],"hydration_weight":"light","entrypoint_function":"atomic_write_file","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C5 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"json-processing-with-jq","canonical_path":"06-PROGRAMMING/bash/json-processing-with-jq.md","function_human":"Procesamiento seguro de JSON con jq: validación de schema, quoting de inputs y tenant scoping en queries","constraints":["C4","C5","C6","C7","C8"],"dependencies":["safe-variable-expansion","bash-master-agent"],"hydration_weight":"light","entrypoint_function":"parse_json_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C6 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"yaml-processing-with-yq","canonical_path":"06-PROGRAMMING/bash/yaml-processing-with-yq.md","function_human":"Procesamiento de YAML con yq: validación de estructura, fallback graceful y propagación de contexto tenant","constraints":["C4","C5","C7"],"dependencies":["safe-variable-expansion","bash-master-agent"],"hydration_weight":"light","entrypoint_function":"parse_yaml_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"csv-safe-parsing","canonical_path":"06-PROGRAMMING/bash/csv-safe-parsing.md","function_human":"Parsing seguro de CSV: manejo de comas en campos, quoting RFC4180 y validación de columnas esperadas","constraints":["C4","C5","C6","C7"],"dependencies":["safe-variable-expansion"],"hydration_weight":"light","entrypoint_function":"parse_csv_line","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C6 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"curl-with-tenant-headers","canonical_path":"06-PROGRAMMING/bash/curl-with-tenant-headers.md","function_human":"Wrapper seguro para curl: inyección automática de X-Tenant-ID, retry con backoff y logging estructurado","constraints":["C1","C3","C4","C7","C8"],"dependencies":["bash-master-agent","timeout-and-retry-patterns","tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"curl_tenant_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C4,C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"webhook-handler-secure","canonical_path":"06-PROGRAMMING/bash/webhook-handler-secure.md","function_human":"Handler de webhooks con validación HMAC: verificación de firma, rate limiting y prevención de replay attacks","constraints":["C3","C4","C7"],"dependencies":["secrets-in-shell-c3","tenant-context-propagation"],"hydration_weight":"medium","entrypoint_function":"handle_webhook_hmac","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C4 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"git-operations-tenant-scoped","canonical_path":"06-PROGRAMMING/bash/git-operations-tenant-scoped.md","function_human":"Operaciones Git aisladas por tenant: worktrees efímeros, validación de firmas GPG y scope de configuración","constraints":["C3","C4","C5","C7"],"dependencies":["tenant-context-propagation","filesystem-isolation-per-tenant"],"hydration_weight":"medium","entrypoint_function":"git_tenant_op","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C5 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"docker-cli-tenant-isolation","canonical_path":"06-PROGRAMMING/bash/docker-cli-tenant-isolation.md","function_human":"Ejecución segura de Docker CLI: user namespace, límites de recursos por contenedor y aislamiento de volúmenes","constraints":["C1","C3","C4","C7"],"dependencies":["resource-limits-ulimit-cgroups","tenant-context-propagation"],"hydration_weight":"medium","entrypoint_function":"docker_tenant_run","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C1,C4 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"verify-constraints-hook","canonical_path":"06-PROGRAMMING/bash/verify-constraints-hook.md","function_human":"Hook de validación de constraints C1-C8: output JSON/JSONL per V-INT-03/V-LOG-02 para CI/CD","constraints":["C1","C3","C4","C5","C6","C7","C8"],"dependencies":["bash-master-agent","orchestrator-engine-bash-port"],"hydration_weight":"light","entrypoint_function":"validate_constraints_artifact","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"audit-secrets-hook","canonical_path":"06-PROGRAMMING/bash/audit-secrets-hook.md","function_human":"Hook de detección de secrets hardcodeados: patrones regex para API keys, passwords y tokens con reporting estructurado","constraints":["C3","C5","C7","C8"],"dependencies":["bash-master-agent","secrets-in-shell-c3"],"hydration_weight":"light","entrypoint_function":"scan_for_hardcoded_secrets","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"check-rls-hook","canonical_path":"06-PROGRAMMING/bash/check-rls-hook.md","function_human":"Hook de validación de aislamiento multi-tenant en SQL: análisis estático de queries para detectar leakage de contexto","constraints":["C4","C5","C8"],"dependencies":["tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"validate_tenant_scope_sql","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"validate-frontmatter-hook","canonical_path":"06-PROGRAMMING/bash/validate-frontmatter-hook.md","function_human":"Hook de validación de frontmatter YAML: schema JSON, campos obligatorios y reporting de errores canónicos","constraints":["C5","C6","C8"],"dependencies":["bash-master-agent","yaml-processing-with-yq"],"hydration_weight":"light","entrypoint_function":"validate_frontmatter_schema","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C6 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"structured-logging-json","canonical_path":"06-PROGRAMMING/bash/structured-logging-json.md","function_human":"Logging estructurado JSON desde shell: campos tenant_id, timestamp, command, status con correlación para Loki/OTel","constraints":["C4","C5","C8"],"dependencies":["bash-master-agent","tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"emit_structured_log","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C8 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"health-check-endpoint","canonical_path":"06-PROGRAMMING/bash/health-check-endpoint.md","function_human":"Endpoint de health check con métricas Prometheus-ready: validación de dependencias y estado de recursos","constraints":["C7","C8"],"dependencies":["bash-master-agent","structured-logging-json"],"hydration_weight":"light","entrypoint_function":"emit_health_metrics","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C7,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"deployment-rollback-safe","canonical_path":"06-PROGRAMMING/bash/deployment-rollback-safe.md","function_human":"Despliegue con validación pre/post: snapshot de estado, verificación de integridad y rollback automático en error","constraints":["C3","C4","C5","C7"],"dependencies":["safe-file-operations","error-handling-traps"],"hydration_weight":"medium","entrypoint_function":"deploy_with_rollback","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C5,C7 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"backup-tenant-scoped","canonical_path":"06-PROGRAMMING/bash/backup-tenant-scoped.md","function_human":"Backup de datos con aislamiento por tenant: verificación de integridad, logging estructurado y cleanup seguro","constraints":["C3","C4","C5","C7"],"dependencies":["filesystem-isolation-per-tenant","structured-logging-json"],"hydration_weight":"medium","entrypoint_function":"backup_tenant_data","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C5 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"bash-unit-test-patterns","canonical_path":"06-PROGRAMMING/bash/bash-unit-test-patterns.md","function_human":"Patrones de testing con bats-core: fixtures aisladas por tenant, mocks de comandos y assertions canónicas","constraints":["C4","C5","C8"],"dependencies":["bash-master-agent","tenant-context-propagation"],"hydration_weight":"light","entrypoint_function":"setup_bats_fixture","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C5,C8 --json","vectorizable":false,"tenant_context_required":false}
+{"artifact_id":"integration-test-fixtures","canonical_path":"06-PROGRAMMING/bash/integration-test-fixtures.md","function_human":"Fixtures de integración con setup/teardown seguro: validación de rutas, aislamiento de estado y rollback automático","constraints":["C3","C4","C7"],"dependencies":["filesystem-isolation-per-tenant","error-handling-traps"],"hydration_weight":"medium","entrypoint_function":"setup_integration_fixture","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C4,C7 --json","vectorizable":false,"tenant_context_required":true}
+{"artifact_id":"fuzzing-inputs-security","canonical_path":"06-PROGRAMMING/bash/fuzzing-inputs-security.md","function_human":"Fuzzing de inputs de script: detección de command injection, path traversal y tenant leakage con reporting estructurado","constraints":["C3","C6","C7","C8"],"dependencies":["safe-variable-expansion","command-audit-logging-c8"],"hydration_weight":"medium","entrypoint_function":"fuzz_input_safe","validation_command":"bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {} --checks C3,C6,C8 --json","vectorizable":false,"tenant_context_required":false}
 ```
+<!-- STACKSELECTOR_JSONL_END -->
 
 ---

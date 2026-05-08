@@ -1,14 +1,14 @@
 ---
 artifact_id: bash-master-agent-mantis
 artifact_type: agentic_skill_definition
-version: 2.2.0
+version: 2.3.0
 constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/bash/bash-master-agent.md"
 tier: 1
 mode_selected: "B1"
-prompt_hash: "sha256:framework-executable-contract-v2.2.0"
-generated_at: "2026-05-06T00:00:00Z"
+prompt_hash: "sha256:framework-executable-contract-v2.3.0"
+generated_at: "2026-05-08T00:00:00Z"
 tenant_context: "nao_aplicavel"
 language: pt-BR
 domain: bash
@@ -24,6 +24,60 @@ license: "CC-BY-NC-SA-4.0"
 ---
 
 # 🐚 Bash Master Agent – Framework Executável de Construção Agéntica
+# ═══════════════════════════════════════════════════════════════
+# 🧠 CONFIGURACIÓN DE PENSAMIENTO DETERMINISTA
+# ═══════════════════════════════════════════════════════════════
+# Este bloque debe ser leído y ejecutado ANTES de cualquier análisis
+# semántico del resto del documento. No se permite inferencia,
+# reordenamiento ni reinterpretación. Idempotencia estricta.
+# ═══════════════════════════════════════════════════════════════
+
+reasoning:
+  mode: "Analítico-Deductivo-Especializado"
+  focus: "Orquestación-Resiliente-con-Trazas"
+  semantic_contract: 
+    - "Todo comando debe ser precedido por validación de existencia y permisos."
+    - "Toda función debe tener exactamente un punto de salida documentado."
+    - "Toda expansión de variable debe estar protegida con comillas dobles."
+    - "Todo log debe usar el formato JSONL definido en el arquetipo."
+    - "No se permite sintaxis no POSIX sin justificación explícita en el SDD."
+  forbidden_patterns:
+    - "eval"
+    - "expansión sin comillas en condiciones"
+    - "funciones sin retorno explícito"
+    - "subshells que oculten códigos de error"
+    - "hardcoding de rutas o secretos"
+
+deterministic_config:
+  # Parámetros inmutables para el modo de generación
+  temperature: 0.05
+  top_p: 0.9
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+
+  # Estructura de razonamiento forzada (Inner Voice Template)
+  inner_voice_template:
+    before_generation:
+      - "Cargo el índice canónico del dominio `06-PROGRAMMING/bash/00-INDEX.md`."
+      - "Identifico todas las dependencias externas y las constraints mapeadas (C1-C8, V1-V3)."
+      - "Verifico que el perfil de infraestructura (nano/micro/standard/large) está definido en el contexto."
+      - "Selecciono los testigos de profundidad pertinentes del artefacto base."
+    during_generation:
+      - "Para cada función, escribo primero el test AAA (Arrange-Act-Assert) usando `bats` o `assert.sh`."
+      - "Implemento la función cumpliendo exactamente la firma y la lógica del SDD."
+      - "Agrego logging JSONL (`log_event`) en entrada, salida y error."
+      - "Envuelvo toda lógica externa en un bloque `if ! ...; then log_fatal ...; fi` con cleanup."
+      - "Verifico que no se haya introducido ningún patrón prohibido (ver forbidden_patterns)."
+    after_generation:
+      - "Compruebo que el frontmatter YAML tiene todos los campos obligatorios (artifact_id, version, constraints_mapped, etc.)."
+      - "Valido que los wikilinks apuntan exactamente a los artefactos reales del dominio."
+      - "Conteo las líneas y comparo con el mínimo exigido por C6-MIN-LINES."
+      - "Si alguna comprobación falla, el artefacto se considera NO IDEMPOTENTE y se rechaza antes del commit."
+
+idempotency_promise: >
+  Cualquier ejecución de este Master Agent con el mismo input (SDD, testigos, constraints, perfil) 
+  producirá exactamente la misma estructura de artefacto, byte a byte, una vez alcanzada la versión canónica.
+  No se permite evolución espontánea ni mejora no controlada.
 
 > **Propósito**: Definir contrato completo para geração, validação e hardening de artefatos Bash no domínio `06-PROGRAMMING/bash/`, alinhado a TDD, VDD, SDD e Harness Norms v3.0. Framework agnóstico para ingestão por qualquer IA (asiática ou ocidental) via IDE, CLI ou orchestrator.
 >
@@ -79,7 +133,7 @@ raw_urls_index:
 governance_urls:
   root_index: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/00-INDEX.md"
   core_context: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/mantis-core-context.md"
-  norms_matrix: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/norms-matrix.json"
+  norms_matrix: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main05-CONFIGURATIONS/validation/norms-matrix.json"
   constraints: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/10-SDD-CONSTRAINTS.md"
   hardening: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md"
   orchestrator: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine/main.go"
@@ -125,6 +179,65 @@ bash 05-CONFIGURATIONS/scripts/verify-raw-urls.sh \
 # 3. Aguardar atualização manual ou auto-sync aprovado por governance
 # 4. Registrar incidente em CHRONICLE.md com hash divergente
 ```
+
+---
+
+# 🧩 MÓDULO DE CONSULTA STACKSELECTOR 
+
+## 🧭 Stackselector Query Module
+<!-- STACKSELECTOR_INTEGRATION_START -->
+```bash
+# query_stackselector: Extrae y filtra entradas del stackselector en 00-INDEX.md
+# Uso: query_stackselector [--id|--keyword|--constraints] <valor> [json|jsonl|ids]
+query_stackselector() {
+  local mode="${1:---all}"
+  local value="${2:-}"
+  local fmt="${3:-json}"
+  local idx="${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/00-INDEX.md"
+
+  [[ -f "$idx" ]] || { mantis_log "ERROR" "stackselector_index_missing" "Ruta: $idx"; return 1; }
+  [[ -x "$(command -v jq)" ]] || { mantis_log "ERROR" "jq_missing" "Requerido para parseo JSONL"; return 1; }
+
+  local raw
+  raw=$(sed -n '/<!-- STACKSELECTOR_JSONL_START -->/,/<!-- STACKSELECTOR_JSONL_END -->/p' "$idx" | grep -v '^<!--' | grep -v '^[[:space:]]*$')
+  [[ -n "$raw" ]] || { mantis_log "WARN" "stackselector_empty" "Bloque JSONL vacío en índice"; return 1; }
+
+  local result
+  case "$mode" in
+    --id)         result=$(echo "$raw" | jq -c --arg v "$value" 'select(.artifact_id == $v)') ;;
+    --keyword)    result=$(echo "$raw" | jq -c --arg v "$value" 'select((.function_human // "" | ascii_downcase | contains($v | ascii_downcase)) or (.artifact_id | ascii_downcase | contains($v | ascii_downcase)))') ;;
+    --constraints) IFS=',' read -ra c <<< "$value"; local arr; arr=$(printf '%s\n' "${c[@]}" | jq -R . | jq -s .); result=$(echo "$raw" | jq -c --argjson req "$arr" 'select((.constraints // []) | contains($req))') ;;
+    *)            result="$raw" ;;
+  esac
+
+  [[ -n "$result" ]] || { mantis_log "DEBUG" "stackselector_no_match" "Sin resultados para $mode=$value"; return 0; }
+
+  case "$fmt" in
+    jsonl) echo "$result" ;;
+    json)  echo "$result" | jq -s '.' ;;
+    ids)   echo "$result" | jq -r '.artifact_id' ;;
+    *)     echo "$result" ;;
+  esac
+  return 0
+}
+```
+<!-- STACKSELECTOR_INTEGRATION_END -->
+
+---
+
+### 📖 Uso contractually bounded
+
+```bash
+# 1. Buscar por ID exacto (retorna JSON array)
+query_stackselector --id "curl-with-tenant-headers" json
+
+# 2. Buscar por palabra clave en function_human (retorna JSONL crudo)
+query_stackselector --keyword "retry" jsonl
+
+# 3. Filtrar por constraints requeridos (retorna lista de IDs para hidratación)
+query_stackselector --constraints "C3,C4,C7" ids
+```
+> ⚠️ **Nota de integración**: Este módulo consume `mantis_log()` ya definida en el bootstrap del master agent. Si se ejecuta en aislamiento, fallback graceful a `stderr`.
 
 ---
 
@@ -402,7 +515,7 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 - [[01-RULES/harness-norms-v3.0.md]] ← Especificação de hardening
 - [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição das constraints C1-C8
 - [[01-RULES/language-lock-protocol.md]] ← Protocolo de handoff entre domínios
-- [[00-CONTEXT/norms-matrix.json]] ← Fonte de verdade para constraints
+- [[05-CONFIGURATIONS/validation/norms-matrix.json]] ← Fonte de verdade para constraints
 
 ## 📝 Histórico de Revisões (Para CHRONICLE.md Integration)
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
@@ -882,6 +995,6 @@ CONSTRAINTS=$(grep "^constraints_mapped:" bash-master-agent.md | sed 's/.*\[\(.*
 ---
 
 *Documento sob licença Creative Commons CC-BY-NC-SA-4.0 para uso interno do projeto MANTIS Agentic.*  
-*Última revisão: 2026-05-06T00:00:00Z | Próxima revisão programada: 2026-06-01*  
+*Última revisão: 2026-05-08T00:00:00Z | Próxima revisão programada: 2026-06-08*  
 *🔗 Raw URL para IA: https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/bash/bash-master-agent.md*  
 *🧭 Este documento É o framework: copiar estrutura, não interpretar. Contrato precede código.*

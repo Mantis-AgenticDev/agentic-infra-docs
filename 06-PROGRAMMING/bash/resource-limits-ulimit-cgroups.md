@@ -2,7 +2,7 @@
 artifact_id: resource-limits-ulimit-cgroups
 artifact_type: bash_utility
 version: 1.0.0
-constraints_mapped: ["C1","C7"]
+constraints_mapped: ["C1","C7", "C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/bash/resource-limits-ulimit-cgroups.md"
 tier: 2
