@@ -1,253 +1,322 @@
-# SHA256: 1d8e4f2a9c7b3e5d0f6a9b2c8e1f4a7d3c6b9e2f5a8c1b4d7e0a3f6c9b2d5e8f
 ---
-artifact_id: "similarity-explanation-templates.pgvector"
-artifact_type: "skill_pgvector"
-version: "3.0.0"
-constraints_mapped: ["C8","V2"]
-validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md --json"
+artifact_id: similarity-explanation-templates-pgvector
+artifact_type: pgvector_pattern
+version: "3.1.0"
+constraints_mapped: ["C4","C8","V1","V2"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:similarity-explanation-v3.1.0-modular"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "postgresql-pgvector"
+ai_navigation:
+  read_first: false
+  required_for: [rag-debugging, semantic-diagnostics, model-evaluation, user-explainability]
+  update_frequency: on-change
+audience: ["postgresql-pgvector-master-agent", "data-scientists", "backend-engineers"]
+status: "🟡 Refatorado"
+next_review: "2026-06-09"
+checksum_sha256: "pending-generation"
+vector_meta:
+  dimensions: 1536
+  model: "text-embedding-3-small"
+  metric: "cosine"
+  index_type: "hnsw"
 ---
 
-# 📊 Similarity Explanation Templates & Distance Logging (C8, V2)
+# 📝 Templates de Explicação e Debugging de Similaridade (pgvector)
 
-## Propósito
-Patrones de trazabilidad y explicabilidad para búsquedas vectoriales: logging estructurado de distancias/similitudes (C8), documentación explícita de métricas de distancia (V2), y generación de metadatos explicativos para auditoría RAG. Facilita debugging, calibración de umbrales y cumplimiento de gobernanza de IA.
+> **Contrato modular**: Este artefato é filho do Master Agent `postgresql-pgvector-rag-master-agent-mantis`.
+> Herda hardening, observability, thinking system e constraints via source/import.
+> Contém APENAS a lógica de diagnóstico e explicabilidade para resultados de busca vetorial: ranking, cálculo explícito de distância cosine (V2), isolador de tenant (C4) e mensagens interpretáveis para engenharia e usuários finais (C8).
 
-## Patrones de Código Validados
+---
 
-```sql
--- ✅ C8/V2: Log estructurado de distancia cosine con tenant y umbral
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'ts', now(), 'tenant', current_setting('app.tenant_id'),
-  'metric', 'cosine', 'distance', 0.18, 'threshold', 0.25 ); END $$;
-```
+## 🎯 Propósito
+Fornecer funções SQL reutilizáveis para explicar *por que* um documento foi recuperado em busca vetorial: calcula distância cosine real (`<=>`), converte em porcentagem de confiança, atribui rótulos diagnósticos baseados em limiares e valida dimensionalidade (V1). Projetado para debugging de pipelines RAG, avaliação de qualidade de embedding e transparência para usuários enterprise.
 
-```sql
--- ❌ Anti-pattern: Log sin métrica explícita → imposible auditar criterio V2
-RAISE NOTICE 'Distancia: 0.18, tenant: %', current_setting('app.tenant_id');
--- 🔧 Fix: json_build_object() con campos 'metric', 'distance', 'threshold'
-```
+## 📋 Especificação (SDD – Apenas o Específico deste Módulo)
+- **Entradas**: `p_query_vec` (vector(1536)), `p_tenant_id` (uuid), `p_limit` (int)
+- **Saídas**: Tabela com `rank`, `doc_id`, `content_snippet`, `cosine_distance`, `confidence_pct`, `diagnostic_label`
+- **Side Effects**: Apenas leitura e logging C8; nenhuma modificação de dados ou índices
+- **Constraints Aplicáveis**: C4, C8, V1, V2
+- **Dependências**: PostgreSQL 15+, `pgvector >= 0.7.0`, tabela `documents` e `document_embeddings`, `mantis_log()` herdada
 
-```sql
--- ✅ C8/V2: Registrar similitud inner product con signo invertido
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'ts', now(), 'metric', 'dot_product', 'similarity', 0.82, 'raw_score', -0.82 ); END $$;
-```
+---
+
+## 🛡️ Bootstrap Resiliente + Lógica de Domínio (C4+C8+V1+V2)
 
 ```sql
--- ❌ Anti-pattern: Registrar score crudo sin normalización → confusión en app layer
-RAISE NOTICE 'Score: %', -0.82; -- ¿Distancia o similitud?
--- 🔧 Fix: Documentar conversión explícita V2 + loguear similitud calculada C8
+-- Bootstrap modular: source Master Agent OU fallback mínimo
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'mantis_log') THEN
+    PERFORM mantis_log('INFO', 'module_bootstrap', 'similarity-explanation-templates: Master agent available');
+  ELSE
+    RAISE LOG '%', json_build_object(
+      'timestamp', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
+      'level', 'WARN',
+      'resource', json_build_object('tenant_id', current_setting('app.current_tenant', true), 'artifact', 'similarity-explanation-templates'),
+      'body', json_build_object('event', 'bootstrap_fallback', 'detail', 'mantis_log() not found'),
+      'attributes', json_build_object('fallback', 'true')
+    );
+  END IF;
+END $$;
+
+-- C4: Validar contexto de tenant obrigatório
+DO $$
+BEGIN
+  IF current_setting('app.current_tenant', true) IS NULL THEN
+    RAISE EXCEPTION 'C4: app.current_tenant não configurado.';
+  END IF;
+END $$;
+
+-- C1: Limites de recursos para funções de diagnóstico
+SET LOCAL statement_timeout = '8s';
+SET LOCAL work_mem = '64MB';
 ```
+
+---
+
+## ✅ V1 + V2 + C4: Função Principal de Explicação de Similaridade
 
 ```sql
--- ✅ V2/C8: Explicabilidad: retornar top-k con distancia y metadato contextual
-SELECT id, title, (vec <=> $q) AS cosine_dist
-FROM embeddings WHERE tenant_id = current_setting('app.tenant_id')
-ORDER BY cosine_dist LIMIT 3;
+-- ✅ Explicação detalhada de resultados vetoriais com métrica documentada e rótulos diagnósticos
+CREATE OR REPLACE FUNCTION explain_similarity_results(
+  p_query_vec vector(1536),  -- ✅ V1: dimensão explícita no tipo
+  p_tenant_id uuid,
+  p_limit int DEFAULT 5
+) RETURNS TABLE(
+  rank int,
+  doc_id uuid,
+  content_snippet text,
+  cosine_distance float,     -- ✅ V2: métrica explícita
+  confidence_pct int,
+  diagnostic_label text
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  -- ✅ C4+V2: Ordenamento por distância cosine + conversão para % de confiança
+  RETURN QUERY
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY de.embedding <=> p_query_vec)::int AS rank,
+    d.id AS doc_id,
+    LEFT(d.content, 250) || '...' AS content_snippet,
+    (de.embedding <=> p_query_vec)::float AS cosine_distance,  -- ✅ V2: operador documentado
+    ((1.0 - (de.embedding <=> p_query_vec)) * 100)::int AS confidence_pct,
+    CASE
+      WHEN 1.0 - (de.embedding <=> p_query_vec) >= 0.85 THEN '🟢 Alta relevância semântica (match forte)'
+      WHEN 1.0 - (de.embedding <=> p_query_vec) >= 0.70 THEN '🟡 Relevância moderada (verificar contexto)'
+      WHEN 1.0 - (de.embedding <=> p_query_vec) >= 0.55 THEN '🟠 Similaridade baixa (possível ruído ou vocabulário divergente)'
+      ELSE '🔴 Baixa confiança (recomendado: ajustar query ou modelo)'
+    END AS diagnostic_label
+  FROM document_embeddings de
+  JOIN documents d ON de.doc_id = d.id
+  WHERE de.tenant_id = p_tenant_id  -- ✅ C4: filtro obrigatório
+  ORDER BY de.embedding <=> p_query_vec  -- ✅ V2: ordenamento explícito
+  LIMIT p_limit;
+
+  -- C8: Logging da execução de diagnóstico
+  PERFORM mantis_log('INFO', 'explain_similarity_completed', 
+    format('limit=%s, tenant=%s', p_limit, p_tenant_id));
+EXCEPTION WHEN OTHERS THEN
+  PERFORM mantis_log('ERROR', 'explain_similarity_failed', sanitize_error_message(SQLERRM));
+  RAISE;
+END;
+$$;
 ```
+
+---
+
+## ✅ C8 + V2: Template de Diagnóstico para Comparação de Métricas
 
 ```sql
--- ❌ Anti-pattern: Retornar solo IDs sin métrica → sin base para explicación
-SELECT id FROM embeddings WHERE tenant_id = $1 ORDER BY vec <=> $q LIMIT 3;
--- 🔧 Fix: Incluir columna calculada de distancia en SELECT para trazabilidad V2
+-- ✅ Comparador de métricas para debugging: mostra como o mesmo par de vetores se comporta em cosine, euclidean e inner product
+-- Uso: Avaliar qual métrica é mais adequada para o domínio de embedding atual
+CREATE OR REPLACE FUNCTION compare_vector_metrics(
+  p_vec_a vector(1536),
+  p_vec_b vector(1536)
+) RETURNS TABLE(metric_name text, raw_distance float, similarity_score float, interpretation text)
+LANGUAGE plpgsql
+IMMUTABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  -- V1: Guard de dimensionalidade
+  IF array_length(p_vec_a, 1) IS DISTINCT FROM array_length(p_vec_b, 1) THEN
+    RAISE EXCEPTION 'V1: Vector dimension mismatch in metric comparison';
+  END IF;
+
+  -- Cosine
+  metric_name := 'cosine (<=>)';
+  raw_distance := (p_vec_a <=> p_vec_b)::float;
+  similarity_score := (1.0 - raw_distance);
+  interpretation := CASE WHEN similarity_score > 0.8 THEN 'Alta similaridade direcional' ELSE 'Divergência semântica detectada' END;
+  RETURN NEXT;
+
+  -- Euclidean (L2)
+  metric_name := 'euclidean (<->)';
+  raw_distance := (p_vec_a <-> p_vec_b)::float;
+  similarity_score := 1.0 / (1.0 + raw_distance);  -- Normalização para [0,1]
+  interpretation := CASE WHEN raw_distance < 0.5 THEN 'Vetores próximos no espaço euclidiano' ELSE 'Distância geométrica significativa' END;
+  RETURN NEXT;
+
+  -- Inner Product
+  metric_name := 'inner_product (<#>)';
+  raw_distance := (p_vec_a <#> p_vec_b)::float;
+  similarity_score := CASE WHEN raw_distance > 0 THEN raw_distance ELSE 0 END;
+  interpretation := CASE WHEN similarity_score > 0.7 THEN 'Alinhamento vetorial forte (útil para busca não normalizada)' ELSE 'Projeção fraca' END;
+  RETURN NEXT;
+
+  -- C8: Logging da comparação
+  PERFORM mantis_log('INFO', 'metrics_comparison_completed', 
+    format('cosine_dist=%.4f, l2_dist=%.4f, ip_score=%.4f', 
+      (p_vec_a <=> p_vec_b)::float, (p_vec_a <-> p_vec_b)::float, (p_vec_a <#> p_vec_b)::float));
+END;
+$$;
 ```
+
+---
+
+## ✅ C4: Auditoria de Resultados para Engenharia de Prompt/Modelo
 
 ```sql
--- ✅ C8: Log de distribución de distancias para calibración de umbral
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'min_dist', 0.12, 'max_dist', 0.41, 'avg_dist', 0.23, 'count', 50 ); END $$;
+-- ✅ Função para agregar estatísticas de confiança por tenant em janela de tempo
+-- Uso: Identificar degradação de qualidade de embedding ou drift de modelo
+CREATE OR REPLACE FUNCTION audit_similarity_confidence_window(
+  p_tenant_id uuid,
+  p_hours_back int DEFAULT 24
+) RETURNS TABLE(
+  window_start timestamptz,
+  window_end timestamptz,
+  avg_confidence float,
+  p95_confidence float,
+  low_confidence_ratio float,
+  total_queries int
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    date_trunc('hour', created_at) AS window_start,
+    date_trunc('hour', created_at) + INTERVAL '1 hour' AS window_end,
+    AVG(confidence_avg) AS avg_confidence,
+    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY confidence_avg) AS p95_confidence,
+    SUM(CASE WHEN confidence_avg < 0.65 THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0) AS low_confidence_ratio,
+    COUNT(*) AS total_queries
+  FROM rag_audit_log
+  WHERE tenant_id = p_tenant_id  -- ✅ C4
+    AND created_at >= now() - (p_hours_back || ' hours')::INTERVAL
+  GROUP BY 1, 2
+  ORDER BY 1 DESC;
+
+  PERFORM mantis_log('INFO', 'confidence_window_audit_completed', 
+    format('tenant=%s, hours=%s', p_tenant_id, p_hours_back));
+EXCEPTION WHEN OTHERS THEN
+  PERFORM mantis_log('ERROR', 'confidence_window_audit_failed', sanitize_error_message(SQLERRM));
+  RETURN;
+END;
+$$;
 ```
+
+---
+
+## 🧪 Testes Unitários (TDD – Apenas para a Lógica Específica)
 
 ```sql
--- ❌ Anti-pattern: Sin estadísticas de distribución → umbral arbitrario
--- app: threshold = 0.3; // hardcoded sin métricas poblacionales
--- 🔧 Fix: Calcular min/max/avg en DB + loguear para ajuste iterativo C8
+-- Test: explain_similarity_filters_by_tenant
+-- Constraint: C4
+BEGIN;
+SELECT plan(2);
+
+SET LOCAL app.current_tenant = '00000000-0000-0000-0000-000000000001';
+-- Arrange: inserir embeddings mock para tenants 1 e 2
+-- Act: executar explain_similarity_results com tenant 1
+-- Assert: zero linhas com tenant_id != tenant 1
+-- SELECT is((SELECT COUNT(*) FROM explain_similarity_results('[0.1]'::vector(1536), '00000000-0000-0000-0000-000000000002')), 0, 'C4: tenant isolation intact');
+
+SELECT * FROM finish();
+ROLLBACK;
+
+-- Test: compare_vector_metrics_returns_all_three
+-- Constraint: V2
+DO $$
+DECLARE v_count int;
+BEGIN
+  SELECT COUNT(*) INTO v_count FROM compare_vector_metrics('[0.1,0.2]'::vector(2), '[0.1,0.2]'::vector(2));
+  ASSERT v_count = 3, 'V2: deve retornar cosine, euclidean e inner_product';
+END $$;
+
+-- Test: diagnostic_labels_map_confidence_thresholds
+-- Constraint: C8
+DO $$
+DECLARE v_label text;
+BEGIN
+  -- Mock: vetor idêntico → cosine_distance=0 → confidence=100%
+  SELECT diagnostic_label INTO v_label 
+  FROM explain_similarity_results('[0.5,0.5]'::vector(2), '00000000-0000-0000-0000-000000000001', limit:=1)
+  LIMIT 1;  -- (Em teste real: usar fixtures com distância controlada)
+  
+  ASSERT v_label IS NOT NULL, 'C8: rótulo diagnóstico deve ser gerado';
+END $$;
 ```
 
-```sql
--- ✅ V2/C8: Log de índice utilizado vía EXPLAIN para trazabilidad de rendimiento
-EXPLAIN (FORMAT JSON) SELECT vec <=> $q FROM embeddings LIMIT 1;
--- Parsear JSON output para extraer 'Plan Type': 'Index Scan' + index name
-```
+---
 
-```sql
--- ❌ Anti-pattern: Asumir uso de HNSW sin verificar → fallback a seq scan no registrado
--- db: query runs slow -> no log of actual execution plan
--- 🔧 Fix: Capturar EXPLAIN JSON + loguear 'index_used' para auditoría V2/C8
-```
+## 🔍 Validação (VDD – Comando Canônico)
 
-```sql
--- ✅ C8: Log de fallback a keyword con razón explícita de distancia alta
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'event', 'rag_fallback', 'reason', 'cosine_dist > 0.35',
-  'metric', 'cosine', 'threshold', 0.35 ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Fallback silencioso → degradación de calidad no explicada
-IF results IS NULL THEN RETURN keyword_results(); END IF;
--- 🔧 Fix: RAISE NOTICE con 'event' y 'reason' explícitos antes de fallback C8
-```
-
-```sql
--- ✅ V2/C8: Comparación explícita cosine vs L2 para mismo query
-SELECT id, (vec <=> $q) AS cos_dist, (vec <-> $q) AS l2_dist
-FROM embeddings WHERE tenant_id = current_setting('app.tenant_id') LIMIT 5;
-```
-
-```sql
--- ❌ Anti-pattern: Usar métricas inconsistentes sin registro → explicabilidad rota
-ORDER BY vec <=> $q; -- luego en otra query: vec <-> $q
--- 🔧 Fix: Retornar ambas distancias + loguear métrica activa para debugging V2
-```
-
-```sql
--- ✅ C8: Log de hash de query vector para reproducibilidad de resultados
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'query_hash', digest($q::text::bytea, 'sha256'), 'metric', 'cosine', 'top1_dist', 0.11 ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Sin hash de query → imposible reproducir o auditar sesión RAG
--- app: log("query executed") // sin fingerprint vectorial
--- 🔧 Fix: digest() del vector serializado + log C8 para trazabilidad exacta
-```
-
-```sql
--- ✅ V2/C8: Explicabilidad: percentil de distancia en conjunto de resultados
-WITH scores AS (SELECT (vec <=> $q) AS d FROM embeddings WHERE tenant_id = current_setting('app.tenant_id'))
-SELECT percentile_cont(0.95) WITHIN GROUP (ORDER BY d) AS p95_dist FROM scores;
-```
-
-```sql
--- ❌ Anti-pattern: Sin contexto percentil → resultado outlier parece normal
-SELECT (vec <=> $q) AS dist FROM embeddings LIMIT 1; // 0.89 parece alto sin referencia
--- 🔧 Fix: Calcular percentil + loguear como 'contextual_rarity' C8/V2
-```
-
-```sql
--- ✅ C8: Log de latencia + distancia para correlación SLO/calidad
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'latency_ms', 42, 'metric', 'dot', 'similarity', 0.76, 'tenant', current_setting('app.tenant_id') ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Métricas separadas → imposible correlacionar rendimiento vs precisión
--- app: log_latency(42); log_similarity(0.76); // eventos desacoplados
--- 🔧 Fix: Un solo JSON con latencia y métrica V2 para análisis C8 integrado
-```
-
-```sql
--- ✅ V2/C8: Explicabilidad: conversión distancia→similitud documentada en log
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'formula', '1 - cosine_distance', 'input_dist', 0.24, 'output_sim', 0.76 ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Similitud mágica sin fórmula explícita → app asume escala errónea
-sim = 1 - dist; // sin registro de transformación V2
--- 🔧 Fix: Loguear 'formula' y valores pre/post para auditabilidad C8/V2
-```
-
-```sql
--- ✅ C8: Log de resultados rechazados por umbral para explicar omisiones
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'rejected_count', 12, 'threshold', 0.3, 'metric', 'cosine', 'reason', 'low_similarity' ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Solo loguear éxitos → usuarios preguntan "¿por qué no X?"
-// logs show only top 3, no trace of filtered items
--- 🔧 Fix: Contar y loguear 'rejected_count' con umbral aplicado C8
-```
-
-```sql
--- ✅ V2/C8: Transacción completa con logging explicativo y bounds
-BEGIN; SET LOCAL statement_timeout='2s';
-WITH res AS (SELECT id, (vec <=> $q) AS d FROM embeddings WHERE tenant_id = current_setting('app.tenant_id') ORDER BY d LIMIT 5)
-SELECT id, d FROM res;
-COMMIT; -- Post-exec: RAISE NOTICE json con min/max/avg distances C8
-```
-
-```sql
--- ❌ Anti-pattern: Query sin contexto explicativo → caja negra para auditoría
-SELECT id FROM embeddings ORDER BY vec <=> $1 LIMIT 5; // sin log, sin bounds
--- 🔧 Fix: Envolver en transacción + loguear métricas V2 post-ejecución C8
-```
-
-```sql
--- ✅ C8/V2: Explicabilidad: ranking relativo con delta entre posiciones
-SELECT id, (vec <=> $q) AS dist, LAG((vec <=> $q)) OVER (ORDER BY vec <=> $q) AS prev_dist,
-       (vec <=> $q) - LAG((vec <=> $q)) OVER (ORDER BY vec <=> $q) AS delta
-FROM embeddings WHERE tenant_id = current_setting('app.tenant_id') LIMIT 5;
-```
-
-```sql
--- ❌ Anti-pattern: Ranking plano sin deltas → imposible detectar clusters o gaps
-SELECT id, (vec <=> $q) AS dist FROM embeddings ORDER BY dist LIMIT 5;
--- 🔧 Fix: Window function LAG() + delta para explicar saltos de relevancia C8/V2
-```
-
-```sql
--- ✅ C8: Log de normalización vectorial aplicada pre-búsqueda
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'pre_norm', false, 'metric', 'cosine', 'applied_normalization', 'unit_vector', 'tenant', current_setting('app.tenant_id') ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Asumir normalización sin registro → scores incomparables entre tenants
-vec <=> $q; // sin verificar si vectores están normalizados V2
--- 🔧 Fix: Loguear estado de normalización explícitamente para consistencia C8
-```
-
-```sql
--- ✅ V2/C8: Explicabilidad: score calibrado por historial de tenant
-SELECT id, (vec <=> $q) AS raw_dist, 
-       c.calibration_factor * (vec <=> $q) AS calibrated_dist
-FROM embeddings e JOIN tenant_config c ON e.tenant_id = c.tenant_id
-WHERE e.tenant_id = current_setting('app.tenant_id') LIMIT 5;
-```
-
-```sql
--- ❌ Anti-pattern: Score crudo sin calibración → bias por densidad de datos tenant
-ORDER BY vec <=> $q; // tenant A tiene 10k docs, B tiene 100 -> comparación inválida
--- 🔧 Fix: JOIN con calibration_factor + loguear 'raw' vs 'calibrated' C8/V2
-```
-
-```sql
--- ✅ C8: Log de métrica multi-tenant para A/B testing de modelos
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'model_version', 'v2.1', 'metric', 'cosine', 'avg_dist', 0.21, 'p_value', 0.04 ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Sin versión de modelo en logs → imposible rastrear degradación
-// app logs results but not which embedding model generated vectors
--- 🔧 Fix: Incluir 'model_version' + métricas V2 en log C8 para trazabilidad ML
-```
-
-```sql
--- ✅ C8/V2: Explicabilidad final: resumen JSON de sesión RAG completa
-DO $$ BEGIN RAISE NOTICE '%', json_build_object(
-  'session_id', $sid, 'metric', 'cosine', 'results_returned', 3,
-  'min_conf', 0.76, 'max_conf', 0.91, 'fallback_used', false ); END $$;
-```
-
-```sql
--- ❌ Anti-pattern: Logs fragmentados → reconstrucción manual de sesión RAG
-// multiple RAISE NOTICE scattered across functions, no session correlation
--- 🔧 Fix: Single summary JSON at end of workflow con todos los campos C8/V2
-```
-
-## Validation Command
 ```bash
-bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md --json 2>/dev/null | awk '/^\{/,/^\}/' | jq -e '.score >= 30 and .blocking_issues == []'
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/postgresql-pgvector/similarity-explanation-templates.pgvector.md \
+  --json \
+  --check-structural \
+  --check-error-handling \
+  --check-observability \
+  --check-vector-constraints
 ```
 
-## Auto-Validation Report (JSON)
-```json
-{"artifact":"similarity-explanation-templates.pgvector","version":"3.0.0","score":45,"blocking_issues":[],"constraints_verified":["C8","V2"],"examples_count":25,"lines_executable_max":5,"language":"PostgreSQL 14+ pgvector","timestamp":"2026-04-19T00:00:00Z"}
-```
+---
 
+## 🔗 Referências Cruzadas (Wikilinks Mínimos)
+- [[postgresql-pgvector-rag-master-agent.md]] ← Fonte de hardening, observability, constraints
+- [[/05-CONFIGURATIONS/validation/orchestrator-engine/main.go]] ← Motor de validação
+- [[/05-CONFIGURATIONS/validation/norms-matrix.json]] ← Mapeamento constraints por rota ✅ CORREGIDO
+- [[/05-CONFIGURATIONS/observability/00-INDEX.md]] ← Infraestrutura de logs
+- [[01-RULES/harness-norms-v3.0.md]] ← Definição formal de C1-C8
+- [[01-RULES/language-lock-protocol.md]] ← Protocolo de isolamento de operadores
+
+---
+
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
+|--------|------|-------|------------------|---------------------|
+| 3.0.0 | 2026-04-19 | PostgreSQL-PgVector Master Agent | Criação inicial: diagnóstico de similaridade, rótulos de confiança, logging C8 | C8,V2 |
+| 3.1.0-MODULAR | 2026-05-09 | PostgreSQL-PgVector Master Agent | Refatoração modular: bootstrap resiliente, mantis_log() herdada, V1/V2 explícitos, C4 tenant filter obrigatório, comparador de métricas, auditoria de janela, wikilink corrigido | C4,C8,V1,V2 |
+
+---
+## 🔍 Observability (Documentación para IA – Apenas Eventos Específicos)
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `module_bootstrap` | INFO | C8 | `"Master agent available"` ou `"fallback: mantis_log() not found"` |
+| `explain_similarity_completed` | INFO | C8 | `"limit=5, tenant=uuid"` |
+| `metrics_comparison_completed` | INFO | V2,C8 | `"cosine_dist=0.0412, l2_dist=0.1100, ip_score=0.9588"` |
+| `confidence_window_audit_completed` | INFO | C4,C8 | `"tenant=uuid, hours=24"` |
+| `explain_similarity_failed` | ERROR | C8 | `"sanitized_error_message"` |
+
+### Validação de Schema V-LOG-02 (Helper Mínimo)
+```sql
+-- Executar em teste: SELECT validate_vlog02('{"timestamp":"2026-05-09T00:00:00Z","level":"INFO","resource":{"tenant_id":"uuid"},"body":{"event":"explain_similarity_completed"}}');
+-- Retorno esperado: t (true) se schema válido, f (false) caso contrário
+-- Função herdada do Master Agent; este módulo apenas a invoca
+```
 ---
