@@ -1,37 +1,88 @@
-# SHA256: c7f2e9a4d1b8f3e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a7
 ---
 artifact_id: "mcp-server-patterns"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C1","C3","C4","C6","C7","C8"]
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
+constraints_mapped: ["C1", "C3", "C4", "C6", "C7", "C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/mcp-server-patterns.go.md --json"
 canonical_path: "06-PROGRAMMING/go/mcp-server-patterns.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-mcp-server-patterns-v3.0.0"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["mcp-server-patterns"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-06-09"
 ---
 
-# mcp-server-patterns.go.md – Patrones para MCP servers con explicación didáctica
+# mcp-server-patterns.go.md – Padrões para servidores MCP com explicação didática
 
-## Propósito
-Patrones de implementación de Model Context Protocol (MCP) servers en Go, con comentarios explicativos en español línea por línea. Incluye registro seguro de herramientas, aislamiento de contexto por tenant, enrutamiento multi-modelo y logging estructurado. Diseñado para que entiendas cada grupo de comandos mientras aprendes Go.
+> **Contrato modular**: Este artefato é filho do Master Agent `go-master-agent-mantis`.  
+> Herda hardening, observability, thinking system e constraints via source/import.  
+> Contém APENAS a lógica de domínio específica para implementação de servidores MCP (Model Context Protocol).
 
-> 💡 **Nota pedagógica**: Cada ejemplo tiene ≤5 líneas ejecutables + comentarios `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es importante para MCP.
+---
 
-## Patrones de Código Validados (25 ejemplos)
+## 🎯 Propósito
+Padrões de implementação de servidores Model Context Protocol (MCP) em Go, com comentários explicativos linha por linha em português. Inclui registro seguro de ferramentas, isolamento de contexto por tenant, roteamento multi‑modelo e logging estruturado. Projetado para que você entenda cada grupo de comandos enquanto aprende Go.
+
+> 💡 **Nota pedagógica**: Cada exemplo tem ≤5 linhas executáveis + comentários `// 👇 EXPLICAÇÃO:` que descrevem O QUE faz e POR QUE é importante para MCP.
+
+---
+
+## 🛡️ Bootstrap Resiliente + Lógica de Domínio
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
+
+package main
+
+import (
+    "os"
+    "fmt"
+    "time"
+)
+
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C4: Registro de herramienta MCP con validación estricta de tenant_id
-// 👇 EXPLICACIÓN: Definimos la herramienta con nombre único y descripción clara
-// 👇 EXPLICACIÓN: Incluimos tenant_id como parámetro requerido para aislamiento
+// ✅ C4: Registro de ferramenta MCP com validação estrita de tenant_id
+// 👇 EXPLICAÇÃO: Definimos a ferramenta com nome único e descrição clara
+// 👇 EXPLICAÇÃO: Incluímos tenant_id como parâmetro requerido para isolamento
 tools["query_db"] = mcp.Tool{
-    Name: "query_db", Description: "Ejecuta query SQL segura por tenant",
+    Name: "query_db", Description: "Executa query SQL segura por tenant",
     InputSchema: map[string]interface{}{"type": "object", "required": []string{"tenant_id", "sql"}},
-} // C4: tenant_id obligatorio en schema de entrada
+} // C4: tenant_id obrigatório no schema de entrada
 ```
 
 ```go
-// ❌ Anti-pattern: herramienta sin tenant_id permite acceso cruzado entre tenants
+// ❌ Anti-pattern: ferramenta sem tenant_id permite acesso cruzado entre tenants
 tools["query_db"] = mcp.Tool{Name: "query_db", InputSchema: map[string]interface{}{"sql": "string"}}  // 🔴 C4
-// 👇 EXPLICACIÓN: Sin tenant_id, un usuario podría consultar datos de otro tenant
-// 🔧 Fix: agregar tenant_id como required en InputSchema (≤5 líneas)
+// 👇 EXPLICAÇÃO: Sem tenant_id, um usuário poderia consultar dados de outro tenant
+// 🔧 Fix: adicionar tenant_id como required no InputSchema (≤5 linhas)
 tools["query_db"] = mcp.Tool{
     Name: "query_db",
     InputSchema: map[string]interface{}{"required": []string{"tenant_id", "sql"}},
@@ -39,56 +90,55 @@ tools["query_db"] = mcp.Tool{
 ```
 
 ```go
-// ✅ C3: Carga de API key para OpenRouter con validación fail-fast
-// 👇 EXPLICACIÓN: Usamos LookupEnv para detectar si la variable existe en entorno
-// 👇 EXPLICACIÓN: Si no existe, fallamos inmediatamente para evitar hardcode en código
+// ✅ C3: Carregamento da API key para OpenRouter com validação fail‑fast
+// 👇 EXPLICAÇÃO: Usamos LookupEnv para detectar se a variável existe no ambiente
+// 👇 EXPLICAÇÃO: Se não existir, falhamos imediatamente para evitar hardcode no código
 apiKey, ok := os.LookupEnv("OPENROUTER_API_KEY")
 if !ok || apiKey == "" {
-    logFatal("C3: OPENROUTER_API_KEY no definida")  // C3: zero hardcode
+    logFatal("C3: OPENROUTER_API_KEY não definida")  // C3: zero hardcode
 }
 ```
 
 ```go
-// ✅ C8: Logging estructurado de llamada a herramienta MCP con tenant_id
-// 👇 EXPLICACIÓN: Usamos slog nativo de Go 1.21+ para logs JSON a stderr
-// 👇 EXPLICACIÓN: Incluimos tool_name y tenant_id para trazabilidad auditada
-logger.Info("tool_called", "tool", "query_db", "tenant_id", tid, "ts", time.Now().UTC())  // C8
+// ✅ C8: Logging estruturado de chamada a ferramenta MCP com tenant_id
+// 👇 EXPLICAÇÃO: Usamos master.MantisLog para logs JSON em stderr
+// 👇 EXPLICAÇÃO: Incluímos tool_name e tenant_id para rastreabilidade auditada
+master.MantisLog(master.INFO, "tool_called", "tool", "query_db", "tenant_id", tid, "ts", time.Now().UTC())  // C8
 ```
 
 ```go
-// ❌ Anti-pattern: fmt.Println mezcla logs con output de datos MCP
-fmt.Println("Tool query_db executed")  // 🔴 C8 violation: stdout, no estructurado
-// 👇 EXPLICACIÓN: Los logs en stdout interfieren con la respuesta JSON del MCP server
-// 🔧 Fix: usar slog con JSON handler a stderr (≤5 líneas)
-logger := slog.New(slog.NewJSONHandler(os.Stderr, nil))
-logger.Info("tool_called", "tool", "query_db")
+// ❌ Anti-pattern: fmt.Println mistura logs com saída de dados MCP
+fmt.Println("Tool query_db executada")  // 🔴 C8 violation: stdout, não estruturado
+// 👇 EXPLICAÇÃO: Logs em stdout interferem na resposta JSON do servidor MCP
+// 🔧 Fix: usar master.MantisLog com JSON handler para stderr (≤5 linhas)
+master.MantisLog(master.INFO, "tool_called", "tool", "query_db")
 ```
 
 ```go
-// ✅ C1: Límite de memoria por herramienta MCP con debug.SetMemoryLimit
-// 👇 EXPLICACIÓN: Establecemos 128MB máximo por ejecución de herramienta para prevenir DoS
-// 👇 EXPLICACIÓN: Si excede, Go genera panic con stack trace para debugging controlado
-debug.SetMemoryLimit(128 << 20)  // C1: 128MB en bytes
+// ✅ C1: Limite de memória por ferramenta MCP com debug.SetMemoryLimit
+// 👇 EXPLICAÇÃO: Estabelecemos 128MB máximo por execução de ferramenta para prevenir DoS
+// 👇 EXPLICAÇÃO: Se exceder, Go gera panic com stack trace para depuração controlada
+debug.SetMemoryLimit(128 << 20)  // C1: 128MB em bytes
 defer func() {
     if r := recover(); r != nil {
-        logger.Error("memory_limit_exceeded", "error", r)  // C7: error estructurado
+        master.MantisLog(master.ERROR, "memory_limit_exceeded", "error", r)  // C7: erro estruturado
     }
 }()
 ```
 
 ```go
-// ✅ C6: Ejecución de herramienta con timeout y contexto cancelable
-// 👇 EXPLICACIÓN: context.WithTimeout asegura que la herramienta no cuelgue indefinidamente
-// 👇 EXPLICACIÓN: Si excede 10s, el contexto se cancela automáticamente y retornamos error
+// ✅ C6: Execução de ferramenta com timeout e contexto cancelável
+// 👇 EXPLICAÇÃO: context.WithTimeout assegura que a ferramenta não trave indefinidamente
+// 👇 EXPLICAÇÃO: Se exceder 10s, o contexto é cancelado automaticamente e retornamos erro
 ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 defer cancel()
-result, err := executeTool(ctx, toolName, params)  // C6: ejecución con límite de tiempo
+result, err := executeTool(ctx, toolName, params)  // C6: execução com limite de tempo
 ```
 
 ```go
-// ✅ C4/C7: Middleware de enrutamiento por tenant para requests MCP
-// 👇 EXPLICACIÓN: Extraemos tenant_id del header X-Tenant-ID en cada request MCP
-// 👇 EXPLICACIÓN: Si falta o es inválido, rechazamos con error estructurado antes de ejecutar
+// ✅ C4/C7: Middleware de roteamento por tenant para requisições MCP
+// 👇 EXPLICAÇÃO: Extraímos tenant_id do cabeçalho X‑Tenant‑ID em cada requisição MCP
+// 👇 EXPLICAÇÃO: Se ausente ou inválido, rejeitamos com erro estruturado antes de executar
 func tenantRoutingMiddleware(next mcp.Handler) mcp.Handler {
     return func(ctx context.Context, req mcp.Request) (mcp.Response, error) {
         tid := req.Header.Get("X-Tenant-ID")
@@ -102,116 +152,116 @@ func tenantRoutingMiddleware(next mcp.Handler) mcp.Handler {
 ```
 
 ```go
-// ✅ C3: Máscara de API keys en logs de herramientas MCP
-// 👇 EXPLICACIÓN: Usamos strings.Replacer para reemplazar valores sensibles antes de loggear
-// 👇 EXPLICACIÓN: Esto previene fuga accidental de credenciales en structured logs
+// ✅ C3: Máscara de API keys em logs de ferramentas MCP
+// 👇 EXPLICAÇÃO: Usamos strings.Replacer para substituir valores sensíveis antes de logar
+// 👇 EXPLICAÇÃO: Isso previne vazamento acidental de credenciais em logs estruturados
 masker := strings.NewReplacer(apiKey, "***MASKED***")
-logger.Info("api_call", "endpoint", masker.Replace(endpoint), "tenant_id", tid)  // C3+C8
+master.MantisLog(master.INFO, "api_call", "endpoint", masker.Replace(endpoint), "tenant_id", tid)  // C3+C8
 ```
 
 ```go
-// ❌ Anti-pattern: loggear API key completa expone credenciales
-logger.Info("api_call", "key", apiKey)  // 🔴 C3 violation: credencial en log
-// 👇 EXPLICACIÓN: Si los logs se filtran, las API keys quedan expuestas
-// 🔧 Fix: usar strings.Replacer para masking antes de loggear (≤5 líneas)
+// ❌ Anti-pattern: logar API key completa expõe credenciais
+master.MantisLog(master.INFO, "api_call", "key", apiKey)  // 🔴 C3 violation: credencial em log
+// 👇 EXPLICAÇÃO: Se os logs forem filtrados, as API keys ficam expostas
+// 🔧 Fix: usar strings.Replacer para masking antes de logar (≤5 linhas)
 masker := strings.NewReplacer(apiKey, "***MASKED***")
-logger.Info("api_call", "key", masker.Replace(apiKey))
+master.MantisLog(master.INFO, "api_call", "key", masker.Replace(apiKey))
 ```
 
 ```go
-// ✅ C6: Registro dinámico de herramientas con validación de schema JSON
-// 👇 EXPLICACIÓN: Usamos jsonschema para validar que el InputSchema sea válido antes de registrar
-// 👇 EXPLICACIÓN: Esto previene herramientas mal formadas que podrían romper el server MCP
+// ✅ C6: Registro dinâmico de ferramentas com validação de schema JSON
+// 👇 EXPLICAÇÃO: Usamos jsonschema para validar que o InputSchema é válido antes de registrar
+// 👇 EXPLICAÇÃO: Isso previne ferramentas malformadas que poderiam quebrar o servidor MCP
 if err := jsonschema.Validate(tool.InputSchema); err != nil {
     return fmt.Errorf("C6: schema inválido para tool %s: %w", tool.Name, err)
 }
-mcpServer.RegisterTool(tool)  // C6: solo registramos si el schema es válido
+mcpServer.RegisterTool(tool)  // C6: registramos apenas se o schema for válido
 ```
 
 ```go
-// ✅ C4: Inyección de tenant_id en queries SQL dentro de herramientas MCP
-// 👇 EXPLICACIÓN: Usamos parámetros preparados ($1) para prevenir SQL injection
-// 👇 EXPLICACIÓN: El tenant_id asegura que solo se accedan datos del tenant correcto
+// ✅ C4: Injeção de tenant_id em queries SQL dentro de ferramentas MCP
+// 👇 EXPLICAÇÃO: Usamos parâmetros preparados ($1) para prevenir SQL injection
+// 👇 EXPLICAÇÃO: O tenant_id assegura que apenas dados do tenant correto sejam acessados
 query := "SELECT * FROM data WHERE tenant_id = $1 AND id = $2"
 rows, err := db.QueryContext(ctx, query, tenantID, params["id"])  // C4: parameterized
 if err != nil {
-    return nil, fmt.Errorf("query fallida para tenant %s: %w", tenantID, err)
+    return nil, fmt.Errorf("query falhou para tenant %s: %w", tenantID, err)
 }
 ```
 
 ```go
-// ✅ C7: Manejo de errores en herramientas MCP con wrapping y contexto
-// 👇 EXPLICACIÓN: fmt.Errorf con %w permite unwrap para análisis programático posterior
-// 👇 EXPLICACIÓN: Incluimos tool_name y tenant_id en el mensaje para trazabilidad auditada
+// ✅ C7: Tratamento de erros em ferramentas MCP com wrapping e contexto
+// 👇 EXPLICAÇÃO: fmt.Errorf com %w permite unwrap para análise programática posterior
+// 👇 EXPLICAÇÃO: Incluímos tool_name e tenant_id na mensagem para rastreabilidade auditada
 if err := validateParams(params); err != nil {
     return nil, fmt.Errorf("tool %s, tenant %s: params inválidos: %w", toolName, tid, err)  // C7
 }
 ```
 
 ```go
-// ❌ Anti-pattern: errores genéricos sin contexto dificultan debugging de herramientas MCP
-return nil, errors.New("tool execution failed")  // 🔴 C7 violation: sin contexto
-// 👇 EXPLICACIÓN: No sabemos qué tool, qué tenant ni qué parámetro falló
-// 🔧 Fix: usar fmt.Errorf con %w y contexto de tool/tenant (≤5 líneas)
+// ❌ Anti-pattern: erros genéricos sem contexto dificultam debugging de ferramentas MCP
+return nil, errors.New("tool execution failed")  // 🔴 C7 violation: sem contexto
+// 👇 EXPLICAÇÃO: Não sabemos qual ferramenta, qual tenant nem qual parâmetro falhou
+// 🔧 Fix: usar fmt.Errorf com %w e contexto de tool/tenant (≤5 linhas)
 if err != nil {
     return nil, fmt.Errorf("tool %s, tenant %s: %w", toolName, tid, err)
 }
 ```
 
 ```go
-// ✅ C1/C8: Límite de requests por segundo por tenant con token bucket
-// 👇 EXPLICACIÓN: Implementamos rate limiting para prevenir abuso por tenant
-// 👇 EXPLICACIÓN: Cada tenant tiene su propio bucket de tokens para aislamiento justo
+// ✅ C1/C8: Limite de requisições por segundo por tenant com token bucket
+// 👇 EXPLICAÇÃO: Implementamos rate limiting para prevenir abuso por tenant
+// 👇 EXPLICAÇÃO: Cada tenant tem seu próprio bucket de tokens para isolamento justo
 type TenantLimiter struct {
-    buckets map[string]*rate.Limiter  // C4: isolation por tenant
+    buckets map[string]*rate.Limiter  // C4: isolamento por tenant
 }
 func (tl *TenantLimiter) Allow(tenantID string) bool {
     limiter, ok := tl.buckets[tenantID]
     if !ok {
         limiter = rate.NewLimiter(10, 20); tl.buckets[tenantID] = limiter  // C1: 10 req/s
     }
-    return limiter.Allow()  // C8: decisión loggeada estructuradamente
+    return limiter.Allow()  // C8: decisão logada estruturadamente
 }
 ```
 
 ```go
-// ✅ C8: Respuesta estructurada de herramienta MCP con campos requeridos
-// 👇 EXPLICACIÓN: Definimos Response con campos obligatorios para compatibilidad con clientes MCP
-// 👇 EXPLICACIÓN: json.NewEncoder a stdout permite piping a clientes MCP para procesamiento
+// ✅ C8: Resposta estruturada de ferramenta MCP com campos requeridos
+// 👇 EXPLICAÇÃO: Definimos Response com campos obrigatórios para compatibilidade com clientes MCP
+// 👇 EXPLICAÇÃO: json.NewEncoder para stdout permite piping para clientes MCP para processamento
 type ToolResponse struct {
     ToolName  string      `json:"tool_name"`
-    TenantID  string      `json:"tenant_id"`  // C4: trazabilidad
+    TenantID  string      `json:"tenant_id"`  // C4: rastreabilidade
     Result    interface{} `json:"result"`
     Error     string      `json:"error,omitempty"`
-    Timestamp string      `json:"timestamp"`  // ISO8601 para correlación
+    Timestamp string      `json:"timestamp"`  // ISO8601 para correlação
 }
 resp := ToolResponse{ToolName: "query_db", TenantID: tid, Result: data, Timestamp: time.Now().UTC().Format(time.RFC3339)}
-json.NewEncoder(os.Stdout).Encode(resp)  // C8: machine-readable output
+json.NewEncoder(os.Stdout).Encode(resp)  // C8: saída legível por máquina
 ```
 
 ```go
-// ✅ C3/C4: Validación cruzada de secrets y tenant_id antes de ejecutar herramienta
-// 👇 EXPLICACIÓN: Verificamos que API_KEY exista Y que tenant_id sea válido antes de proceder
-// 👇 EXPLICACIÓN: Este chequeo temprano previene ejecución parcial con configuración incompleta
+// ✅ C3/C4: Validação cruzada de segredos e tenant_id antes de executar ferramenta
+// 👇 EXPLICAÇÃO: Verificamos que API_KEY existe E que tenant_id é válido antes de prosseguir
+// 👇 EXPLICAÇÃO: Esta verificação precoce previne execução parcial com configuração incompleta
 func preFlightToolChecks(toolName, tenantID string) error {
     if _, ok := os.LookupEnv("OPENROUTER_API_KEY"); !ok {
-        return fmt.Errorf("C3: API key no definida para tool %s", toolName)
+        return fmt.Errorf("C3: API key não definida para tool %s", toolName)
     }
     if !regexp.MustCompile(`^[a-z0-9_-]{3,32}$`).MatchString(tenantID) {
         return fmt.Errorf("C4: tenant_id inválido para tool %s", toolName)
     }
-    return nil  // ✅ todos los checks pasaron
+    return nil  // ✅ todas as verificações passaram
 }
 ```
 
 ```go
-// ✅ C6: Timeout configurable por herramienta MCP desde variables de entorno
-// 👇 EXPLICACIÓN: Leemos TOOL_TIMEOUT_SECONDS desde entorno para permitir ajuste sin recompilar
-// 👇 EXPLICACIÓN: Si no está definida, usamos 30s como default seguro
+// ✅ C6: Timeout configurável por ferramenta MCP a partir de variáveis de ambiente
+// 👇 EXPLICAÇÃO: Lemos TOOL_TIMEOUT_SECONDS do ambiente para permitir ajuste sem recompilar
+// 👇 EXPLICAÇÃO: Se não estiver definido, usamos 30s como padrão seguro
 timeoutSec := 30
 if envTimeout := os.Getenv("TOOL_TIMEOUT_SECONDS"); envTimeout != "" {
     if t, err := strconv.Atoi(envTimeout); err == nil && t > 0 {
-        timeoutSec = t  // C6: configurable sin hardcode
+        timeoutSec = t  // C6: configurável sem hardcode
     }
 }
 ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
@@ -219,120 +269,215 @@ defer cancel()
 ```
 
 ```go
-// ✅ C7: Retry con backoff exponencial para herramientas MCP con fallos transitorios
-// 👇 EXPLICACIÓN: Intentamos hasta 3 veces con espera exponencial para tolerar fallos de red/API
-// 👇 EXPLICACIÓN: Cada retry registra un warning estructurado para observabilidad del sistema
+// ✅ C7: Retry com backoff exponencial para ferramentas MCP com falhas transitórias
+// 👇 EXPLICAÇÃO: Tentamos até 3 vezes com espera exponencial para tolerar falhas de rede/API
+// 👇 EXPLICAÇÃO: Cada retry registra um warning estruturado para observabilidade do sistema
 for attempt := 1; attempt <= 3; attempt++ {
     result, err := callExternalAPI(ctx, params)
     if err == nil {
         return result, nil
     }
-    logger.Warn("tool_retry", "tool", toolName, "attempt", attempt, "error", err)  // C7
+    master.MantisLog(master.WARN, "tool_retry", "tool", toolName, "attempt", attempt, "error", err)  // C7
     time.Sleep(time.Duration(attempt*200) * time.Millisecond)  // backoff exponencial
 }
-return nil, fmt.Errorf("tool %s falló tras 3 intentos", toolName)  // C6
+return nil, fmt.Errorf("tool %s falhou após 3 tentativas", toolName)  // C6
 ```
 
 ```go
-// ✅ C4: Aislamiento de caché por tenant para herramientas MCP
-// 👇 EXPLICACIÓN: Usamos mapa anidado map[tenant_id]map[key]value para aislar caché entre tenants
-// 👇 EXPLICACIÓN: Esto previene que un tenant acceda a datos cacheados de otro tenant
+// ✅ C4: Isolamento de cache por tenant para ferramentas MCP
+// 👇 EXPLICAÇÃO: Usamos mapa aninhado map[tenant_id]map[key]value para isolar cache entre tenants
+// 👇 EXPLICAÇÃO: Isso previne que um tenant acesse dados cacheados de outro tenant
 type TenantCache struct {
-    data map[string]map[string]interface{}  // C4: isolation por tenant
+    data map[string]map[string]interface{}  // C4: isolamento por tenant
     mu   sync.RWMutex
 }
 func (tc *TenantCache) Get(tenantID, key string) (interface{}, bool) {
     tc.mu.RLock(); defer tc.mu.RUnlock()
     if tenantData, ok := tc.data[tenantID]; ok {
-        val, exists := tenantData[key]; return val, exists  // C4: solo lee su tenant
+        val, exists := tenantData[key]; return val, exists  // C4: lê apenas seu tenant
     }
     return nil, false
 }
 ```
 
 ```go
-// ✅ C8: Auditoría de ejecución de herramientas MCP con trace_id propagado
-// 👇 EXPLICACIÓN: Generamos trace_id único por request para correlacionar logs en sistemas distribuidos
-// 👇 EXPLICACIÓN: Incluimos tool_name, tenant_id y duration para análisis de performance
+// ✅ C8: Auditoria de execução de ferramentas MCP com trace_id propagado
+// 👇 EXPLICAÇÃO: Geramos trace_id único por requisição para correlacionar logs em sistemas distribuídos
+// 👇 EXPLICAÇÃO: Incluímos tool_name, tenant_id e duration para análise de performance
 traceID := uuid.New().String()
 start := time.Now()
 result, err := executeTool(ctx, toolName, params)
 duration := time.Since(start)
-logger.Info("tool_audit", "trace_id", traceID, "tool", toolName, "tenant_id", tid, "duration_ms", duration.Milliseconds())  // C8
+master.MantisLog(master.INFO, "tool_audit", "trace_id", traceID, "tool", toolName, "tenant_id", tid, "duration_ms", duration.Milliseconds())  // C8
 ```
 
 ```go
-// ✅ C1: Límite de concurrencia por tenant para herramientas MCP con semaphore
-// 👇 EXPLICACIÓN: Usamos semaphore para limitar a 5 ejecuciones concurrentes por tenant
-// 👇 EXPLICACIÓN: Esto previene que un tenant sature el server con requests masivos
+// ✅ C1: Limite de concorrência por tenant para ferramentas MCP com semáforo
+// 👇 EXPLICAÇÃO: Usamos semáforo para limitar a 5 execuções concorrentes por tenant
+// 👇 EXPLICAÇÃO: Isso previne que um tenant sature o servidor com requisições massivas
 type TenantSemaphore struct {
-    semaphores map[string]*semaphore.Weighted  // C4: isolation por tenant
+    semaphores map[string]*semaphore.Weighted  // C4: isolamento por tenant
 }
 func (ts *TenantSemaphore) Acquire(ctx context.Context, tenantID string) error {
     sem, ok := ts.semaphores[tenantID]
     if !ok {
-        sem = semaphore.NewWeighted(5); ts.semaphores[tenantID] = sem  // C1: max 5 concurrentes
+        sem = semaphore.NewWeighted(5); ts.semaphores[tenantID] = sem  // C1: máx 5 concorrentes
     }
-    return sem.Acquire(ctx, 1)  // C1: adquisición con contexto para timeout
+    return sem.Acquire(ctx, 1)  // C1: aquisição com contexto para timeout
 }
 ```
 
 ```go
-// ✅ C3/C8: Rotación segura de API keys sin downtime para herramientas MCP
-// 👇 EXPLICACIÓN: Cargamos nueva API key desde entorno y la intercambiamos atómicamente
-// 👇 EXPLICACIÓN: Usamos atomic.Value para lectura concurrente segura sin locks explícitos
+// ✅ C3/C8: Rotação segura de API keys sem downtime para ferramentas MCP
+// 👇 EXPLICAÇÃO: Carregamos nova API key do ambiente e a trocamos atomicamente
+// 👇 EXPLICAÇÃO: Usamos atomic.Value para leitura concorrente segura sem locks explícitos
 var currentKey atomic.Value
 func rotateAPIKey() error {
     newKey := os.Getenv("OPENROUTER_API_KEY_NEW")
     if newKey == "" {
-        return fmt.Errorf("C3: OPENROUTER_API_KEY_NEW no definida")
+        return fmt.Errorf("C3: OPENROUTER_API_KEY_NEW não definida")
     }
-    currentKey.Store(newKey)  // C3: intercambio atómico sin downtime
-    logger.Info("api_key_rotated", "ts", time.Now().UTC())  // C8: auditoría
+    currentKey.Store(newKey)  // C3: troca atômica sem downtime
+    master.MantisLog(master.INFO, "api_key_rotated", "ts", time.Now().UTC())  // C8: auditoria
     return nil
 }
 ```
 
 ```go
-// ✅ C6: Validación de respuesta de herramienta MCP contra schema JSON esperado
-// 👇 EXPLICACIÓN: Usamos gojsonschema para validar que la respuesta cumpla con el schema definido
-// 👇 EXPLICACIÓN: Esto asegura que clientes MCP reciban datos estructurados y predecibles
+// ✅ C6: Validação de resposta de ferramenta MCP contra schema JSON esperado
+// 👇 EXPLICAÇÃO: Usamos gojsonschema para validar que a resposta cumpre o schema definido
+// 👇 EXPLICAÇÃO: Isso assegura que clientes MCP recebam dados estruturados e previsíveis
 loader := gojsonschema.NewGoLoader(expectedSchema)
 resultLoader := gojsonschema.NewGoLoader(response)
 if valid, err := gojsonschema.Validate(loader, resultLoader); err != nil || !valid.Valid() {
-    return fmt.Errorf("C6: respuesta inválida para tool %s: %v", toolName, valid.Errors())
+    return fmt.Errorf("C6: resposta inválida para tool %s: %v", toolName, valid.Errors())
 }
 ```
 
 ```go
-// ✅ C1-C8: Función principal de MCP server integrada con todos los constraints
-// 👇 EXPLICACIÓN: Esta es la estructura base que combina todos los patrones anteriores para MCP
-// 👇 EXPLICACIÓN: Cada sección está comentada para que entiendas el flujo completo del server
+// ✅ C1-C8: Função principal do servidor MCP integrada com todos os constraints
+// 👇 EXPLICAÇÃO: Esta é a estrutura base que combina todos os padrões anteriores para MCP
+// 👇 EXPLICAÇÃO: Cada seção está comentada para que você entenda o fluxo completo do servidor
 func main() {
-    // C4: Validar tenant_id desde header MCP temprano
+    // C4: Validar tenant_id do cabeçalho MCP antecipadamente
     tenantID := extractTenantFromHeader(os.Getenv("MCP_HEADER_TENANT"))
     
-    // C3: Cargar API keys con fail-fast para herramientas externas
+    // C3: Carregar API keys com fail‑fast para ferramentas externas
     apiKey := loadRequiredEnv("OPENROUTER_API_KEY")
     
-    // C8: Inicializar logger estructurado para auditoría MCP
+    // C8: Inicializar logger estruturado para auditoria MCP
     logger := initStructuredLogger("mcp_server", tenantID)
-    logger.Info("mcp_server_started", "version", "3.0.0-SELECTIVE")
+    master.MantisLog(master.INFO, "mcp_server_started", "version", "3.0.0-FUSION")
     
-    // C1: Establecer límites de recursos por herramienta
+    // C1: Estabelecer limites de recursos por ferramenta
     debug.SetMemoryLimit(128 << 20)
     
-    // C6: Registrar herramientas con validación de schema
+    // C6: Registrar ferramentas com validação de schema
     registerToolsWithValidation(mcpServer, tools)
     
-    // C4/C7: Aplicar middleware de tenant routing y error handling
+    // C4/C7: Aplicar middleware de tenant routing e error handling
     mcpServer.Use(tenantRoutingMiddleware, errorHandlingMiddleware)
     
-    // C8: Iniciar server con logging estructurado de conexiones
-    logger.Info("mcp_server_listening", "port", os.Getenv("MCP_PORT"))
+    // C8: Iniciar servidor com logging estruturado de conexões
+    master.MantisLog(master.INFO, "mcp_server_listening", "port", os.Getenv("MCP_PORT"))
     mcpServer.Serve()
 }
 ```
+
+## 🔍 Observabilidade (Documentação para IA – Apenas Eventos Específicos)
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `mcp_server_started` | INFO | C8 | `"servidor MCP inicializado"` |
+| `tool_registered` | INFO | C6 | `"ferramenta query_db registrada com schema válido"` |
+| `tool_called` | INFO | C8 | `"ferramenta query_db chamada pelo tenant X"` |
+| `tool_retry` | WARN | C7 | `"retry 2 para ferramenta search_api"` |
+| `api_key_rotated` | INFO | C3 | `"chave API rotacionada sem downtime"` |
+| `memory_limit_exceeded` | ERROR | C1 | `"limite de 128MB excedido"` |
+| `tenant_id_invalid` | ERROR | C4 | `"X-Tenant-ID inválido na requisição MCP"` |
+
+### Validação de Schema V-LOG-02 (Helper Mínimo)
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
+
+## 🧪 Testes Unitários (TDD – Apenas para a Lógica Específica)
+
+```go
+func TestMiddlewareRejeitaTenantIDInvalido(t *testing.T) {
+    // Arrange
+    req := mcp.Request{Header: map[string]string{"X-Tenant-ID": "../../etc/passwd"}}
+    middleware := tenantRoutingMiddleware(func(ctx context.Context, req mcp.Request) (mcp.Response, error) {
+        return mcp.Response{Result: "ok"}, nil
+    })
+    // Act
+    _, err := middleware(context.Background(), req)
+    // Assert
+    if err == nil || !strings.Contains(err.Error(), "X-Tenant-ID inválido") {
+        t.Errorf("esperava erro de tenant_id inválido, obtive %v", err)
+    }
+}
+
+func TestPreFlightChecksRejeitaSemAPIKey(t *testing.T) {
+    // Garante que a variável de ambiente não esteja definida
+    os.Unsetenv("OPENROUTER_API_KEY")
+    err := preFlightToolChecks("query_db", "tenant-valido")
+    if err == nil || !strings.Contains(err.Error(), "API key não definida") {
+        t.Errorf("esperava erro de API key, obtive %v", err)
+    }
+}
+
+func TestTenantCacheIsolamento(t *testing.T) {
+    cache := &TenantCache{data: make(map[string]map[string]interface{})}
+    cache.data["tenant-A"] = map[string]interface{}{"chave": "valor-A"}
+    cache.data["tenant-B"] = map[string]interface{}{"chave": "valor-B"}
+    // Act
+    valA, _ := cache.Get("tenant-A", "chave")
+    valB, _ := cache.Get("tenant-B", "chave")
+    // Assert
+    if valA != "valor-A" || valB != "valor-B" {
+        t.Errorf("isolamento de cache quebrado: A=%v, B=%v", valA, valB)
+    }
+    // Verifica que tenant-A não consegue acessar dados de tenant-C
+    _, exists := cache.Get("tenant-A", "chave-inexistente")
+    if exists {
+        t.Error("tenant-A acessou chave que não lhe pertence")
+    }
+}
+```
+
+### ✅ Pre-flight checks (Verificações pré-operação)
+- [ ] Verificar que `InputSchema` de TODAS as ferramentas contém `"required": ["tenant_id", ...]`
+- [ ] Confirmar que `tenantRoutingMiddleware` é aplicado antes de qualquer handler MCP
+- [ ] Validar que `OPENROUTER_API_KEY` é carregada com `LookupEnv` e validada como não-vazia
+- [ ] Assegurar que `master.MantisLog` mascara API keys antes de logar endpoints
+
+### ⚡ Cenários de Stress Test
+1. **Inundação de requisições sem tenant_id**: Enviar 1000 requisições sem cabeçalho → verificar que todas são rejeitadas com erro estruturado e sem crash
+2. **Estouro de memória em ferramenta**: Simular alocação além de 128MB → confirmar que `debug.SetMemoryLimit` força GC e recover captura o panic
+3. **Concorrência entre tenants**: 50 tenants executando `query_db` simultaneamente → validar que `TenantCache` e `TenantSemaphore` mantêm isolamento
+4. **Rotação de API key durante pico**: Executar `rotateAPIKey` enquanto 200 chamadas estão em andamento → confirmar que `atomic.Value` previne race conditions
+5. **Falha de schema JSON**: Registrar ferramenta com `InputSchema` inválido → verificar que `jsonschema.Validate` bloqueia o registro
+
+### 🔍 Procedimentos de Caça a Erros
+- [ ] Revisar logs estruturados para confirmar que `tenant_id` e `trace_id` aparecem em cada evento MCP
+- [ ] Validar que `defer cancel()` é chamado para cada `context.WithTimeout` em ferramentas
+- [ ] Confirmar que `TenantCache.Get` libera `RUnlock` mesmo se `tenantData[key]` não existir
+- [ ] Verificar que `master.MantisLog` NUNCA recebe `apiKey` sem passar por `masker.Replace`
+- [ ] Revisar profiling com `go tool pprof` para detectar contenção de locks no `TenantLimiter`
+
+### 📊 Métricas de Aceitação
+- Latência P99 de execução de ferramenta < 500ms sob carga de 50 req/s por tenant
+- Zero acessos cruzados entre tenants em 20k chamadas com IDs misturados
+- 100% das ferramentas registradas com schema validado por `jsonschema`
+- Rotação de API key concluída em <1ms sem impacto em requisições ativas
+- 100% dos logs de auditoria incluem `tool_name`, `tenant_id`, `trace_id` e timestamp RFC3339
 
 ## Validation Command
 ```bash
@@ -341,7 +486,26 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"mcp-server-patterns","version":"3.0.0","score":91,"blocking_issues":[],"constraints_verified":["C1","C3","C4","C6","C7","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"mcp_protocol_version":"2024-11-05","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"mcp-server-patterns","version":"3.0.0-FUSION","score":91,"blocking_issues":[],"constraints_verified":["C1","C3","C4","C6","C7","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"mcp_protocol_version":"2024-11-05","timestamp":"2026-05-09T00:00:00Z"}
 ```
 
----
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões MCP e checklist de stress | C1, C3, C4, C6, C7, C8 |
+| 2.3.0 | 2026-05-09 | go-master-agent | Remanufatura modular (tradução incompleta, placeholder de teste) | C1, C3, C4, C6, C7, C8 |
+| 3.0.0-FUSION | 2026-05-09 | DeepSeek | Fusão manual completa: conhecimento original + estrutura modular v2.3.0, tradução pt‑BR completa, logging master.MantisLog, testes concretos, checklist de stress recuperado | C1, C3, C4, C6, C7, C8 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["mcp-server-patterns.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.

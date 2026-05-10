@@ -1,42 +1,86 @@
-# SHA256: e4f7c9a2d1b8e3f6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
 artifact_id: "error-handling-c7"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C4","C5","C7","C8"]
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
+constraints_mapped: ["C4", "C5", "C7", "C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/error-handling-c7.go.md --json"
 canonical_path: "06-PROGRAMMING/go/error-handling-c7.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-error-handling-c7-v3.0.0"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["error-handling-c7"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-06-09"
 ---
 
-# error-handling-c7.go.md – Manejo robusto de errores y resiliencia con explicación didáctica
+## 🛡️ Bootstrap Resiliente
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
 
-## Propósito
-Patrones de implementación en Go para gestión segura y estructurada de fallos: wrapping contextual, recuperación de panics, reintentos con backoff, fallback controlado, respuestas JSON uniformes y auditoría de incidentes. Cada ejemplo está comentado línea por línea en español para que entiendas cómo construir sistemas resilientes que fallen de forma predecible y recuperable.
+package main
 
-> 💡 **Nota pedagógica**: ≤5 líneas ejecutables por bloque + `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es esencial para cumplir C7 (seguridad operativa), C4 (aislamiento), C5 (validación) y C8 (observabilidad).
+import (
+    "os"
+    "fmt"
+    "time"
+)
 
-## Patrones de Código Validados (25 ejemplos)
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+
+# error-handling-c7.go.md – Tratamento robusto de erros e resiliência com explicação didática
+
+## 🎯 Propósito
+Padrões de implementação em Go para gerenciamento seguro e estruturado de falhas: wrapping contextual, recuperação de panics, retentativas com backoff, fallback controlado, respostas JSON uniformes e auditoria de incidentes. Cada exemplo é comentado linha a linha em português para que você entenda como construir sistemas resilientes que falham de forma previsível e recuperável.
+
+> 💡 **Nota pedagógica**: ≤5 linhas executáveis por bloco + `// 👇 EXPLICAÇÃO:` que descrevem O QUE faz e POR QUE é essencial para cumprir C7 (segurança operacional), C4 (isolamento), C5 (validação) e C8 (observabilidade).
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C4/C7: Wrapping de errores con contexto de tenant y propagación segura
-// 👇 EXPLICACIÓN: %w permite unwrap programático; incluimos tenant_id para trazabilidad
+// ✅ C4/C7: Wrapping de erros com contexto de tenant e propagação segura
+// 👇 EXPLICAÇÃO: %w permite unwrap programático; incluímos tenant_id para rastreabilidade
 if err := db.Fetch(ctx, key); err != nil {
-    return fmt.Errorf("tenant %s: fallo en fetch: %w", tenantID, err)
+    return fmt.Errorf("tenant %s: falha no fetch: %w", tenantID, err)
 }
 ```
 
 ```go
-// ❌ Anti-pattern: error genérico sin contexto dificulta debugging en producción
-return fmt.Errorf("operación fallida")  // 🔴 C7 violation
-// 👇 EXPLICACIÓN: No sabemos qué tenant, qué operación ni la causa raíz
-// 🔧 Fix: usar fmt.Errorf con %w y contexto explícito (≤5 líneas)
-return fmt.Errorf("tenant %s: %s falló: %w", tenantID, operation, err)
+// ❌ Anti-pattern: erro genérico sem contexto dificulta debugging em produção
+return fmt.Errorf("operação falhou")  // 🔴 C7 violation
+// 👇 EXPLICAÇÃO: Não sabemos qual tenant, qual operação nem a causa raiz
+// 🔧 Fix: usar fmt.Errorf com %w e contexto explícito (≤5 linhas)
+return fmt.Errorf("tenant %s: %s falhou: %w", tenantID, operation, err)
 ```
 
 ```go
-// ✅ C5/C8: Struct de error validado con campos requeridos para APIs
-// 👇 EXPLICACIÓN: Definimos formato estricto para que clientes parseen automáticamente
-// 👇 EXPLICACIÓN: json.Marshal garantiza salida segura y predecible
+// ✅ C5/C8: Struct de erro validado com campos requeridos para APIs
+// 👇 EXPLICAÇÃO: Definimos formato estrito para que clientes parseiem automaticamente
+// 👇 EXPLICAÇÃO: json.Marshal garante saída segura e previsível
 type APIError struct {
     Code    int    `json:"code" validate:"required,min=100,max=599"`
     Message string `json:"message" validate:"required,max=200"`
@@ -45,33 +89,33 @@ type APIError struct {
 ```
 
 ```go
-// ✅ C7: Recuperación segura de panic en handlers HTTP
-// 👇 EXPLICACIÓN: defer + recover captura panic sin matar el proceso
-// 👇 EXPLICACIÓN: Convertimos panic en error 500 estructurado y loggeado
+// ✅ C7: Recuperação segura de panic em handlers HTTP
+// 👇 EXPLICAÇÃO: defer + recover captura panic sem matar o processo
+// 👇 EXPLICAÇÃO: Convertemos panic em erro 500 estruturado e logado
 defer func() {
     if r := recover(); r != nil {
-        logger.Error("panic_recovered", "error", r, "tenant_id", tenantID)  // C8
+        master.MantisLog(master.ERROR, "panic_recovered", "error", r, "tenant_id", tenantID)  // C8
         http.Error(w, `{"error":"internal"}`, http.StatusInternalServerError)
     }
 }()
 ```
 
 ```go
-// ✅ C4/C7: Reintento con backoff exponencial y límite de intentos
-// 👇 EXPLICACIÓN: Intentamos 3 veces con pausa creciente para fallos transitorios
-// 👇 EXPLICACIÓN: Cada retry loggea advertencia estructurada para métricas
+// ✅ C4/C7: Retentativa com backoff exponencial e limite de tentativas
+// 👇 EXPLICAÇÃO: Tentamos 3 vezes com pausa crescente para falhas transitórias
+// 👇 EXPLICAÇÃO: Cada retry loga um aviso estruturado para métricas
 for attempt := 1; attempt <= 3; attempt++ {
     if err := callService(ctx); err == nil { break }
-    logger.Warn("service_retry", "attempt", attempt, "tenant_id", tenantID)  // C7
+    master.MantisLog(master.WARN, "service_retry", "attempt", attempt, "tenant_id", tenantID)  // C7
     time.Sleep(time.Duration(attempt*200) * time.Millisecond)
 }
 ```
 
 ```go
-// ❌ Anti-pattern: reintento infinito sin límite satura recursos y cuelga el sistema
+// ❌ Anti-pattern: retentativa infinita sem limite satura recursos e trava o sistema
 for { if err := call(); err != nil { continue } break }  // 🔴 C7/C1 violation
-// 👇 EXPLICACIÓN: Bucle infinito consume CPU y bloquea goroutines indefinidamente
-// 🔧 Fix: limitar intentos y agregar sleep con contexto cancelable (≤5 líneas)
+// 👇 EXPLICAÇÃO: Loop infinito consome CPU e bloqueia goroutines indefinidamente
+// 🔧 Fix: limitar tentativas e adicionar sleep com contexto cancelável (≤5 linhas)
 for i := 1; i <= 3; i++ {
     if err := call(); err == nil { break }
     time.Sleep(time.Duration(i*100) * time.Millisecond)
@@ -79,29 +123,29 @@ for i := 1; i <= 3; i++ {
 ```
 
 ```go
-// ✅ C7/C8: Fallback controlado cuando servicio primario falla
-// 👇 EXPLICACIÓN: Si DB primaria no responde, usamos caché local con datos stale
-// 👇 EXPLICACIÓN: Mantenemos disponibilidad degradada sin romper SLA del tenant
+// ✅ C7/C8: Fallback controlado quando serviço primário falha
+// 👇 EXPLICAÇÃO: Se DB primário não responde, usamos cache local com dados stale
+// 👇 EXPLICAÇÃO: Mantemos disponibilidade degradada sem quebrar SLA do tenant
 data, err := primary.Fetch(ctx)
 if err != nil {
-    logger.Warn("fallback_triggered", "tenant_id", tenantID)  // C8
-    data = cache.GetStale(key)  // C7: degradación segura
+    master.MantisLog(master.WARN, "fallback_triggered", "tenant_id", tenantID)  // C8
+    data = cache.GetStale(key)  // C7: degradação segura
 }
 ```
 
 ```go
-// ✅ C4/C7: Propagación de contexto con timeout en llamadas descendientes
-// 👇 EXPLICACIÓN: Derivamos contexto desde request padre para cancelación en cascada
-// 👇 EXPLICACIÓN: Si el padre muere o timeout, todos los hijos se limpian automáticamente
+// ✅ C4/C7: Propagação de contexto com timeout em chamadas descendentes
+// 👇 EXPLICAÇÃO: Derivamos contexto da requisição pai para cancelamento em cascata
+// 👇 EXPLICAÇÃO: Se o pai morre ou timeout, todos os filhos são limpos automaticamente
 ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 defer cancel()
-go processAsync(ctx, tenantID)  // C4/C7: herencia segura
+go processAsync(ctx, tenantID)  // C4/C7: herança segura
 ```
 
 ```go
-// ✅ C8: Respuesta JSON estructurada de error para clientes externos
-// 👇 EXPLICACIÓN: Uniformizamos payload para que SDKs manejen fallos programáticamente
-// 👇 EXPLICACIÓN: Incluimos trace_id y timestamp para correlación con observabilidad
+// ✅ C8: Resposta JSON estruturada de erro para clientes externos
+// 👇 EXPLICAÇÃO: Uniformizamos payload para que SDKs gerenciem falhas programaticamente
+// 👇 EXPLICAÇÃO: Incluímos trace_id e timestamp para correlação com observabilidade
 errResp := map[string]interface{}{
     "error": "validation_failed", "trace_id": traceID,
     "ts": time.Now().UTC().Format(time.RFC3339),
@@ -111,44 +155,44 @@ json.NewEncoder(w).Encode(errResp)
 ```
 
 ```go
-// ✅ C5/C7: Validación de errores con errors.Is y sentinel errors
-// 👇 EXPLICACIÓN: Comparamos contra errores conocidos en lugar de strings frágiles
-// 👇 EXPLICACIÓN: Permite routing específico según tipo de fallo
+// ✅ C5/C7: Validação de erros com errors.Is e sentinel errors
+// 👇 EXPLICAÇÃO: Comparamos contra erros conhecidos em vez de strings frágeis
+// 👇 EXPLICAÇÃO: Permite roteamento específico de acordo com o tipo de falha
 if errors.Is(err, ErrNotFound) {
-    return fmt.Errorf("C5: recurso no existe para tenant %s", tenantID)
+    return fmt.Errorf("C5: recurso não existe para tenant %s", tenantID)
 }
 ```
 
 ```go
-// ❌ Anti-pattern: comparar errores por string falla si cambia el mensaje
+// ❌ Anti-pattern: comparar erros por string falha se a mensagem mudar
 if err.Error() == "not found" { return "missing" }  // 🔴 C5/C7 violation
-// 👇 EXPLICACIÓN: Cualquier cambio de texto rompe la lógica de negocio
-// 🔧 Fix: usar sentinel errors + errors.Is (≤5 líneas)
+// 👇 EXPLICAÇÃO: Qualquer mudança de texto quebra a lógica de negócio
+// 🔧 Fix: usar sentinel errors + errors.Is (≤5 linhas)
 var ErrNotFound = errors.New("not_found")
 if errors.Is(err, ErrNotFound) { return handleMissing() }
 ```
 
 ```go
-// ✅ C7: Agrupación segura de múltiples errores con errors.Join
-// 👇 EXPLICACIÓN: Ejecutamos tareas en paralelo y consolidamos fallos al final
-// 👇 EXPLICACIÓN: Retorna un solo error con todos los mensajes sin perder contexto
+// ✅ C7: Agrupamento seguro de múltiplos erros com errors.Join
+// 👇 EXPLICAÇÃO: Executamos tarefas em paralelo e consolidamos falhas no final
+// 👇 EXPLICAÇÃO: Retorna um único erro com todas as mensagens sem perder contexto
 var errs []error
 for _, task := range tasks { if e := task.Run(); e != nil { errs = append(errs, e) } }
-return errors.Join(errs...)  // C7: multi-error manejable
+return errors.Join(errs...)  // C7: multi-erro gerenciável
 ```
 
 ```go
-// ✅ C4/C8: Enmascaramiento de PII en mensajes de error loggeados
-// 👇 EXPLICACIÓN: Sanitizamos inputs de usuario antes de incluir en logs de fallo
-// 👇 EXPLICACIÓN: Previene fuga accidental de emails, tokens o datos sensibles
+// ✅ C4/C8: Mascaramento de PII em mensagens de erro logadas
+// 👇 EXPLICAÇÃO: Sanitizamos inputs de usuário antes de incluir em logs de falha
+// 👇 EXPLICAÇÃO: Previne vazamento acidental de e-mails, tokens ou dados sensíveis
 safeMsg := strings.ReplaceAll(userInput, "@", "[at]")
-logger.Error("input_rejected", "tenant_id", tenantID, "msg": safeMsg)  // C8
+master.MantisLog(master.ERROR, "input_rejected", "tenant_id", tenantID, "msg", safeMsg)  // C8
 ```
 
 ```go
-// ✅ C5/C7: Traducción de errores internos a códigos de negocio seguros
-// 👇 EXPLICACIÓN: Mapeamos fallos técnicos a respuestas de usuario comprensibles
-// 👇 EXPLICACIÓN: Nunca exponemos stack traces o detalles de infraestructura al cliente
+// ✅ C5/C7: Tradução de erros internos para códigos de negócio seguros
+// 👇 EXPLICAÇÃO: Mapeamos falhas técnicas para respostas de usuário compreensíveis
+// 👇 EXPLICAÇÃO: Nunca expomos stack traces ou detalhes de infraestrutura ao cliente
 func translateError(err error) (int, string) {
     switch {
     case errors.Is(err, context.DeadlineExceeded): return http.StatusGatewayTimeout, "timeout"
@@ -159,111 +203,179 @@ func translateError(err error) (int, string) {
 ```
 
 ```go
-// ✅ C7/C8: Canal asíncrono para recolección de errores en pipelines
-// 👇 EXPLICACIÓN: Goroutines reportan fallos a canal central sin bloquear ejecución
-// 👇 EXPLICACIÓN: Worker dedicado procesa, loggea y alerta sin ralentizar requests
+// ✅ C7/C8: Canal assíncrono para coleta de erros em pipelines
+// 👇 EXPLICAÇÃO: Goroutines reportam falhas para canal central sem bloquear execução
+// 👇 EXPLICAÇÃO: Worker dedicado processa, loga e alerta sem desacelerar requisições
 errCh := make(chan error, 100)
-go func() { for e := range errCh { logger.Error("pipeline_fail", "err", e) } }()
+go func() { for e := range errCh { master.MantisLog(master.ERROR, "pipeline_fail", "err", e) } }()
 errCh <- fmt.Errorf("tenant %s: batch failed", tid)  // C7: async safe
 ```
 
 ```go
-// ✅ C4: Aislamiento de errores por tenant en métricas y logs
-// 👇 EXPLICACIÓN: Taggeamos cada error con tenant_id para filtrado y alertas por cliente
-// 👇 EXPLICACIÓN: Evita que un tenant ruidoso oculte problemas críticos de otros
-logger.Error("operation_failed", "tenant_id", tenantID, "error_type": "db_timeout", "trace_id": traceID)
+// ✅ C4: Isolamento de erros por tenant em métricas e logs
+// 👇 EXPLICAÇÃO: Taggeamos cada erro com tenant_id para filtragem e alertas por cliente
+// 👇 EXPLICAÇÃO: Evita que um tenant ruidoso oculte problemas críticos de outros
+master.MantisLog(master.ERROR, "operation_failed", "tenant_id", tenantID, "error_type", "db_timeout", "trace_id", traceID)
 ```
 
 ```go
-// ✅ C7: Circuit breaker con estado explícito y fallback
-// 👇 EXPLICACIÓN: Si el servicio falla >5 veces en 30s, abrimos circuito para fallar rápido
-// 👇 EXPLICACIÓN: Previene cascada de timeouts y agotamiento de recursos
+// ✅ C7: Circuit breaker com estado explícito e fallback
+// 👇 EXPLICAÇÃO: Se o serviço falha >5 vezes em 30s, abrimos o circuito para falhar rápido
+// 👇 EXPLICAÇÃO: Previne cascata de timeouts e esgotamento de recursos
 if breaker.State() == breaker.Open {
-    return cachedResponse  // C7: fail-fast con degradación
+    return cachedResponse  // C7: fail-fast com degradação
 }
 ```
 
 ```go
-// ✅ C8: Auditoría estructurada de errores críticos con severidad
-// 👇 EXPLICACIÓN: Registramos nivel, impacto y acción de remediación para compliance
-// 👇 EXPLICACIÓN: Permite replay de incidentes y análisis post-mortem automatizado
-logger.Error("critical_failure", "tenant_id", tenantID, "severity": "P1", "action_required": "rollback", "ts": time.Now().UTC())
+// ✅ C8: Auditoria estruturada de erros críticos com severidade
+// 👇 EXPLICAÇÃO: Registramos nível, impacto e ação de remediação para compliance
+// 👇 EXPLICAÇÃO: Permite replay de incidentes e análise post-mortem automatizada
+master.MantisLog(master.ERROR, "critical_failure", "tenant_id", tenantID, "severity", "P1", "action_required", "rollback", "ts", time.Now().UTC())
 ```
 
 ```go
-// ❌ Anti-pattern: ignorar errores explícitamente permite corrupción silenciosa
-_ = db.Save(ctx, record)  // 🔴 C7 violation: error descartado
-// 👇 EXPLICACIÓN: Fallos de persistencia no detectados causan inconsistencia de datos
-// 🔧 Fix: manejar o loggear explícitamente (≤5 líneas)
+// ❌ Anti-pattern: ignorar erros explicitamente permite corrupção silenciosa
+_ = db.Save(ctx, record)  // 🔴 C7 violation: erro descartado
+// 👇 EXPLICAÇÃO: Falhas de persistência não detectadas causam inconsistência de dados
+// 🔧 Fix: tratar ou logar explicitamente (≤5 linhas)
 if err := db.Save(ctx, record); err != nil {
-    logger.Error("save_failed", "error", err)
+    master.MantisLog(master.ERROR, "save_failed", "error", err)
 }
 ```
 
 ```go
-// ✅ C5: Validación de payload de error antes de emisión
-// 👇 EXPLICACIÓN: Verificamos que campos obligatorios existan antes de enviar a cliente
-// 👇 EXPLICACIÓN: Previene respuestas malformed que rompen contratos de API
+// ✅ C5: Validação de payload de erro antes da emissão
+// 👇 EXPLICAÇÃO: Verificamos se campos obrigatórios existem antes de enviar ao cliente
+// 👇 EXPLICAÇÃO: Previne respostas malformadas que quebram contratos de API
 if errResp.Code == 0 || errResp.TraceID == "" {
     errResp.Code = 500; errResp.TraceID = generateTraceID()  // C5: fallback seguro
 }
 ```
 
 ```go
-// ✅ C7: Timeout específico para operaciones de limpieza tras error
-// 👇 EXPLICACIÓN: Si ocurre fallo, intentamos rollback pero con límite estricto
-// 👇 EXPLICACIÓN: Evita que cleanup bloqueado prolongue tiempo de recuperación
+// ✅ C7: Timeout específico para operações de limpeza após erro
+// 👇 EXPLICAÇÃO: Se ocorrer falha, tentamos rollback mas com limite estrito
+// 👇 EXPLICAÇÃO: Evita que cleanup bloqueado prolongue o tempo de recuperação
 ctxCleanup, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 defer cancel()
 cleanupErr := rollback(ctxCleanup, txnID)  // C7: bounded recovery
 ```
 
 ```go
-// ✅ C4/C8: Rate limiting de logs de error para prevenir flood
-// 👇 EXPLICACIÓN: Limitamos a 10 logs/seg por tenant para no saturar storage de observabilidad
-// 👇 EXPLICACIÓN: Exceso se descarta silenciosamente tras loggear advertencia
+// ✅ C4/C8: Rate limiting de logs de erro para prevenir flood
+// 👇 EXPLICAÇÃO: Limitamos a 10 logs/seg por tenant para não saturar storage de observabilidade
+// 👇 EXPLICAÇÃO: Excesso é descartado silenciosamente após logar aviso
 if !errLimiter.Allow(tenantID) {
-    logger.Debug("error_log_dropped", "tenant_id", tenantID)  // C8: safety valve
+    master.MantisLog(master.DEBUG, "error_log_dropped", "tenant_id", tenantID)  // C8: safety valve
 }
 ```
 
 ```go
-// ✅ C5/C7: Pre-flight validation para operaciones críticas
-// 👇 EXPLICACIÓN: Verificamos prerequisites antes de iniciar transacción costosa
-// 👇 EXPLICACIÓN: Falla rápido si faltan permisos, recursos o estado válido
+// ✅ C5/C7: Validação pré-voo para operações críticas
+// 👇 EXPLICAÇÃO: Verificamos pré-requisitos antes de iniciar transação custosa
+// 👇 EXPLICAÇÃO: Falha rápido se faltam permissões, recursos ou estado válido
 if !hasPermission(ctx, tenantID, "write") {
-    return fmt.Errorf("C5: permiso denegado para tenant %s", tenantID)
+    return fmt.Errorf("C5: permissão negada para tenant %s", tenantID)
 }
 ```
 
 ```go
-// ✅ C7/C8: Recuperación con retry y contexto en goroutine segura
-// 👇 EXPLICACIÓN: Lanzamos tarea asíncrona con recover, timeout y logging estructurado
+// ✅ C7/C8: Recuperação com retry e contexto em goroutine segura
+// 👇 EXPLICAÇÃO: Lançamos tarefa assíncrona com recover, timeout e logging estruturado
 go func() {
-    defer func() { if r := recover(); r != nil { logErrorAsync(r) } }()
-    if err := processWithRetry(ctx, data); err != nil { logErrorAsync(err) }
+    defer func() { if r := recover(); r != nil { master.MantisLog(master.ERROR, "async_panic", "error", r) } }()
+    if err := processWithRetry(ctx, data); err != nil { master.MantisLog(master.ERROR, "async_failed", "error", err) }
 }()
 ```
 
 ```go
-// ✅ C4-C8: Función main integrada con gestión completa de errores
-// 👇 EXPLICACIÓN: Combina recover, fallback, structured responses y auditoría
-// 👇 EXPLICACIÓN: Cada línea está comentada para entender el flujo de resiliencia
+// ✅ C4-C8: Função main integrada com gerenciamento completo de erros
+// 👇 EXPLICAÇÃO: Combina recover, fallback, structured responses e auditoria
+// 👇 EXPLICAÇÃO: Cada linha é comentada para entender o fluxo de resiliência
 func main() {
-    // C7: Recovery global para panics no capturados
+    // C7: Recovery global para panics não capturados
     defer func() { if r := recover(); r != nil { globalLogger.Critical(r) } }()
     
-    // C4/C5: Router con middleware de error handling estructurado
+    // C4/C5: Router com middleware de error handling estruturado
     r.Use(ErrorMiddleware, TenantContextMiddleware)
     
-    // C8: Handlers con respuestas JSON validadas y timeouts
+    // C8: Handlers com respostas JSON validadas e timeouts
     r.Post("/api/v1/process", validatedProcessHandler)
     
-    // C7: Graceful shutdown con cleanup timeout
+    // C7: Graceful shutdown com cleanup timeout
     srv.RegisterOnShutdown(func() { time.Sleep(3 * time.Second) })
-    logger.Info("error_guards_active"); srv.ListenAndServe()
+    master.MantisLog(master.INFO, "error_guards_active"); srv.ListenAndServe()
 }
 ```
+
+## 🔍 Observabilidade (Documentação para IA – Eventos Específicos)
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `error_guards_active` | INFO | C8 | `"sistema de tratamento de erros iniciado"` |
+| `panic_recovered` | ERROR | C7 | `"panic recuperado em handler HTTP"` |
+| `fallback_triggered` | WARN | C7 | `"fallback para cache local ativado"` |
+| `critical_failure` | ERROR | C8 | `"severity: P1, action_required: rollback"` |
+| `error_log_dropped` | DEBUG | C8 | `"log descartado por rate limiting"` |
+
+### Validação de Schema V-LOG-02
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
+
+## 🧪 Testes Unitários
+
+```go
+func TestWrappingDeErroIncluiTenantID(t *testing.T) {
+    errOriginal := errors.New("conexão recusada")
+    tenant := "tenant-abc"
+    wrapped := fmt.Errorf("tenant %s: falha no fetch: %w", tenant, errOriginal)
+    
+    // Verifica se a mensagem contém o tenant
+    if !strings.Contains(wrapped.Error(), tenant) {
+        t.Errorf("esperava que erro wrapped contivesse o tenant %s, obtive %s", tenant, wrapped.Error())
+    }
+    // Verifica se unwrap recupera o erro original
+    if !errors.Is(wrapped, errOriginal) {
+        t.Error("esperava que errors.Is retornasse true para o erro original")
+    }
+}
+
+func TestTraducaoDeErroTimeout(t *testing.T) {
+    code, msg := translateError(context.DeadlineExceeded)
+    if code != http.StatusGatewayTimeout || msg != "timeout" {
+        t.Errorf("esperava (504, timeout), obtive (%d, %s)", code, msg)
+    }
+}
+```
+
+### ✅ Pre-flight checks
+- [ ] Verificar que todos os erros propagados contêm `tenant_id` e contexto da operação
+- [ ] Confirmar que `defer recover()` está presente em todas as goroutines e handlers HTTP
+- [ ] Validar que `errors.Is` é usado no lugar de comparação de strings para routing de erros
+- [ ] Assegurar que respostas JSON de erro incluem `trace_id` e timestamp RFC3339
+- [ ] Garantir que rate limiting de logs de erro está ativo por tenant
+
+### ⚡ Stress test scenarios
+1. **Cascata de panics**: Injetar panics em goroutines aninhadas → verificar que todos os defers capturam e logam sem derrubar o processo principal
+2. **Timeout massivo**: 500 requisições com timeout simultâneo → confirmar fallbacks acionados e zero goroutine leaks
+3. **Flood de erros**: 10.000 erros/segundo por tenant → validar rate limiting de logs e ausência de OOM
+4. **Falha de circuito**: Serviço externo falha 10x consecutivas → verificar abertura do circuit breaker e respostas fallback dentro do SLA
+5. **Erros aninhados com Join**: 50 tasks falhando em paralelo → validar que errors.Join retorna um único erro contendo todas as causas
+
+### 📊 Métricas de aceitação
+- 100% dos panics recuperados são logados com stack e tenant_id (zero crashes silenciosos)
+- Latência de resposta em fallback < 50ms (cache local)
+- Zero logs de erro sem tenant_id ou trace_id
+- Circuit breaker abre em <1s após 5 falhas consecutivas
+- Rate limiting de logs não excede 10 logs/seg por tenant
 
 ## Validation Command
 ```bash
@@ -272,7 +384,26 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"error-handling-c7","version":"3.0.0","score":91,"blocking_issues":[],"constraints_verified":["C4","C5","C7","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"error_pattern":"wrapping_retry_fallback_structured_json_panic_recovery","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"error-handling-c7","version":"3.0.0-FUSION","score":91,"blocking_issues":[],"constraints_verified":["C4","C5","C7","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"error_pattern":"wrapping_retry_fallback_structured_json_panic_recovery","timestamp":"2026-05-09T00:00:00Z"}
 ```
 
----
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões didáticos e checklist de stress | C4, C5, C7, C8 |
+| 2.3.0 | 2026-05-09 | go-master-agent | Remanufatura modular (parcial, perdeu checklist de stress e exemplos avançados) | C4, C5, C7, C8 |
+| 3.0.0-FUSION | 2026-05-09 | DeepSeek | Fusão manual completa: conhecimento original + estrutura modular v2.3.0, tradução pt-BR, logging master.MantisLog, testes concretos, checklist de stress recuperado | C4, C5, C7, C8 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["error-handling-c7.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.

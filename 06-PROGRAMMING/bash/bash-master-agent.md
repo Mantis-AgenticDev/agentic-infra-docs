@@ -133,7 +133,7 @@ raw_urls_index:
 governance_urls:
   root_index: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/00-INDEX.md"
   core_context: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-CONTEXT/mantis-core-context.md"
-  norms_matrix: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main05-CONFIGURATIONS/validation/norms-matrix.json"
+  norms_matrix: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json"
   constraints: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/10-SDD-CONSTRAINTS.md"
   hardening: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md"
   orchestrator: "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine/main.go"
@@ -252,7 +252,7 @@ artifact_type: "bash_script"  # ou "bash_function", "bash_hook", "bash_utility",
 version: "1.0.0"
 constraints_mapped: ["C1","C3","C4","C5","C7"]  # Mínimo obrigatório: C3+C4+C5
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
-canonical_path: "06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md"
+canonical_path: "06-PROGRAMMING/bash/{{nome-do-artefato}}.md"
 tier: 2  # 1=docs, 2=código validável, 3=bundle deployável
 mode_selected: "B1"  # B1=código validável, B2=handoff, B3=bundle
 prompt_hash: "sha256:{{hash_da_especificação_completa}}"
@@ -403,8 +403,8 @@ test_mantis_log_schema() {
 
 ```bash
 # Inserir no início de cada artefato filho (após shebang, antes de lógica)
-if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" ]]; then
-  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.sh" --mode=observability-only
+if [[ -f "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.md" ]]; then
+  source "${MANTIS_ROOT:-.}/06-PROGRAMMING/bash/bash-master-agent.md" --mode=observability-only
 else
   # Fallback minimalista: mantis_log() funcional sem dependências externas
   mantis_log() {
@@ -491,7 +491,7 @@ fi
 
 # Validação completa:
 bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md \
+  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.md \
   --json \
   --check-secrets \
   --check-tenant-isolation \
@@ -501,7 +501,7 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 
 # Validação rápida (apenas frontmatter e syntax):
 bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
-  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.sh.md \
+  --file 06-PROGRAMMING/bash/{{nome-do-artefato}}.md \
   --mode headless \
   --checks C5,C7 \
   --json
@@ -760,7 +760,7 @@ graph LR
 ```json
 {
   "validator": "bash-hook",
-  "file": "06-PROGRAMMING/bash/nome-do-artefato.sh.md",
+  "file": "06-PROGRAMMING/bash/nome-do-artefato.md",
   "passed": true,
   "status": "passed",
   "issues_count": 0,
@@ -885,7 +885,7 @@ printf '[%s][INFO][tenant:%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${TENANT_I
 ```bash
 #!/usr/bin/env bash
 # Checklist executável para validação pré-commit de artefatos Bash
-# Uso: bash 05-CONFIGURATIONS/scripts/pre-commit-bash-checklist.sh --file 06-PROGRAMMING/bash/meu-artefato.sh.md
+# Uso: bash 05-CONFIGURATIONS/scripts/pre-commit-bash-checklist.sh --file 06-PROGRAMMING/bash/meu-artefato.md
 
 set -euo pipefail
 readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"

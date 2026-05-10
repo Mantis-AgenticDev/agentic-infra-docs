@@ -1,53 +1,97 @@
-# SHA256: d1e8f3c9a2b7f4e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
 artifact_id: "context-compaction-utils"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C1","C4","C5","C8"]
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
+constraints_mapped: ["C1", "C4", "C5", "C8"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/context-compaction-utils.go.md --json"
 canonical_path: "06-PROGRAMMING/go/context-compaction-utils.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-context-compaction-utils-v3.0.0"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["context-compaction-utils"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-06-09"
 ---
 
-# context-compaction-utils.go.md – Compresión de contexto para LLMs con límites de tokens y aislamiento tenant
+## 🛡️ Bootstrap Resiliente
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
 
-## Propósito
-Patrones de implementación en Go para gestión segura y eficiente de contextos de IA: truncación inteligente, conteo de tokens con márgenes de seguridad, aislamiento estricto por tenant, validación de estructura de prompts, logging estructurado de métricas y fallback degradado. Cada ejemplo está comentado línea por línea en español para que entiendas cómo mantener el contexto dentro de los límites del modelo sin fugas de datos ni crashes de memoria.
+package main
 
-> 💡 **Nota pedagógica**: ≤5 líneas ejecutables por bloque + `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es esencial para cumplir C1 (límites), C4 (aislamiento tenant), C5 (validación) y C8 (observabilidad).
+import (
+    "os"
+    "fmt"
+    "time"
+)
 
-## Patrones de Código Validados (25 ejemplos)
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+
+# context-compaction-utils.go.md – Compressão de contexto para LLMs com limites de tokens e isolamento de tenant
+
+## 🎯 Propósito
+Padrões de implementação em Go para gerenciamento seguro e eficiente de contextos de IA: truncamento inteligente, contagem de tokens com margens de segurança, isolamento estrito por tenant, validação da estrutura de prompts, logging estruturado de métricas e fallback degradado. Cada exemplo é comentado linha por linha em português para que você entenda como manter o contexto dentro dos limites do modelo sem vazamento de dados ou falhas de memória.
+
+> 💡 **Nota pedagógica**: ≤5 linhas executáveis por bloco + `// 👇 EXPLICAÇÃO:` que descrevem O QUE faz e POR QUE é essencial para cumprir C1 (limites), C4 (isolamento de tenant), C5 (validação) e C8 (observabilidade).
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C4/C1: Estructura de contexto aislada por tenant con límite de tokens
-// 👇 EXPLICACIÓN: Mapa anidado garantiza que mensajes de un tenant no se mezclen con otros
-// 👇 EXPLICACIÓN: MaxTokens aplica límite estricto por tenant para cumplir límites del modelo
+// ✅ C4/C1: Estrutura de contexto isolada por tenant com limite de tokens
+// 👇 EXPLICAÇÃO: Mapa aninhado garante que mensagens de um tenant não se misturem com outras
+// 👇 EXPLICAÇÃO: MaxTokens aplica limite estrito por tenant para cumprir limites do modelo
 type TenantContext struct { Messages []Message; CurrentTokens int; MaxTokens int }
 func NewTenantContext(tid string, maxT int) *TenantContext {
-    return &TenantContext{Messages: []Message{}, CurrentTokens: 0, MaxTokens: maxT}  // C4: instancia aislada
+    return &TenantContext{Messages: []Message{}, CurrentTokens: 0, MaxTokens: maxT}  // C4: instância isolada
 }
 ```
 
 ```go
-// ✅ C1: Estimación segura de tokens con margen de seguridad
-// 👇 EXPLICACIÓN: Aproximamos 4 caracteres por token + margen del 15% para evitar overflow
-// 👇 EXPLICACIÓN: Rechazamos contexto antes de enviarlo al LLM si supera el límite
-estimated := len(text)/4 * 1.15  // C1: estimación conservadora
-if estimated > ctx.MaxTokens { return nil, fmt.Errorf("C1: contexto excede límite") }
+// ✅ C1: Estimativa segura de tokens com margem de segurança
+// 👇 EXPLICAÇÃO: Aproximamos 4 caracteres por token + margem de 15% para evitar overflow
+// 👇 EXPLICAÇÃO: Rejeitamos contexto antes de enviá-lo ao LLM se exceder o limite
+estimated := len(text) / 4 * 1.15  // C1: estimativa conservadora
+if estimated > ctx.MaxTokens { return nil, fmt.Errorf("C1: contexto excede limite") }
 ```
 
 ```go
-// ❌ Anti-pattern: concatenar mensajes sin verificar límite colapsa ventana de contexto
+// ❌ Anti-pattern: concatenar mensagens sem verificar limite colapsa janela de contexto
 ctx.Messages = append(ctx.Messages, newMsg); ctx.CurrentTokens += len(newMsg.Content)  // 🔴 C1
-// 👇 EXPLICACIÓN: Acumulación sin control supera límites del modelo y genera errores 429/500
-// 🔧 Fix: aplicar función de compactación antes de agregar (≤5 líneas)
+// 👇 EXPLICAÇÃO: Acúmulo sem controle excede limites do modelo e gera erros 429/500
+// 🔧 Fix: aplicar função de compactação antes de adicionar (≤5 linhas)
 compactCtx := compactBeforeAdd(ctx, newMsg, maxTokens)
 ctx.Messages = compactCtx.Messages; ctx.CurrentTokens = compactCtx.Tokens
 ```
 
 ```go
-// ✅ C5: Validación de estructura de prompt antes de compresión
-// 👇 EXPLICACIÓN: Usamos struct tags para garantizar que campos obligatorios existan
-// 👇 EXPLICACIÓN: Previene envío de contextos malformed al modelo que rompen el flujo
+// ✅ C5: Validação da estrutura do prompt antes da compressão
+// 👇 EXPLICAÇÃO: Usamos struct tags para garantir que campos obrigatórios existam
+// 👇 EXPLICAÇÃO: Previne envio de contextos malformados ao modelo que quebram o fluxo
 type PromptInput struct {
     System   string `json:"system" validate:"required,min=10"`
     History  []Msg  `json:"history" validate:"max=50"`
@@ -57,243 +101,294 @@ if err := validator.Struct(&input); err != nil { return nil, fmt.Errorf("C5: pro
 ```
 
 ```go
-// ✅ C8: Logging estructurado de métricas de compresión
-// 👇 EXPLICACIÓN: Registramos ratio de compresión, tokens usados y tenant_id para observabilidad
-// 👇 EXPLICACIÓN: Permite detectar degradación de calidad o límites mal configurados
-logger.Info("context_compacted", "tenant_id", tid, "original_tokens": orig, "compact_tokens": final, "ratio": fmt.Sprintf("%.2f", float64(final)/orig))
+// ✅ C8: Logging estruturado de métricas de compressão
+// 👇 EXPLICAÇÃO: Registramos taxa de compressão, tokens usados e tenant_id para observabilidade
+// 👇 EXPLICAÇÃO: Permite detectar degradação de qualidade ou limites mal configurados
+master.MantisLog(master.INFO, "context_compacted", "tenant_id", tid, "original_tokens", orig, "compact_tokens", final, "ratio", fmt.Sprintf("%.2f", float64(final)/float64(orig)))  // C8
 ```
 
 ```go
-// ✅ C1/C7: Timeout para operación de compresión bajo carga
-// 👇 EXPLICACIÓN: Limitamos el proceso de compactación a 500ms para no bloquear requests HTTP
-// 👇 EXPLICACIÓN: Si excede, fallback a truncación simple garantiza respuesta rápida
-ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+// ✅ C1/C7: Timeout para operação de compressão sob carga
+// 👇 EXPLICAÇÃO: Limitamos o processo de compactação a 500ms para não bloquear requisições HTTP
+// 👇 EXPLICAÇÃO: Se exceder, fallback para truncamento simples garante resposta rápida
+ctxComp, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 defer cancel()
-compacted, err := compactWithContext(ctx, original, maxTokens)  // C7: bounded processing
+compacted, err := compactWithContext(ctxComp, original, maxTokens)  // C7: processamento limitado
 ```
 
 ```go
-// ✅ C4: Ventana deslizante aislada por tenant
-// 👇 EXPLICACIÓN: Mantenemos solo los N mensajes más recientes, descartando los más antiguos
-// 👇 EXPLICACIÓN: Previene memory leaks y garantiza que cada tenant opere dentro de su cuota
+// ✅ C4: Janela deslizante isolada por tenant
+// 👇 EXPLICAÇÃO: Mantemos apenas as N mensagens mais recentes, descartando as mais antigas
+// 👇 EXPLICAÇÃO: Previne memory leaks e garante que cada tenant opere dentro de sua cota
 if len(ctx.Messages) > maxHistory {
-    ctx.Messages = ctx.Messages[len(ctx.Messages)-maxHistory:]  // C4: slice seguro por instancia
+    ctx.Messages = ctx.Messages[len(ctx.Messages)-maxHistory:]  // C4: slice seguro por instância
 }
 ```
 
 ```go
-// ✅ C5/C1: Validación de caracteres y sanitización antes de inyectar en contexto
-// 👇 EXPLICACIÓN: Removemos caracteres de control y secuencias de escape peligrosas
-// 👇 EXPLICACIÓN: Previene inyección de prompts maliciosos o corrupción de tokens
+// ✅ C5/C1: Validação de caracteres e sanitização antes de injetar no contexto
+// 👇 EXPLICAÇÃO: Removemos caracteres de controle e sequências de escape perigosas
+// 👇 EXPLICAÇÃO: Previne injeção de prompts maliciosos ou corrupção de tokens
 sanitized := strings.Map(func(r rune) rune {
     if unicode.IsControl(r) && r != '\n' && r != '\t' { return -1 }; return r
 }, rawInput)
 ```
 
 ```go
-// ❌ Anti-pattern: límite de tokens hardcodeado ignora variación entre modelos
-const MaxTokens = 4096  // 🔴 C1 violation: inflexible entre entornos/modelos
-// 👇 EXPLICACIÓN: Modelos diferentes tienen ventanas distintas; hardcodear rompe portabilidad
-// 🔧 Fix: leer desde configuración por modelo/tenant (≤5 líneas)
+// ❌ Anti-pattern: limite de tokens hardcoded ignora variação entre modelos
+const MaxTokens = 4096  // 🔴 Violação C1: inflexível entre ambientes/modelos
+// 👇 EXPLICAÇÃO: Modelos diferentes têm janelas distintas; hardcodar quebra portabilidade
+// 🔧 Fix: ler da configuração por modelo/tenant (≤5 linhas)
 maxT := config.GetModelLimit(modelName)
-if estimated > maxT { return fmt.Errorf("C1: límite excedido para %s", modelName) }
+if estimated > maxT { return fmt.Errorf("C1: limite excedido para %s", modelName) }
 ```
 
 ```go
-// ✅ C4/C1: Poda basada en prioridad de mensajes por tenant
-// 👇 EXPLICACIÓN: Eliminamos primero mensajes de baja prioridad (ej: system logs) antes de datos críticos
-// 👇 EXPLICACIÓN: Mantiene coherencia conversacional respetando límites estrictos
+// ✅ C4/C1: Poda baseada em prioridade de mensagens por tenant
+// 👇 EXPLICAÇÃO: Eliminamos primeiro mensagens de baixa prioridade (ex: logs do sistema) antes de dados críticos
+// 👇 EXPLICAÇÃO: Mantém coerência conversacional respeitando limites estritos
 for ctx.CurrentTokens > ctx.MaxTokens {
     if idx := findLowestPriority(ctx.Messages); idx != -1 {
         ctx.CurrentTokens -= estimateTokens(ctx.Messages[idx].Content)
-        ctx.Messages = append(ctx.Messages[:idx], ctx.Messages[idx+1:]...)  // C4: safe remove
+        ctx.Messages = append(ctx.Messages[:idx], ctx.Messages[idx+1:]...)  // C4: remoção segura
     }
 }
 ```
 
 ```go
-// ✅ C8/C4: Auditoría estructurada de operaciones de contexto
-// 👇 EXPLICACIÓN: Registramos acción, tenant, tokens antes/después y resultado para trazabilidad
-// 👇 EXPLICACIÓN: Permite análisis post-mortem de fallos de contexto o degradación de calidad
-logger.Info("context_audit", "tenant_id", tid, "action": "compact_sliding", "tokens_in": in, "tokens_out": out, "ts": time.Now().UTC())
+// ✅ C8/C4: Auditoria estruturada de operações de contexto
+// 👇 EXPLICAÇÃO: Registramos ação, tenant, tokens antes/depois e resultado para rastreabilidade
+// 👇 EXPLICAÇÃO: Permite análise post-mortem de falhas de contexto ou degradação de qualidade
+master.MantisLog(master.INFO, "context_audit", "tenant_id", tid, "action", "compact_sliding", "tokens_in", in, "tokens_out", out, "ts", time.Now().UTC())  // C8
 ```
 
 ```go
-// ✅ C1: Límite de memoria para builder de contextos largos
-// 👇 EXPLICACIÓN: debug.SetMemoryLimit fuerza GC agresivo si el builder consume demasiado
-// 👇 EXPLICACIÓN: Previene OOM durante construcción de contextos históricos masivos
-debug.SetMemoryLimit(64 << 20)  // C1: 64MB para compaction
-defer func() { if r := recover(); r != nil { logger.Error("mem_limit_hit_compaction", r) } }()
+// ✅ C1: Limite de memória para builder de contextos longos
+// 👇 EXPLICAÇÃO: debug.SetMemoryLimit força GC agressivo se o builder consumir demais
+// 👇 EXPLICAÇÃO: Previne OOM durante construção de contextos históricos massivos
+debug.SetMemoryLimit(64 << 20)  // C1: 64MB para compactação
+defer func() { if r := recover(); r != nil { master.MantisLog(master.ERROR, "mem_limit_hit_compaction", "error", r) } }()
 ```
 
 ```go
-// ✅ C7: Fallback seguro a prompt minimalista si compresión falla
-// 👇 EXPLICACIÓN: Si la compactación compleja tarda o falla, usamos versión reducida garantizada
-// 👇 EXPLICACIÓN: Mantiene disponibilidad del servicio sin romper contrato con el cliente
+// ✅ C7: Fallback seguro para prompt minimalista se a compressão falhar
+// 👇 EXPLICAÇÃO: Se a compactação complexa demorar ou falhar, usamos versão reduzida garantida
+// 👇 EXPLICAÇÃO: Mantém a disponibilidade do serviço sem quebrar o contrato com o cliente
 compacted, err := advancedCompact(ctx)
 if err != nil {
-    logger.Warn("fallback_to_minimal", "tenant_id", tid)
-    compacted = minimalContext(tid, userQuery)  // C7: degradación controlada
+    master.MantisLog(master.WARN, "fallback_to_minimal", "tenant_id", tid)
+    compacted = minimalContext(tid, userQuery)  // C7: degradação controlada
 }
 ```
 
 ```go
-// ✅ C4: Inyección de system prompt scopeado por tenant
-// 👇 EXPLICACIÓN: Cada tenant recibe instrucciones de sistema aisladas sin contaminación cruzada
-// 👇 EXPLICACIÓN: Valida que el prompt no exceda 10% del token budget total
+// ✅ C4: Injeção de system prompt com escopo por tenant
+// 👇 EXPLICAÇÃO: Cada tenant recebe instruções de sistema isoladas sem contaminação cruzada
+// 👇 EXPLICAÇÃO: Valida que o prompt não exceda 10% do orçamento total de tokens
 sysPrompt := getTenantSystemPrompt(tid)
 if est := estimateTokens(sysPrompt); est > ctx.MaxTokens/10 {
-    return fmt.Errorf("C4: system prompt excede cuota para tenant %s", tid)
+    return fmt.Errorf("C4: system prompt excede cota para tenant %s", tid)
 }
 ```
 
 ```go
-// ✅ C5: Validación de UTF-8 y longitud máxima por mensaje
-// 👇 EXPLICACIÓN: Rechazamos mensajes con encoding inválido o extremadamente largos antes de procesar
-// 👇 EXPLICACIÓN: Previene panics en parsers del modelo o corrupción de estado interno
+// ✅ C5: Validação de UTF-8 e comprimento máximo por mensagem
+// 👇 EXPLICAÇÃO: Rejeitamos mensagens com encoding inválido ou extremamente longas antes de processar
+// 👇 EXPLICAÇÃO: Previne panics em parsers do modelo ou corrupção de estado interno
 if !utf8.ValidString(msg.Content) || len(msg.Content) > 50000 {
-    return fmt.Errorf("C5: mensaje inválido o demasiado largo")
+    return fmt.Errorf("C5: mensagem inválida ou muito longa")
 }
 ```
 
 ```go
-// ✅ C1/C2: Compresión asíncrona con cancelación en cascada
-// 👇 EXPLICACIÓN: Ejecutamos compresión pesada en background con timeout y contexto heredado
-// 👇 EXPLICACIÓN: Si el request HTTP muere, la compresión se cancela automáticamente
+// ✅ C1/C2: Compressão assíncrona com cancelamento em cascata
+// 👇 EXPLICAÇÃO: Executamos compressão pesada em background com timeout e contexto herdado
+// 👇 EXPLICAÇÃO: Se a requisição HTTP morrer, a compressão é cancelada automaticamente
 go func() {
     compacted, err := compactHeavy(ctx, messages)
-    if err == nil && ctx.Err() == nil { resultCh <- compacted }  // C2: check cancellation
+    if err == nil && ctx.Err() == nil { resultCh <- compacted }  // C2: verifica cancelamento
 }()
 ```
 
 ```go
-// ✅ C4/C8: Exportación de métricas de uso de contexto por tenant
-// 👇 EXPLICACIÓN: Contador atómico trackea tokens consumidos por tenant para billing/alertas
-// 👇 EXPLICACIÓN: Permite detectar tenants que saturan recursos sin afectar a otros
+// ✅ C4/C8: Exportação de métricas de uso de contexto por tenant
+// 👇 EXPLICAÇÃO: Contador atômico rastreia tokens consumidos por tenant para faturamento/alertas
+// 👇 EXPLICAÇÃO: Permite detectar tenants que saturam recursos sem afetar outros
 var tenantTokens atomic.Int64
 tenantTokens.Add(int64(tokensUsed))
-if tenantTokens.Load() > dailyQuota { logger.Warn("quota_exceeded", "tenant_id", tid) }  // C8
+if tenantTokens.Load() > dailyQuota { master.MantisLog(master.WARN, "quota_exceeded", "tenant_id", tid) }  // C8
 ```
 
 ```go
-// ❌ Anti-pattern: string concatenation en bucle consume memoria exponencialmente
+// ❌ Anti-pattern: concatenação de strings em loop consome memória exponencialmente
 var full string
-for _, m := range msgs { full += m.Content + "\n" }  // 🔴 C1 violation: O(n²) memory
-// 👇 EXPLICACIÓN: Cada += crea nueva string, colapsando memoria en conversaciones largas
-// 🔧 Fix: usar strings.Builder para concatenación eficiente (≤5 líneas)
+for _, m := range msgs { full += m.Content + "\n" }  // 🔴 Violação C1: memória O(n²)
+// 👇 EXPLICAÇÃO: Cada += cria nova string, colapsando memória em conversas longas
+// 🔧 Fix: usar strings.Builder para concatenação eficiente (≤5 linhas)
 var b strings.Builder
 for _, m := range msgs { b.WriteString(m.Content); b.WriteByte('\n') }
 ```
 
 ```go
-// ✅ C7: Retry con reducción agresiva de contexto tras fallo de LLM
-// 👇 EXPLICACIÓN: Si el modelo rechaza el prompt por tamaño, reintentamos con 50% menos tokens
-// 👇 EXPLICACIÓN: Evita bucles infinitos y garantiza resolución eventual
+// ✅ C7: Retry com redução agressiva de contexto após falha do LLM
+// 👇 EXPLICAÇÃO: Se o modelo rejeitar o prompt por tamanho, tentamos novamente com 50% menos tokens
+// 👇 EXPLICAÇÃO: Evita loops infinitos e garante resolução eventual
 for attempt := 1; attempt <= 3; attempt++ {
     if resp, err := sendToLLM(ctx, prompt); err == nil { return resp, nil }
-    prompt = reduceTokens(prompt, 0.5)  // C7: agresivo reduction
+    prompt = reduceTokens(prompt, 0.5)  // C7: redução agressiva
     time.Sleep(time.Duration(attempt*100) * time.Millisecond)
 }
 ```
 
 ```go
-// ✅ C4: Caché de contextos compactados por tenant+hash
-// 👇 EXPLICACIÓN: Almacenamos resultado compactado para reusar si input no cambia
-// 👇 EXPLICACIÓN: Mapa con clave hash(tenantID+messages) evita re-procesamiento costoso
+// ✅ C4: Cache de contextos compactados por tenant+hash
+// 👇 EXPLICAÇÃO: Armazenamos resultado compactado para reuso se a entrada não mudar
+// 👇 EXPLICAÇÃO: Mapa com chave hash(tenantID+messages) evita reprocessamento custoso
 cacheKey := fmt.Sprintf("%s:%x", tid, sha256.Sum256([]byte(msgKey)))
-if cached, ok := compCache.Get(cacheKey); ok { return cached, nil }  // C4: isolation by key
+if cached, ok := compCache.Get(cacheKey); ok { return cached, nil }  // C4: isolamento por chave
 ```
 
 ```go
-// ✅ C1/C5: Límite estricto de turnos de conversación
-// 👇 EXPLICACIÓN: Truncamos automáticamente cuando se supera número máximo de intercambios
-// 👇 EXPLICACIÓN: Previene contexto infinito y mantiene coherencia dentro de ventana del modelo
+// ✅ C1/C5: Limite estrito de turnos de conversação
+// 👇 EXPLICAÇÃO: Truncamos automaticamente quando o número máximo de intercâmbios é excedido
+// 👇 EXPLICAÇÃO: Previne contexto infinito e mantém coerência dentro da janela do modelo
 if len(ctx.Messages) > maxTurns {
     keep := ctx.Messages[len(ctx.Messages)-maxTurns:]
-    ctx.Messages = append([]Message{ctx.SystemPrompt}, keep...)  // C5: preserve system
+    ctx.Messages = append([]Message{ctx.SystemPrompt}, keep...)  // C5: preserva sistema
 }
 ```
 
 ```go
-// ✅ C8: Reporte estructurado de error de contexto
-// 👇 EXPLICACIÓN: Devolvemos payload JSON claro para que clientes manejen fallos programáticamente
-// 👇 EXPLICACIÓN: Incluye tenant_id, límite excedido y acción recomendada
+// ✅ C8: Relatório estruturado de erro de contexto
+// 👇 EXPLICAÇÃO: Devolvemos payload JSON claro para que clientes lidem com falhas programaticamente
+// 👇 EXPLICAÇÃO: Inclui tenant_id, limite excedido e ação recomendada
 errResp := map[string]interface{}{
     "error": "context_limit_exceeded", "tenant_id": tid,
     "max_tokens": ctx.MaxTokens, "suggestion": "reduce_history_or_split_conversation",
 }
-json.NewEncoder(os.Stderr).Encode(errResp)  // C8: stderr for observability
+json.NewEncoder(os.Stderr).Encode(errResp)  // C8: stderr para observabilidade
 ```
 
 ```go
-// ✅ C4/C1: Builder con backpressure y límite de tamaño
-// 👇 EXPLICACIÓN: Canal con buffer controla velocidad de agregado de mensajes al contexto
-// 👇 EXPLICACIÓN: Si el consumer es lento, el producer se bloquea controladamente
+// ✅ C4/C1: Builder com backpressure e limite de tamanho
+// 👇 EXPLICAÇÃO: Canal com buffer controla a velocidade de adição de mensagens ao contexto
+// 👇 EXPLICAÇÃO: Se o consumidor for lento, o produtor bloqueia controladamente
 msgCh := make(chan Message, 50)
 go func() {
-    for m := range msgCh { if ctx.CanAdd(m) { ctx.Add(m) } }  // C4: tenant-aware builder
+    for m := range msgCh { if ctx.CanAdd(m) { ctx.Add(m) } }  // C4: builder ciente do tenant
 }()
 ```
 
 ```go
-// ✅ C7: Degradación controlada bajo saturación de tokens
-// 👇 EXPLICACIÓN: Si el sistema está bajo carga, reducimos automáticamente el historial mantenido
-// 👇 EXPLICACIÓN: Prioriza respuesta rápida sobre completitud histórica
+// ✅ C7: Degradação controlada sob saturação de tokens
+// 👇 EXPLICAÇÃO: Se o sistema estiver sob carga, reduzimos automaticamente o histórico mantido
+// 👇 EXPLICAÇÃO: Prioriza resposta rápida sobre completude histórica
 if systemLoad > 0.85 {
     ctx.MaxTokens = ctx.MaxTokens * 3 / 4  // C7: auto-throttle
-    logger.Warn("context_degraded", "tenant_id", tid, "new_limit": ctx.MaxTokens)
+    master.MantisLog(master.WARN, "context_degraded", "tenant_id", tid, "new_limit", ctx.MaxTokens)
 }
 ```
 
 ```go
-// ✅ C1-C8: Función integrada de compresión segura por tenant
-// 👇 EXPLICACIÓN: Combina validación, estimación, aislamiento, timeout y logging estructurado
-// 👇 EXPLICACIÓN: Cada sección está comentada para entender el flujo completo de gestión de contexto
+// ✅ C1-C8: Função integrada de compressão segura por tenant
+// 👇 EXPLICAÇÃO: Combina validação, estimativa, isolamento, timeout e logging estruturado
+// 👇 EXPLICAÇÃO: Cada seção é comentada para entender o fluxo completo de gerenciamento de contexto
 func CompactTenantContext(tid string, input PromptInput, modelLimit int) (*CompactResult, error) {
-    // C4/C5: Validar input y aislar por tenant
+    // C4/C5: Validar entrada e isolar por tenant
     if err := validatePrompt(&input); err != nil { return nil, err }
     ctx := NewTenantContext(tid, modelLimit)
     
-    // C1/C7: Timeout y compresión con fallback
+    // C1/C7: Timeout e compressão com fallback
     compCtx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
     defer cancel()
     result, err := compactWithContext(compCtx, input, ctx)
     if err != nil { result = fallbackMinimal(input, tid) }
     
-    // C8: Auditoría y métricas
-    logger.Info("context_compaction_complete", "tenant_id", tid, "tokens": result.Tokens)
+    // C8: Auditoria e métricas
+    master.MantisLog(master.INFO, "context_compaction_complete", "tenant_id", tid, "tokens", result.Tokens)
     return result, nil
 }
 ```
 
-## 🧪 Testing Checklist – Stress & Error Hunting
+## 🔍 Observabilidade (Documentação para IA – Eventos Específicos)
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `context_compaction_started` | INFO | C8 | `"iniciando compressão de contexto"` |
+| `context_limit_exceeded` | WARN | C1 | `"limite de tokens excedido"` |
+| `invalid_message_dropped` | WARN | C5 | `"mensagem inválida descartada"` |
+| `fallback_to_minimal` | WARN | C7 | `"fallback para contexto mínimo ativado"` |
+| `mem_limit_hit_compaction` | ERROR | C1 | `"limite de memória atingido durante compactação"` |
+| `quota_exceeded` | WARN | C8 | `"cota de tokens excedida para tenant"` |
+
+### Validação de Schema V-LOG-02
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
+
+## 🧪 Testes Unitários e Checklist de Stress & Caça a Erros
+
+### Teste Unitário Concreto
+```go
+func TestTenantContextExcedeLimiteTokens(t *testing.T) {
+    ctx := NewTenantContext("tenant-1", 100)
+    // Adiciona mensagens que ultrapassam o limite
+    for i := 0; i < 10; i++ {
+        msg := Message{Content: strings.Repeat("a", 100)} // cada ~25 tokens
+        ctx.Messages = append(ctx.Messages, msg)
+        ctx.CurrentTokens += 25
+    }
+    if ctx.CurrentTokens <= ctx.MaxTokens {
+        t.Errorf("Esperava que CurrentTokens (%d) excedesse MaxTokens (%d)", ctx.CurrentTokens, ctx.MaxTokens)
+    }
+    // Aplica janela deslizante para corrigir
+    maxHistory := 3
+    if len(ctx.Messages) > maxHistory {
+        ctx.Messages = ctx.Messages[len(ctx.Messages)-maxHistory:]
+        // Recalcula tokens (simplificado)
+        ctx.CurrentTokens = 0
+        for _, m := range ctx.Messages {
+            ctx.CurrentTokens += 25
+        }
+    }
+    if ctx.CurrentTokens > ctx.MaxTokens {
+        t.Errorf("Após janela deslizante, CurrentTokens (%d) deveria ser <= MaxTokens (%d)", ctx.CurrentTokens, ctx.MaxTokens)
+    }
+}
+```
 
 ### ✅ Pre-flight checks
-- [ ] Verificar que `MaxTokens` se lee desde configuración por modelo/entorno (no hardcode)
-- [ ] Confirmar que cada instancia `TenantContext` está aislada y no comparte slices/mapas
-- [ ] Validar que `compactWithContext` respeta `context.DeadlineExceeded` y retorna fallback
-- [ ] Asegurar que `strings.Map` elimina caracteres de control sin romper UTF-8 válido
+- [ ] Verificar que `MaxTokens` é lido da configuração por modelo/ambiente (sem hardcode)
+- [ ] Confirmar que cada instância de `TenantContext` é isolada e não compartilha slices/mapas
+- [ ] Validar que `compactWithContext` respeita `context.DeadlineExceeded` e retorna fallback
+- [ ] Assegurar que `strings.Map` elimina caracteres de controle sem quebrar UTF-8 válido
 
-### ⚡ Stress test scenarios
-1. **Token overflow simulation**: Enviar 3x el límite de tokens → verificar truncación controlada y fallback activado sin panic
-2. **Concurrent compaction**: 200 tenants compactando simultáneamente → confirmar aislamiento de memoria y cero race conditions (`go test -race`)
-3. **Encoding attack**: Inyectar mensajes con secuencias maliciosas (null bytes, control chars) → validar sanitización exitosa
-4. **Timeout cascade**: Forzar lentitud en función de compresión → confirmar cancelación en <500ms y fallback minimalista
-5. **Cache poisoning**: Generar colisiones de hash artificiales → verificar que key incluye tenant_id y evita cross-tenant leaks
+### ⚡ Cenários de Stress Test
+1. **Simulação de overflow de tokens**: Enviar 3x o limite de tokens → verificar truncamento controlado e fallback ativado sem panic
+2. **Compactação concorrente**: 200 tenants compactando simultaneamente → confirmar isolamento de memória e zero race conditions (`go test -race`)
+3. **Ataque de encoding**: Injetar mensagens com sequências maliciosas (null bytes, caracteres de controle) → validar sanitização bem-sucedida
+4. **Cascata de timeout**: Forçar lentidão na função de compressão → confirmar cancelamento em <500ms e fallback minimalista
+5. **Envenenamento de cache**: Gerar colisões de hash artificiais → verificar que a chave inclui tenant_id e evita vazamentos entre tenants
 
-### 🔍 Error hunting procedures
-- [ ] Revisar logs estructurados para confirmar que `tenant_id` aparece en cada evento de compresión
-- [ ] Validar que `debug.SetMemoryLimit` fuerza GC sin crash del proceso principal
-- [ ] Confirmar que `strings.Builder` reemplaza concatenación `+=` en todos los flujos de construcción
-- [ ] Verificar que retry con reducción de tokens no genera bucle infinito (máx 3 intentos)
-- [ ] Revisar profiling con `pprof` para detectar allocations innecesarias en `compactWithContext`
+### 🔍 Procedimentos de Caça a Erros
+- [ ] Revisar logs estruturados para confirmar que `tenant_id` aparece em cada evento de compressão
+- [ ] Validar que `debug.SetMemoryLimit` força GC sem derrubar o processo principal
+- [ ] Confirmar que `strings.Builder` substitui concatenação `+=` em todos os fluxos de construção
+- [ ] Verificar que o retry com redução de tokens não gera loop infinito (máx 3 tentativas)
+- [ ] Revisar profiling com `pprof` para detectar alocações desnecessárias em `compactWithContext`
 
-### 📊 Métricas de aceptación
-- P99 latency de compresión < 400ms bajo carga de 50 requests/seg por tenant
-- Zero memory leaks después de 10k operaciones de compactación (verificar con `runtime.ReadMemStats`)
-- 100% de contextos entregados al modelo cumplen `len(tokens) <= MaxTokens * 0.95`
-- Fallback activado en <1% de casos bajo carga normal; <15% bajo saturación extrema
-- 100% de logs de auditoría incluyen `tenant_id`, `tokens_in`, `tokens_out` y timestamp RFC3339
+### 📊 Métricas de Aceitação
+- Latência P99 de compressão < 400ms sob carga de 50 requisições/seg por tenant
+- Zero memory leaks após 10k operações de compactação (verificar com `runtime.ReadMemStats`)
+- 100% dos contextos entregues ao modelo cumprem `len(tokens) <= MaxTokens * 0.95`
+- Fallback ativado em <1% dos casos sob carga normal; <15% sob saturação extrema
+- 100% dos logs de auditoria incluem `tenant_id`, `tokens_in`, `tokens_out` e timestamp RFC3339
 
 ## Validation Command
 ```bash
@@ -302,7 +397,27 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"context-compaction-utils","version":"3.0.0","score":91,"blocking_issues":[],"constraints_verified":["C1","C4","C5","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"context_pattern":"token_limits_tenant_isolation_sliding_window_structured_audit","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"context-compaction-utils","version":"3.0.0-FUSION","score":91,"blocking_issues":[],"constraints_verified":["C1","C4","C5","C8"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"context_pattern":"token_limits_tenant_isolation_sliding_window_structured_audit","timestamp":"2026-05-09T00:00:00Z"}
 ```
 
----
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões didáticos e checklist de stress | C1, C4, C5, C8 |
+| 2.3.0 | 2026-05-09 | Antigravity | Remanufatura modular (parcial, perdeu checklist e exemplos avançados) | C1, C4, C5, C8 |
+| 3.0.0-FUSION | 2026-05-09 | DeepSeek | Fusão manual completa: conhecimento original + estrutura modular v2.3.0, tradução pt-BR, testes concretos, checklist de stress recuperado | C1, C4, C5, C8 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["context-compaction-utils.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.
+```

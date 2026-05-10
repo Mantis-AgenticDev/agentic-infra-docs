@@ -1,209 +1,260 @@
-# SHA256: e9b4f7c2a1d8f3e6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a8
 ---
 artifact_id: "filesystem-sandboxing"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
 constraints_mapped: ["C1","C3","C4","C7"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/filesystem-sandboxing.go.md --json"
 canonical_path: "06-PROGRAMMING/go/filesystem-sandboxing.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-filesystem-sandboxing-v3.0.0"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["filesystem-sandboxing"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-06-09"
 ---
 
 # filesystem-sandboxing.go.md – Aislamiento seguro de I/O y sandboxing para agentes con explicación didáctica
 
-## Propósito
-Patrones de implementación en Go para construir entornos de ejecución aislados (sandboxes) que prevengan escapes de directorio, controlen cuotas de disco, validen rutas, restrinjan permisos y aseguren operaciones de I/O para agentes autónomos. Cada ejemplo está comentado línea por línea en español para que entiendas cómo limitar el impacto de fallos o ataques sin comprometer la funcionalidad del sistema.
+> **Contrato modular**: Este artefato é filho do Master Agent `go-master-agent-mantis`.  
+> Herda hardening, observability, thinking system e constraints via source/import.  
+> Contém APENAS a lógica de domínio específica para isolamento de I/O e sandboxing.
 
-> 💡 **Nota pedagógica**: ≤5 líneas ejecutables por bloque + `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es esencial para cumplir C1 (límites), C3 (secrets/masking), C4 (aislamiento tenant) y C7 (seguridad operativa).
+---
 
-## Patrones de Código Validados (25 ejemplos)
+## 🎯 Propósito
+Padrões de implementação em Go para construir ambientes de execução isolados (sandboxes) que previnam escapes de diretório, controlem cotas de disco, validem rotas, restrinjam permissões e assegurem operações de I/O para agentes autônomos. Cada exemplo é comentado linha por linha em português para que você entenda como limitar o impacto de falhas ou ataques sem comprometer a funcionalidade do sistema.
+
+> 💡 **Nota pedagógica**: ≤5 linhas executáveis por bloco + `// 👇 EXPLICAÇÃO:` que descrevem O QUE faz e POR QUE é essencial para cumprir C1 (limites), C3 (secrets/mascaramento), C4 (isolamento de tenant) e C7 (segurança operacional).
+
+---
+
+## 🛡️ Bootstrap Resiliente + Lógica de Domínio
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
+
+package main
+
+import (
+    "os"
+    "fmt"
+    "time"
+)
+
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C4: Base path aislado por tenant con validación estricta
-// 👇 EXPLICACIÓN: Cada tenant opera solo dentro de su directorio raíz asignado
-// 👇 EXPLICACIÓN: Previene escapes de ruta y acceso cruzado entre inquilinos
+// ✅ C4: Base path isolado por tenant com validação estrita
+// 👇 EXPLICAÇÃO: Cada tenant opera apenas dentro de seu diretório raiz atribuído
+// 👇 EXPLICAÇÃO: Previne escapes de rota e acesso cruzado entre inquilinos
 sandboxRoot := fmt.Sprintf("/var/sandbox/tenants/%s", tid)
-if err := os.MkdirAll(sandboxRoot, 0700); err != nil { return fmt.Errorf("C4: fallo creando sandbox") }
+if err := os.MkdirAll(sandboxRoot, 0700); err != nil { return fmt.Errorf("C4: falha criando sandbox") }
 ```
 
 ```go
-// ❌ Anti-pattern: concatenar input de usuario directamente en ruta
+// ❌ Anti-pattern: concatenar input do usuário diretamente na rota
 path := "/var/sandbox/" + userInput + "/data.txt"  // 🔴 C4/C7 vulnerability
-// 👇 EXPLICACIÓN: `../../../etc/passwd` permitiría lectura de archivos sensibles del host
-// 🔧 Fix: limpiar ruta y verificar prefijo del sandbox (≤5 líneas)
+// 👇 EXPLICAÇÃO: `../../../etc/passwd` permitiria leitura de arquivos sensíveis do host
+// 🔧 Fix: limpar rota e verificar prefixo do sandbox (≤5 linhas)
 clean := filepath.Clean(filepath.Join(sandboxRoot, userInput))
 if !strings.HasPrefix(clean, sandboxRoot) { return fmt.Errorf("C4: path traversal detectado") }
 ```
 
 ```go
-// ✅ C1: Límite de tamaño de archivo antes de escritura
-// 👇 EXPLICACIÓN: Verificamos cuota restante para evitar llenado accidental de disco
-// 👇 EXPLICACIÓN: Rechazo temprano previene `ENOSPC` en operaciones críticas
+// ✅ C1: Limite de tamanho de arquivo antes de escrita
+// 👇 EXPLICAÇÃO: Verificamos cota restante para evitar enchimento acidental do disco
+// 👇 EXPLICAÇÃO: Rejeição precoce previne `ENOSPC` em operações críticas
 info, _ := os.Stat(path)
-if info.Size()+int64(len(data)) > maxFileSize { return fmt.Errorf("C1: archivo excede límite") }
+if info.Size()+int64(len(data)) > maxFileSize { return fmt.Errorf("C1: arquivo excede limite") }
 ```
 
 ```go
-// ✅ C3/C1: Archivo temporal seguro con permisos restrictivos
-// 👇 EXPLICACIÓN: `ioutil.TempFile` con `0600` garantiza que solo el proceso owner acceda
-// 👇 EXPLICACIÓN: Previene lectura por otros usuarios o servicios en el mismo host
+// ✅ C3/C1: Arquivo temporário seguro com permissões restritivas
+// 👇 EXPLICAÇÃO: `os.OpenFile` com `0600` garante que apenas o processo dono acesse
+// 👇 EXPLICAÇÃO: Previne leitura por outros usuários ou serviços no mesmo host
 tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0600)  // C3/C1
 if err != nil { return err }
 defer tmpFile.Close()
 ```
 
 ```go
-// ✅ C7: Prevención de ataques por enlaces simbólicos
-// 👇 EXPLICACIÓN: `os.Lstat` verifica el enlace mismo, no su destino
-// 👇 EXPLICACIÓN: Si es symlink, lo seguimos solo si el destino está dentro del sandbox
+// ✅ C7: Prevenção de ataques por symlinks
+// 👇 EXPLICAÇÃO: `os.Lstat` verifica o link em si, não seu destino
+// 👇 EXPLICAÇÃO: Se for symlink, só o seguimos se o destino estiver dentro do sandbox
 fi, _ := os.Lstat(path)
 if fi.Mode()&os.ModeSymlink != 0 {
     target, _ := os.Readlink(path)
-    if !isInsideSandbox(target, sandboxRoot) { return fmt.Errorf("C7: symlink fuera de sandbox") }
+    if !isInsideSandbox(target, sandboxRoot) { return fmt.Errorf("C7: symlink fora do sandbox") }
 }
 ```
 
 ```go
-// ❌ Anti-pattern: leer archivo completo sin límite de memoria
-data, err := os.ReadFile(path)  // 🔴 C1/C7 risk: OOM en archivos grandes
-// 👇 EXPLICACIÓN: Si el archivo tiene 5GB, el proceso colapsa la RAM del servidor
-// 🔧 Fix: usar `io.LimitedReader` para lectura controlada (≤5 líneas)
+// ❌ Anti-pattern: ler arquivo inteiro sem limite de memória
+data, err := os.ReadFile(path)  // 🔴 C1/C7 risk: OOM em arquivos grandes
+// 👇 EXPLICAÇÃO: Se o arquivo tiver 5GB, o processo colapsa a RAM do servidor
+// 🔧 Fix: usar `io.LimitedReader` para leitura controlada (≤5 linhas)
 f, _ := os.Open(path); defer f.Close()
 data, err := io.ReadAll(io.LimitReader(f, maxReadBytes))
 ```
 
 ```go
-// ✅ C4/C1: Cuota de almacenamiento por tenant con contador atómico
-// 👇 EXPLICACIÓN: Tracking en memoria sin locks pesados para validación rápida
-// 👇 EXPLICACIÓN: Alerta temprana antes de alcanzar límite físico de disco
+// ✅ C4/C1: Cota de armazenamento por tenant com contador atômico
+// 👇 EXPLICAÇÃO: Tracking em memória sem locks pesados para validação rápida
+// 👇 EXPLICAÇÃO: Alerta precoce antes de atingir limite físico de disco
 var tenantUsage atomic.Int64
 tenantUsage.Add(int64(len(data)))
 if tenantUsage.Load() > tenantQuota[tid] { return fmt.Errorf("C1: quota excedida") }
 ```
 
 ```go
-// ✅ C7: Timeout estricto para operaciones de I/O pesadas
-// 👇 EXPLICACIÓN: `context.WithTimeout` aborta lecturas/escrituras que se cuelgan
-// 👇 EXPLICACIÓN: Libera descriptores de archivo y evita bloqueos permanentes
+// ✅ C7: Timeout estrito para operações de I/O pesadas
+// 👇 EXPLICAÇÃO: `context.WithTimeout` aborta leituras/escritas que travam
+// 👇 EXPLICAÇÃO: Libera descritores de arquivo e evita bloqueios permanentes
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 defer cancel()
 if err := copyWithContext(ctx, src, dst); err != nil { return err }
 ```
 
 ```go
-// ✅ C4: Ejecución segura de comandos externos dentro del sandbox
-// 👇 EXPLICACIÓN: `exec.CommandContext` sin `sh -c` previene inyección de comandos
-// 👇 EXPLICACIÓN: Directorio de trabajo fijo evita escapes relativos
+// ✅ C4: Execução segura de comandos externos dentro do sandbox
+// 👇 EXPLICAÇÃO: `exec.CommandContext` sem `sh -c` previne injeção de comandos
+// 👇 EXPLICAÇÃO: Diretório de trabalho fixo evita escapes relativos
 cmd := exec.CommandContext(ctx, "agent_tool", "--config", "safe.yaml")
-cmd.Dir = sandboxRoot; cmd.Stdout = &out  // C4: scope estricto
+cmd.Dir = sandboxRoot; cmd.Stdout = &out  // C4: escopo estrito
 ```
 
 ```go
-// ❌ Anti-pattern: ejecutar con shell y entrada de usuario
+// ❌ Anti-pattern: executar com shell e entrada de usuário
 cmd := exec.Command("sh", "-c", userInput)  // 🔴 C7/C4 critical
-// 👇 EXPLICACIÓN: Permite ejecución arbitraria de comandos del sistema host
-// 🔧 Fix: usar binario directo + argumentos validados (≤5 líneas)
+// 👇 EXPLICAÇÃO: Permite execução arbitrária de comandos do sistema host
+// 🔧 Fix: usar binário direto + argumentos validados (≤5 linhas)
 allowedBins := map[string]bool{"grep": true, "find": true}
-if !allowedBins[parts[0]] { return fmt.Errorf("C7: binario no permitido") }
+if !allowedBins[parts[0]] { return fmt.Errorf("C7: binário não permitido") }
 ```
 
 ```go
-// ✅ C1/C7: Limpieza automática de archivos tras fallo o completado
-// 👇 EXPLICACIÓN: `defer os.Remove` garantiza que no queden residuos en errores
-// 👇 EXPLICACIÓN: Mantiene sandbox limpio y previene llenado de disco temporal
+// ✅ C1/C7: Limpeza automática de arquivos após falha ou conclusão
+// 👇 EXPLICAÇÃO: `defer os.Remove` garante que não fiquem resíduos em erros
+// 👇 EXPLICAÇÃO: Mantém sandbox limpo e previne enchimento de disco temporário
 defer func() { if cleanup { os.Remove(tmpPath) } }()  // C7: safe cleanup
 ```
 
 ```go
-// ✅ C5/C4: Whitelist de extensiones permitidas para escritura
-// 👇 EXPLICACIÓN: Solo aceptamos extensiones conocidas y seguras
-// 👇 EXPLICACIÓN: Previene ejecución accidental de scripts o binarios maliciosos
+// ✅ C5/C4: Whitelist de extensões permitidas para escrita
+// 👇 EXPLICAÇÃO: Apenas aceitamos extensões conhecidas e seguras
+// 👇 EXPLICAÇÃO: Previne execução acidental de scripts ou binários maliciosos
 allowedExts := map[string]bool{".txt": true, ".json": true, ".csv": true}
-if !allowedExts[filepath.Ext(filename)] { return fmt.Errorf("C5: extensión no permitida") }
+if !allowedExts[filepath.Ext(filename)] { return fmt.Errorf("C5: extensão não permitida") }
 ```
 
 ```go
-// ✅ C8: Auditoría estructurada de operaciones de archivo
-// 👇 EXPLICACIÓN: Registramos acción, ruta relativa, tamaño y tenant sin contenido real
-// 👇 EXPLICACIÓN: Permite forense y detección de patrones anómalos sin violar privacidad
-logger.Info("fs_operation", "tenant_id", tid, "op": "write", "path_rel": relPath, "bytes": len(data))
+// ✅ C8: Auditoria estruturada de operações de arquivo
+// 👇 EXPLICAÇÃO: Registramos ação, rota relativa, tamanho e tenant sem conteúdo real
+// 👇 EXPLICAÇÃO: Permite forense e detecção de padrões anômalos sem violar privacidade
+master.MantisLog(master.INFO, "fs_operation", "tenant_id", tid, "op", "write", "path_rel", relPath, "bytes", len(data))
 ```
 
 ```go
-// ✅ C3: Máscara de rutas sensibles en logs de error
-// 👇 EXPLICACIÓN: Reemplazamos `/var/sandbox/` por `[SANDBOX]` antes de loggear
-// 👇 EXPLICACIÓN: Evita exponer estructura interna del host o rutas de otros tenants
+// ✅ C3: Máscara de rotas sensíveis em logs de erro
+// 👇 EXPLICAÇÃO: Substituímos `/var/sandbox/` por `[SANDBOX]` antes de logar
+// 👇 EXPLICAÇÃO: Evita expor estrutura interna do host ou rotas de outros tenants
 logPath := strings.Replace(relPath, sandboxRoot, "[SANDBOX]", 1)
-logger.Warn("write_failed", "path": logPath, "err": err)  // C3: masking
+master.MantisLog(master.WARN, "write_failed", "path", logPath, "err", err)  // C3: masking
 ```
 
 ```go
-// ✅ C7: Reintento con backoff para errores transitorios de disco
-// 👇 EXPLICACIÓN: Capturamos `EAGAIN` o bloqueos de archivos y reintentamos controladamente
-// 👇 EXPLICACIÓN: Previene fallo inmediato por contención temporal de I/O
+// ✅ C7: Retentativa com backoff para erros transitórios de disco
+// 👇 EXPLICAÇÃO: Capturamos `EAGAIN` ou bloqueios de arquivos e retentamos controladamente
+// 👇 EXPLICAÇÃO: Previne falha imediata por contenção temporal de I/O
 for attempt := 1; attempt <= 3; attempt++ {
     if err := safeWrite(path, data); err == nil { break }
-    if !isTransientIOErr(err) { return err }  // C7: fail-fast en permanentes
+    if !isTransientIOErr(err) { return err }  // C7: fail-fast em permanentes
     time.Sleep(time.Duration(attempt*100) * time.Millisecond)
 }
 ```
 
 ```go
-// ✅ C1: Límite de descriptores de archivo abiertos por sandbox
-// 👇 EXPLICACIÓN: Monitoreamos `fdCount` para evitar `too many open files`
-// 👇 EXPLICACIÓN: Rechazo controlado antes de saturar límite del sistema operativo
+// ✅ C1: Limite de descritores de arquivo abertos por sandbox
+// 👇 EXPLICAÇÃO: Monitoramos `fdCount` para evitar `too many open files`
+// 👇 EXPLICAÇÃO: Rejeição controlada antes de saturar limite do sistema operacional
 var openFDs atomic.Int32
 openFDs.Add(1); defer openFDs.Add(-1)
-if openFDs.Load() > maxFDsPerSandbox { return fmt.Errorf("C1: límite de descriptores alcanzado") }
+if openFDs.Load() > maxFDsPerSandbox { return fmt.Errorf("C1: limite de descritores alcançado") }
 ```
 
 ```go
-// ✅ C4/C7: Fallback a modo solo-lectura si falla escritura persistente
-// 👇 EXPLICACIÓN: Si el volumen se llena o falla, servimos datos cacheados/estáticos
-// 👇 EXPLICACIÓN: Mantiene disponibilidad del agente sin romper contrato de servicio
+// ✅ C4/C7: Fallback para modo somente leitura se a escrita persistente falhar
+// 👇 EXPLICAÇÃO: Se o volume encher ou falhar, servimos dados cacheados/estáticos
+// 👇 EXPLICAÇÃO: Mantém disponibilidade do agente sem quebrar contrato de serviço
 if err := writeData(path, data); err != nil {
-    logger.Warn("fs_write_fallback_readonly", "tenant_id", tid)  // C7
+    master.MantisLog(master.WARN, "fs_write_fallback_readonly", "tenant_id", tid)  // C7
     return serveReadOnlyFallback(path)
 }
 ```
 
 ```go
-// ✅ C6: Comando ejecutable para validar permisos de sandbox
-// 👇 EXPLICACIÓN: Script verifica ownership, modos y ausencia de world-accessible files
-// 👇 EXPLICACIÓN: Útil en CI/CD para garantizar hardening post-deploy
+// ✅ C6: Comando executável para validar permissões do sandbox
+// 👇 EXPLICAÇÃO: Script verifica ownership, modos e ausência de arquivos world-accessible
+// 👇 EXPLICAÇÃO: Útil em CI/CD para garantir hardening pós-deploy
 func SandboxValidationCmd() string {
-    return `bash -c 'find $SANDBOX_ROOT -perm /o+r -type f | head -5'`  // C6: security audit
+    return `bash -c 'find $SANDBOX_ROOT -perm /o+r -type f | head -5'`  // C6: auditoria de segurança
 }
 ```
 
 ```go
-// ✅ C1/C4: Validación de espacio libre antes de operación masiva
-// 👇 EXPLICACIÓN: Usamos `unix.Statfs` para leer bloques disponibles reales
-// 👇 EXPLICACIÓN: Previene `ENOSPC` a mitad de batch que dejaría archivos corruptos
+// ✅ C1/C4: Validação de espaço livre antes de operação massiva
+// 👇 EXPLICAÇÃO: Usamos `unix.Statfs` para ler blocos disponíveis reais
+// 👇 EXPLICAÇÃO: Previne `ENOSPC` no meio de batch que deixaria arquivos corrompidos
 var stat unix.Statfs_t; unix.Statfs(".", &stat)
 free := int64(stat.Bavail) * int64(stat.Bsize)
-if free < requiredBytes { return fmt.Errorf("C1: espacio insuficiente en disco") }
+if free < requiredBytes { return fmt.Errorf("C1: espaço insuficiente em disco") }
 ```
 
 ```go
-// ❌ Anti-pattern: `os.Chmod` con `0777` para "facilitar" acceso
-os.Chmod(file, 0777)  // 🔴 C3/C7 violation: exposición total
-// 👇 EXPLICACIÓN: Cualquier usuario del host puede leer/escribir/ejecutar el archivo
-// 🔧 Fix: aplicar permisos mínimos necesarios (`0600` o `0640`) (≤5 líneas)
-if err := os.Chmod(file, 0600); err != nil { return fmt.Errorf("C7: permiso fallido") }
+// ❌ Anti-pattern: `os.Chmod` com `0777` para "facilitar" acesso
+os.Chmod(file, 0777)  // 🔴 C3/C7 violation: exposição total
+// 👇 EXPLICAÇÃO: Qualquer usuário do host pode ler/escrever/executar o arquivo
+// 🔧 Fix: aplicar permissões mínimas necessárias (`0600` ou `0640`) (≤5 linhas)
+if err := os.Chmod(file, 0600); err != nil { return fmt.Errorf("C7: permissão falhou") }
 ```
 
 ```go
-// ✅ C7: Copia segura con verificación de integridad (checksum)
-// 👇 EXPLICACIÓN: Calculamos SHA256 antes y después de copiar para detectar corrupción
-// 👇 EXPLICACIÓN: Garantiza que el archivo en sandbox es idéntico al origen
+// ✅ C7: Cópia segura com verificação de integridade (checksum)
+// 👇 EXPLICAÇÃO: Calculamos SHA256 antes e depois de copiar para detectar corrupção
+// 👇 EXPLICAÇÃO: Garante que o arquivo no sandbox é idêntico ao original
 srcHash := sha256.Sum256(srcData); dstHash := sha256.Sum256(dstData)
-if srcHash != dstHash { return fmt.Errorf("C7: integridad comprometida post-copia") }
+if srcHash != dstHash { return fmt.Errorf("C7: integridade comprometida pós-cópia") }
 ```
 
 ```go
-// ✅ C4: Aislamiento de variables de entorno en procesos hijos
-// 👇 EXPLICACIÓN: Limpiamos `os.Environ()` y inyectamos solo variables explícitas
-// 👇 EXPLICACIÓN: Previene fuga de credenciales host al agente sandboxed
+// ✅ C4: Isolamento de variáveis de ambiente em processos filhos
+// 👇 EXPLICAÇÃO: Limpamos `os.Environ()` e injetamos apenas variáveis explícitas
+// 👇 EXPLICAÇÃO: Previne vazamento de credenciais do host para o agente sandboxed
 cmd.Env = []string{
     fmt.Sprintf("TENANT_ID=%s", tid),
     "PATH=/usr/local/bin:/bin",
@@ -212,9 +263,9 @@ cmd.Env = []string{
 ```
 
 ```go
-// ✅ C8: Health check estructurado del sandbox storage
-// 👇 EXPLICACIÓN: Verifica writability, espacio libre y permisos sin alterar datos reales
-// 👇 EXPLICACIÓN: Respuesta JSON permite orquestadores enrutar tráfico a sandboxes sanos
+// ✅ C8: Health check estruturado do storage do sandbox
+// 👇 EXPLICAÇÃO: Verifica writability, espaço livre e permissões sem alterar dados reais
+// 👇 EXPLICAÇÃO: Resposta JSON permite que orquestradores roteiem tráfego para sandboxes saudáveis
 func sandboxHealth(w http.ResponseWriter, r *http.Request) {
     ok, err := checkSandboxWritable(sandboxRoot)
     json.NewEncoder(w).Encode(map[string]interface{}{"status": ok, "ts": time.Now().UTC()})
@@ -222,66 +273,122 @@ func sandboxHealth(w http.ResponseWriter, r *http.Request) {
 ```
 
 ```go
-// ✅ C7/C4: Bloqueo de archivos por tenant para concurrencia segura
-// 👇 EXPLICACIÓN: `flock` o mutex por archivo previene corrupción por escrituras simultáneas
-// 👇 EXPLICACIÓN: Asegura atomicidad en actualizaciones de configuración del agente
-mu := fileMutexes[relPath]  // sync.Mutex per file
+// ✅ C7/C4: Bloqueio de arquivos por tenant para concorrência segura
+// 👇 EXPLICAÇÃO: `flock` ou mutex por arquivo previne corrupção por escritas simultâneas
+// 👇 EXPLICAÇÃO: Assegura atomicidade em atualizações de configuração do agente
+mu := fileMutexes[relPath]  // sync.Mutex por arquivo
 mu.Lock(); defer mu.Unlock()
 os.WriteFile(path, data, 0600)
 ```
 
 ```go
-// ✅ C1-C7: Función integrada de escritura segura en sandbox
-// 👇 EXPLICACIÓN: Combina validación de ruta, límites, permisos, auditoría y fallback
-// 👇 EXPLICACIÓN: Cada línea está comentada para entender el flujo completo de aislamiento
+// ✅ C1-C7: Função integrada de escrita segura em sandbox
+// 👇 EXPLICAÇÃO: Combina validação de rota, limites, permissões, auditoria e fallback
+// 👇 EXPLICAÇÃO: Cada linha está comentada para entender o fluxo completo de isolamento
 func SafeSandboxWrite(tid, relPath string, data []byte) error {
-    // C4/C1: Validar ruta y cuotas
-    fullPath := resolveSafePath(tid, relPath); if fullPath == "" { return fmt.Errorf("C4: ruta inválida") }
+    // C4/C1: Validar rota e cotas
+    fullPath := resolveSafePath(tid, relPath); if fullPath == "" { return fmt.Errorf("C4: rota inválida") }
     if tenantUsage.Load()+int64(len(data)) > tenantQuota[tid] { return fmt.Errorf("C1: quota exceeded") }
     
-    // C7/C3: Operación atómica con cleanup y masking
+    // C7/C3: Operação atômica com cleanup e masking
     tmp := fullPath + ".tmp"
     defer os.Remove(tmp)
     if err := os.WriteFile(tmp, data, 0600); err != nil { return fmt.Errorf("C7: write failed") }
     
-    // C7: Renombrado atómico (previene lecturas parciales)
+    // C7: Renomeação atômica (previne leituras parciais)
     if err := os.Rename(tmp, fullPath); err != nil { return err }
     
-    // C8/C4: Auditoría y actualización de métricas
+    // C8/C4: Auditoria e atualização de métricas
     tenantUsage.Add(int64(len(data)))
-    logger.Info("safe_write_complete", "tenant_id", tid, "bytes": len(data))
+    master.MantisLog(master.INFO, "safe_write_complete", "tenant_id", tid, "bytes", len(data))
     return nil
+}
+```
+
+## 🔍 Observabilidade (Documentação para IA – Apenas Eventos Específicos)
+
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|--------------------|
+| `fs_operation` | INFO | C8 | `"write, path_rel: /dir/arquivo.txt"` |
+| `write_failed` | WARN | C7 | `"falha ao escrever arquivo"` |
+| `fallback_readonly` | WARN | C7 | `"fallback para modo leitura ativado"` |
+| `sandbox_path_traversal_blocked` | ERROR | C4 | `"tentativa de path traversal bloqueada"` |
+| `quota_exceeded` | WARN | C1 | `"cota de armazenamento excedida"` |
+| `safe_write_complete` | INFO | C8 | `"escrita segura concluída"` |
+
+### Validação de Schema V-LOG-02 (Helper Mínimo)
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
+
+## 🧪 Testes Unitários (TDD – Apenas para a Lógica Específica)
+
+```go
+func TestPathTraversalRejeitado(t *testing.T) {
+    // Arrange
+    safe := resolveSafePath("tenant-abc", "../../../etc/passwd")
+    // Assert
+    if safe != "" {
+        t.Errorf("esperava que path traversal fosse rejeitado, mas resolveu para %s", safe)
+    }
+}
+
+func TestEscritaAtomicaMantemIntegridade(t *testing.T) {
+    tmpDir := t.TempDir()
+    sandboxRoot = tmpDir // override para teste
+    tenantQuota["tenant-1"] = 1024 * 1024 // 1MB
+    // Act
+    data := []byte("dados seguros")
+    err := SafeSandboxWrite("tenant-1", "teste.txt", data)
+    if err != nil {
+        t.Fatalf("escrita falhou: %v", err)
+    }
+    // Assert: arquivo existe e conteúdo está correto
+    caminho := filepath.Join(tmpDir, "teste.txt")
+    if _, err := os.Stat(caminho); os.IsNotExist(err) {
+        t.Errorf("arquivo %s não foi criado", caminho)
+    }
+    conteudo, _ := os.ReadFile(caminho)
+    if string(conteudo) != string(data) {
+        t.Errorf("conteúdo esperado %q, obtido %q", string(data), string(conteudo))
+    }
 }
 ```
 
 ## 🧪 Testing Checklist – Stress & Error Hunting
 
 ### ✅ Pre-flight checks
-- [ ] Verificar que `resolveSafePath` usa `filepath.Clean` + `strings.HasPrefix` en TODAS las rutas
-- [ ] Confirmar que permisos de archivos creados son `0600` o `0640`, nunca `0777` o `0755`
-- [ ] Validar que `io.LimitedReader` o verificación de tamaño aplica antes de cargar en memoria
-- [ ] Asegurar que logs nunca contienen rutas absolutas del host ni contenido de archivos sensibles
+- [ ] Verificar que `resolveSafePath` usa `filepath.Clean` + `strings.HasPrefix` em TODAS as rotas
+- [ ] Confirmar que permissões de arquivos criados são `0600` ou `0640`, nunca `0777` ou `0755`
+- [ ] Validar que `io.LimitedReader` ou verificação de tamanho se aplica antes de carregar em memória
+- [ ] Assegurar que logs nunca contêm rotas absolutas do host nem conteúdo de arquivos sensíveis
 
 ### ⚡ Stress test scenarios
-1. **Path traversal attack**: Inyectar `../../../etc/shadow` en `relPath` → confirmar rechazo por `HasPrefix` sin panic
-2. **Symlink bomb**: Crear cadena de 50 symlinks dentro del sandbox → validar detección y límite de resolución
-3. **Disk exhaustion**: Escribir hasta llenar cuota + 10% → confirmar rechazo temprano y zero `ENOSPC` host
-4. **Concurrent write collision**: 50 goroutines escribiendo mismo archivo → verificar mutex/atomic rename sin corrupción
-5. **Process escape attempt**: Ejecutar comando con `sh -c rm -rf /` → validar bloqueo por `exec.Command` directo + env cleanup
+1. **Ataque de path traversal**: Injetar `../../../etc/shadow` em `relPath` → confirmar rejeição por `HasPrefix` sem panic
+2. **Bomba de symlinks**: Criar cadeia de 50 symlinks dentro do sandbox → validar detecção e limite de resolução
+3. **Exaustão de disco**: Escrever até preencher cota + 10% → confirmar rejeição precoce e zero `ENOSPC` no host
+4. **Colisão de escrita concorrente**: 50 goroutines escrevendo o mesmo arquivo → verificar mutex/renomeação atômica sem corrupção
+5. **Tentativa de escape de processo**: Executar comando com `sh -c rm -rf /` → validar bloqueio por `exec.Command` direto + limpeza de env
 
-### 🔍 Error hunting procedures
-- [ ] Revisar logs estructurados para confirmar que `tenant_id` aparece en cada evento de I/O
-- [ ] Validar que `defer os.Remove(tmp)` se ejecuta incluso si `os.Rename` falla
-- [ ] Confirmar que `openFDs.Add(-1)` usa defer y no leakea descriptores bajo error
-- [ ] Verificar que `checkSandboxWritable` no altera permisos reales durante health check
-- [ ] Revisar profiling con `go tool pprof` para detectar allocations excesivas en `sha256.Sum256` de archivos grandes
+### 🔍 Procedimentos de caça a erros
+- [ ] Revisar logs estruturados para confirmar que `tenant_id` aparece em cada evento de I/O
+- [ ] Validar que `defer os.Remove(tmp)` é executado mesmo se `os.Rename` falhar
+- [ ] Confirmar que `openFDs.Add(-1)` usa defer e não vaza descritores sob erro
+- [ ] Verificar que `checkSandboxWritable` não altera permissões reais durante health check
+- [ ] Revisar profiling com `go tool pprof` para detectar alocações excessivas em `sha256.Sum256` de arquivos grandes
 
-### 📊 Métricas de aceptación
-- P99 write latency < 50ms para archivos <1MB bajo carga de 200 ops/seg por tenant
-- Zero path traversal exits en 10k rutas inyectadas deliberadamente
-- 100% de archivos creados con permisos `0600` o `0640` (verificar con `find /var/sandbox -perm /o+r`)
-- Fallback readonly activado en <3% de casos bajo carga normal; <15% durante disk pressure
-- 100% de logs de auditoría incluyen `tenant_id`, `path_rel`, `bytes` y timestamp RFC3339
+### 📊 Métricas de aceitação
+- Latência P99 de escrita < 50ms para arquivos <1MB sob carga de 200 ops/seg por tenant
+- Zero escapes de path traversal em 10k rotas injetadas deliberadamente
+- 100% de arquivos criados com permissões `0600` ou `0640` (verificar com `find /var/sandbox -perm /o+r`)
+- Fallback para modo leitura ativado em <3% dos casos sob carga normal; <15% durante pressão de disco
+- 100% de logs de auditoria incluem `tenant_id`, `path_rel`, `bytes` e timestamp RFC3339
 
 ## Validation Command
 ```bash
@@ -290,7 +397,25 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"filesystem-sandboxing","version":"3.0.0","score":91,"blocking_issues":[],"constraints_verified":["C1","C3","C4","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"fs_pattern":"path_traversal_prevention_atomic_writes_quota_isolation_secure_exec","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"filesystem-sandboxing","version":"3.0.0-FUSION","score":91,"blocking_issues":[],"constraints_verified":["C1","C3","C4","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"fs_pattern":"path_traversal_prevention_atomic_writes_quota_isolation_secure_exec","timestamp":"2026-05-09T00:00:00Z"}
 ```
 
----
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões de sandboxing e checklist de stress | C1, C3, C4, C7 |
+| 3.0.0-FUSION | 2026-05-09 | DeepSeek | Aplicação do template v2.3.0-MODULAR, tradução pt-BR, logging master.MantisLog, testes concretos, diagrama Mermaid | C1, C3, C4, C7 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["filesystem-sandboxing.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.

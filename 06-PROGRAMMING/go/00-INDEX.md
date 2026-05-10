@@ -25,8 +25,7 @@ license: "CC-BY-NC-SA-4.0"
 # Go Patterns Master Index – Hardening Multi-Tenant, Concorrência e Integração com IA
 
 ## 👤 Propósito e Escopo
-
-Índice canônico de navegação para `06-PROGRAMMING/go/`. Documenta **35 artefatos auditados** sob HARNESS NORMS v3.1.0-SELECTIVE, mapeia fluxos de execução para desenvolvimento backend/concorrente com isolamento multi-tenant, faz referência ao **agente mestre de geração Go**, e fornece uma árvore JSON enriquecida para roteamento de agentes LLM e pipelines CI/CD.
+Índice canônico de navegação para `06-PROGRAMMING/go/`. Documenta 35 artefatos auditados sob HARNESS NORMS v3.1.0-SELECTIVE, mapeia fluxos de execução para desenvolvimento backend/concorrente com isolamento multi-tenant, faz referência ao **agente mestre de geração Go**, e fornece uma árvore JSON enriquecida para roteamento de agentes LLM e pipelines CI/CD.
 
 > 🔑 **Diferenciador crítico**: Este domínio cobre Go 1.21+ com foco em:
 > - Segurança de concorrência com goroutines/channels para processamento multi-tenant sem race conditions
@@ -51,58 +50,68 @@ license: "CC-BY-NC-SA-4.0"
 ### FASE 0 – Hardening Essencial (Pré-voo e Type Safety)
 | Artefato | Constraints | Propósito |
 |----------|-------------|-----------|
-| `[[context-compaction-utils.go.md]]` | C5,C7 | Utilitários de compactação de contexto para hidratação segmentada |
-| `[[dependency-management.go.md]]` | C5,C7 | Gerenciamento de dependências e verificação de integridade de módulos |
-| `[[type-safety-with-generics.go.md]]` | C4,C5,C7,C8 | Generics para contratos type-safe com validação de tenant_id em tempo de compilação |
-| `[[yaml-frontmatter-parser.go.md]]` | C5,C6,C8 | Parser de frontmatter YAML com validação de campos obrigatórios |
 | `[[hardening-verification.go.md]]` | C3,C4,C5,C7,C8 | Validação de ambiente Go, limites de recursos e `go vet` pré-execução |
+| `[[type-safety-with-generics.go.md]]` | C4,C5,C7,C8 | Generics para contratos type-safe com validação de tenant_id em tempo de compilação |
 | `[[error-handling-c7.go.md]]` | C4,C5,C7,C8 | Tratamento estruturado de erros com `errors.Join`, logging e recuperação segura |
-| `[[resource-limits-c1-c2.go.md]]` | C1,C2,C7 | Limitação de CPU/memória com `runtime/debug.SetMemoryLimit` e semáforos |
-| `[[async-patterns-with-timeouts.go.md]]` | C1,C4,C7,C8 | Goroutines com context.Context, timeouts e cancelamento por tenant |
 
 ### FASE 1 – Segurança Multi-Tenant (Isolamento no Backend)
 | Artefato | Constraints | Propósito |
 |----------|-------------|-----------|
-| `[[authentication-authorization-patterns.go.md]]` | C3,C4,C8 | JWT/OAuth2 com claims de tenant_id e validação RBAC em handlers HTTP |
-| `[[secrets-management-c3.go.md]]` | C3,C5,C7 | Gerenciamento de segredos via variáveis de ambiente, integração com vault e zero hardcode em binários |
-| `[[webhook-validation-patterns.go.md]]` | C3,C4,C7 | Validação de webhooks de entrada com rate limiting por tenant e prevenção de replay attack |
-| `[[observability-opentelemetry.go.md]]` | C7,C8 | Instrumentação OpenTelemetry com atributos de tenant_id e métricas por serviço |
-| `[[structured-logging-c8.go.md]]` | C4,C5,C8 | Logging estruturado JSON com correlação de requisições e rastreabilidade por tenant |
 | `[[microservices-tenant-isolation.go.md]]` | C3,C4,C5,C7,C8 | Middleware de isolamento por tenant com propagação de contexto e isolamento de cache |
-| `[[testing-multi-tenant-patterns.go.md]]` | C4,C5,C8 | Padrões de teste com `testing.T`, fixtures isoladas por tenant e mocks de API com escopo de tenant |
+| `[[secrets-management-c3.go.md]]` | C3,C5,C7 | Gerenciamento de segredos via variáveis de ambiente, integração com vault e zero hardcode em binários |
+| `[[authentication-authorization-patterns.go.md]]` | C3,C4,C8 | JWT/OAuth2 com claims de tenant_id e validação RBAC em handlers HTTP |
+| `[[structured-logging-c8.go.md]]` | C4,C5,C8 | Logging estruturado JSON com correlação de requisições e rastreabilidade por tenant |
 
-### FASE 2 – APIs, Banco de Dados e Integrações
+### FASE 2 – Concorrência e Padrões Assíncronos
+| Artefato | Constraints | Propósito |
+|----------|-------------|-----------|
+| `[[async-patterns-with-timeouts.go.md]]` | C1,C4,C7,C8 | Goroutines com context.Context, timeouts e cancelamento por tenant |
+| `[[resource-limits-c1-c2.go.md]]` | C1,C2,C7 | Limitação de CPU/memória com `runtime/debug.SetMemoryLimit` e semáforos |
+| `[[orchestrator-engine.go.md]]` | C1,C3,C4,C5,C6,C7,C8 | Port do orquestrador bash → Go com explicação linha a linha e validação de constraints |
+| `[[filesystem-sandboxing.go.md]]` | C3,C4,C7 | Isolamento de operações de filesystem por tenant com padrões tipo chroot |
+
+### FASE 3 – Integração com Banco de Dados e SQL
+| Artefato | Constraints | Propósito |
+|----------|-------------|-----------|
+| `[[sql-core-patterns.go.md]]` | C3,C4,C8 | Queries parametrizadas com `database/sql`, tenant_id obrigatório e prepared statements |
+| `[[db-selection-decision-tree.go.md]]` | C4,C5,C7 | Árvore de decisão para seleção de DB (PostgreSQL/MySQL/SQLite) com validação de escopo de tenant |
+| `[[mysql-mariadb-optimization.go.md]]` | C1,C4,C7 | Otimizações específicas para MySQL/MariaDB com limites de recursos por tenant |
+| `[[prisma-orm-patterns.go.md]]` | C4,C5,C8 | Padrões Prisma Client Go com geração de tipos e validação de tenant_id em queries |
+
+### FASE 4 – Clientes de API e Integrações Externas
 | Artefato | Constraints | Propósito |
 |----------|-------------|-----------|
 | `[[api-client-management.go.md]]` | C3,C4,C7,C8 | Gerenciamento de clientes HTTP com lógica de retry, circuit breaker e headers de tenant_id |
 | `[[n8n-webhook-handler.go.md]]` | C3,C4,C8 | Handler de webhooks n8n com validação de assinatura HMAC e escopo de tenant |
-| `[[db-selection-decision-tree.go.md]]` | C4,C5,C7 | Árvore de decisão para seleção de DB (PostgreSQL/MySQL/SQLite) com validação de escopo de tenant |
-| `[[sql-core-patterns.go.md]]` | C3,C4,C8 | Queries parametrizadas com `database/sql`, tenant_id obrigatório e prepared statements |
-| `[[mysql-mariadb-optimization.go.md]]` | C1,C4,C7 | Otimizações específicas para MySQL/MariaDB com limites de recursos por tenant |
-| `[[prisma-orm-patterns.go.md]]` | C4,C5,C8 | Padrões Prisma Client Go com geração de tipos e validação de tenant_id em queries |
-| `[[postgres-pgvector-integration.go.md]]` | C4,C8,V1,V2 | **Delegação controlada**: wrapper Go para chamar queries pgvector em `postgresql-pgvector/`, NÃO gera operadores vetoriais diretamente |
-| `[[mcp-server-patterns.go.md]]` | C3,C4,C8 | Padrões para servidores MCP com isolamento de tenant e logging estruturado |
+| `[[webhook-validation-patterns.go.md]]` | C3,C4,C7 | Validação de webhooks de entrada com rate limiting por tenant e prevenção de replay attack |
+| `[[telegram-bot-integration.go.md]]` | C3,C4,C8 | Bot de Telegram com contexto de usuário/tenant e logging estruturado de interações |
 
-### FASE 3 – RAG, Filesystem e Orquestração
+### FASE 5 – RAG e Integrações de IA (LANGUAGE LOCK: Delegação)
 | Artefato | Constraints | Propósito |
 |----------|-------------|-----------|
-| `[[orchestrator-engine.go.md]]` | C1,C3,C4,C5,C6,C7,C8 | Port do orquestrador bash → Go com explicação linha a linha e validação de constraints |
+| `[[postgres-pgvector-integration.go.md]]` | C4,C8,V1,V2 | **Delegação controlada**: wrapper Go para chamar queries pgvector em `postgresql-pgvector/`, NÃO gera operadores vetoriais diretamente |
 | `[[rag-ingestion-pipeline.go.md]]` | C1,C4,C7,C8 | Pipeline de ingestão RAG com chunking, limites de recursos e validação de tenant_id em metadados |
 | `[[langchain-style-integration.go.md]]` | C4,C5,C8 | Integração estilo LangChain com composição de cadeia e validação de contexto de tenant |
 | `[[supabase-rag-integration.go.md]]` | C3,C4,C8 | Integração com Supabase Vector com autenticação com escopo de tenant e logging de queries |
+
+### FASE 6 – Observabilidade e Implantação
+| Artefato | Constraints | Propósito |
+|----------|-------------|-----------|
+| `[[observability-opentelemetry.go.md]]` | C7,C8 | Instrumentação OpenTelemetry com atributos de tenant_id e métricas por serviço |
 | `[[static-dashboard-generator.go.md]]` | C1,C4,C7 | Gerador de dashboards estáticos com limites de recursos e isolamento de dados por tenant |
 | `[[saas-deployment-zip-auto.go.md]]` | C1,C3,C4,C7 | Implantação automática SaaS com empacotamento ZIP, validação de integridade e rollback por tenant |
-| `[[filesystem-sandboxing.go.md]]` | C3,C4,C7 | Isolamento de operações de filesystem por tenant com padrões tipo chroot |
-| `[[filesystem-sandbox-sync.go.md]]` | C3,C4,C7 | Sincronização segura de sandbox de arquivos com validação de tenant |
 | `[[git-disaster-recovery.go.md]]` | C3,C5,C7 | Recuperação de desastres Git com validação de assinaturas GPG e isolamento de branches por tenant |
+
+### FASE 7 – Testes e Validação
+| Artefato | Constraints | Propósito |
+|----------|-------------|-----------|
+| `[[testing-multi-tenant-patterns.go.md]]` | C4,C5,C8 | Padrões de teste com `testing.T`, fixtures isoladas por tenant e mocks de API com escopo de tenant |
 | `[[scale-simulation-utils.go.md]]` | C1,C2,C7 | Utilitários para simulação de carga com limites de recursos e métricas de escalabilidade por tenant |
-| `[[telegram-bot-integration.go.md]]` | C3,C4,C8 | Bot de Telegram com contexto de usuário/tenant e logging estruturado de interações |
-| `[[whatsapp-bot-integration.go.md]]` | C3,C4,C8 | Bot de WhatsApp com isolamento de tenant e logging de mensagens |
+| `[[testing-multi-tenant-patterns.go.md]]` | C4,C5,C8 | Padrões de teste com `testing.T`, fixtures isoladas por tenant e mocks de API com escopo de tenant |
 
 ---
 
 ## 🔗 Interações com o Repositório
-
 - **`05-CONFIGURATIONS/validation/`**: Todos os artefatos são validados por `orchestrator-engine.sh`. Os scripts `verify-constraints.sh`, `go-vet-validator.sh` e `golangci-lint-check.sh` consomem o JSON deste índice.
 - **`01-RULES/`**: As normas `harness-norms-v3.0.md`, `language-lock-protocol.md` e `06-MULTITENANCY-RULES.md` definem os constraints C1-C8 aplicados.
 - **`06-PROGRAMMING/postgresql-pgvector/`**: Pasta irmã com LANGUAGE LOCK estrito. **Delegação obrigatória**: queries vetoriais devem ser geradas em `postgresql-pgvector/`, não aqui. Este domínio contém apenas wrappers de chamada.
@@ -189,7 +198,7 @@ license: "CC-BY-NC-SA-4.0"
  "norms": ["harness-norms-v3.0.md", "10-SDD-CONSTRAINTS.md"],
  "templates": ["skill-template.md"]
  },
- "dependents": ["all phase-1 to phase-3 artifacts"],
+ "dependents": ["all phase-1 to phase-7 artifacts"],
  "norms_priority": {
  "execution_order": ["C4", "C3", "C7", "C5", "C8"],
  "blocking_constraints": ["C4", "C3"],
@@ -361,428 +370,19 @@ license: "CC-BY-NC-SA-4.0"
 *(Bloco consumido por `query_stackselector` em `go-master-agent`)*
 
 <!-- STACKSELECTOR_JSONL_START -->
-{"artifact_id": "go-master-agent", "file": "go-master-agent.md", "constraints": ["C1","C2","C3","C4","C5","C7","C8"], "capability": "agentic_skill_definition", "deterministic_config_ref": "go-master-agent-mantis", "function_human": "Agente mestre para geração de artefatos Go com governança e hardening"}
-{"artifact_id": "00-INDEX-go", "file": "00-INDEX.md", "constraints": ["C1","C2","C3","C4","C5","C6","C7","C8"], "capability": "skill_index", "deterministic_config_ref": "00-INDEX-go", "function_human": "Índice canônico de navegação para padrões Go"}
-{"artifact_id": "context-compaction-utils", "file": "context-compaction-utils.go.md", "constraints": ["C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "context-compaction-utils", "function_human": "Utilitários de compactação de contexto para hidratação segmentada"}
-{"artifact_id": "dependency-management", "file": "dependency-management.go.md", "constraints": ["C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "dependency-management", "function_human": "Gerenciamento de dependências e verificação de integridade de módulos"}
-{"artifact_id": "type-safety-with-generics", "file": "type-safety-with-generics.go.md", "constraints": ["C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "type-safety-with-generics", "function_human": "Generics para contratos type-safe com validação de tenant_id em tempo de compilação"}
-{"artifact_id": "yaml-frontmatter-parser", "file": "yaml-frontmatter-parser.go.md", "constraints": ["C5","C6","C8"], "capability": "go_pattern", "deterministic_config_ref": "yaml-frontmatter-parser", "function_human": "Parser de frontmatter YAML com validação de campos obrigatórios"}
-{"artifact_id": "hardening-verification", "file": "hardening-verification.go.md", "constraints": ["C3","C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "hardening-verification", "function_human": "Validação de ambiente Go, limites de recursos e go vet pré-execução"}
-{"artifact_id": "error-handling-c7", "file": "error-handling-c7.go.md", "constraints": ["C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "error-handling-c7", "function_human": "Tratamento estruturado de erros com errors.Join, logging e recuperação segura"}
-{"artifact_id": "resource-limits-c1-c2", "file": "resource-limits-c1-c2.go.md", "constraints": ["C1","C2","C7"], "capability": "go_pattern", "deterministic_config_ref": "resource-limits-c1-c2", "function_human": "Limitação de CPU/memória com runtime/debug.SetMemoryLimit e semáforos"}
-{"artifact_id": "async-patterns-with-timeouts", "file": "async-patterns-with-timeouts.go.md", "constraints": ["C1","C4","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "async-patterns-with-timeouts", "function_human": "Goroutines com context.Context, timeouts e cancelamento por tenant"}
-{"artifact_id": "authentication-authorization-patterns", "file": "authentication-authorization-patterns.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "authentication-authorization-patterns", "function_human": "JWT/OAuth2 com claims de tenant_id e validação RBAC em handlers HTTP"}
-{"artifact_id": "secrets-management-c3", "file": "secrets-management-c3.go.md", "constraints": ["C3","C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "secrets-management-c3", "function_human": "Gerenciamento de segredos via variáveis de ambiente, integração com vault e zero hardcode"}
-{"artifact_id": "webhook-validation-patterns", "file": "webhook-validation-patterns.go.md", "constraints": ["C3","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "webhook-validation-patterns", "function_human": "Validação de webhooks de entrada com rate limiting por tenant e prevenção de replay attack"}
-{"artifact_id": "observability-opentelemetry", "file": "observability-opentelemetry.go.md", "constraints": ["C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "observability-opentelemetry", "function_human": "Instrumentação OpenTelemetry com atributos de tenant_id e métricas por serviço"}
-{"artifact_id": "structured-logging-c8", "file": "structured-logging-c8.go.md", "constraints": ["C4","C5","C8"], "capability": "go_pattern", "deterministic_config_ref": "structured-logging-c8", "function_human": "Logging estruturado JSON com correlação de requisições e rastreabilidade por tenant"}
-{"artifact_id": "microservices-tenant-isolation", "file": "microservices-tenant-isolation.go.md", "constraints": ["C3","C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "microservices-tenant-isolation", "function_human": "Middleware de isolamento por tenant com propagação de contexto e isolamento de cache"}
-{"artifact_id": "testing-multi-tenant-patterns", "file": "testing-multi-tenant-patterns.go.md", "constraints": ["C4","C5","C8"], "capability": "go_pattern", "deterministic_config_ref": "testing-multi-tenant-patterns", "function_human": "Padrões de teste com testing.T, fixtures isoladas por tenant e mocks de API com escopo de tenant"}
-{"artifact_id": "api-client-management", "file": "api-client-management.go.md", "constraints": ["C3","C4","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "api-client-management", "function_human": "Gerenciamento de clientes HTTP com lógica de retry, circuit breaker e headers de tenant_id"}
-{"artifact_id": "n8n-webhook-handler", "file": "n8n-webhook-handler.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "n8n-webhook-handler", "function_human": "Handler de webhooks n8n com validação de assinatura HMAC e escopo de tenant"}
-{"artifact_id": "db-selection-decision-tree", "file": "db-selection-decision-tree.go.md", "constraints": ["C4","C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "db-selection-decision-tree", "function_human": "Árvore de decisão para seleção de DB (PostgreSQL/MySQL/SQLite) com validação de escopo de tenant"}
-{"artifact_id": "sql-core-patterns", "file": "sql-core-patterns.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "sql-core-patterns", "function_human": "Queries parametrizadas com database/sql, tenant_id obrigatório e prepared statements"}
-{"artifact_id": "mysql-mariadb-optimization", "file": "mysql-mariadb-optimization.go.md", "constraints": ["C1","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "mysql-mariadb-optimization", "function_human": "Otimizações específicas para MySQL/MariaDB com limites de recursos por tenant"}
-{"artifact_id": "prisma-orm-patterns", "file": "prisma-orm-patterns.go.md", "constraints": ["C4","C5","C8"], "capability": "go_pattern", "deterministic_config_ref": "prisma-orm-patterns", "function_human": "Padrões Prisma Client Go com geração de tipos e validação de tenant_id em queries"}
-{"artifact_id": "postgres-pgvector-integration", "file": "postgres-pgvector-integration.go.md", "constraints": ["C4","C8","V1","V2"], "capability": "go_pattern", "deterministic_config_ref": "postgres-pgvector-integration", "function_human": "Delegação controlada: wrapper Go para chamar queries pgvector em postgresql-pgvector/, NÃO gera operadores vetoriais diretamente"}
-{"artifact_id": "mcp-server-patterns", "file": "mcp-server-patterns.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "mcp-server-patterns", "function_human": "Padrões para servidores MCP com isolamento de tenant e logging estruturado"}
-{"artifact_id": "orchestrator-engine", "file": "orchestrator-engine.go.md", "constraints": ["C1","C3","C4","C5","C6","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "orchestrator-engine", "function_human": "Port do orquestrador bash para Go com explicação linha a linha e validação de constraints"}
-{"artifact_id": "rag-ingestion-pipeline", "file": "rag-ingestion-pipeline.go.md", "constraints": ["C1","C4","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "rag-ingestion-pipeline", "function_human": "Pipeline de ingestão RAG com chunking, limites de recursos e validação de tenant_id em metadados"}
-{"artifact_id": "langchain-style-integration", "file": "langchain-style-integration.go.md", "constraints": ["C4","C5","C8"], "capability": "go_pattern", "deterministic_config_ref": "langchain-style-integration", "function_human": "Integração estilo LangChain com composição de cadeia e validação de contexto de tenant"}
-{"artifact_id": "supabase-rag-integration", "file": "supabase-rag-integration.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "supabase-rag-integration", "function_human": "Integração com Supabase Vector com autenticação com escopo de tenant e logging de queries"}
-{"artifact_id": "static-dashboard-generator", "file": "static-dashboard-generator.go.md", "constraints": ["C1","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "static-dashboard-generator", "function_human": "Gerador de dashboards estáticos com limites de recursos e isolamento de dados por tenant"}
-{"artifact_id": "saas-deployment-zip-auto", "file": "saas-deployment-zip-auto.go.md", "constraints": ["C1","C3","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "saas-deployment-zip-auto", "function_human": "Implantação automática SaaS com empacotamento ZIP, validação de integridade e rollback por tenant"}
-{"artifact_id": "filesystem-sandboxing", "file": "filesystem-sandboxing.go.md", "constraints": ["C3","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "filesystem-sandboxing", "function_human": "Isolamento de operações de filesystem por tenant com padrões tipo chroot"}
-{"artifact_id": "filesystem-sandbox-sync", "file": "filesystem-sandbox-sync.go.md", "constraints": ["C3","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "filesystem-sandbox-sync", "function_human": "Sincronização segura de sandbox de arquivos com validação de tenant"}
-{"artifact_id": "git-disaster-recovery", "file": "git-disaster-recovery.go.md", "constraints": ["C3","C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "git-disaster-recovery", "function_human": "Recuperação de desastres Git com validação de assinaturas GPG e isolamento de branches por tenant"}
-{"artifact_id": "scale-simulation-utils", "file": "scale-simulation-utils.go.md", "constraints": ["C1","C2","C7"], "capability": "go_pattern", "deterministic_config_ref": "scale-simulation-utils", "function_human": "Utilitários para simulação de carga com limites de recursos e métricas de escalabilidade por tenant"}
-{"artifact_id": "telegram-bot-integration", "file": "telegram-bot-integration.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "telegram-bot-integration", "function_human": "Bot de Telegram com contexto de usuário/tenant e logging estruturado de interações"}
-{"artifact_id": "whatsapp-bot-integration", "file": "whatsapp-bot-integration.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "whatsapp-bot-integration", "function_human": "Bot de WhatsApp com isolamento de tenant e logging de mensagens"}
-<!-- STACKSELECTOR_JSONL_END -->
-
----
-
-## 🔗 RAW_URLS_INDEX – Padrões Go Disponíveis
-
-> **Propósito**: Fonte de verdade para que o agente consulte padrões, normas e contratos sem inventar dados.
-
-### 🏛️ Governança Raiz (Contratos Imutáveis)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/00-STACK-SELECTOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/AI-NAVIGATION-CONTRACT.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/IA-QUICKSTART.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/PROJECT_TREE.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/SDD-COLLABORATIVE-GENERATION.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/TOOLCHAIN-REFERENCE.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/knowledge-graph.json
-```
-
-### 📜 Normas e Constraints (01-RULES)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/10-SDD-CONSTRAINTS.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/03-SECURITY-RULES.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/validation-checklist.md
-```
-
-### 🧰 Toolchain de Validação (05-CONFIGURATIONS/validation)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/VALIDATOR_DEV_NORMS.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/orchestrator-engine.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/audit-secrets.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/go-vet-validator.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/golangci-lint-check.sh
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schemas/skill-input-output.schema.json
-```
-
-### 🐹 Padrões Go Core (06-PROGRAMMING/go)
-```text
-# Índice e Agente Mestre
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/go-master-agent.md
-
-# Fase 0: Hardening Essencial
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/context-compaction-utils.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/dependency-management.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/type-safety-with-generics.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/yaml-frontmatter-parser.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/hardening-verification.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/error-handling-c7.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/resource-limits-c1-c2.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/async-patterns-with-timeouts.go.md
-
-# Fase 1: Segurança Multi-Tenant
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/authentication-authorization-patterns.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/secrets-management-c3.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/webhook-validation-patterns.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/observability-opentelemetry.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/structured-logging-c8.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/microservices-tenant-isolation.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/testing-multi-tenant-patterns.go.md
-
-# Fase 2: APIs e Integrações
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/api-client-management.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/n8n-webhook-handler.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/db-selection-decision-tree.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/sql-core-patterns.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/mysql-mariadb-optimization.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/prisma-orm-patterns.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/postgres-pgvector-integration.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/mcp-server-patterns.go.md
-
-# Fase 3: RAG, Orquestração e Deploy
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/orchestrator-engine.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/rag-ingestion-pipeline.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/langchain-style-integration.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/supabase-rag-integration.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/static-dashboard-generator.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/saas-deployment-zip-auto.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/filesystem-sandboxing.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/filesystem-sandbox-sync.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/git-disaster-recovery.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/scale-simulation-utils.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/telegram-bot-integration.go.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/go/whatsapp-bot-integration.go.md
-```
-
-### 🔗 Referências de Domínios Irmãos (Para Delegação)
-```text
-# SQL puro (delegar queries sem vetores)
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/sql/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/sql/crud-with-tenant-enforcement.sql.md
-
-# Python (delegar lógica de backend pesada)
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/python/python-sqlalchemy-tenant-enforcement.py.md
-
-# pgvector/RAG (delegar operações vetoriais)
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
-
-# YAML/JSON Schema (delegar definições de configuração)
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/yaml-json-schema/00-INDEX.md
-```
-
-### 🔄 Workflows e CI/CD
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/.github/workflows/validate-mantis.yml
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/sdd-universal-assistant.json
-```
-
-### 📚 Skills de Referência
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/skill-domains-mapping.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
-```
-
-### 🌐 Documentação pt-BR (Obrigatória para validadores)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/verify-constraints/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/go-vet-validator/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/golangci-lint-check/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/programming/go/go-master-agent/README.md
-```
-
----
-
-## 🗂️ ROTAS CANÔNICAS LOCAIS – Padrões Go (Para Acesso no Repo)
-
-> **Formato**: `RAW_URL` → `./caminho/local/no/repo`
-
-### 🐹 Padrões Go Core
-```text
-# Índice e Agente Mestre
-06-PROGRAMMING/go/00-INDEX.md
-06-PROGRAMMING/go/go-master-agent.md
-
-# Fase 0: Hardening Essencial
-06-PROGRAMMING/go/context-compaction-utils.go.md
-06-PROGRAMMING/go/dependency-management.go.md
-06-PROGRAMMING/go/type-safety-with-generics.go.md
-06-PROGRAMMING/go/yaml-frontmatter-parser.go.md
-06-PROGRAMMING/go/hardening-verification.go.md
-06-PROGRAMMING/go/error-handling-c7.go.md
-06-PROGRAMMING/go/resource-limits-c1-c2.go.md
-06-PROGRAMMING/go/async-patterns-with-timeouts.go.md
-
-# Fase 1: Segurança Multi-Tenant
-06-PROGRAMMING/go/authentication-authorization-patterns.go.md
-06-PROGRAMMING/go/secrets-management-c3.go.md
-06-PROGRAMMING/go/webhook-validation-patterns.go.md
-06-PROGRAMMING/go/observability-opentelemetry.go.md
-06-PROGRAMMING/go/structured-logging-c8.go.md
-06-PROGRAMMING/go/microservices-tenant-isolation.go.md
-06-PROGRAMMING/go/testing-multi-tenant-patterns.go.md
-
-# Fase 2: APIs e Integrações
-06-PROGRAMMING/go/api-client-management.go.md
-06-PROGRAMMING/go/n8n-webhook-handler.go.md
-06-PROGRAMMING/go/db-selection-decision-tree.go.md
-06-PROGRAMMING/go/sql-core-patterns.go.md
-06-PROGRAMMING/go/mysql-mariadb-optimization.go.md
-06-PROGRAMMING/go/prisma-orm-patterns.go.md
-06-PROGRAMMING/go/postgres-pgvector-integration.go.md
-06-PROGRAMMING/go/mcp-server-patterns.go.md
-
-# Fase 3: RAG, Orquestração e Deploy
-06-PROGRAMMING/go/orchestrator-engine.go.md
-06-PROGRAMMING/go/rag-ingestion-pipeline.go.md
-06-PROGRAMMING/go/langchain-style-integration.go.md
-06-PROGRAMMING/go/supabase-rag-integration.go.md
-06-PROGRAMMING/go/static-dashboard-generator.go.md
-06-PROGRAMMING/go/saas-deployment-zip-auto.go.md
-06-PROGRAMMING/go/filesystem-sandboxing.go.md
-06-PROGRAMMING/go/filesystem-sandbox-sync.go.md
-06-PROGRAMMING/go/git-disaster-recovery.go.md
-06-PROGRAMMING/go/scale-simulation-utils.go.md
-06-PROGRAMMING/go/telegram-bot-integration.go.md
-06-PROGRAMMING/go/whatsapp-bot-integration.go.md
-```
-
-### 🔗 Referências de Domínios Irmãos (Para Delegação)
-```text
-# SQL puro
-06-PROGRAMMING/sql/00-INDEX.md
-06-PROGRAMMING/sql/crud-with-tenant-enforcement.sql.md
-
-# Python
-06-PROGRAMMING/python/00-INDEX.md
-06-PROGRAMMING/python/python-sqlalchemy-tenant-enforcement.py.md
-
-# pgvector/RAG
-06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
-
-# YAML/JSON Schema
-06-PROGRAMMING/yaml-json-schema/00-INDEX.md
-```
-
-### 🔄 Workflows e CI/CD
-```text
-04-WORKFLOWS/sdd-universal-assistant.json
-.github/workflows/validate-mantis.yml
-```
-
-### 📚 Skills de Referência
-```text
-02-SKILLS/README.md
-02-SKILLS/skill-domains-mapping.md
-02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
-02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
-```
-
-### 🌐 Documentação pt-BR
-```text
-docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-docs/pt-BR/validation-tools/verify-constraints/README.md
-docs/pt-BR/validation-tools/go-vet-validator/README.md
-docs/pt-BR/validation-tools/golangci-lint-check/README.md
-docs/pt-BR/programming/go/go-master-agent/README.md
-```
-
----
-
-## 🧭 GUIA DE USO PARA O AGENTE GO
-
-```go
-// Pseudocódigo: Como consultar padrões disponíveis em Go
-// (Implementado no agente, não em Go puro para evitar circularidade)
-
-type PatternReference struct {
-    RawURL            string
-    CanonicalPath     string
-    Domain            string
-    LanguageLock      []string
-    ConstraintsDefault []string
-    VectorOpsAllowed  bool // 🔑 Flag crítico para roteamento
-}
-
-func ConsultarPatronGo(nombrePatron string) PatternReference {
-    baseRaw := "https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/"
-    baseLocal := "./06-PROGRAMMING/go/"
-    
-    isMaster := nombrePatron == "go-master-agent"
-    extension := ".go.md"
-    if isMaster {
-        extension = ".md"
-    }
-    filename := nombrePatron + extension
-    
-    return PatternReference{
-        RawURL:            baseRaw + "06-PROGRAMMING/go/" + filename,
-        CanonicalPath:     baseLocal + filename,
-        Domain:            "06-PROGRAMMING/go/",
-        LanguageLock:      []string{"go", "golang", "concurrency", "microservices"},
-        ConstraintsDefault: []string{"C3", "C4", "C5"}, // Mínimo para produção
-        VectorOpsAllowed:  false, // 🔒 CERO operadores de pgvector neste domínio
-    }
-}
-
-// Validação de constraints antes de emitir módulo
-func ValidarConstraintsGo(artifactPath string) []string {
-    fm := ExtractFrontmatter(artifactPath)
-    declared := fm["constraints_mapped"].([]string)
-    content := LoadFile(artifactPath)
-    matrix := LoadJSON("./05-CONFIGURATIONS/validation/norms-matrix.json")
-    allowed := GetAllowedConstraints(matrix, artifactPath)
-    
-    var issues []string
-    
-    // Verificar constraints declarados vs permitidos
-    for _, c := range declared {
-        if !Contains(allowed, c) {
-            issues = append(issues, fmt.Sprintf("constraint '%s' not allowed for path %s", c, artifactPath))
-        }
-    }
-    
-    // C4: Validar que há tenant_id em queries DB ou context propagation
-    if strings.Contains(content, "db.Query") || strings.Contains(content, "db.Exec") {
-        if !strings.Contains(content, "tenant_id") && !strings.Contains(content, "Context") {
-            issues = append(issues, "C4 missing: DB call lacks tenant_id propagation (WHERE clause or context)")
-        }
-    }
-    
-    // C3: Zero hardcode secrets
-    if regexp.MustCompile(`API_KEY\s*=\s*['"][^'"]+['"]|password\s*:\s*['"][^'"]+['"]`).MatchString(content) {
-        issues = append(issues, "C3 violation: hardcoded secret detected")
-    }
-    
-    return issues
-}
-
-// Detecção de LANGUAGE LOCK: operadores vetoriais proibidos
-func ContieneOperadoresVectoriales(code string) bool {
-    patterns := []string{
-        `import.*pgvector`, `cosine_distance`, `l2_distance`, `hamming_distance`,
-        `vector\(\d+\)`, `<->[^a-zA-Z]`, `<#>[^a-zA-Z]`, `USING\s+(hnsw|ivfflat)`,
-    }
-    for _, pattern := range patterns {
-        if regexp.MustCompile(pattern).MatchString(code) {
-            return true
-        }
-    }
-    return false
-}
-
-// Delegação por domínio segundo LANGUAGE LOCK
-func DelegarPorDominio(query string, context map[string]interface{}) string {
-    if ContieneOperadoresVectoriales(query) {
-        // 🔄 Delegar a postgresql-pgvector/
-        fmt.Fprintln(os.Stderr, "LANGUAGE LOCK: Operadores vetoriais não permitidos no domínio Go. Use postgresql-pgvector/")
-        return DelegarADominio("06-PROGRAMMING/postgresql-pgvector/", query, context)
-    } else if EsQuerySQLPura(query) {
-        // 🔄 Delegar a sql/
-        return DelegarADominio("06-PROGRAMMING/sql/", query, context)
-    } else if EsLogicaBackendPesada(query) {
-        // 🔄 Delegar a python/
-        return DelegarADominio("06-PROGRAMMING/python/", query, context)
-    } else {
-        // ✅ Permitido: gerar código Go padrão com tenant isolation
-        return GenerarModuloGo(query, context)
-    }
-}
-
-// Exemplo de uso no agente:
-func main() {
-    pattern := ConsultarPatronGo("sql-core-patterns")
-    issues := ValidarConstraintsGo(pattern.CanonicalPath)
-    if len(issues) > 0 {
-        fmt.Fprintf(os.Stderr, "Falha na validação: %v\n", issues)
-        os.Exit(1)
-    }
-    // Gerar módulo seguro...
-}
-```
-
----
-
-## 📋 INSTRUÇÕES DE INTEGRAÇÃO (Atualizadas)
-
-### Passo 1: Adicionar ao final do agente
-Colar os blocos de referências logo antes da seção `## Limitations` em:
-- `06-PROGRAMMING/go/go-master-agent.md`
-
-### Passo 2: Atualizar o comportamento do agente
-Na seção `## Comportamento do Agente` ou `## Behavioral Traits`, adicionar:
-
-```markdown
-| Trait | Implementação contratual |
-|-------|---------------------------|
-| **Consulta padrões antes de gerar** | Antes de emitir módulo Go, o agente deve consultar a lista de padrões disponíveis em `06-PROGRAMMING/go/` para garantir coerência com o repositório |
-| **Acesso duplo** | Usar caminho canônico (`./06-PROGRAMMING/go/...`) para acesso local, ou URL raw para acesso remoto se o arquivo não existir localmente |
-| **LANGUAGE LOCK automático** | Se o usuário solicitar operadores vetoriais (`import "pgvector"`, `cosine_distance`, `<->`), o agente deve delegar a `06-PROGRAMMING/postgresql-pgvector/` e NÃO gerar código com vetores em seu domínio |
-| **Segurança de concorrência primeiro** | Priorizar `context.Context` para propagação de cancelamento/timeout em goroutines; incluir validação de tenant_id em queries de DB |
-| **Pedagogia em português** | Incluir `// 👇 EXPLICAÇÃO: ...` em comentários para facilitar o aprendizado, mantendo código compilável ≤5 linhas por exemplo |
-| **Valida constraints antes de emitir** | Executar `ValidarConstraintsGo()` antes de emitir qualquer artefato para garantir coerência com `norms-matrix.json` |
-| **Emite logs estruturados** | JSON para `stdout`, logs legíveis para `stderr`, JSONL para `08-LOGS/validation/...` conforme V-INT-03 e V-LOG-02 |
-```
-
-### Passo 3: Validar com `verify-constraints.sh`
-
-```bash
-# Validar que o próprio agente cumpre seu contrato
-./05-CONFIGURATIONS/validation/verify-constraints.sh --file 06-PROGRAMMING/go/go-master-agent.md | jq
-
-# Validação adicional com toolchain Go específica
-./05-CONFIGURATIONS/validation/go-vet-validator.sh --file 06-PROGRAMMING/go/go-master-agent.md
-./05-CONFIGURATIONS/validation/golangci-lint-check.sh --file 06-PROGRAMMING/go/go-master-agent.md
-
-# Verificar que NÃO há imports de pgvector (LANGUAGE LOCK)
-grep -E 'import.*pgvector|cosine_distance|<->' 06-PROGRAMMING/go/go-master-agent.md && echo "❌ VIOLAÇÃO" || echo "✅ OK"
-```
-
----
-
-> 📌 **Nota final**: Este índice é Tier 1 (referência contratual). Qualquer modificação deve passar por validação automática antes do merge.  
-> 🇧🇷 *Documentação técnica completa disponível em*: `docs/pt-BR/programming/go/00-INDEX/README.md` (próxima entrega).
-
----
+```jsonl
+{"artifact_id": "go-master-agent", "file": "go-master-agent.md", "constraints": ["C1","C2","C3","C4","C5","C7","C8"], "capability": "agentic_skill_definition", "deterministic_config_ref": "go-master-agent-mantis", "function_human": "Agente master para geração de artefatos Go"}
+{"artifact_id": "00-INDEX-go", "file": "00-INDEX.md", "constraints": ["C1","C2","C3","C4","C5","C6","C7","C8"], "capability": "skill_index", "deterministic_config_ref": "00-INDEX-go", "function_human": "Índice canônico do domínio Go"}
+{"artifact_id": "hardening-verification", "file": "hardening-verification.go.md", "constraints": ["C3","C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "hardening-verification", "function_human": "Validação de ambiente Go e limites de recursos"}
+{"artifact_id": "type-safety-with-generics", "file": "type-safety-with-generics.go.md", "constraints": ["C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "type-safety-with-generics", "function_human": "Genéricos para type safety em tempo de compilação"}
+{"artifact_id": "error-handling-c7", "file": "error-handling-c7.go.md", "constraints": ["C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "error-handling-c7", "function_human": "Tratamento de erros com wrapping, retry e fallback"}
+{"artifact_id": "microservices-tenant-isolation", "file": "microservices-tenant-isolation.go.md", "constraints": ["C3","C4","C5","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "microservices-tenant-isolation", "function_human": "Middleware de isolamento multi-tenant"}
+{"artifact_id": "secrets-management-c3", "file": "secrets-management-c3.go.md", "constraints": ["C3","C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "secrets-management-c3", "function_human": "Gestão de secrets com zero hardcode"}
+{"artifact_id": "authentication-authorization-patterns", "file": "authentication-authorization-patterns.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "authentication-authorization-patterns", "function_human": "JWT/OAuth2 com claims de tenant_id"}
+{"artifact_id": "structured-logging-c8", "file": "structured-logging-c8.go.md", "constraints": ["C4","C5","C8"], "capability": "go_pattern", "deterministic_config_ref": "structured-logging-c8", "function_human": "Logging JSON estruturado com V-LOG-02"}
+{"artifact_id": "async-patterns-with-timeouts", "file": "async-patterns-with-timeouts.go.md", "constraints": ["C1","C4","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "async-patterns-with-timeouts", "function_human": "Goroutines com contextos e timeouts"}
+{"artifact_id": "resource-limits-c1-c2", "file": "resource-limits-c1-c2.go.md", "constraints": ["C1","C2","C7"], "capability": "go_pattern", "deterministic_config_ref": "resource-limits-c1-c2", "function_human": "Limitação de CPU/memória em Go"}
+{"artifact_id": "orchestrator-engine", "file": "orchestrator-engine.go.md", "constraints": ["C1","C3","C4","C5","C6","C7","C8"], "capability": "go_pattern", "deterministic_config_ref": "orchestrator-engine", "function_human": "Motor de validação de constraints"}
+{"artifact_id": "filesystem-sandboxing", "file": "filesystem-sandboxing.go.md", "constraints": ["C3","C4","C7"], "capability": "go_pattern", "deterministic_config_ref": "filesystem-sandboxing", "function_human": "Sandbox de sistema de arquivos por tenant"}
+{"artifact_id": "sql-core-patterns", "file": "sql-core-patterns.go.md", "constraints": ["C3","C4","C8"], "capability": "go_pattern", "deterministic_config_ref": "sql-core-patterns", "function_human": "Queries SQL parametrizadas com tenant_id"}
+{"artifact_id": "db-selection-decision-tree", "file": "db-selection-decision-tree.go.md", "constraints": ["C4","C5","C7"], "capability": "go_pattern", "deterministic_config_ref": "db-selection-decision-tree",

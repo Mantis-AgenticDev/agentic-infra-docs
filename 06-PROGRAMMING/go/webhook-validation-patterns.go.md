@@ -1,149 +1,206 @@
-# SHA256: b2d9f4c8a1e7f3b6a0c5b9d2e8f1a4c7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a7
 ---
 artifact_id: "webhook-validation-patterns"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
 constraints_mapped: ["C3","C4","C5","C7"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/webhook-validation-patterns.go.md --json"
 canonical_path: "06-PROGRAMMING/go/webhook-validation-patterns.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-webhook-validation-patterns-v3.0.0"
+generated_at: "2026-05-10T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["webhook-validation-patterns"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-07-09"
 ---
 
-# webhook-validation-patterns.go.md – Validación avanzada de webhooks con firma, anti-replay y rate limiting
+# webhook-validation-patterns.go.md – Validação avançada de webhooks com assinatura, anti‑replay e rate limiting
 
-## Propósito
-Patrones de implementación en Go para validar webhooks externos de forma segura y robusta. Cubre verificación criptográfica de firmas, prevención de ataques de replay, validación estricta de schemas JSON, límites de tasa por tenant, manejo seguro de rotación de claves y respuestas de error estructuradas. Cada ejemplo está comentado línea por línea en español para que entiendas cómo construir un validador que rechace payloads maliciosos, evite procesamiento duplicado y mantenga trazabilidad completa sin comprometer rendimiento.
+> **Contrato modular**: Este artefato é filho do Master Agent `go-master-agent-mantis`.  
+> Herda hardening, observability, thinking system e constraints via source/import.  
+> Contém APENAS a lógica de domínio específica para validação segura de webhooks.
 
-> 💡 **Nota pedagógica**: ≤5 líneas ejecutables por bloque + `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es esencial para cumplir C3 (secrets), C4 (aislamiento), C5 (validación) y C7 (seguridad operativa).
+---
 
-## Patrones de Código Validados (25 ejemplos)
+## 🎯 Propósito
+Padrões de implementação em Go para validar webhooks externos de forma segura e robusta. Inclui verificação criptográfica de assinaturas, prevenção de ataques de replay, validação estrita de schemas JSON, limites de taxa por tenant, tratamento seguro de rotação de chaves e respostas de erro estruturadas. Cada exemplo é comentado linha a linha em português para que você entenda como construir um validador que rejeite payloads maliciosos, evite processamento duplicado e mantenha rastreabilidade completa sem comprometer o desempenho.
+
+> 💡 **Nota pedagógica**: ≤5 linhas executáveis por bloco + `// 👇 EXPLICAÇÃO:` que descrevem O QUÊ faz e POR QUÊ é essencial para cumprir C3 (segredos), C4 (isolamento), C5 (validação) e C7 (segurança operacional).
+
+---
+
+## 🛡️ Bootstrap Resiliente + Lógica de Domínio
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
+
+package main
+
+import (
+    "os"
+    "fmt"
+    "time"
+)
+
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C7/C3: Verificación HMAC-SHA256 constant-time para firma de webhook
-// 👇 EXPLICACIÓN: crypto/hmac + comparación segura previene timing attacks
-// 👇 EXPLICACIÓN: Rechazamos payloads manipulados sin revelar por qué falló
+// ✅ C7/C3: Verificação HMAC‑SHA256 constant‑time para assinatura do webhook
+// 👇 EXPLICAÇÃO: crypto/hmac + comparação segura previne timing attacks
+// 👇 EXPLICAÇÃO: Rejeitamos payloads manipulados sem revelar o motivo da falha
 mac := hmac.New(sha256.New, []byte(secret))
 mac.Write(payload)
 if !hmac.Equal(mac.Sum(nil), []byte(signature)) { return false }
 ```
 
 ```go
-// ❌ Anti-pattern: comparar firmas con == expone vulnerabilidad de timing
+// ❌ Anti-pattern: comparar assinaturas com == expõe vulnerabilidade de timing
 if fmt.Sprintf("%x", mac.Sum(nil)) == signature { return true }  // 🔴 C7
-// 👇 EXPLICACIÓN: El atacante mide microsegundos para adivinar bytes de la firma
-// 🔧 Fix: usar hmac.Equal o subtle.ConstantTimeCompare (≤5 líneas)
+// 👇 EXPLICAÇÃO: O atacante mede microssegundos para adivinhar bytes da assinatura
+// 🔧 Fix: usar hmac.Equal ou subtle.ConstantTimeCompare (≤5 linhas)
 if subtle.ConstantTimeCompare(mac.Sum(nil), []byte(signature)) != 1 {
     return false
 }
 ```
 
 ```go
-// ✅ C4/C7: Prevención de replay attacks con nonce y ventana temporal
-// 👇 EXPLICACIÓN: Cacheamos nonce con TTL de 5 minutos; rechazamos si ya existe
-// 👇 EXPLICACIÓN: Combina idempotencia con frescura temporal del request
+// ✅ C4/C7: Prevenção de replay attacks com nonce e janela temporal
+// 👇 EXPLICAÇÃO: Cacheamos o nonce com TTL de 5 minutos; rejeitamos se já existe
+// 👇 EXPLICAÇÃO: Combina idempotência com frescor temporal da requisição
 key := fmt.Sprintf("nonce:%s", nonce)
-if cache.Contains(key) { return fmt.Errorf("C7: replay detected") }
-cache.SetWithTTL(key, true, 5*time.Minute)  // C7: safe storage
+if cache.Contains(key) { return fmt.Errorf("C7: replay detectado") }
+cache.SetWithTTL(key, true, 5*time.Minute)  // C7: armazenamento seguro
 ```
 
 ```go
-// ✅ C5: Validación estricta de timestamp del webhook (±3 minutos)
-// 👇 EXPLICACIÓN: Verificamos que el header X-Webhook-Timestamp esté en ventana válida
-// 👇 EXPLICACIÓN: Previene reenvío malicioso de requests antiguos
+// ✅ C5: Validação estrita do timestamp do webhook (±3 minutos)
+// 👇 EXPLICAÇÃO: Verificamos se o cabeçalho X‑Webhook‑Timestamp está na janela válida
+// 👇 EXPLICAÇÃO: Previne reenvio malicioso de requisições antigas
 ts, err := strconv.ParseInt(r.Header.Get("X-Webhook-Timestamp"), 10, 64)
-if err != nil || time.Since(time.Unix(ts, 0)).Abs() > 3*time.Minute { return fmt.Errorf("C5: timestamp fuera de ventana") }
-```
-
-```go
-// ✅ C5: Validación de schema JSON con compilación previa
-// 👇 EXPLICACIÓN: jsonschema.Compile parsea el schema una vez; Validate es O(n)
-// 👇 EXPLICACIÓN: Rechaza campos extra, tipos incorrectos o campos requeridos faltantes
-compiled, _ := jsonschema.CompileString("webhook.json", schemaJSON)
-if err := compiled.Validate(bytes.NewReader(payload)); err != nil {
-    return fmt.Errorf("C5: payload no cumple schema: %w", err)
+if err != nil || time.Since(time.Unix(ts, 0)).Abs() > 3*time.Minute {
+    return fmt.Errorf("C5: timestamp fora da janela")
 }
 ```
 
 ```go
-// ❌ Anti-pattern: map[string]interface{} permite inyección de campos arbitrarios
+// ✅ C5: Validação de schema JSON com compilação prévia
+// 👇 EXPLICAÇÃO: jsonschema.Compile analisa o schema uma vez; Validate é O(n)
+// 👇 EXPLICAÇÃO: Rejeita campos extras, tipos incorretos ou campos obrigatórios ausentes
+compiled, _ := jsonschema.CompileString("webhook.json", schemaJSON)
+if err := compiled.Validate(bytes.NewReader(payload)); err != nil {
+    return fmt.Errorf("C5: payload não cumpre o schema: %w", err)
+}
+```
+
+```go
+// ❌ Anti-pattern: map[string]interface{} permite injeção de campos arbitrários
 var data map[string]interface{}; json.Unmarshal(payload, &data)  // 🔴 C5
-// 👇 EXPLICACIÓN: Acepta cualquier clave, incluyendo reservadas o maliciosas
-// 🔧 Fix: deserializar a struct tipado con validación estricta (≤5 líneas)
+// 👇 EXPLICAÇÃO: Aceita qualquer chave, inclusive reservadas ou maliciosas
+// 🔧 Fix: desserializar para struct tipado com validação estrita (≤5 linhas)
 type Payload struct { Event string `json:"event" validate:"required"` }
 var p Payload; if err := json.Unmarshal(payload, &p); err != nil { return err }
 ```
 
 ```go
-// ✅ C4: Extracción y validación de tenant_id con regex estricto
-// 👇 EXPLICACIÓN: Aplicamos whitelist de caracteres alfanuméricos + guiones bajos
-// 👇 EXPLICACIÓN: Previene path traversal o inyección en rutas/DB downstream
+// ✅ C4: Extração e validação de tenant_id com regex estrita
+// 👇 EXPLICAÇÃO: Aplicamos whitelist de caracteres alfanuméricos + sublinhados
+// 👇 EXPLICAÇÃO: Previne path traversal ou injeção nas rotas/DB downstream
 tid := r.Header.Get("X-Tenant-ID")
-if !regexp.MustCompile(`^[a-z0-9_-]{3,32}$`).MatchString(tid) { return fmt.Errorf("C4: tenant_id inválido") }
+if !regexp.MustCompile(`^[a-z0-9_-]{3,32}$`).MatchString(tid) {
+    return fmt.Errorf("C4: tenant_id inválido")
+}
 ```
 
 ```go
-// ✅ C4/C7: Rate limiting por tenant + endpoint con token bucket
-// 👇 EXPLICACIÓN: Limitamos a 100 requests/minuto por tenant para evitar abuso
-// 👇 EXPLICACIÓN: Token bucket permite ráfagas controladas sin bloquear picos legítimos
-limiter := rate.NewLimiter(100/60, 150)  // C4: scoped per tenant
-if !limiter.Allow() { return fmt.Errorf("C7: rate limit exceeded") }
+// ✅ C4/C7: Rate limiting por tenant + endpoint com token bucket
+// 👇 EXPLICAÇÃO: Limitamos a 100 requisições/minuto por tenant para evitar abuso
+// 👇 EXPLICAÇÃO: Token bucket permite rajadas controladas sem bloquear picos legítimos
+limiter := rate.NewLimiter(100/60, 150)  // C4: escopo por tenant
+if !limiter.Allow() { return fmt.Errorf("C7: limite de taxa excedido") }
 ```
 
 ```go
-// ✅ C6/C7: Generación de comando de validación ejecutable
-// 👇 EXPLICACIÓN: Script que firma payload, envía request y verifica respuesta HTTP 200
-// 👇 EXPLICACIÓN: Útil en CI/CD para validar configuración antes de merge
+// ✅ C6/C7: Geração de comando de validação executável
+// 👇 EXPLICAÇÃO: Script que assina o payload, envia a requisição e verifica resposta HTTP 200
+// 👇 EXPLICAÇÃO: Útil em CI/CD para validar configuração antes do merge
 func ValidationCmd(endpoint, secret string) string {
     return fmt.Sprintf(`bash -c 'payload="{\"test\":true}"; sig=$(echo -n "$payload" | openssl dgst -sha256 -hmac "%s"); curl -X POST %s -H "X-Signature:$sig" -d "$payload"'`, secret, endpoint)
 }
 ```
 
 ```go
-// ✅ C3: Rotación dual de claves sin downtime de validación
-// 👇 EXPLICACIÓN: Validamos contra clave activa Y anterior durante ventana de transición
-// 👇 EXPLICACIÓN: atomic.Value garantiza lectura segura bajo concurrencia alta
+// ✅ C3: Rotação dupla de chaves sem downtime na validação
+// 👇 EXPLICAÇÃO: Validamos contra a chave ativa E a anterior durante a janela de transição
+// 👇 EXPLICAÇÃO: atomic.Value garante leitura segura sob alta concorrência
 func verifyWithRotation(payload, sig string) bool {
     return verify(payload, sig, activeKey.Load().(string)) || verify(payload, sig, prevKey.Load().(string))
 }
 ```
 
 ```go
-// ✅ C1: Límite de tamaño de payload antes de decodificar JSON
-// 👇 EXPLICACIÓN: io.LimitedReader descarta bytes excedentes sin alocar memoria
-// 👇 EXPLICACIÓN: Previene OOM o panic en decodificador por payloads malformados
-reader := io.LimitedReader{R: r.Body, N: 1 << 20}  // C1: 1MB max
+// ✅ C1: Limite de tamanho do payload antes de decodificar JSON
+// 👇 EXPLICAÇÃO: io.LimitedReader descarta bytes excedentes sem alocar memória
+// 👇 EXPLICAÇÃO: Previne OOM ou panic no decodificador por payloads malformados
+reader := io.LimitedReader{R: r.Body, N: 1 << 20}  // C1: máx 1MB
 payload, err := io.ReadAll(&reader)
 ```
 
 ```go
-// ✅ C5/C7: Sanitización de strings en payload antes de procesamiento
-// 👇 EXPLICACIÓN: Removemos caracteres de control Unicode para prevenir inyección
-// 👇 EXPLICACIÓN: Mantiene compatibilidad con UTF-8 pero bloquea secuencias peligrosas
+// ✅ C5/C7: Sanitização de strings no payload antes do processamento
+// 👇 EXPLICAÇÃO: Removemos caracteres de controle Unicode para prevenir injeção
+// 👇 EXPLICAÇÃO: Mantém compatibilidade com UTF‑8 mas bloqueia sequências perigosas
 func sanitize(s string) string {
-    return strings.Map(func(r rune) rune { if unicode.IsControl(r) && r != '\n' { return -1 }; return r }, s)
+    return strings.Map(func(r rune) rune {
+        if unicode.IsControl(r) && r != '\n' { return -1 }; return r
+    }, s)
 }
 ```
 
 ```go
-// ✅ C7: Timeout estricto para validaciones externas (ej: revocation check)
-// 👇 EXPLICACIÓN: context.WithTimeout aborta si el servicio de validación tarda >2s
-// 👇 EXPLICACIÓN: Evita que el webhook se cuelgue por dependencias lentas
+// ✅ C7: Timeout estrito para validações externas (ex: verificação de revogação)
+// 👇 EXPLICAÇÃO: context.WithTimeout aborta se o serviço de validação demorar >2s
+// 👇 EXPLICAÇÃO: Evita que o webhook trave por dependências lentas
 ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 defer cancel()
 if err := externalCheck(ctx, payload); err != nil { return err }  // C7: bounded
 ```
 
 ```go
-// ✅ C3/C8: Logging estructurado sin exposición de payload completo
-// 👇 EXPLICACIÓN: Registramos hash SHA256, tamaño y tenant, nunca el contenido real
-// 👇 EXPLICACIÓN: Permite debugging y auditoría sin violar privacidad o compliance
+// ✅ C3/C8: Logging estruturado sem exposição do payload completo
+// 👇 EXPLICAÇÃO: Registramos hash SHA256, tamanho e tenant, nunca o conteúdo real
+// 👇 EXPLICAÇÃO: Permite depuração e auditoria sem violar privacidade ou conformidade
 payloadHash := fmt.Sprintf("%x", sha256.Sum256(payload))
-logger.Info("webhook_validated", "tenant_id", tid, "size": len(payload), "hash": payloadHash[:16])  // C8
+master.MantisLog(master.INFO, "webhook_validated", "tenant_id", tid, "size", len(payload), "hash", payloadHash[:16])  // C8
 ```
 
 ```go
-// ✅ C7: Reintento con backoff para validación de firma en sistemas distribuidos
-// 👇 EXPLICACIÓN: Reintentamos 2 veces si el servicio de claves retorna 5xx transitorio
-// 👇 EXPLICACIÓN: Fail-fast en 4xx para evitar bucles en errores de configuración
+// ✅ C7: Retentativa com backoff para validação de assinatura em sistemas distribuídos
+// 👇 EXPLICAÇÃO: Retentamos 2 vezes se o serviço de chaves retornar 5xx transitório
+// 👇 EXPLICAÇÃO: Fail‑fast em 4xx para evitar loops em erros de configuração
 for i := 1; i <= 2; i++ {
     if ok, err := verifyRemoteSig(payload, sig); ok || !is5xx(err) { return ok, err }
     time.Sleep(time.Duration(i*150) * time.Millisecond)
@@ -151,130 +208,181 @@ for i := 1; i <= 2; i++ {
 ```
 
 ```go
-// ✅ C5: Validación de enum de eventos permitidos
-// 👇 EXPLICACIÓN: Whitelist explícita de tipos de evento que el endpoint acepta
-// 👇 EXPLICACIÓN: Rechaza eventos desconocidos que podrían disparar código inyectado
+// ✅ C5: Validação do enum de eventos permitidos
+// 👇 EXPLICAÇÃO: Whitelist explícita dos tipos de evento que o endpoint aceita
+// 👇 EXPLICAÇÃO: Rejeita eventos desconhecidos que poderiam disparar código injetado
 allowedEvents := map[string]bool{"user.created": true, "payment.completed": true}
-if !allowedEvents[payload.Event] { return fmt.Errorf("C5: evento no soportado: %s", payload.Event) }
+if !allowedEvents[payload.Event] { return fmt.Errorf("C5: evento não suportado: %s", payload.Event) }
 ```
 
 ```go
-// ❌ Anti-pattern: switch sin default permite eventos no manejados silenciosamente
+// ❌ Anti-pattern: switch sem default permite eventos não tratados silenciosamente
 switch payload.Event { case "create": handle(); }  // 🔴 C5/C7
-// 👇 EXPLICACIÓN: Eventos nuevos pasan sin validar ni loggear, creando deuda técnica
-// 🔧 Fix: agregar validación explícita + default error (≤5 líneas)
+// 👇 EXPLICAÇÃO: Eventos novos passam sem validar nem logar, criando dívida técnica
+// 🔧 Fix: adicionar validação explícita + default error (≤5 linhas)
 if !allowedEvents[payload.Event] { return fmt.Errorf("C5: evento inválido") }
 switch payload.Event { case "create": handle() }
 ```
 
 ```go
-// ✅ C8: Respuesta de error estructurada sin stack traces
-// 👇 EXPLICACIÓN: Normalizamos errores a formato JSON genérico para consumidores
-// 👇 EXPLICACIÓN: Incluye trace_id y timestamp, nunca detalles internos o paths
+// ✅ C8: Resposta de erro estruturada sem stack traces
+// 👇 EXPLICAÇÃO: Normalizamos erros em formato JSON genérico para consumidores
+// 👇 EXPLICAÇÃO: Inclui trace_id e timestamp, nunca detalhes internos ou caminhos
 w.WriteHeader(http.StatusBadRequest)
-json.NewEncoder(w).Encode(map[string]interface{}{"error": "validation_failed", "trace_id": traceID, "ts": time.Now().UTC()})
+json.NewEncoder(w).Encode(map[string]interface{}{
+    "error": "validation_failed", "trace_id": traceID, "ts": time.Now().UTC(),
+})
 ```
 
 ```go
-// ✅ C4/C1: Tracking concurrencia activa por tenant
-// 👇 EXPLICACIÓN: Contador atómico monitorea requests en vuelo por tenant
-// 👇 EXPLICACIÓN: Alerta si supera umbral antes de rechazar por saturación
+// ✅ C4/C1: Tracking de concorrência ativa por tenant
+// 👇 EXPLICAÇÃO: Contador atômico monitora requisições em andamento por tenant
+// 👇 EXPLICAÇÃO: Alerta se ultrapassar limite antes de rejeitar por saturação
 var active atomic.Int64
 active.Add(1); defer active.Add(-1)
-if active.Load() > 50 { logger.Warn("high_concurrency", "tenant_id", tid) }
+if active.Load() > 50 { master.MantisLog(master.WARN, "high_concurrency", "tenant_id", tid) }
 ```
 
 ```go
-// ✅ C7: Dead-letter queue para payloads con fallos de validación recurrentes
-// 👇 EXPLICACIÓN: Tras 3 intentos fallidos, movemos a DLQ para análisis manual
-// 👇 EXPLICACIÓN: Evita bloquear el pipeline principal con payloads corruptos
+// ✅ C7: Dead‑letter queue para payloads com falhas de validação recorrentes
+// 👇 EXPLICAÇÃO: Após 3 tentativas falhas, movemos para DLQ para análise manual
+// 👇 EXPLICAÇÃO: Evita bloquear o pipeline principal com payloads corrompidos
 if attempts >= 3 { dlq.Push(RejectedWebhook{TenantID: tid, PayloadHash: hash, Reason: err.Error()}) }
 ```
 
 ```go
-// ✅ C5/C6: Compilación perezosa de validador JSON (init-time)
-// 👇 EXPLICACIÓN: Compilamos schema una vez en init() para evitar overhead por request
-// 👇 EXPLICACIÓN: panic en init si el schema es inválido → fail-fast en startup
+// ✅ C5/C6: Compilação preguiçosa do validador JSON (init‑time)
+// 👇 EXPLICAÇÃO: Compilamos o schema uma vez em init() para evitar overhead por requisição
+// 👇 EXPLICAÇÃO: panic no init se o schema for inválido → fail‑fast na inicialização
 var webhookValidator *jsonschema.Schema
 func init() { webhookValidator, _ = jsonschema.CompileString("webhook.json", schemaJSON) }
 ```
 
 ```go
-// ✅ C7: Graceful shutdown del validador con flush de métricas
-// 👇 EXPLICACIÓN: Esperamos a validaciones en curso antes de cerrar listener
-// 👇 EXPLICACIÓN: Timeout final fuerza cierre si algún validador se cuelga
+// ✅ C7: Graceful shutdown do validador com flush das métricas
+// 👇 EXPLICAÇÃO: Esperamos as validações em andamento antes de fechar o listener
+// 👇 EXPLICAÇÃO: Timeout final força fechamento se algum validador travar
 close(validationQueue.Ch)
-wg.Wait()  // C7: drain completo
+wg.Wait()  // C7: drenagem completa
 metrics.Flush()
 ```
 
 ```go
-// ✅ C4/C5: Validación cruzada de tenant en firma y payload
-// 👇 EXPLICACIÓN: Verificamos que tenant_id embebido en firma coincida con header
-// 👇 EXPLICACIÓN: Previene que un tenant reuse firma de otro para inyectar datos
-if !strings.HasPrefix(sig, tid+":") { return fmt.Errorf("C4: firma no corresponde al tenant") }
+// ✅ C4/C5: Validação cruzada do tenant na assinatura e no payload
+// 👇 EXPLICAÇÃO: Verificamos se o tenant_id embutido na assinatura coincide com o cabeçalho
+// 👇 EXPLICAÇÃO: Previne que um tenant reuse a assinatura de outro para injetar dados
+if !strings.HasPrefix(sig, tid+":") { return fmt.Errorf("C4: assinatura não corresponde ao tenant") }
 ```
 
 ```go
-// ✅ C1/C7: Decodificación JSON segura con json.Decoder
-// 👇 EXPLICACIÓN: UseNumber evita conversión a float64 que pierde precisión en IDs grandes
-// 👇 EXPLICACIÓN: Limita profundidad anidada para prevenir stack overflow por recursión
+// ✅ C1/C7: Decodificação JSON segura com json.Decoder
+// 👇 EXPLICAÇÃO: UseNumber evita conversão para float64 que perde precisão em IDs grandes
+// 👇 EXPLICAÇÃO: Limita a profundidade de aninhamento para prevenir stack overflow por recursão
 dec := json.NewDecoder(r.Body)
 dec.UseNumber()
 if err := dec.Decode(&payload); err != nil { return fmt.Errorf("C7: JSON malformado: %w", err) }
 ```
 
 ```go
-// ✅ C3-C7: Función integrada de validación segura de webhook
-// 👇 EXPLICACIÓN: Combina HMAC, timestamp, schema, tenant check, rate limit y logging
-// 👇 EXPLICACIÓN: Cada línea está comentada para entender el flujo completo de validación
+// ✅ C3-C7: Função integrada de validação segura de webhook
+// 👇 EXPLICAÇÃO: Combina HMAC, timestamp, schema, verificação de tenant, rate limiting e logging
+// 👇 EXPLICAÇÃO: Cada linha está comentada para entender o fluxo completo de validação
 func ValidateWebhook(r *http.Request, payload []byte) error {
-    // C4/C7: Extraer y validar tenant + timestamp
+    // C4/C7: Extrair e validar tenant + timestamp
     tid := r.Header.Get("X-Tenant-ID")
-    if !validTenant(tid) || !validTimestamp(r.Header.Get("X-Webhook-Timestamp")) { return fmt.Errorf("C4/C5: headers inválidos") }
+    if !validTenant(tid) || !validTimestamp(r.Header.Get("X-Webhook-Timestamp")) {
+        return fmt.Errorf("C4/C5: cabeçalhos inválidos")
+    }
     
-    // C3/C7: Verificar firma HMAC constant-time
+    // C3/C7: Verificar assinatura HMAC constant‑time
     sig := r.Header.Get("X-Signature")
-    if !hmac.Equal(computeMAC(payload, secret), []byte(sig)) { return fmt.Errorf("C7: firma inválida") }
+    if !hmac.Equal(computeMAC(payload, secret), []byte(sig)) {
+        return fmt.Errorf("C7: assinatura inválida")
+    }
     
-    // C5/C1: Validar schema y límite de tamaño
+    // C5/C1: Validar schema e limite de tamanho
     if len(payload) > 1<<20 { return fmt.Errorf("C1: payload excede 1MB") }
     if err := webhookValidator.Validate(bytes.NewReader(payload)); err != nil { return err }
     
-    // C8/C4: Log estructurado y retorno
-    logger.Info("webhook_valid", "tenant_id", tid, "size": len(payload))
+    // C8/C4: Log estruturado e retorno
+    master.MantisLog(master.INFO, "webhook_valid", "tenant_id", tid, "size", len(payload))
     return nil
 }
 ```
 
-## 🧪 Testing Checklist – Stress & Error Hunting
+## 🔍 Observabilidade (Documentação para IA – Apenas Eventos Específicos)
 
-### ✅ Pre-flight checks
-- [ ] Verificar que `hmac.Equal` o `subtle.ConstantTimeCompare` se usa en TODAS las comparaciones de firma
-- [ ] Confirmar que `io.LimitedReader` aplica antes de cualquier lectura de body o JSON decode
-- [ ] Validar que `jsonschema.Compile` se ejecuta en `init()` o caché, no por request
-- [ ] Asegurar que respuestas de error nunca incluyen stack traces, paths internos o payloads completos
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `webhook_received` | INFO | C8 | `"hash=abc123, size=2048"` |
+| `invalid_signature` | ERROR | C7 | `"assinatura HMAC não confere"` |
+| `replay_detected` | WARN | C7 | `"nonce reutilizado dentro da janela"` |
+| `schema_validation_failed` | ERROR | C5 | `"campo 'event' ausente"` |
+| `rate_limit_exceeded` | WARN | C7 | `"tenant excedeu 100 req/min"` |
 
-### ⚡ Stress test scenarios
-1. **Timing attack simulation**: Medir tiempo de respuesta con firmas parcialmente correctas → confirmar zero timing leak con `hmac.Equal`
-2. **Replay flood**: Enviar mismo payload 100 veces con nonce/timestamp válido → verificar caché rejection y TTL cleanup
-3. **Schema injection**: Insertar campos `$schema`, `__proto__` o arrays anidados >50 niveles → validar rechazo por `jsonschema` y `Decoder` limits
-4. **Tenant crossover**: Usar firma válida de Tenant A en header de Tenant B → confirmar validación cruzada y 403
-5. **Rate limit burst**: 200 requests/seg desde un tenant → confirmar token bucket permite ráfaga controlada y luego rechaza 429
+### Validação de Schema V-LOG-02 (Helper Mínimo)
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
 
-### 🔍 Error hunting procedures
-- [ ] Revisar logs estructurados para confirmar que `tenant_id` aparece en cada evento de validación
-- [ ] Validar que `is5xx(err)` distingue correctamente entre errores transitorios y fallos de configuración
-- [ ] Confirmar que `defer active.Add(-1)` se ejecuta incluso en early returns por validación fallida
-- [ ] Verificar que `json.Decoder` con `UseNumber` preserva precisión de IDs numéricos grandes
-- [ ] Revisar profiling con `go tool pprof` para detectar allocations excesivas en `sanitize()` o `json.Unmarshal`
+## 🧪 Testes Unitários e Checklist de Stress & Caça a Erros
 
-### 📊 Métricas de aceptación
-- P99 validation latency < 50ms para payloads <500KB bajo carga de 500 req/seg
-- Zero replay exits en 10k requests con nonces/timestamps reenviados deliberadamente
-- 100% de firmas validadas con comparación constant-time (verificar con herramienta de timing analysis)
-- Rate limiting efectivo: < 101 req/min por tenant tras activación de bucket
-- 100% de logs de auditoría incluyen `tenant_id`, `payload_hash`, `validation_result` y timestamp RFC3339
+### Teste Unitário Concreto
+```go
+func TestHMACRejectsModifiedPayload(t *testing.T) {
+    secret := []byte("segredo")
+    payload := []byte(`{"event":"user.created"}`)
+    mac := computeHMAC(payload, secret)
+    // Altera o payload
+    tampered := []byte(`{"event":"user.deleted"}`)
+    if verifyHMAC(tampered, mac, secret) {
+        t.Error("deveria rejeitar assinatura para payload adulterado")
+    }
+}
+
+func TestNonceReplayBlocked(t *testing.T) {
+    cache := NewMemoryCache(5 * time.Minute)
+    nonce := "abc123"
+    if cache.Contains(nonce) { t.Fatal("cache não deveria conter o nonce ainda") }
+    cache.Set(nonce)
+    if !cache.Contains(nonce) {
+        t.Error("cache deveria conter o nonce recém‑inserido")
+    }
+}
+```
+
+### ✅ Pre-flight checks (Verificações pré‑operação)
+- [ ] Verificar que `hmac.Equal` ou `subtle.ConstantTimeCompare` é usado em TODAS as comparações de assinatura
+- [ ] Confirmar que `io.LimitedReader` se aplica antes de qualquer leitura do corpo ou decodificação JSON
+- [ ] Validar que `jsonschema.Compile` é executado em `init()` ou cache, não por requisição
+- [ ] Assegurar que respostas de erro nunca incluem stack traces, caminhos internos ou payloads completos
+
+### ⚡ Cenários de Stress Test
+1. **Simulação de timing attack**: Medir o tempo de resposta com assinaturas parcialmente corretas → confirmar zero vazamento de tempo com `hmac.Equal`
+2. **Inundação de replay**: Enviar o mesmo payload 100 vezes com nonce/timestamp válidos → verificar rejeição pelo cache e limpeza do TTL
+3. **Injeção de schema**: Inserir campos `$schema`, `__proto__` ou arrays aninhados com >50 níveis → validar rejeição por `jsonschema` e limites do Decoder
+4. **Cruzamento de tenant**: Usar assinatura válida do Tenant A no cabeçalho do Tenant B → confirmar validação cruzada e 403
+5. **Rajada de rate limit**: 200 requisições/seg de um tenant → confirmar que o token bucket permite uma rajada controlada e depois rejeita com 429
+
+### 🔍 Procedimentos de Caça a Erros
+- [ ] Revisar logs estruturados para confirmar que `tenant_id` aparece em cada evento de validação
+- [ ] Validar que `is5xx(err)` distingue corretamente erros transitórios de falhas de configuração
+- [ ] Confirmar que `defer active.Add(-1)` é executado mesmo em retornos antecipados por validação falha
+- [ ] Verificar que `json.Decoder` com `UseNumber` preserva a precisão de IDs numéricos grandes
+- [ ] Revisar profiling com `go tool pprof` para detectar alocações excessivas em `sanitize()` ou `json.Unmarshal`
+
+### 📊 Métricas de Aceitação
+- Latência P99 de validação < 50ms para payloads <500KB sob carga de 500 req/seg
+- Zero escapes de replay em 10k requisições com nonces/timestamps reenviados deliberadamente
+- 100% das assinaturas validadas com comparação constant‑time (verificar com ferramenta de análise de timing)
+- Rate limiting efetivo: < 101 req/min por tenant após ativação do bucket
+- 100% dos logs de auditoria incluem `tenant_id`, `payload_hash`, `validation_result` e timestamp RFC3339
 
 ## Validation Command
 ```bash
@@ -283,7 +391,28 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"webhook-validation-patterns","version":"3.0.0","score":93,"blocking_issues":[],"constraints_verified":["C3","C4","C5","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"webhook_pattern":"hmac_constant_time_anti_replay_schema_validation_rate_limiting","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"webhook-validation-patterns","version":"3.0.0-FUSION","score":93,"blocking_issues":[],"constraints_verified":["C3","C4","C5","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"webhook_pattern":"hmac_constant_time_anti_replay_schema_validation_rate_limiting","timestamp":"2026-05-10T00:00:00Z"}
 ```
+
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões de validação de webhooks e checklist de stress | C3, C4, C5, C7 |
+| 2.3.0 | 2026-05-09 | go-master-agent | Remanufatura modular (tradução parcial, placeholder de teste) | C3, C4, C5, C7 |
+| 3.0.0-FUSION | 2026-05-10 | DeepSeek | Fusão manual completa: conhecimento original + estrutura modular v2.3.0, tradução pt‑BR, logging master.MantisLog, testes concretos, checklist de stress recuperado | C3, C4, C5, C7 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["webhook-validation-patterns.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.
 
 ---

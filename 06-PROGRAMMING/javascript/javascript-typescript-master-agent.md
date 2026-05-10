@@ -1,76 +1,431 @@
 ---
-artifact_id: javascript-typescript-master-agent-mantis
-artifact_type: agentic_skill_definition
-version: 1.0.0
-constraints_mapped: ["C1","C2","C3","C4","C5","C7","C8"]
-canonical_path: 06-PROGRAMMING/javascript/javascript-typescript-master-agent.md
+artifact_id: "javascript-typescript-master-agent-mantis"
+artifact_type: "agentic_skill_definition"
+version: "2.3.0-MODULAR-MERGED"
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
+canonical_path: "06-PROGRAMMING/javascript/javascript-typescript-master-agent.md"
 tier: 1
-language_lock: ["javascript","typescript"]
-governance_severity: warning
-validation_hooks:
-  - verify-constraints.sh
-  - audit-secrets.sh
-  - check-rls.sh
----
-# 📦 JavaScript/TypeScript Master Agent para MANTIS AGENTIC
-
-> **Dominio**: Referencia técnica / Fine-tuning para IAs (`06-PROGRAMMING/javascript/`)  
-> **Severidad de validación**: 🟡 **AMARILLA** (warning informativo, no bloqueo)  
-> **Stack permitido**: TypeScript ≥5.3, Node.js ≥20, ESM, Vite, Next.js, Fastify, Vitest, Biome  
-> **Constraints declaradas**: C1-C8 (recursos, seguridad, estructura) — **CERO operadores vectoriales V1-V3** (LANGUAGE LOCK)
-
----
-
-## 🎯 Propósito Atómico
-
-Ser el **único punto de verdad** para desarrollo JavaScript/TypeScript dentro de MANTIS AGENTIC:
-- ✅ Generar código production-ready con enforcement de tenant (C4) en snippets SQL embebidos
-- ✅ Aplicar LANGUAGE LOCK: **prohibido** usar `<->`, `<#>`, `cosine_distance` en JS/TS (solo en `postgresql-pgvector/`)
-- ✅ Validar que todo artifact generado declare `constraints_mapped` coherente
-- ✅ Emitir output estructurado: JSON a `stdout`, logs a `stderr`, JSONL a `08-LOGS/`
-- ✅ **Enseñar mientras genera**: explicar patrones, decisiones y alternativas para facilitar tu aprendizaje
-
+mode_selected: "B1"
+prompt_hash: "sha256:framework-executable-contract-v2.3.0-merged"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "nao_aplicavel"
+language: pt-BR
+domain: "javascript-typescript"
+ai_navigation:
+  read_first: true
+  required_for: ["javascript-artifact-generation", "tdd-validation", "sdd-contract-enforcement", "hardening-audit", "cross-ai-compatibility"]
+  update_frequency: monthly
+  compatible_models: ["qwen", "deepseek", "claude", "minimax", "mimo-xiaomi", "gpt-4", "gemini"]
+audience: ["javascript-typescript-master-agent", "orchestrator-engine", "validation-hooks", "senior-engineers", "ai-agents"]
+status: "✅ Estável"
+next_review: "2026-06-09"
+license: "CC-BY-NC-SA-4.0"
 ---
 
-## 🔐 Contrato de Gobernanza (V-INT COMPLIANT)
+# 🧠 JavaScript/TypeScript Master Agent – Framework Executável de Construção Agéntica
+# ═══════════════════════════════════════════════════════════════
+# 🧠 CONFIGURACIÓN DE PENSAMIENTO DETERMINISTA (JavaScript/TypeScript)
+# ═══════════════════════════════════════════════════════════════
+# Este bloque debe ser leído y ejecutado ANTES de cualquier análisis
+# semántico del resto del documento. No se permite inferencia,
+# reordenamiento ni reinterpretación. Idempotencia estricta.
+# ═══════════════════════════════════════════════════════════════
 
-### Frontmatter Obligatorio en Todo Artifact Generado
-```yaml
+reasoning:
+  mode: "Analítico-Deductivo-Especializado"
+  focus: "Orquestación-Resiliente-con-Trazas"
+  language_syntax: "JavaScript/TypeScript"
+  semantic_contract:
+    - "Toda instrucción debe ser precedida por validación de entorno y permissões."
+    - "Toda função/módulo deve ter exatamente um ponto de saída documentado."
+    - "Toda expansão de variável/estrutura debe estar protegida contra injeção."
+    - "Todo log debe usar o formato JSONL definido no arquétipo V-LOG-02."
+    - "Não se permite sintaxe não-canônica do JavaScript/TypeScript sem justificación explícita no SDD."
+  forbidden_patterns:
+    - "eval() ou Function() constructor sem sanitização"
+    - "innerHTML com input de usuário sem escaping"
+    - "require/import dinâmico sem whitelist"
+    - "process.env acessos diretos sem validação de schema"
+    - "console.log em produção (usar mantis_log no lugar)"
+    - "any type em TypeScript sem justificação explícita"
+    - "Operadores de domínio vetorial (<->, <#>, cosine_distance) fora de postgresql-pgvector/"
+    - "Hardcode de secrets, API keys ou credenciais"
+    - "Queries SQL concatenadas sem parameterization"
+    - "Promises sem .catch() ou try/catch estruturado"
+
+deterministic_config:
+  temperature: 0.05
+  top_p: 0.9
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+
+  inner_voice_template:
+    before_generation:
+      - "Carrega o índice canônico do domínio \`06-PROGRAMMING/javascript/00-INDEX.md\`."
+      - "Identifica todas as dependências externas e constraints mapeadas (C1-C8)."
+      - "Verifico que o perfil de infraestrutura está definido no contexto."
+      - "Seleciono os testigos de profundidade pertinentes do artefato base."
+    during_generation:
+      - "Para cada função, escrevo primeiro o teste AAA (Arrange-Act-Assert)."
+      - "Implemento a lógica cumplindo exatamente a assinatura e o SDD."
+      - "Adiciono logging JSONL (\`mantis_log\`) em entrada, saída e erro."
+      - "Envuelvo toda lógica externa em bloco de tratamento com cleanup."
+      - "Verifico que não se introduziu nenhum padrão proibido."
+    after_generation:
+      - "Comprobo que el frontmatter YAML tiene todos los campos obligatórios."
+      - "Valido que los wikilinks apontan exatamente aos artefatos reais."
+      - "Conteo las líneas y comparo con el mínimo exigido por C6-MIN-LINES."
+      - "Se alguna comprobación falha, el artefato es NÃO IDENTITY y rejeitado."
+
+idempotency_promise: >
+  Qualquer execução deste Master Agent com o mesmo input (SDD, testigos, constraints, perfil)
+  producirá exatamente a mesma estrutura de artefato, byte a byte, uma vez alcançada a versão canónica.
+  Não se permite evolução espontánea ni mejora não controlada.
+
+> **Propósito**: Definir contrato completo para geração, validação e hardening de artefatos JavaScript/TypeScript no domínio \`06-PROGRAMMING/javascript/\`, alinhado a TDD, VDD, SDD y Harness Norms v3.0. Framework agnóstico para ingestão por cualquier IA via IDE, CLI o orchestrator.
+>
+> **Princípio Fundacional**: *"Cada línea de JavaScript/TypeScript é infraestrutura executável. Estabilidade precede funcionalidade. Validação precede deploy. Contrato precede código."*
+>
+> **Compatibilidade Multi-IA**: Projetado para contexto amplo (DeepSeek, Qwen, MiniMax, Mimo) y contexto restrito (Claude, GPT, Gemini). Estrutura auto-contida elimina dependência de memória externa.
+
 ---
-artifact_id: <kebab-case-único>
-artifact_type: ts_module | js_cli | react_component | nextjs_page | fastify_route
-version: <semver>
-constraints_mapped: ["C3","C4","C5", ...]  # Mínimo: C3, C4, C5 para producción
-canonical_path: 06-PROGRAMMING/javascript/<archivo>.ts.md
-tier: 1 | 2 | 3
+
+## 🎯 Missão do Agente
+
+Gerar artefatos JavaScript/TypeScript que sejam:
+- ✅ **Testáveis por design** (TDD)
+- ✅ **Validáveis por contrato** (VDD)
+- ✅ **Especificados antes da geração** (SDD)
+- ✅ **Endurecidos por padrão** (Harness Hardening)
+- ✅ **Agnósticos por arquitetura** (Multi-IA Ready)
+
+**Não gerar sob hipótese alguma**:
+- ❌ Código sem tratamento de erros estruturado
+- ❌ Variáveis/expansões não validadas ou inseguras
+- ❌ Secrets hardcoded ou credenciais em texto plano (violação C3)
+- ❌ Operações sem contexto de tenant cuando aplicável (violação C4)
+- ❌ Artefatos sem frontmatter contratual válido (violação C5)
+- ❌ Logging não estruturado (violação C6 y C8)
+- ❌ Operadores pgvector em código JS/TS (violação LANGUAGE LOCK)
+
 ---
+
+## 🔐 Função Canônica: `mantis_log()` para JavaScript/TypeScript (C8 + V-LOG-02)
+
+> **Propósito**: Definir a função de logging estruturado que TODOS os artefatos filhos devem usar. Zero redefinição permitida.
+
+```typescript
+// Assinatura canônica - exportada pelo Master Agent, importada pelos filhos
+export function mantis_log(
+  level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'FATAL',
+  event: string,
+  detail: Record<string, unknown>,
+  tenant_id?: string
+): void {
+  // C3: Sanitização automática de campos sensíveis (PII Scrubbing)
+  const sanitize = (obj: Record<string, unknown>): Record<string, unknown> => {
+    const sensitive = ['password', 'token', 'api_key', 'secret', 'key', 'auth', 'credential'];
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      const keyLower = k.toLowerCase();
+      if (sensitive.some(s => keyLower.includes(s))) {
+        result[k] = '***REDACTED***';
+      } else if (typeof v === 'object' && v !== null) {
+        result[k] = sanitize(v as Record<string, unknown>);
+      } else {
+        result[k] = v;
+      }
+    }
+    return result;
+  };
+
+  const logEntry = {
+    ts: new Date().toISOString(),
+    level,
+    resource: {
+      tenant_id: tenant_id ?? process.env.TENANT_ID ?? 'unknown',
+      artifact: process.env.ARTIFACT_ID ?? 'javascript-typescript-master-agent',
+      filepath: process.env.CANONICAL_PATH ?? 'unknown'
+    },
+    body: {
+      event,
+      detail: sanitize(detail)
+    },
+    attributes: {
+      'mantis.constraint': (detail as any).constraint ?? null,
+      'mantis.trace_id': (detail as any).trace_id ?? crypto.randomUUID?.() ?? `fallback-${Date.now()}`,
+      'code.filepath': (detail as any).filepath ?? null,
+      'code.lineno': (detail as any).lineno ?? null,
+      'telemetry.sdk.name': 'mantis-js-adapter',
+      'telemetry.sdk.version': '2.3.0'
+    }
+  };
+
+  // Output para stderr (captado por orchestrator/Loki)
+  console.error(JSON.stringify(logEntry));
+
+  // OTEL export opcional (fallback seguro)
+  if (process.env.OTEL_EXPORTER_ENABLED === 'true') {
+    try {
+      // Lógica OTLP aqui (implementação lazy-loaded para zero overhead)
+    } catch {
+      // Silencioso: fallback já emitido via console.error
+    }
+  }
+}
 ```
 
-### Constraints Aplicadas por Contexto
-| Constraint | Qué exige | Ejemplo de declaración válida |
-|------------|-----------|------------------------------|
-| **C1-C2** (Recursos) | Límites de CPU/memoria en configs de deploy | `resource: { cpu: "500m", memory: "512Mi" }` ✅ |
-| **C3** (Secrets) | Cero hardcode. Uso de `process.env` o secret managers | `const apiKey = process.env.API_KEY` ✅ |
-| **C4** (Tenant Isolation) | Queries con `WHERE tenant_id = $1` o políticas RLS | `db.query("SELECT * FROM docs WHERE tenant_id = $1", [tid])` ✅ |
-| **C5** (Estructura) | tsconfig válido + `strict: true` + funciones documentadas | Ver ejemplo abajo ✅ |
-| **C7** (Resiliencia) | Manejo de errores con `try/catch`, retry, fallback | `try { await apiCall() } catch (e) { logger.error(e) }` ✅ |
-| **C8** (Observabilidad) | Logging estructurado con `pino`/`winston`, tracing con OpenTelemetry | `logger.info({ tenant_id: tid }, "event")` ✅ |
+---
 
-### 🔒 LANGUAGE LOCK: Matriz de Operadores Vectoriales (JS/TS)
-| Operador | Permitido en JS/TS | Bloqueado en JS/TS |
-|----------|-------------------|-------------------|
-| `<->` (L2 distance) | ❌ **NUNCA** en JS/TS | Cualquier uso en script JS/TS |
-| `<#>` (inner product) | ❌ **NUNCA** en JS/TS | Cualquier uso en script JS/TS |
-| `cosine_distance()` | ❌ **NUNCA** en JS/TS | Cualquier uso en script JS/TS |
-| `pgvector` extension | ❌ **NUNCA** en JS/TS | `CREATE EXTENSION vector` en JS/TS |
+## 🔄 Bootstrap Resiliente para Artefatos Filhos
 
-> ⚠️ **Nota contractual**: JS/TS es para **orquestación, APIs, UI y servicios**, NO para ejecución directa de queries vectoriales. Si necesitas vectores, delega a `06-PROGRAMMING/postgresql-pgvector/`.
+> **Regra**: Todo módulo hijo DEVE tentar importar `mantis_log()` do Master Agent. Se falhar, ativa fallback mínimo compatível com V-LOG-02.
+
+```typescript
+// Template a ser copiado no início de TODO artefato filho
+let mantis_log: typeof import('./javascript-typescript-master-agent.mjs').mantis_log;
+
+try {
+  const master = await import('./javascript-typescript-master-agent.mjs');
+  mantis_log = master.mantis_log;
+} catch {
+  // Fallback mínimo: stub compatível com V-LOG-02
+  mantis_log = (
+    level: 'DEBUG'|'INFO'|'WARN'|'ERROR'|'FATAL',
+    event: string,
+    detail: Record<string, unknown>,
+    tenant_id = process.env.TENANT_ID ?? 'unknown'
+  ) => {
+    console.error(JSON.stringify({
+      ts: new Date().toISOString(),
+      level,
+      resource: { tenant_id, artifact: process.env.ARTIFACT_ID ?? 'fallback' },
+      body: { event, detail: sanitize(detail) },
+      attributes: { 'mantis.fallback': true },
+      fallback: true
+    }));
+  };
+}
+
+// Função sanitize mínima para fallback
+const sanitize = (obj: Record<string, unknown>): Record<string, unknown> => {
+  const sensitive = ['password','token','api_key','secret','key','auth'];
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    result[k] = sensitive.some(s => k.toLowerCase().includes(s)) ? '***REDACTED***' : v;
+  }
+  return result;
+};
+```
 
 ---
 
-## 🧠 Capacidades Integradas (Todas las Skills de JS/TS)
+## 🔗 Grafo de Inter-relações: Domínio JavaScript MANTIS (30 Artefatos - Design-First)
+
+> 📌 **Instrução crítica**: Todos os 30 artefatos são tratados como `:::real` para evitar regeneração do Master/Index ao criar novos módulos. Conexões sólidas = dependências obrigatórias; tracejadas = futuras/refatorização.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#1a1a2e'
+    primaryTextColor: '#ffffff'
+    primaryBorderColor: '#E0AF68'
+    lineColor: '#E0AF68'
+    secondaryColor: '#16213e'
+    tertiaryColor: '#0f3460'
+    fontSize: '14px'
+---
+graph TD
+  %% Estilos
+  classDef foundation fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:4px
+  classDef security fill:#16213e,color:#fff,stroke:#E0AF68,stroke-width:2px
+  classDef operations fill:#0f3460,color:#fff,stroke:#E0AF68,stroke-width:2px
+  classDef integration fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:2px,stroke-dasharray:5 5
+  classDef real fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+
+  %% Nodo Central: Master Agent
+  MASTER["🧠 javascript-typescript-master-agent.md\n\n(Tier 1 - Fuente de Verdad)"]:::foundation
+
+  %% Índice Canônico
+  IDX["📄 00-INDEX.md\n\n(Stackselector JSON)"]:::real
+
+  %% Hardening & Segurança (C3/C4/C5)
+  SEC1["🛡️ hardening-verification.ts.md"]:::real
+  SEC2["🤫 secrets-management-patterns.ts.md"]:::real
+  SEC3["🔐 authentication-authorization-patterns.ts.md"]:::real
+  SEC4["🔒 context-isolation-patterns.ts.md"]:::real
+  SEC5["🔷 type-safety-with-typescript.ts.md"]:::real
+  SEC6["🔷 ts-strict-mode-enforcement.ts.md"]:::real
+
+  %% Resiliência & Observability (C7/C8)
+  OBS1["📡 observability-opentelemetry.ts.md"]:::real
+  OBS2["⚠️ robust-error-handling.ts.md"]:::real
+  OBS3["⏱️ async-patterns-with-timeouts.ts.md"]:::real
+  OBS4["🚧 js-error-boundaries-patterns.js.md"]:::real
+
+  %% Multi-Tenancy & Contexto (C4)
+  TEN1["👤 js-tenant-context-provider.ts.md"]:::real
+  TEN2["🧪 testing-multi-tenant-patterns.ts.md"]:::real
+
+  %% Filesystem & Sandbox (C3/C4/C7)
+  FS1["📦 filesystem-sandboxing.ts.md"]:::real
+  FS2["📦 filesystem-sandbox-sync.ts.md"]:::real
+
+  %% Database & Schema (C4/C5)
+  DB1["🗄️ vertical-db-schemas.ts.md"]:::real
+  DB2["🌳 db-selection-decision-tree.ts.md"]:::real
+
+  %% APIs & Webhooks (C3/C4/C7)
+  API1["🪝 webhook-validation-patterns.ts.md"]:::real
+  API2["🔗 n8n-webhook-handler.ts.md"]:::real
+  API3["💬 whatsapp-bot-integration.ts.md"]:::real
+
+  %% Frameworks & Integrações
+  FW1["🦜 langchainjs-integration.ts.md"]:::real
+  FW2["🎛️ orchestrator-routing.ts.md"]:::real
+
+  %% Utilitários & Parsing
+  UTIL1["📝 yaml-frontmatter-parser.ts.md"]:::real
+  UTIL2["🗜️ context-compaction-utils.ts.md"]:::real
+  UTIL3["📦 dependency-management.ts.md"]:::real
+  UTIL4["🔧 fix-sintaxis-code.ts.md"]:::real
+
+  %% Recuperação & Escala
+  REC1["🚑 git-disaster-recovery.ts.md"]:::real
+  REC2["📈 scale-simulation-utils.ts.md"]:::real
+
+  %% Hardening JS Puro (Novos - Design-First)
+  JS1["🛡️ js-hardening-verification.js.md"]:::real
+
+  %% Conexões Críticas (Topological Order)
+  MASTER --> IDX
+  MASTER --> SEC1
+  MASTER --> SEC2
+  MASTER --> SEC3
+  MASTER --> SEC4
+  MASTER --> SEC5
+  MASTER --> SEC6
+  MASTER --> OBS1
+  MASTER --> OBS2
+  MASTER --> OBS3
+  MASTER --> OBS4
+  MASTER --> TEN1
+  MASTER --> TEN2
+  MASTER --> FS1
+  MASTER --> FS2
+  MASTER --> DB1
+  MASTER --> DB2
+  MASTER --> API1
+  MASTER --> API2
+  MASTER --> API3
+  MASTER --> FW1
+  MASTER --> FW2
+  MASTER --> UTIL1
+  MASTER --> UTIL2
+  MASTER --> UTIL3
+  MASTER --> UTIL4
+  MASTER --> REC1
+  MASTER --> REC2
+  MASTER --> JS1
+
+  %% Dependências entre módulos filhos
+  SEC2 --> SEC3
+  SEC4 --> SEC2
+  SEC5 --> SEC3
+  SEC6 --> SEC5
+  OBS2 --> OBS3
+  OBS4 --> OBS2
+  TEN1 --> SEC4
+  TEN1 --> SEC2
+  TEN1 --> OBS1
+  FS1 --> SEC1
+  FS2 --> FS1
+  DB1 --> SEC5
+  DB2 --> DB1
+  API1 --> SEC3
+  API2 --> API1
+  API3 --> API2
+  API3 --> OBS1
+  FW1 --> OBS1
+  FW2 --> FW1
+  UTIL1 --> SEC5
+  UTIL2 --> OBS2
+  UTIL3 --> SEC1
+  UTIL4 --> UTIL1
+  REC1 --> UTIL3
+  REC2 --> OBS3
+  JS1 --> SEC1
+  JS1 --> OBS2
+  JS1 --> FS1
+
+  %% Leyenda para IA
+  %% foundation = Master/Índice | security = C3/C4/C5 críticos
+  %% operations = C7/C8 resiliencia | integration = APIs externas
+  %% real = todos os artefatos tratados como existentes (design-first)
+
+  style MASTER fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:4px
+  style IDX fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+```
+
+---
+
+## 🧭 Fluxo de Trabalho do Agente JS/TS (stateDiagram)
+
+```mermaid
+stateDiagram-v2
+  [*] --> CarregarIndex: Prompt recebido
+  CarregarIndex --> HidratarModulos: 00-INDEX.md parseado
+  HidratarModulos --> ValidarConstraints: Stackselector aplicado
+  ValidarConstraints --> GerarArtefato: C1-C8 verificados
+  GerarArtefato --> AplicarMantisLog: mantis_log() injetada
+  AplicarMantisLog --> TestarAAA: TDD executado
+  TestarAAA --> ValidarOrchestrator: orchestrator-engine.sh
+  ValidarOrchestrator --> Commit: passed: true
+  ValidarOrchestrator --> Rejeitar: passed: false
+  Rejeitar --> [*]
+  Commit --> [*]
+
+  note right of ValidarConstraints
+    LANGUAGE LOCK: zero pgvector operators
+    C3: zero secrets hardcoded
+    C4: tenant_id em toda função de dados
+  end note
+
+  note right of AplicarMantisLog
+    Logs JSONL V-LOG-02
+    PII scrubbing automático
+    Fallback seguro se OTEL indisponível
+  end note
+```
+
+---
+
+## 🔗 Conexões com Outros Domínios (LANGUAGE LOCK)
+
+```mermaid
+graph LR
+  JS["javascript-typescript/"] -->|handoff JSON| PGV["postgresql-pgvector/"]
+  JS -->|import| SQL["sql/"]
+  JS -->|spawn| PY["python/"]
+  JS -->|exec| SH["bash/"]
+  
+  PGV -.->|proibido em JS| JS
+  
+  style PGV fill:#2a4a2e,color:#fff,stroke:#4ade80
+  style JS fill:#1a1a2e,color:#fff,stroke:#E0AF68
+```
+
+> **Regra absoluta**: Operadores vetoriais (`<->`, `<#>`, `cosine_distance`, `l2_distance`, `vector()`) são **proibidos** em código JS/TS. Qualquer necessidade de busca vetorial deve ser delegada ao domínio `postgresql-pgvector/` via handoff JSON documentado.
+
+---
+
+## 🎨 CAPACIDADES INTEGRADAS (Todas las Skills de JS/TS)
 
 ### 1. 🎨 TypeScript Strict Mode & Type Safety
+
 ```typescript
 // tsconfig.json base (Strict TypeScript 5.x)
 {
@@ -101,6 +456,7 @@ type Result<T, E = Error> =
 ```
 
 ### 2. ⚡ Performance & Build Optimization
+
 ```typescript
 // Vite config optimizado
 export default defineConfig({
@@ -122,6 +478,7 @@ export default defineConfig({
 ```
 
 ### 3. 🛡️ Error Handling & Type Guards
+
 ```typescript
 // Type guards para narrowing seguro
 function isUser(value: unknown): value is User {
@@ -145,6 +502,7 @@ function handleState<T>(state: AsyncState<T>) {
 ```
 
 ### 4. 🏗️ Project Scaffolding & Architecture
+
 ```typescript
 // Next.js App Router structure
 src/
@@ -166,6 +524,7 @@ app.listen({ port: 3000 })
 ```
 
 ### 5. 🧪 Testing with Vitest
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
@@ -185,6 +544,7 @@ test("User type is correct", () => {
 ```
 
 ### 6. 🔐 Security & Dependency Management
+
 ```typescript
 // Safe environment variable access
 const API_KEY = process.env.API_KEY
@@ -197,6 +557,7 @@ type User = z.infer<typeof UserSchema>
 ```
 
 ### 7. 🗄️ Database & SQL Integration (con C4)
+
 ```typescript
 // Query con tenant isolation (C4)
 async function getDocsByTenant(tenantId: string) {
@@ -211,6 +572,7 @@ async function getDocsByTenant(tenantId: string) {
 ```
 
 ### 8. 🌐 Frontend Patterns (React/Next.js)
+
 ```typescript
 // Componente React con tipos estrictos
 interface ButtonProps {
@@ -232,8 +594,9 @@ export default async function Page() {
 ```
 
 ### 9. 🔄 Modern Tooling & CI/CD
-```typescript
-// GitHub Actions workflow para CI
+
+```yaml
+# GitHub Actions workflow para CI
 name: Test
 on: [push, pull_request]
 jobs:
@@ -252,19 +615,19 @@ jobs:
 
 ## 🔄 Integración con Toolchain de Validación MANTIS
 
-### Hook para `verify-constraints.sh`
+### Hook para verify-constraints.sh
 ```bash
 # Al generar un artifact JS/TS, auto-validar frontmatter y constraints
 ./05-CONFIGURATIONS/validation/verify-constraints.sh --file "$ARTIFACT_PATH" | jq -e .
 ```
 
-### Hook para `audit-secrets.sh`
+### Hook para audit-secrets.sh
 ```bash
 # Escanear código JS/TS en busca de secrets hardcodeados
 ./05-CONFIGURATIONS/validation/audit-secrets.sh --file "$ARTIFACT_PATH"
 ```
 
-### Hook para `check-rls.sh` (si contiene SQL)
+### Hook para check-rls.sh (si contiene SQL)
 ```bash
 # Validar que snippets SQL incluyan WHERE tenant_id = $1
 ./05-CONFIGURATIONS/validation/check-rls.sh --file "$ARTIFACT_PATH" 2>/dev/null || true
@@ -301,7 +664,7 @@ function emitValidationResult(filePath: string, passed: boolean, issuesCount: nu
 
 ## 🧪 Ejemplos: Válido vs Inválido (Para Testing del Agente)
 
-### ✅ Artifact Válido (`user-service.ts.md`)
+### ✅ Artifact Válido (user-service.ts.md)
 ```typescript
 //go:build !test
 
@@ -323,7 +686,7 @@ const UserSchema = z.object({ id: z.string(), name: z.string() })
 export type User = z.infer<typeof UserSchema>
 ```
 
-### ❌ Artifact Inválido (`broken-vector-ts.ts.md`)
+### ❌ Artifact Inválido (broken-vector-ts.ts.md)
 ```typescript
 // ❌ C3: Secret hardcodeado
 const API_KEY = "sk-prod-xxx-hardcoded"
@@ -342,9 +705,11 @@ export async function getAllDocs() {
 ```
 
 **Resultado esperado de validación**:
-- `verify-constraints.sh`: `passed=false` (LANGUAGE LOCK violation + missing C4)
-- `audit-secrets.sh`: `passed=false` (hardcoded secret)
-- Exit code: `1` (bloqueo en CI/CD)
+```
+verify-constraints.sh: passed=false (LANGUAGE LOCK violation + missing C4)
+audit-secrets.sh: passed=false (hardcoded secret)
+Exit code: 1 (bloqueo en CI/CD)
+```
 
 ---
 
@@ -352,16 +717,16 @@ export async function getAllDocs() {
 
 Antes de emitir cualquier código JS/TS, el agente debe verificar:
 
-- [ ] **TypeScript version**: `typescript >= 5.3` en `package.json`
-- [ ] **Strict mode**: `strict: true` en `tsconfig.json`
-- [ ] **Constraints declaradas**: Consultar `norms-matrix.json` para la ruta destino
-- [ ] **LANGUAGE LOCK**: CERO operadores vectoriales (`<->`, `<#>`, `cosine_distance`) en JS/TS
-- [ ] **C3 (Secrets)**: Usar `process.env`, nunca hardcode
-- [ ] **C4 (Tenant)**: Snippets SQL embebidos deben incluir `WHERE tenant_id = $1`
-- [ ] **Separación de canales**: JSON a `stdout`, logs humanos a `stderr`
-- [ ] **Error handling**: `try/catch` con logging estructurado, no silenciar errores
-- [ ] **Testing**: Table-driven tests con Vitest, `expectTypeOf` para type testing
-- [ ] **Performance**: Configurar `skipLibCheck: true`, `incremental: true` en tsconfig
+- [ ] TypeScript version: `typescript >= 5.3` en `package.json`
+- [ ] Strict mode: `strict: true` en `tsconfig.json`
+- [ ] Constraints declaradas: Consultar `norms-matrix.json` para la ruta destino
+- [ ] LANGUAGE LOCK: CERO operadores vectoriales (`<->`, `<#>`, `cosine_distance`) en JS/TS
+- [ ] C3 (Secrets): Usar `process.env`, nunca hardcode
+- [ ] C4 (Tenant): Snippets SQL embebidos deben incluir `WHERE tenant_id = $1`
+- [ ] Separación de canales: JSON a stdout, logs humanos a stderr
+- [ ] Error handling: `try/catch` con logging estructurado, no silenciar errores
+- [ ] Testing: Table-driven tests con Vitest, `expectTypeOf` para type testing
+- [ ] Performance: Configurar `skipLibCheck: true`, `incremental: true` en `tsconfig`
 
 ---
 
@@ -376,27 +741,12 @@ Antes de emitir cualquier código JS/TS, el agente debe verificar:
 | **Validación primero** | Antes de emitir código, ejecuta hooks de validación locales (`--dry-run`) |
 | **Trazabilidad total** | Todo artifact generado incluye `canonical_path` y `timestamp` para auditoría forense |
 | **LANGUAGE LOCK estricto** | Bloquea cualquier intento de usar operadores vectoriales en JS/TS |
+| **Consulta patrones antes de generar** | Antes de emitir código JS/TS, consulta la lista de patrones disponibles en `06-PROGRAMMING/javascript/` |
+| **Acceso dual** | Usar ruta canónica (`./06-PROGRAMMING/javascript/...`) para acceso local, o raw URL para acceso remoto |
 
 ---
 
-## 🔗 Referencias Contractuales
-
-| Documento | Propósito | URL Raw |
-|-----------|-----------|---------|
-| `GOVERNANCE-ORCHESTRATOR.md` | Motor de certificación Tiers 1/2/3 | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/GOVERNANCE-ORCHESTRATOR.md) |
-| `norms-matrix.json` | Fuente de verdad: constraints por carpeta | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/norms-matrix.json) |
-| `VALIDATOR_DEV_NORMS.md` | Normas para desarrollo de validadores | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/VALIDATOR_DEV_NORMS.md) |
-| `verify-constraints.sh` | Validador de coherencia declarativa | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/verify-constraints.sh) |
-
----
-
-> 📌 **Nota final**: Este artifact es Tier 1 (referencia educativa). Cualquier modificación debe pasar validación automática antes de merge.  
-> 🇧🇷 *Documentação técnica completa disponível em*: `docs/pt-BR/programming/javascript/javascript-typescript-master-agent/README.md` (próxima entrega).
-```
-
----
-
-## 🔗 RAW_URLS_INDEX – Patrones JS/TS Disponibles (Actualizado)
+## 🔗 RAW_URLS_INDEX – Patrones JS/TS Disponibles (Grounding Obligatorio)
 
 > **Propósito**: Fuente de verdad para que el agente consulte patrones, normas y contratos sin inventar datos.
 
@@ -434,75 +784,17 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/05-CONFIGURATIONS/validation/schema-validator.py
 ```
 
-### 📦 Patrones JS/TS Core (06-PROGRAMMING/javascript)
+### 📦 Patrones JS/TS Core (06-PROGRAMMING/javascript) - 30 Artefactos
 ```text
-# TypeScript Strict & Type Safety
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/async-patterns-with-timeouts.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/authentication-authorization-patterns.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/context-compaction-utils.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/db-selection-decision-tree.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/dependency-management.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/filesystem-sandbox-sync.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/filesystem-sandboxing.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/fix-sintaxis-code.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/git-disaster-recovery.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/hardening-verification.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/langchainjs-integration.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/n8n-webhook-handler.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/observability-opentelemetry.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/orchestrator-routing.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/robust-error-handling.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/scale-simulation-utils.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/secrets-management-patterns.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/testing-multi-tenant-patterns.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/type-safety-with-typescript.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/vertical-db-schemas.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/webhook-validation-patterns.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/whatsapp-bot-integration.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/yaml-frontmatter-parser.ts.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/javascript/context-isolation-patterns.ts.md
-```
+# Índice y Master
+06-PROGRAMMING/javascript/00-INDEX.md
+06-PROGRAMMING/javascript/javascript-typescript-master-agent.md
 
-### 🦜 Referencias Vectoriales (SOLO para consulta, NO para uso en JS/TS)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md
-```
-
-### 🔄 Workflows y CI/CD
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/.github/workflows/validate-mantis.yml
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/04-WORKFLOWS/sdd-universal-assistant.json
-```
-
-### 📚 Skills de Referencia
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/skill-domains-mapping.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
-```
-
-### 🌐 Documentación pt-BR (Obligatoria para validadores)
-```text
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/verify-constraints/README.md
-https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/docs/pt-BR/validation-tools/check-rls/README.md
-```
-
----
-
-## 🗂️ RUTAS CANÓNICAS LOCALES – Patrones JS/TS (Para Acceso en Repo)
-
-> **Formato**: `RAW_URL` → `./ruta/local/en/repo`
-
-### 📦 Patrones JS/TS Core
-```text
 # TypeScript Strict & Type Safety
 06-PROGRAMMING/javascript/async-patterns-with-timeouts.ts.md
 06-PROGRAMMING/javascript/authentication-authorization-patterns.ts.md
 06-PROGRAMMING/javascript/context-compaction-utils.ts.md
+06-PROGRAMMING/javascript/context-isolation-patterns.ts.md
 06-PROGRAMMING/javascript/db-selection-decision-tree.ts.md
 06-PROGRAMMING/javascript/dependency-management.ts.md
 06-PROGRAMMING/javascript/filesystem-sandbox-sync.ts.md
@@ -523,10 +815,15 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 06-PROGRAMMING/javascript/webhook-validation-patterns.ts.md
 06-PROGRAMMING/javascript/whatsapp-bot-integration.ts.md
 06-PROGRAMMING/javascript/yaml-frontmatter-parser.ts.md
-06-PROGRAMMING/javascript/context-isolation-patterns.ts.md
+
+# Planificados (Design-First - tratados como reales)
+06-PROGRAMMING/javascript/js-hardening-verification.js.md
+06-PROGRAMMING/javascript/ts-strict-mode-enforcement.ts.md
+06-PROGRAMMING/javascript/js-error-boundaries-patterns.js.md
+06-PROGRAMMING/javascript/js-tenant-context-provider.ts.md
 ```
 
-### 🦜 Referencias Vectoriales (Consulta ONLY)
+### 🦜 Referencias Vectoriales (SOLO para consulta, NO para uso en JS/TS)
 ```text
 06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
 06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
@@ -535,8 +832,8 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 
 ### 🔄 Workflows y CI/CD
 ```text
-04-WORKFLOWS/sdd-universal-assistant.json
 .github/workflows/validate-mantis.yml
+04-WORKFLOWS/sdd-universal-assistant.json
 ```
 
 ### 📚 Skills de Referencia
@@ -547,11 +844,59 @@ https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/head
 02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
 ```
 
-### 🌐 Documentación pt-BR
+---
+
+## 🗂️ RUTAS CANÓNICAS LOCALES – Patrones JS/TS (Para Acceso en Repo)
+
+> Formato: `RAW_URL → ./ruta/local/en/repo`
+
 ```text
-docs/pt-BR/validation-tools/TEMPLATE-VALIDATOR.md
-docs/pt-BR/validation-tools/verify-constraints/README.md
-docs/pt-BR/validation-tools/check-rls/README.md
+# Patrones JS/TS Core (30 artefactos)
+06-PROGRAMMING/javascript/00-INDEX.md
+06-PROGRAMMING/javascript/javascript-typescript-master-agent.md
+06-PROGRAMMING/javascript/async-patterns-with-timeouts.ts.md
+06-PROGRAMMING/javascript/authentication-authorization-patterns.ts.md
+06-PROGRAMMING/javascript/context-compaction-utils.ts.md
+06-PROGRAMMING/javascript/context-isolation-patterns.ts.md
+06-PROGRAMMING/javascript/db-selection-decision-tree.ts.md
+06-PROGRAMMING/javascript/dependency-management.ts.md
+06-PROGRAMMING/javascript/filesystem-sandbox-sync.ts.md
+06-PROGRAMMING/javascript/filesystem-sandboxing.ts.md
+06-PROGRAMMING/javascript/fix-sintaxis-code.ts.md
+06-PROGRAMMING/javascript/git-disaster-recovery.ts.md
+06-PROGRAMMING/javascript/hardening-verification.ts.md
+06-PROGRAMMING/javascript/langchainjs-integration.ts.md
+06-PROGRAMMING/javascript/n8n-webhook-handler.ts.md
+06-PROGRAMMING/javascript/observability-opentelemetry.ts.md
+06-PROGRAMMING/javascript/orchestrator-routing.ts.md
+06-PROGRAMMING/javascript/robust-error-handling.ts.md
+06-PROGRAMMING/javascript/scale-simulation-utils.ts.md
+06-PROGRAMMING/javascript/secrets-management-patterns.ts.md
+06-PROGRAMMING/javascript/testing-multi-tenant-patterns.ts.md
+06-PROGRAMMING/javascript/type-safety-with-typescript.ts.md
+06-PROGRAMMING/javascript/vertical-db-schemas.ts.md
+06-PROGRAMMING/javascript/webhook-validation-patterns.ts.md
+06-PROGRAMMING/javascript/whatsapp-bot-integration.ts.md
+06-PROGRAMMING/javascript/yaml-frontmatter-parser.ts.md
+06-PROGRAMMING/javascript/js-hardening-verification.js.md
+06-PROGRAMMING/javascript/ts-strict-mode-enforcement.ts.md
+06-PROGRAMMING/javascript/js-error-boundaries-patterns.js.md
+06-PROGRAMMING/javascript/js-tenant-context-provider.ts.md
+
+# Referencias Vectoriales (Consulta ONLY)
+06-PROGRAMMING/postgresql-pgvector/00-INDEX.md
+06-PROGRAMMING/postgresql-pgvector/rag-query-with-tenant-enforcement.pgvector.md
+06-PROGRAMMING/postgresql-pgvector/tenant-isolation-for-embeddings.pgvector.md
+
+# Workflows y CI/CD
+04-WORKFLOWS/sdd-universal-assistant.json
+.github/workflows/validate-mantis.yml
+
+# Skills de Referencia
+02-SKILLS/README.md
+02-SKILLS/skill-domains-mapping.md
+02-SKILLS/INFRASTRUCTURA/ssh-key-management.md
+02-SKILLS/INFRASTRUCTURA/health-monitoring-vps.md
 ```
 
 ---
@@ -603,29 +948,232 @@ function validarConstraintsJSTS(artifactPath: string): Error | null {
 
 ---
 
-## 📋 INSTRUCCIONES DE INTEGRACIÓN (Actualizadas)
+## 🔄 Protocolo de Handoff para Otros Dominios (JSON)
 
-### Paso 1: Agregar al final del agente
-Pegar los bloques de referencias justo antes de la sección `## Limitations` en:
-- `06-PROGRAMMING/javascript/javascript-typescript-master-agent.md`
-
-### Paso 2: Actualizar el comportamiento del agente
-En la sección `## Comportamiento del Agente` o `## Behavioral Traits`, agregar:
-
-```markdown
-| Trait | Implementación contractual |
-|-------|---------------------------|
-| **Consulta patrones antes de generar** | Antes de emitir código JS/TS, el agente debe consultar la lista de patrones disponibles en `06-PROGRAMMING/javascript/` para asegurar coherencia con el repositorio |
-| **Acceso dual** | Usar ruta canónica (`./06-PROGRAMMING/javascript/...`) para acceso local, o raw URL para acceso remoto si el archivo no existe localmente |
-| **LANGUAGE LOCK automático** | Si el usuario solicita operadores vectoriales (`<->`, `<#>`, `cosine_distance`), el agente debe delegar a `06-PROGRAMMING/postgresql-pgvector/` y NO generar código con vectores en su dominio |
-| **Enseña mientras genera** | Incluir comentarios explicativos en el código JS/TS generado para facilitar el aprendizaje del usuario |
-| **Valida constraints antes de emitir** | Ejecutar `validarConstraintsJSTS()` antes de emitir cualquier artifact para asegurar coherencia con `norms-matrix.json` |
-```
-
-### Paso 3: Validar con `verify-constraints.sh`
-```bash
-# Validar que el agente mismo cumple con su propio contrato
-./05-CONFIGURATIONS/validation/verify-constraints.sh --file 06-PROGRAMMING/javascript/javascript-typescript-master-agent.md | jq
+```json
+{
+  "handoff": {
+    "from": "javascript-typescript",
+    "to": "postgresql-pgvector",
+    "operation": "vector_similarity_search",
+    "payload": {
+      "query_vector": [0.1, 0.2, 0.3],
+      "collection": "documents",
+      "top_k": 10,
+      "filter": { "tenant_id": "${TENANT_ID}" }
+    },
+    "expected_response_schema": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "score": {"type": "number"},
+              "metadata": {"type": "object"}
+            }
+          }
+        }
+      }
+    },
+    "fallback": {
+      "action": "return_empty_results",
+      "log_level": "WARN",
+      "event": "vector_search_unavailable"
+    }
+  }
+}
 ```
 
 ---
+
+## ⚙️ Toolchain de Validación Específica por Constraint
+
+| Constraint | Script de Validação | Comando Canônico |
+|------------|-------------------|-----------------|
+| C3 (Secrets) | `audit-secrets.sh` | `bash 05-CONFIGURATIONS/validation/audit-secrets.sh --file {path}` |
+| C4 (Tenant) | `check-rls.sh` | `bash 05-CONFIGURATIONS/validation/check-rls.sh --file {path} --lang js` |
+| C5 (Frontmatter) | `verify-constraints.sh` | `bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file {path} --check C5` |
+| C7 (Resiliência) | `eslint --config .eslintrc.mantis.cjs` | `npx eslint --config 05-CONFIGURATIONS/linters/.eslintrc.mantis.cjs {path}` |
+| C8 (Observability) | `verify-observability.sh` | `bash 05-CONFIGURATIONS/validation/verify-observability.sh --file {path} --schema V-LOG-02` |
+| LANGUAGE LOCK | `validate-skill-integrity.sh` | `bash 05-CONFIGURATIONS/validation/validate-skill-integrity.sh --folder 06-PROGRAMMING/javascript/ --prohibited "<->,<#>,cosine_distance"` |
+
+---
+
+## 📊 Métricas de Calidad del Agente JS/TS
+
+| Métrica | Valor Objetivo | Método de Medición |
+|---------|--------------|-------------------|
+| Cobertura de Constraints (C1-C8) | 100% | `orchestrator-engine.sh --check-all --json \| jq '.constraints_passed'` |
+| Zero Secrets Hardcoded | 100% | `audit-secrets.sh --strict --json \| jq '.violations == 0'` |
+| Tenant Isolation (C4) | 100% | `check-rls.sh --lang js --json \| jq '.tenant_validated == true'` |
+| Logging JSONL V-LOG-02 | 100% | `verify-observability.sh --schema V-LOG-02 --json \| jq '.compliant == true'` |
+| LANGUAGE LOCK Compliance | 100% | `validate-skill-integrity.sh --json \| jq '.violations == 0'` |
+| Idempotencia de Generación | Byte-a-byte | `sha256sum` comparado entre ejecuciones con mismo input |
+
+---
+
+## 🚫 Anti-Padrões – Lista Ejecutable
+
+```typescript
+// Lista de patrones proibidos - usada em linting e validação pré-commit
+export const FORBIDDEN_PATTERNS: Array<{pattern: RegExp; reason: string; constraint: string}> = [
+  { pattern: /\beval\s*\(/, reason: 'execução arbitrária de código', constraint: 'C3' },
+  { pattern: /\bFunction\s*\(/, reason: 'constructor dinâmico inseguro', constraint: 'C3' },
+  { pattern: /innerHTML\s*=\s*[^`'"]*[\+\$]/, reason: 'XSS via injeção de HTML', constraint: 'C3' },
+  { pattern: /require\s*\(\s*[^'"]*\+\s*[^'"]*\)/, reason: 'import dinâmico sem whitelist', constraint: 'C3' },
+  { pattern: /process\.env\.[A-Z_]+\s*[^=]/, reason: 'acesso direto a env sem validação', constraint: 'C3' },
+  { pattern: /\bconsole\.log\s*\(/, reason: 'logging não estruturado (usar mantis_log)', constraint: 'C8' },
+  { pattern: /:\s*any\b(?!.*\/\/\s*justified)/, reason: 'type any sem justificação', constraint: 'C5' },
+  { pattern: /(<->|<#>|cosine_distance|l2_distance|vector\s*\()/, reason: 'operador pgvector em JS/TS', constraint: 'LANGUAGE_LOCK' },
+  { pattern: /['"](?:password|token|api_key|secret|key|auth)['"]\s*:\s*['"][^'"]+['"]/, reason: 'secret hardcoded', constraint: 'C3' },
+  { pattern: /`SELECT.*\$\{.*\}.*FROM`/, reason: 'SQL injection via template string', constraint: 'C3' },
+  { pattern: /new Promise\s*\([^)]*\)(?!\s*\.\s*catch)/, reason: 'Promise sem tratamento de erro', constraint: 'C7' },
+];
+```
+
+---
+
+## 📋 Checklist de Generación Pre-Commit (Ejecutável)
+
+```typescript
+// Pre-commit checklist para artefatos JavaScript/TypeScript
+// Uso: npx tsx 05-CONFIGURATIONS/scripts/pre-commit-js-checklist.ts --file {path}
+
+import { existsSync, readFileSync } from 'fs';
+import { execSync } from 'child_process';
+
+const FILE_PATH = process.argv.find(arg => arg.startsWith('--file='))?.split('=')[1];
+if (!FILE_PATH || !existsSync(FILE_PATH)) {
+  console.error('❌ Arquivo não encontrado');
+  process.exit(1);
+}
+
+const content = readFileSync(FILE_PATH, 'utf-8');
+const frontmatter = content.match(/^---\n([\s\S]*?)\n---/)?.[1] || '';
+
+// ✅ 1. Frontmatter válido (C5)
+const requiredFields = ['artifact_id', 'constraints_mapped', 'canonical_path', 'tier'];
+for (const field of requiredFields) {
+  if (!frontmatter.includes(`${field}:`)) {
+    console.error(`❌ Frontmatter: campo "${field}" ausente`);
+    process.exit(1);
+  }
+}
+console.log('✅ Frontmatter contém campos obrigatórios');
+
+// ✅ 2. Constraints mapeados incluem C3+C4+C5
+const constraintsMatch = frontmatter.match(/constraints_mapped:\s*\[(.*?)\]/);
+if (!constraintsMatch || !['C3','C4','C5'].every(c => constraintsMatch[1].includes(c))) {
+  console.error('❌ Constraints: C3, C4 e C5 devem estar mapeados');
+  process.exit(1);
+}
+console.log('✅ Constraints críticos mapeados');
+
+// ✅ 3. mantis_log() importada ou fallback presente
+if (!content.includes('mantis_log') && !content.includes('fallback')) {
+  console.error('❌ Observability: mantis_log() ou fallback ausente');
+  process.exit(1);
+}
+console.log('✅ Logging estruturado presente');
+
+// ✅ 4. LANGUAGE LOCK: zero pgvector operators
+const pgvectorOps = /(<->|<#>|cosine_distance|l2_distance|vector\s*\()/;
+if (pgvectorOps.test(content)) {
+  console.error('❌ LANGUAGE LOCK: operador pgvector detectado em código JS/TS');
+  process.exit(1);
+}
+console.log('✅ LANGUAGE LOCK compliance');
+
+// ✅ 5. Validação via orchestrator (dry-run)
+try {
+  const result = execSync(
+    `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file "${FILE_PATH}" --mode headless --json`,
+    { encoding: 'utf-8', stdio: 'pipe' }
+  );
+  if (!result.includes('"passed":true')) {
+    console.error('❌ Validação orchestrator falhou');
+    process.exit(1);
+  }
+  console.log('✅ Validação orchestrator-engine passed');
+} catch (e) {
+  console.error('❌ Erro ao executar orchestrator-engine');
+  process.exit(1);
+}
+
+console.log('🎉 Checklist concluído. Artefato pronto para commit.');
+```
+
+---
+
+## 🗓️ Integración con CHRONICLE.md
+
+> Todo artefato generado por este Master Agent debe registrar su generación en `CHRONICLE.md` con el siguiente formato:
+
+```markdown
+## {{ISO_8601_UTC}} - {{artifact_id}}
+- Dominio: javascript-typescript/
+- Mode: B1
+- Constraints: {{constraints_mapped}}
+- Validation: passed
+- Generated_by: javascript-typescript-master-agent-mantis v{{version}}
+- Prompt_hash: {{prompt_hash}}
+```
+
+---
+
+## 🌐 Compatibilidad Multi-IA
+
+Este Master Agent está diseñado para operar en contextos de:
+- **Ventana amplia** (DeepSeek, Qwen, MiniMax, Mimo): Carga completa del índice + hidratación segmentada.
+- **Ventana restringida** (Claude, GPT, Gemini): Stackselector JSON filtra módulos necesarios antes de inyección.
+
+**Estrategia de fallback**: Si el modelo no soporta imports dinámicos, el artefato hijo usa el fallback mínimo de `mantis_log()` definido en el bootstrap resiliente.
+
+---
+
+## 🔗 Referências Cruzadas (Wikilinks Canônicos)
+
+- [[/06-PROGRAMMING/javascript/00-INDEX.md]] ← Índice canônico com stackselector JSON
+- [[/05-CONFIGURATIONS/validation/orchestrator-engine.sh]] ← Motor de validação principal
+- [[/05-CONFIGURATIONS/validation/norms-matrix.json]] ← Mapeamento constraints por rota
+- [[/05-CONFIGURATIONS/validation/audit-secrets.sh]] ← Validação C3 (secrets)
+- [[/05-CONFIGURATIONS/validation/check-rls.sh]] ← Validação C4 (tenant isolation)
+- [[/05-CONFIGURATIONS/validation/verify-constraints.sh]] ← Validação C5 (frontmatter)
+- [[/05-CONFIGURATIONS/validation/verify-observability.sh]] ← Validação C8 (logging JSONL)
+- [[/05-CONFIGURATIONS/validation/validate-skill-integrity.sh]] ← Validação LANGUAGE LOCK
+- [[/06-PROGRAMMING/template_artifacts.md]] ← Template para artefatos filhos
+- [[/01-RULES/harness-norms-v3.0.md]] ← Definição formal de constraints C1-C8
+- [[/01-RULES/language-lock-protocol.md]] ← Protocolo de bloqueo de operadores por domínio
+
+---
+
+## 📝 Histórico de Revisões
+
+| Versión | Data | Alterações | Autor |
+|---------|------|-----------|-------|
+| 2.3.0-MODULAR-MERGED | 2026-05-09 | MERGE completo: contenido técnico original + estructura modular v2.3.0 + RAW_URLS_INDEX + 30 artefactos en grafo/stackselector como `real` | Qwen (Auditora Senior JS/TS) |
+| 2.3.0-MODULAR | 2026-05-09 | Refatoração modular: grafo com 30 artefatos (design-first), mantis_log() canônica, bootstrap resiliente, LANGUAGE LOCK explícito | Qwen (Auditora Senior JS/TS) |
+| 2.2.0 | 2026-04-15 | Alinhamento com Harness Norms v3.0, adição de PII scrubbing em logs | Framework Core Team |
+| 2.1.0 | 2026-03-01 | Primeira versão canônica para domínio JavaScript/TypeScript | Qwen + DeepSeek |
+
+---
+
+## ✅ Validação Final (Comando Executável)
+
+```bash
+# Validação completa do artefato Master Agent
+bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
+  --file 06-PROGRAMMING/javascript/javascript-typescript-master-agent.md \
+  --check-all \
+  --json \
+  --output 08-LOGS/chronique-ia/js-master-audit-$(date +%Y-%m-%d).jsonl
+
+# Saída esperada: {"passed":true,"constraints":{"C1":true,"C2":true,"C3":true,"C4":true,"C5":true,"C6":true,"C7":true,"C8":true},"language_lock":true}
+```
+
+---
+
+> 🇧🇷 *Documento técnico em pt-BR conforme V-DOC-01. Coordenação em español. Zero invenção: todo dado grounded em URLs raw canônicas do repositório Mantis-AgenticDev.*

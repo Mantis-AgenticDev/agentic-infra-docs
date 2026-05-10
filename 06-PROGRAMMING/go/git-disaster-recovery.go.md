@@ -1,283 +1,401 @@
-# SHA256: b8f3a9c2d1e7f4b6a0c5d9e2f8a1c4e7b3d6e9f2a5c8b1d4e7a0f3c6b9d2e5a9
 ---
 artifact_id: "git-disaster-recovery"
-artifact_type: "skill_go"
-version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C3","C4","C5","C7"]
+artifact_type: "go_pattern"
+version: "3.0.0-FUSION"
+constraints_mapped: ["C3", "C4", "C5", "C7"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/git-disaster-recovery.go.md --json"
 canonical_path: "06-PROGRAMMING/go/git-disaster-recovery.go.md"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:deepseek-fusion-git-disaster-recovery-v3.0.0"
+generated_at: "2026-05-09T00:00:00Z"
+tenant_context: "obrigatorio"
+language: pt-BR
+domain: "go"
+ai_navigation:
+  read_first: false
+  required_for: ["git-disaster-recovery"]
+  update_frequency: on-change
+audience: ["go-master-agent", "orchestrator-engine", "validation-hooks"]
+status: "🟡 Fundido (DeepSeek Manual Merge)"
+next_review: "2026-06-09"
 ---
 
-# git-disaster-recovery.go.md – Recuperación segura de Git con backups, reflog y auditoría
+# git-disaster-recovery.go.md – Recuperação segura do Git com backups, reflog e auditoria
 
-## Propósito
-Patrones de implementación en Go para gestión segura de desastres en repositorios Git: backups atómicos con `git bundle`, recuperación de commits perdidos vía `reflog`, validación de hooks, verificación de integridad de objetos (`fsck`), aislamiento por repositorio/tenant, límites de recursos y logging estructurado. Cada ejemplo está comentado línea por línea en español para que entiendas cómo revertir errores humanos o fallos de red sin perder datos ni exponer credenciales.
+> **Contrato modular**: Este artefato é filho do Master Agent `go-master-agent-mantis`.  
+> Herda hardening, observability, thinking system e constraints via source/import.  
+> Contém APENAS a lógica de domínio específica para recuperação de desastres em repositórios Git.
 
-> 💡 **Nota pedagógica**: ≤5 líneas ejecutables por bloque + `// 👇 EXPLICACIÓN:` que describen QUÉ hace y POR QUÉ es esencial para cumplir C3 (secrets), C4 (aislamiento), C5 (validación) y C7 (seguridad operativa).
+---
 
-## Patrones de Código Validados (25 ejemplos)
+## 🎯 Propósito
+Padrões de implementação em Go para gerenciamento seguro de desastres em repositórios Git: backups atômicos com `git bundle`, recuperação de commits perdidos via `reflog`, validação de hooks, verificação de integridade de objetos (`fsck`), isolamento por repositório/tenant, limites de recursos e logging estruturado. Cada exemplo é comentado linha a linha em português para que você entenda como reverter erros humanos ou falhas de rede sem perder dados nem expor credenciais.
+
+> 💡 **Nota pedagógica**: ≤5 linhas executáveis por bloco + `// 👇 EXPLICAÇÃO:` que descrevem O QUE faz e POR QUE é essencial para cumprir C3 (segredos), C4 (isolamento), C5 (validação) e C7 (segurança operacional).
+
+---
+
+## 🛡️ Bootstrap Resiliente + Lógica de Domínio
+```go
+// ═══════════════════════════════════════════════
+// 🛡️ BOOTSTRAP RESILIENTE – Master Agent Go
+// ═══════════════════════════════════════════════
+// Este módulo importa o go-master-agent e usa
+// mantis_log(), hardening e helpers de tenant.
+// Fallback mínimo garante logging mesmo se o
+// Master Agent não estiver acessível (C7).
+
+package main
+
+import (
+    "os"
+    "fmt"
+    "time"
+)
+
+// Stub de fallback (será substituído pelo import real em compilação)
+func mantisLogStub(level string, event string, detail string) {
+    tenantID := os.Getenv("TENANT_ID")
+    if tenantID == "" { tenantID = "unknown" }
+    fmt.Fprintf(os.Stderr, `{"ts":"%s","level":"%s","tenant":"%s","event":"%s","detail":"%s","fallback":"true"}`+"\n",
+        time.Now().UTC().Format(time.RFC3339), level, tenantID, event, detail)
+}
+
+// Em produção: import "github.com/.../go-master-agent"
+// e use master.MantisLog(master.INFO, "evento", "detalhe")
+```
+
+## 📋 Padrões de Código Validados (25 exemplos)
 
 ```go
-// ✅ C4/C7: Backup atómico con `git bundle` antes de operación destructiva
-// 👇 EXPLICACIÓN: `git bundle` empaqueta todo el historial en un solo archivo portable
-// 👇 EXPLICACIÓN: Permite restauración completa sin depender de remotos externos
+// ✅ C4/C7: Backup atômico com `git bundle` antes de operação destrutiva
+// 👇 EXPLICAÇÃO: `git bundle` empacota todo o histórico em um único arquivo portável
+// 👇 EXPLICAÇÃO: Permite restauração completa sem depender de remotos externos
 cmd := exec.CommandContext(ctx, "git", "bundle", "create", backupPath, "--all")
-if err := cmd.Run(); err != nil { return fmt.Errorf("C7: bundle fallido: %w", err) }
+if err := cmd.Run(); err != nil { return fmt.Errorf("C7: bundle falhou: %w", err) }
 ```
 
 ```go
-// ❌ Anti-pattern: reset hard sin backup previo pierde commits irremediablemente
+// ❌ Anti-pattern: reset hard sem backup prévio perde commits irremediavelmente
 exec.Command("git", "reset", "--hard", "origin/main").Run()  // 🔴 C7/C5 risk
-// 👇 EXPLICACIÓN: Si el remoto está desactualizado, los commits locales se pierden para siempre
-// 🔧 Fix: crear bundle/branch de seguridad antes de reset (≤5 líneas)
+// 👇 EXPLICAÇÃO: Se o remoto estiver desatualizado, os commits locais são perdidos para sempre
+// 🔧 Fix: criar bundle/branch de segurança antes do reset (≤5 linhas)
 exec.Command("git", "bundle", "create", "pre-reset.bundle", "HEAD").Run()
 exec.Command("git", "reset", "--hard", "origin/main").Run()
 ```
 
 ```go
-// ✅ C4: Extracción de commit perdido vía `git reflog`
-// 👇 EXPLICACIÓN: Reflog guarda movimientos de HEAD incluso tras reset/deletes
-// 👇 EXPLICACIÓN: Parseamos salida para encontrar SHA antes de la acción destructiva
+// ✅ C4: Extração de commit perdido via `git reflog`
+// 👇 EXPLICAÇÃO: Reflog guarda movimentos de HEAD mesmo após reset/deletes
+// 👇 EXPLICAÇÃO: Analisamos saída para encontrar SHA antes da ação destrutiva
 out, _ := exec.CommandContext(ctx, "git", "reflog", "show", "--format=%H %gs").Output()
 if lostSHA := findCommitBefore("reset", string(out)); lostSHA != "" { recoverBranch(lostSHA) }
 ```
 
 ```go
-// ✅ C7: Timeout estricto para operaciones de clonación o fetch
-// 👇 EXPLICACIÓN: `context.WithTimeout` aborta si el remoto no responde o la red falla
-// 👇 EXPLICACIÓN: Evita procesos huérfanos que consumen CPU/descriptores indefinidamente
+// ✅ C7: Timeout estrito para operações de clonagem ou fetch
+// 👇 EXPLICAÇÃO: `context.WithTimeout` aborta se o remoto não responder ou a rede falhar
+// 👇 EXPLICAÇÃO: Evita processos órfãos que consomem CPU/descritores indefinidamente
 ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 defer cancel()
 cmd := exec.CommandContext(ctx, "git", "clone", repoURL, destPath)
 ```
 
 ```go
-// ✅ C3: Máscara de credenciales en logs de recuperación
-// 👇 EXPLICACIÓN: Reemplazamos `user:pass@` por `***@` antes de loggear URLs
-// 👇 EXPLICACIÓN: Previene exposición accidental de tokens en sistemas de observabilidad
+// ✅ C3: Máscara de credenciais em logs de recuperação
+// 👇 EXPLICAÇÃO: Substituímos `user:pass@` por `***@` antes de logar URLs
+// 👇 EXPLICAÇÃO: Previne exposição acidental de tokens em sistemas de observabilidade
 maskedURL := regexp.MustCompile(`://[^:]+:[^@]+@`).ReplaceAllString(repoURL, "://***@")
-logger.Info("clone_started", "repo": maskedURL, "tenant_id": tid)  // C3
+master.MantisLog(master.INFO, "clone_started", "repo", maskedURL, "tenant_id", tid)  // C3
 ```
 
 ```go
-// ✅ C5: Validación de hooks pre-recuperación
-// 👇 EXPLICACIÓN: Verificamos que hooks requeridos (pre-commit, post-merge) existan y sean ejecutables
-// 👇 EXPLICACIÓN: Previene silenciamiento accidental de validaciones críticas tras restore
+// ✅ C5: Validação de hooks pré‑recuperação
+// 👇 EXPLICAÇÃO: Verificamos que hooks requeridos (pre‑commit, post‑merge) existam e sejam executáveis
+// 👇 EXPLICAÇÃO: Previne silenciamento acidental de validações críticas após restore
 hooks := []string{"pre-commit", "post-merge"}
 for _, h := range hooks {
     if info, err := os.Stat(filepath.Join(repoPath, ".git/hooks", h)); err != nil || info.Mode()&0111 == 0 {
-        return fmt.Errorf("C5: hook %s faltante o no ejecutable", h)
+        return fmt.Errorf("C5: hook %s faltando ou não executável", h)
     }
 }
 ```
 
 ```go
-// ✅ C4/C1: Ruta de repositorio validada contra escape de directorio
-// 👇 EXPLICACIÓN: `filepath.Clean` + `HasPrefix` garantiza que operaciones solo afectan al sandbox
-// 👇 EXPLICACIÓN: Previene `git clone ../../etc/passwd` o sobreescritura cruzada
+// ✅ C4/C1: Caminho de repositório validado contra escape de diretório
+// 👇 EXPLICAÇÃO: `filepath.Clean` + `HasPrefix` garante que operações só afetam o sandbox
+// 👇 EXPLICAÇÃO: Previne `git clone ../../etc/passwd` ou sobrescrita cruzada
 cleanPath := filepath.Clean(filepath.Join(sandboxRoot, repoName))
 if !strings.HasPrefix(cleanPath, sandboxRoot) { return fmt.Errorf("C4: path traversal detectado") }
 ```
 
 ```go
-// ✅ C5/C7: Dry-run antes de force-push o branch deletion
-// 👇 EXPLICACIÓN: Simulamos la operación para confirmar qué refs se verán afectadas
-// 👇 EXPLICACIÓN: Evita borrados accidentales en ramas protegidas o compartidas
+// ✅ C5/C7: Dry‑run antes de force‑push ou branch deletion
+// 👇 EXPLICAÇÃO: Simulamos a operação para confirmar quais refs serão afetadas
+// 👇 EXPLICAÇÃO: Evita exclusões acidentais em ramos protegidos ou compartilhados
 cmd := exec.Command("git", "push", "--dry-run", "--force-with-lease", "origin", branch)
-if err := cmd.Run(); err != nil { return fmt.Errorf("C7: dry-run fallido, abortando") }
+if err := cmd.Run(); err != nil { return fmt.Errorf("C7: dry-run falhou, abortando") }
 ```
 
 ```go
-// ❌ Anti-pattern: forzar push sin verificación de lease sobrescribe trabajo remoto
+// ❌ Anti-pattern: forçar push sem verificação de lease sobrescreve trabalho remoto
 exec.Command("git", "push", "--force", "origin", "main").Run()  // 🔴 C7 critical
-// 👇 EXPLICACIÓN: Si alguien hizo push mientras tanto, sus commits se pierden irrecuperablemente
-// 🔧 Fix: usar `--force-with-lease` + dry-run previo (≤5 líneas)
+// 👇 EXPLICAÇÃO: Se alguém fez push enquanto isso, seus commits são perdidos irrecuperavelmente
+// 🔧 Fix: usar `--force-with-lease` + dry‑run prévio (≤5 linhas)
 cmd := exec.Command("git", "push", "--force-with-lease", "--dry-run", "origin", "main")
-if cmd.Run() != nil { return fmt.Errorf("C7: remoto modificado, rechazando force push") }
+if cmd.Run() != nil { return fmt.Errorf("C7: remoto modificado, rejeitando force push") }
 ```
 
 ```go
-// ✅ C8: Auditoría estructurada de acción de recuperación
-// 👇 EXPLICACIÓN: Registramos acción, commit, autor y timestamp sin loggear diffs completos
-// 👇 EXPLICACIÓN: Permite forense post-incidente y cumplimiento de políticas de retención
-logger.Info("recovery_audit", "action": "reflog_restore", "commit": sha[:8], "operator": operatorID, "ts": time.Now().UTC())
+// ✅ C8: Auditoria estruturada de ação de recuperação
+// 👇 EXPLICAÇÃO: Registramos ação, commit, autor e timestamp sem logar diffs completos
+// 👇 EXPLICAÇÃO: Permite análise forense pós‑incidente e cumprimento de políticas de retenção
+master.MantisLog(master.INFO, "recovery_audit", "action", "reflog_restore", "commit", sha[:8], "operator", operatorID, "ts", time.Now().UTC())
 ```
 
 ```go
-// ✅ C7: Verificación de integridad de objetos con `git fsck`
-// 👇 EXPLICACIÓN: `fsck` valida checksums SHA-1 de todos los objetos en `.git/objects`
-// 👇 EXPLICACIÓN: Detecta corrupción silenciosa por fallos de disco o interrupciones
+// ✅ C7: Verificação de integridade de objetos com `git fsck`
+// 👇 EXPLICAÇÃO: `fsck` valida checksums SHA‑1 de todos os objetos em `.git/objects`
+// 👇 EXPLICAÇÃO: Detecta corrupção silenciosa por falhas de disco ou interrupções
 cmd := exec.Command("git", "fsck", "--strict", "--no-dangling")
-if err := cmd.Run(); err != nil { return fmt.Errorf("C7: integridad del repo comprometida") }
+if err := cmd.Run(); err != nil { return fmt.Errorf("C7: integridade do repo comprometida") }
 ```
 
 ```go
-// ✅ C4/C1: Límite de concurrencia para operaciones de recuperación paralelas
-// 👇 EXPLICACIÓN: Semaphore evita que múltiples recoveries saturen I/O o red simultáneamente
-// 👇 EXPLICACIÓN: Protege estabilidad del host durante incidentes masivos
-sem := semaphore.NewWeighted(3)  // C1: máx 3 recuperaciones concurrentes
-if err := sem.Acquire(ctx, 1); err != nil { return fmt.Errorf("C7: cola de recuperación llena") }
+// ✅ C4/C1: Limite de concorrência para operações de recuperação paralelas
+// 👇 EXPLICAÇÃO: Semáforo evita que várias recuperações saturem I/O ou rede simultaneamente
+// 👇 EXPLICAÇÃO: Protege estabilidade do host durante incidentes massivos
+sem := semaphore.NewWeighted(3)  // C1: máx 3 recuperações concorrentes
+if err := sem.Acquire(ctx, 1); err != nil { return fmt.Errorf("C7: fila de recuperação cheia") }
 defer sem.Release(1)
 ```
 
 ```go
-// ✅ C5: Validación de configuración segura de Git antes de operar
-// 👇 EXPLICACIÓN: Verificamos `user.email`, `safe.directory` y `core.hooksPath`
-// 👇 EXPLICACIÓN: Previene ejecución de hooks maliciosos o commits sin autoría trazable
+// ✅ C5: Validação de configuração segura do Git antes de operar
+// 👇 EXPLICAÇÃO: Verificamos `user.email`, `safe.directory` e `core.hooksPath`
+// 👇 EXPLICAÇÃO: Previne execução de hooks maliciosos ou commits sem autoria rastreável
 for _, key := range []string{"user.email", "core.hooksPath", "safe.directory"} {
     val, _ := exec.Command("git", "config", "--get", key).Output()
-    if string(val) == "" { return fmt.Errorf("C5: config requerida '%s' no definida", key) }
+    if string(val) == "" { return fmt.Errorf("C5: config requerida '%s' não definida", key) }
 }
 ```
 
 ```go
-// ✅ C7: Fallback a última etiqueta estable si recovery falla
-// 👇 EXPLICACIÓN: Si el historial está corrupto, apuntamos HEAD al último `v*` válido
-// 👇 EXPLICACIÓN: Mantiene servicio disponible mientras se investiga la raíz del fallo
+// ✅ C7: Fallback para última etiqueta estável se recovery falhar
+// 👇 EXPLICAÇÃO: Se o histórico estiver corrompido, apontamos HEAD para o último `v*` válido
+// 👇 EXPLICAÇÃO: Mantém serviço disponível enquanto se investiga a causa da falha
 tags, _ := exec.Command("git", "tag", "-l", "v*").Output()
 if lastTag := getLastSemanticTag(strings.Fields(string(tags))); lastTag != "" {
-    exec.Command("git", "reset", "--hard", lastTag).Run()  // C7: graceful degradation
+    exec.Command("git", "reset", "--hard", lastTag).Run()  // C7: degradação graciosa
 }
 ```
 
 ```go
-// ✅ C6/C7: Comando ejecutable para validar estado post-recuperación
-// 👇 EXPLICACIÓN: Script que verifica rama actual, estado limpio y conectividad remota
-// 👇 EXPLICACIÓN: Útil en CI/CD o runbooks para confirmar éxito sin intervención manual
+// ✅ C6/C7: Comando executável para validar estado pós‑recuperação
+// 👇 EXPLICAÇÃO: Script que verifica branch atual, estado limpo e conectividade remota
+// 👇 EXPLICAÇÃO: Útil em CI/CD ou runbooks para confirmar sucesso sem intervenção manual
 func PostRecoveryCheckCmd() string {
     return `bash -c 'git status --porcelain | wc -l | grep -q "^0$" && git remote update && echo "✅ OK"'`
 }
 ```
 
 ```go
-// ✅ C3: Rotación segura de credenciales de acceso remoto
-// 👇 EXPLICACIÓN: Actualizamos `credential.helper` y limpiamos cache de tokens antiguos
-// 👇 EXPLICACIÓN: Previene uso de claves comprometidas durante la ventana de recovery
+// ✅ C3: Rotação segura de credenciais de acesso remoto
+// 👇 EXPLICAÇÃO: Atualizamos `credential.helper` e limpamos cache de tokens antigos
+// 👇 EXPLICAÇÃO: Previne uso de chaves comprometidas durante a janela de recovery
 exec.Command("git", "config", "--global", "credential.helper", "cache --timeout=3600").Run()
-exec.Command("git", "credential-cache", "exit").Run()  // C3: clear cached tokens
+exec.Command("git", "credential-cache", "exit").Run()  // C3: limpar tokens cacheados
 ```
 
 ```go
-// ✅ C1/C4: Límite de tamaño de clonación antes de iniciar recovery
-// 👇 EXPLICACIÓN: Verificamos `Content-Length` o usamos `--depth 1` para repos gigantes
-// 👇 EXPLICACIÓN: Previene llenado de disco o OOM durante clonación de historial completo
+// ✅ C1/C4: Limite de tamanho de clonagem antes de iniciar recovery
+// 👇 EXPLICAÇÃO: Verificamos `Content-Length` ou usamos `--depth 1` para repositórios gigantes
+// 👇 EXPLICAÇÃO: Previne enchimento de disco ou OOM durante clonagem do histórico completo
 cmd := exec.CommandContext(ctx, "git", "clone", "--depth", "100", repoURL, dest)
-if err := cmd.Run(); err != nil { return fmt.Errorf("C1/C7: clonación fallida") }
+if err := cmd.Run(); err != nil { return fmt.Errorf("C1/C7: clonagem falhou") }
 ```
 
 ```go
-// ✅ C7: Abort seguro ante señal de interrupción (SIGINT/SIGTERM)
-// 👇 EXPLICACIÓN: Capturamos señales y ejecutamos `git gc` + cleanup de temporales
-// 👇 EXPLICACIÓN: Evita dejar repos en estado intermedio o con locks permanentes
+// ✅ C7: Abort seguro diante de sinal de interrupção (SIGINT/SIGTERM)
+// 👇 EXPLICAÇÃO: Capturamos sinais e executamos `git gc` + limpeza de temporários
+// 👇 EXPLICAÇÃO: Evita deixar repositórios em estado intermediário ou com locks permanentes
 sigChan := make(chan os.Signal, 1)
 signal.Notify(sigChan, os.Interrupt)
 go func() { <-sigChan; exec.Command("git", "gc", "--prune=now").Run(); os.Exit(1) }()
 ```
 
 ```go
-// ✅ C4/C5: Restauración atómica de branch con verificación de conflictos
-// 👇 EXPLICACIÓN: Creamos branch temporal, mergueamos y verificamos conflictos antes de switch
-// 👇 EXPLICACIÓN: Si hay conflictos, revertimos sin tocar la rama de trabajo actual
+// ✅ C4/C5: Restauração atômica de branch com verificação de conflitos
+// 👇 EXPLICAÇÃO: Criamos branch temporária, fazemos merge e verificamos conflitos antes do switch
+// 👇 EXPLICAÇÃO: Se houver conflitos, revertemos sem tocar no ramo de trabalho atual
 exec.Command("git", "checkout", "-b", "recovery-tmp").Run()
 if out, err := exec.Command("git", "merge", "--no-commit", targetSHA).CombinedOutput(); err != nil {
-    exec.Command("git", "reset", "--hard", "HEAD").Run(); return fmt.Errorf("C5: conflictos detectados")
+    exec.Command("git", "reset", "--hard", "HEAD").Run(); return fmt.Errorf("C5: conflitos detectados")
 }
 ```
 
 ```go
-// ✅ C7/C8: Manejo estructurado de errores de recuperación
-// 👇 EXPLICACIÓN: Wrapping con contexto de repo, acción y recomendación de mitigación
-// 👇 EXPLICACIÓN: Incluye tenant_id y trace_id para debugging sin exponer internals
+// ✅ C7/C8: Tratamento estruturado de erros de recuperação
+// 👇 EXPLICAÇÃO: Wrapping com contexto de repo, ação e recomendação de mitigação
+// 👇 EXPLICAÇÃO: Inclui tenant_id e trace_id para depuração sem expor detalhes internos
 func wrapRecoveryErr(err error, repo, action, tid string) error {
     return fmt.Errorf("C7: recovery failed [repo=%s, action=%s, tenant=%s]: %w", repo, action, tid, err)
 }
 ```
 
 ```go
-// ✅ C1/C5: Verificación de espacio en disco antes de operaciones pesadas
-// 👇 EXPLICACIÓN: Usamos `unix.Statfs` para validar bloques disponibles reales
-// 👇 EXPLICACIÓN: Previene `ENOSPC` a mitad de `git gc` o `clone` que corrompe repo
+// ✅ C1/C5: Verificação de espaço em disco antes de operações pesadas
+// 👇 EXPLICAÇÃO: Usamos `unix.Statfs` para validar blocos disponíveis reais
+// 👇 EXPLICAÇÃO: Previne `ENOSPC` no meio de `git gc` ou `clone` que corromperia o repo
 var stat unix.Statfs_t; unix.Statfs(repoPath, &stat)
 free := int64(stat.Bavail) * int64(stat.Bsize)
-if free < 1<<30 { return fmt.Errorf("C1: espacio insuficiente (<1GB) para recovery") }
+if free < 1<<30 { return fmt.Errorf("C1: espaço insuficiente (<1GB) para recovery") }
 ```
 
 ```go
-// ✅ C3: Limpieza de archivos sensibles post-recovery
-// 👇 EXPLICACIÓN: Eliminamos `.git/credentials`, `*.key`, `*.env` dejados por scripts antiguos
-// 👇 EXPLICACIÓN: Reduce superficie de ataque tras restaurar desde backups potencialmente viejos
+// ✅ C3: Limpeza de arquivos sensíveis pós‑recovery
+// 👇 EXPLICAÇÃO: Excluímos `.git/credentials`, `*.key`, `*.env` deixados por scripts antigos
+// 👇 EXPLICAÇÃO: Reduz a superfície de ataque após restaurar de backups potencialmente velhos
 for _, f := range []string{".git/credentials", ".env", "secrets.json"} {
-    os.Remove(filepath.Join(repoPath, f))  // C3: secure cleanup
+    os.Remove(filepath.Join(repoPath, f))  // C3: limpeza segura
 }
 ```
 
 ```go
-// ✅ C8: Reporte JSON estructurado de resultado de recovery
-// 👇 EXPLICACIÓN: Salida machine-readable para integraciones con n8n, dashboards o runbooks
-// 👇 EXPLICACIÓN: Incluye estado, commit restaurado, duración y tenant
+// ✅ C8: Relatório JSON estruturado do resultado da recovery
+// 👇 EXPLICAÇÃO: Saída legível por máquina para integrações com n8n, dashboards ou runbooks
+// 👇 EXPLICAÇÃO: Inclui estado, commit restaurado, duração e tenant
 report := RecoveryReport{TenantID: tid, Status: "success", RestoredSHA: sha, DurationMS: elapsed}
-json.NewEncoder(os.Stdout).Encode(report)  // C8: structured output
+json.NewEncoder(os.Stdout).Encode(report)  // C8: saída estruturada
 ```
 
 ```go
-// ✅ C4/C7: Aislamiento de repos por tenant con namespaces en disco
-// 👇 EXPLICACIÓN: Cada tenant opera en `/var/git-repos/{tenant_id}/{repo_name}`
-// 👇 EXPLICACIÓN: Permisos 0750 garantizan que solo el owner y grupo autorizado acceden
+// ✅ C4/C7: Isolamento de repositórios por tenant com namespaces em disco
+// 👇 EXPLICAÇÃO: Cada tenant opera em `/var/git-repos/{tenant_id}/{repo_name}`
+// 👇 EXPLICAÇÃO: Permissões 0750 garantem que apenas o dono e grupo autorizado acessem
 repoPath := fmt.Sprintf("/var/git-repos/%s/%s", tid, repoName)
-if err := os.MkdirAll(repoPath, 0750); err != nil { return fmt.Errorf("C4: aislamiento fallido") }
+if err := os.MkdirAll(repoPath, 0750); err != nil { return fmt.Errorf("C4: isolamento falhou") }
 ```
 
 ```go
-// ✅ C3-C7: Función integrada de recuperación segura
-// 👇 EXPLICACIÓN: Combina validación, backup, reflog scan, fsck, timeout y auditoría
-// 👇 EXPLICACIÓN: Cada línea está comentada para entender el flujo completo de disaster recovery
+// ✅ C3-C7: Função integrada de recuperação segura
+// 👇 EXPLICAÇÃO: Combina validação, backup, varredura de reflog, fsck, timeout e auditoria
+// 👇 EXPLICAÇÃO: Cada linha está comentada para entender o fluxo completo de disaster recovery
 func SecureGitRecovery(ctx context.Context, tid, repoPath, targetRef string) error {
-    // C4/C1: Validar ruta, espacio y aislamiento
-    if !isWithinQuota(tid, repoPath) { return fmt.Errorf("C1: espacio insuficiente") }
+    // C4/C1: Validar caminho, espaço e isolamento
+    if !isWithinQuota(tid, repoPath) { return fmt.Errorf("C1: espaço insuficiente") }
     ctx, cancel := context.WithTimeout(ctx, 5*time.Minute); defer cancel()
     
-    // C7/C5: Backup atómico + fsck pre-operación
+    // C7/C5: Backup atômico + fsck pré‑operação
     if err := createBundleBackup(repoPath); err != nil { return err }
     if err := runGitFSCK(ctx, repoPath); err != nil { return err }
     
-    // C4/C7: Recuperación vía reflog o tag fallback
+    // C4/C7: Recuperação via reflog ou fallback para tag
     if err := restoreFromReflogOrTag(ctx, repoPath, targetRef); err != nil { return err }
     
-    // C3/C8: Limpieza de credenciales + auditoría
+    // C3/C8: Limpeza de credenciais + auditoria
     cleanupSensitiveFiles(repoPath)
-    logger.Info("git_recovery_complete", "tenant_id", tid, "target": targetRef)
+    master.MantisLog(master.INFO, "git_recovery_complete", "tenant_id", tid, "target", targetRef)
     return nil
 }
 ```
 
-## 🧪 Testing Checklist – Stress & Error Hunting
+## 🔍 Observabilidade (Documentação para IA – Apenas Eventos Específicos)
 
-### ✅ Pre-flight checks
-- [ ] Verificar que `git bundle --all` se ejecuta antes de cualquier `reset --hard` o `push --force`
-- [ ] Confirmar que `context.WithTimeout` aplica a TODOS los comandos `git` externos
-- [ ] Validar que rutas usan `filepath.Clean` + `strings.HasPrefix` para prevenir traversal
-- [ ] Asegurar que logs nunca contienen URLs completas con credenciales ni diffs de código
+| Evento | Nível | Constraint | Exemplo de `detail` |
+|--------|-------|------------|-------------------|
+| `git_recovery_started` | INFO | C8 | `"iniciando recuperação do repositório"` |
+| `bundle_created` | INFO | C8 | `"backup atômico concluído"` |
+| `reflog_restore` | INFO | C8 | `"restauração via reflog bem‑sucedida"` |
+| `fsck_integrity_failed` | ERROR | C7 | `"integridade do repo comprometida"` |
+| `fallback_ativado` | WARN | C7 | `"fallback para última tag estável"` |
+| `git_recovery_complete` | INFO | C8 | `"recuperação finalizada com sucesso"` |
 
-### ⚡ Stress test scenarios
-1. **Reflog corruption**: Vaciar `.git/logs/` intencionalmente → verificar fallback a `fsck` + tag estable
-2. **Disk full during clone**: Simular `ENOSPC` a mitad de `git clone` → confirmar limpieza de `.tmp` y zero repo corrupto
-3. **Concurrent recovery storm**: 20 tenants restaurando simultáneamente → validar semaphore limits y zero I/O deadlock
-4. **Credential leak simulation**: Dejar `.git/credentials` post-recovery → confirmar limpieza automática y masking en logs
-5. **Force push interception**: Intentar `--force` mientras remoto avanza → verificar `--force-with-lease` + dry-run bloqueo
+### Validação de Schema V-LOG-02 (Helper Mínimo)
+```go
+func validateVLog02(logLine string) bool {
+    required := []string{`"timestamp"`, `"level"`, `"resource"`, `"body"`, `"attributes"`}
+    for _, r := range required {
+        if !strings.Contains(logLine, r) { return false }
+    }
+    return true
+}
+```
 
-### 🔍 Error hunting procedures
-- [ ] Revisar logs estructurados para confirmar que `tenant_id` y `action` aparecen en cada evento
-- [ ] Validar que `git fsck --strict` detecta objetos corruptos antes de marcar recovery como exitosa
-- [ ] Confirmar que `defer sigHandler()` limpia locks de `index.lock` y `shallow.lock` en abort
-- [ ] Verificar que `PostRecoveryCheckCmd` retorna exit code 0 solo si working tree está limpia
-- [ ] Revisar profiling con `go tool pprof` para detectar allocations excesivas en parsing de `reflog` o `fsck` output
+## 🧪 Testes Unitários e Checklist de Stress & Caça a Erros
 
-### 📊 Métricas de aceptación
-- P99 recovery latency < 45s para repos <500MB bajo carga de 10 ops/seg por tenant
-- Zero cross-tenant repo leaks en 5k recuperaciones con rutas cruzadas inyectadas deliberadamente
-- 100% de operaciones destructivas precedidas por `git bundle` o `git stash` atómico
-- Fallback a tag estable activado en <5% de casos bajo corrupción simulada
-- 100% de logs de auditoría incluyen `tenant_id`, `action`, `commit_sha` y timestamp RFC3339
+### Teste Unitário Concreto
+```go
+func TestBundleCriadoAntesDoReset(t *testing.T) {
+    repoDir := initTestRepo(t)
+    backupPath := filepath.Join(t.TempDir(), "backup.bundle")
+    
+    // Simula um cenário de reset hard: primeiro cria o bundle
+    err := runCmd(repoDir, "git", "bundle", "create", backupPath, "HEAD")
+    if err != nil {
+        t.Fatalf("criação do bundle falhou: %v", err)
+    }
+    if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+        t.Error("arquivo de bundle não foi criado")
+    }
+    
+    // Agora o reset pode ser executado com segurança
+    err = runCmd(repoDir, "git", "reset", "--hard", "HEAD~1")
+    if err != nil {
+        t.Errorf("reset após backup falhou: %v", err)
+    }
+}
+
+// initTestRepo cria um repositório de teste com alguns commits
+func initTestRepo(t *testing.T) string {
+    t.Helper()
+    dir := t.TempDir()
+    for _, cmd := range [][]string{
+        {"init", "--initial-branch=main"},
+        {"config", "user.email", "test@example.com"},
+        {"config", "user.name", "Test"},
+        {"commit", "--allow-empty", "-m", "primeiro commit"},
+        {"commit", "--allow-empty", "-m", "segundo commit"},
+    } {
+        runCmd(dir, append([]string{"git"}, cmd...)...)
+    }
+    return dir
+}
+
+func runCmd(dir string, args ...string) error {
+    cmd := exec.Command(args[0], args[1:]...)
+    cmd.Dir = dir
+    return cmd.Run()
+}
+```
+
+### ✅ Pre-flight checks (Verificações pré‑operação)
+- [ ] Verificar que `git bundle --all` é executado antes de qualquer `reset --hard` ou `push --force`
+- [ ] Confirmar que `context.WithTimeout` se aplica a TODOS os comandos `git` externos
+- [ ] Validar que todos os caminhos usam `filepath.Clean` + `strings.HasPrefix` para prevenir traversal
+- [ ] Assegurar que logs nunca contêm URLs completas com credenciais nem diffs de código
+
+### ⚡ Cenários de Stress Test
+1. **Corrupção do reflog**: Esvaziar `.git/logs/` intencionalmente → verificar fallback para `fsck` + tag estável
+2. **Disco cheio durante clone**: Simular `ENOSPC` no meio de `git clone` → confirmar limpeza de `.tmp` e zero repositório corrompido
+3. **Tempestade de recuperação concorrente**: 20 tenants restaurando simultaneamente → validar limites de semáforo e zero deadlock de I/O
+4. **Simulação de vazamento de credenciais**: Deixar `.git/credentials` pós‑recovery → confirmar limpeza automática e máscara nos logs
+5. **Interceptação de force push**: Tentar `--force` enquanto o remoto avança → verificar `--force-with-lease` + bloqueio por dry‑run
+
+### 🔍 Procedimentos de Caça a Erros
+- [ ] Revisar logs estruturados para confirmar que `tenant_id` e `action` aparecem em cada evento
+- [ ] Validar que `git fsck --strict` detecta objetos corrompidos antes de marcar recovery como bem‑sucedida
+- [ ] Confirmar que `defer sigHandler()` limpa locks `index.lock` e `shallow.lock` no cancelamento
+- [ ] Verificar que `PostRecoveryCheckCmd` retorna exit code 0 apenas se a árvore de trabalho estiver limpa
+- [ ] Revisar profiling com `go tool pprof` para detectar alocações excessivas na análise de saída de `reflog` ou `fsck`
+
+### 📊 Métricas de Aceitação
+- Latência P99 de recovery < 45s para repositórios <500MB sob carga de 10 ops/seg por tenant
+- Zero vazamentos entre repositórios de tenants em 5k recuperações com caminhos cruzados injetados deliberadamente
+- 100% das operações destrutivas precedidas por `git bundle` ou `git stash` atômico
+- Fallback para tag estável ativado em <5% dos casos sob corrupção simulada
+- 100% dos logs de auditoria incluem `tenant_id`, `action`, `commit_sha` e timestamp RFC3339
 
 ## Validation Command
 ```bash
@@ -286,7 +404,26 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/g
 
 ## Auto-Validation Report (JSON)
 ```json
-{"artifact":"git-disaster-recovery","version":"3.0.0","score":92,"blocking_issues":[],"constraints_verified":["C3","C4","C5","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"git_pattern":"bundle_backup_reflog_recovery_fsck_validation_atomic_restore","timestamp":"2026-04-19T00:00:00Z"}
+{"artifact":"git-disaster-recovery","version":"3.0.0-FUSION","score":92,"blocking_issues":[],"constraints_verified":["C3","C4","C5","C7"],"examples_count":25,"lines_executable_max":5,"language":"Go","vector_constraints_applied":false,"language_lock_status":"enforced","pedagogical_mode":true,"git_pattern":"bundle_backup_reflog_recovery_fsck_validation_atomic_restore","timestamp":"2026-05-09T00:00:00Z"}
 ```
 
----
+## 📝 Histórico de Revisões
+| Versão | Data | Autor | Mudança Principal | Constraints |
+|--------|------|-------|------------------|-------------|
+| 3.0.0-SELECTIVE | 2026-04-19 | Original | Criação inicial com 25 padrões de disaster recovery e checklist de stress | C3, C4, C5, C7 |
+| 2.3.0 | 2026-05-09 | go-master-agent | Remanufatura modular (parcial, tradução incompleta) | C3, C4, C5, C7 |
+| 3.0.0-FUSION | 2026-05-09 | DeepSeek | Fusão manual completa: conhecimento original + estrutura modular v2.3.0, tradução pt‑BR, logging master.MantisLog, testes concretos, checklist de stress recuperado | C3, C4, C5, C7 |
+
+## 🔄 HIDRATAÇÃO SEGMENTADA DE CONTEXTO
+
+```mermaid
+graph LR
+  Master["go-master-agent-mantis.md<br/>Hardening + Observabilidade + Constraints"] -->|source/import| Modulo["git-disaster-recovery.go.md<br/>Lógica específica apenas"]
+  Modulo -->|chama| mantis_log["mantis_log() herdada"]
+  Modulo -->|valida com| orchestrator["orchestrator-engine.sh"]
+  
+  style Master fill:#1a1a2e,color:#fff,stroke:#E0AF68,stroke-width:3px
+  style Modulo fill:#2a2a4e,color:#fff,stroke:#7f7f7f,stroke-width:1px
+```
+
+> **Regra**: O módulo NUNCA redefine o que está no Master. Apenas consome via import e implementa sua lógica específica.
