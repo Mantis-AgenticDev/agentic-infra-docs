@@ -67,6 +67,7 @@ graph TD
     
     B --> E[[harness-norms-v3.0.md]]
     B --> F[[10-SDD-CONSTRAINTS.md]]
+    B --> S[[11-A2A-COMMUNICATION-RULES.md]]
     B --> G[[language-lock-protocol.md]]
     
     C --> H[[01-ARCHITECTURE-RULES.md]]
@@ -84,6 +85,9 @@ graph TD
     
     style A fill:#e1f5fe,stroke:#333
     style E fill:#fff3e0
+    style F fill:#fff3e0
+    style S fill:#fff3e0
+    style G fill:#fff3e0
     style Q fill:#fce4ec
 ```
 
@@ -102,6 +106,7 @@ graph TD
 | **08-SKILLS-REFERENCE.md** | Catálogo de habilidades por dominio | C1-C8 | 1 | `orchestrator-engine.sh` | `[[01-RULES/08-SKILLS-REFERENCE.md]]` |
 | **09-AGENTIC-OUTPUT-RULES.md** | Formato, validación y entrega de outputs de IA | C1-C8 | 1 | `orchestrator-engine.sh` | `[[01-RULES/09-AGENTIC-OUTPUT-RULES.md]]` |
 | **10-SDD-CONSTRAINTS.md** | Referencia ejecutable de constraints para validación | C1-C8, V1-V3 | 1 | `verify-constraints.sh` | `[[01-RULES/10-SDD-CONSTRAINTS.md]]` |
+| **11-A2A-COMMUNICATION-RULES.md** | Contrato de comunicação confiável entre master agents (C9) | C9 | 1 | `check-a2a-contract.sh` | `[[01-RULES/11-A2A-COMMUNICATION-RULES.md]]` |
 | **language-lock-protocol.md** | Aislamiento de operadores por dominio | C4,C5 | 1 | `verify-constraints.sh --check-language-lock` | `[[01-RULES/language-lock-protocol.md]]` |
 | **validation-checklist.md** | Checklist ejecutable de validación por Tier | C5,C6 | 1 | `orchestrator-engine.sh` | `[[01-RULES/validation-checklist.md]]` |
 

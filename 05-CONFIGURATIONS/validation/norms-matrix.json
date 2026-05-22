@@ -235,6 +235,25 @@
       "priority": "medium",
       "fail_fast": false,
       "wikilink": "[[01-RULES/harness-norms-v3.0.md#C8]]"
+    },    
+    "C9": {
+      "name": "A2A Contract Compliance",
+      "description": "Comunicação confiável entre master agents (Tier ≥ 2): trace_id, span_id, parent_span_id, status.json com schema A2A completo. Aplica-se exclusivamente a agentes mestres. Validado por check-a2a-contract.sh.",
+      "applies_to_languages": ["bash", "go", "python", "javascript"],
+      "applies_to_folders": ["./goals/"],
+      "examples_compliance": [
+        "status.json contendo trace_id, span_id, parent_span_id, status, output_ref, timestamp",
+        "context/trace.json herdado corretamente entre agentes consecutivos"
+      ],
+      "examples_violation": [
+        "Handoff sem trace.json",
+        "status.json faltando parent_span_id",
+        "span_id duplicado entre dois agentes"
+      ],
+      "priority": "high",
+      "fail_fast": true,
+      "validator_script": "./goals/check-a2a-contract.sh",
+      "wikilink": "[[01-RULES/11-A2A-COMMUNICATION-RULES.md]]"
     },
     "V1": {
       "name": "Vector Dimension Declaration",

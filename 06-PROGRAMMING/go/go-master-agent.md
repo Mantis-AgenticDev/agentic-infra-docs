@@ -2,7 +2,7 @@
 artifact_id: go-master-agent-mantis
 artifact_type: agentic_skill_definition
 version: "2.3.0"
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 06-PROGRAMMING/go/go-master-agent.md --json"
 canonical_path: "06-PROGRAMMING/go/go-master-agent.md"
 tier: 1
@@ -142,6 +142,109 @@ bash 05-CONFIGURATIONS/scripts/verify-raw-urls.sh \
   --fail-on-drift \
   --report-format jsonl
 ```
+---
+
+## 🎯 Integração com o Sistema de Metas (Goal Stewardship + A2A – C9)
+
+### Inicialização do Contexto Distribuído (Go)
+Antes de executar qualquer lógica de geração, o Go Master Agent DEVE:
+1. Verificar a existência da variável de ambiente `TASK_ID` (injetada pelo orquestrador).
+2. Ler o arquivo `./goals/${TASK_ID}/context/trace.json` e carregar `trace_id` e `parent_span_id`.
+3. Gerar um `span_id` único (UUID v4) para este agente.
+4. Exportar `TRACE_ID`, `PARENT_SPAN_ID`, `SPAN_ID` para uso em logs e no `status.json`.
+
+**Exemplo canónico (Go):**
+```go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "os"
+    "github.com/google/uuid"
+)
+
+type TraceContext struct {
+    TraceID      string `json:"trace_id"`
+    ParentSpanID string `json:"parent_span_id"`
+    CurrentAgent string `json:"current_agent"`
+    TaskID       string `json:"task_id"`
+}
+
+func initTraceContext() (*TraceContext, string, error) {
+    taskID := os.Getenv("TASK_ID")
+    if taskID == "" {
+        MantisLog(FATAL, "missing_task_id", "TASK_ID não definida", "C9", "go-master-agent")
+        return nil, "", fmt.Errorf("TASK_ID required")
+    }
+
+    traceFile := fmt.Sprintf("./goals/%s/context/trace.json", taskID)
+    data, err := os.ReadFile(traceFile)
+    if err != nil {
+        MantisLog(FATAL, "missing_trace_context", "trace.json não encontrado", "C9", "go-master-agent")
+        return nil, "", err
+    }
+
+    var ctx TraceContext
+    if err := json.Unmarshal(data, &ctx); err != nil {
+        return nil, "", fmt.Errorf("trace.json inválido: %w", err)
+    }
+    if ctx.TraceID == "" {
+        return nil, "", fmt.Errorf("trace_id ausente em trace.json")
+    }
+
+    spanID := uuid.New().String()
+    return &ctx, spanID, nil
+}
+```
+
+### Geração de `status.json` (Handoff A2A)
+Ao finalizar (com sucesso ou falha), o agente DEVE gravar `./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json` com o seguinte schema:
+```json
+{
+  "agent_id": "go-master-agent",
+  "trace_id": "<trace_id>",
+  "span_id": "<span_id>",
+  "parent_span_id": "<parent_span_id>",
+  "status": "completed|failed",
+  "output_ref": "<caminho-relativo-do-artefato-principal>",
+  "next_agent_hint": "<sugestão-para-orquestador>",
+  "timestamp_completed": "<ISO8601>",
+  "a2a_contract_version": "1.0"
+}
+```
+
+**Exemplo de geração do status.json (Go):**
+```go
+func writeStatusJSON(taskID, agentName, traceID, spanID, parentSpanID, status, outputRef, nextHint string) error {
+    dir := fmt.Sprintf("./goals/%s/artifacts/%s", taskID, agentName)
+    if err := os.MkdirAll(dir, 0755); err != nil {
+        return err
+    }
+
+    entry := map[string]string{
+        "agent_id":              agentName,
+        "trace_id":              traceID,
+        "span_id":               spanID,
+        "parent_span_id":        parentSpanID,
+        "status":                status,
+        "output_ref":            outputRef,
+        "next_agent_hint":       nextHint,
+        "timestamp_completed":   time.Now().UTC().Format(time.RFC3339),
+        "a2a_contract_version":  "1.0",
+    }
+
+    data, _ := json.MarshalIndent(entry, "", "  ")
+    return os.WriteFile(fmt.Sprintf("%s/status.json", dir), data, 0644)
+}
+```
+
+### Validação C9
+Ao final, o agente pode auto-validar o contrato A2A com:
+```bash
+bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json
+```
+Se o script retornar código diferente de 0, o handoff é considerado bloqueado.
 
 ---
 
@@ -390,6 +493,8 @@ type MantisMeta struct {
     Version    string `json:"version"`
     Constraint string `json:"constraint"`
     TraceID    string `json:"trace_id"`
+    SpanID     string `json:"span_id"`
+    ParentSpanID string `json:"parent_span_id"`
 }
 
 type CodeMeta struct {
@@ -435,6 +540,8 @@ func MantisLog(level MantisLogLevel, event, detail, constraint, artifactID strin
     if !ok {
         file = "unknown"
         line = 0
+        spanID := os.Getenv("SPAN_ID")
+        parentSpanID := os.Getenv("PARENT_SPAN_ID")
     }
 
     entry := MantisLogEntry{
@@ -450,11 +557,13 @@ func MantisLog(level MantisLogLevel, event, detail, constraint, artifactID strin
         },
         Attributes: MantisLogAttributes{
             Mantis: MantisMeta{
-                Tier:       tier,
-                Version:    version,
-                Constraint: constraint,
-                TraceID:    traceID,
-            },
+                Tier:         tier,
+                Version:      version,
+                Constraint:   constraint,
+                TraceID:      traceID,
+                SpanID:       spanID,
+                ParentSpanID: parentSpanID,
+        },
             Code: CodeMeta{
                 Filepath: file,
                 Lineno:   line,
@@ -882,6 +991,8 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 - [[01-RULES/harness-norms-v3.0.md]]
 - [[01-RULES/10-SDD-CONSTRAINTS.md]]
 - [[05-CONFIGURATIONS/validation/norms-matrix.json]]
+- [[01-RULES/11-A2A-COMMUNICATION-RULES.md]] ← Regra canônica de comunicação A2A (C9)
+- [[./goals/check-a2a-contract.sh]] ← Validador de contrato A2A
 
 ---
 
@@ -1102,6 +1213,8 @@ graph LR
 3. Documentar `expected_output` (C5)
 4. Zero hardcode de secrets (C3)
 5. Registrar handoff em log estruturado (C8)
+6. **Cumprir C9 no handoff**: incluir `trace_id` e `parent_span_id` no payload, e o agente receptor deve gerar um novo `span_id` preservando o `trace_id`. O `status.json` deve ser escrito ao final de cada agente mestre participante do workflow.
+
 
 ## 📊 Métricas de Qualidade do Agente Go
 | Métrica | Meta | Como Medir | Ferramenta |
@@ -1469,6 +1582,9 @@ En la sección `## Comportamiento del Agente` o `## Behavioral Traits`, agregar:
 4. ✅ `mantis_log()` implementada e validada (C8)
 5. ✅ Testes TDD passam (`--test` flag)
 6. ✅ `orchestrator-engine --json` retorna `passed: true`
+7. ✅ Contexto A2A inicializado: `trace_id` e `span_id` gerados e exportados (C9).
+8. ✅ `status.json` escrito com schema completo (C9).
+9. ✅ Validação C9 via `./goals/check-a2a-contract.sh` passou (exit 0).
 
 ## 🗓️ Integração com CHRONICLE.md (Auditoria Distribuída)
 ### Formato de Registro Padrão (JSONL)

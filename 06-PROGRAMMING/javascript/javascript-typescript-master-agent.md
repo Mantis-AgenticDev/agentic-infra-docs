@@ -2,7 +2,7 @@
 artifact_id: "javascript-typescript-master-agent-mantis"
 artifact_type: "agentic_skill_definition"
 version: "2.3.0-MODULAR-MERGED"
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/javascript/javascript-typescript-master-agent.md"
 tier: 1
@@ -152,13 +152,15 @@ export function mantis_log(
       event,
       detail: sanitize(detail)
     },
-    attributes: {
-      'mantis.constraint': (detail as any).constraint ?? null,
-      'mantis.trace_id': (detail as any).trace_id ?? crypto.randomUUID?.() ?? `fallback-${Date.now()}`,
-      'code.filepath': (detail as any).filepath ?? null,
-      'code.lineno': (detail as any).lineno ?? null,
-      'telemetry.sdk.name': 'mantis-js-adapter',
-      'telemetry.sdk.version': '2.3.0'
+   attributes: {
+     'mantis.constraint': (detail as any).constraint ?? null,
+     'mantis.trace_id': (detail as any).trace_id ?? process.env.TRACE_ID ?? crypto.randomUUID?.() ?? `fallback-${Date.now()}`,
+     'mantis.span_id': process.env.SPAN_ID ?? (detail as any).span_id ?? null,
+     'mantis.parent_span_id': process.env.PARENT_SPAN_ID ?? (detail as any).parent_span_id ?? null,
+     'code.filepath': (detail as any).filepath ?? null,
+     'code.lineno': (detail as any).lineno ?? null,
+     'telemetry.sdk.name': 'mantis-js-adapter',
+     'telemetry.sdk.version': '2.3.0'
     }
   };
 
@@ -218,6 +220,107 @@ const sanitize = (obj: Record<string, unknown>): Record<string, unknown> => {
   return result;
 };
 ```
+---
+
+## 🎯 Integração com o Sistema de Metas (Goal Stewardship + A2A – C9)
+
+### Inicialização do Contexto Distribuído (TypeScript)
+Antes de executar qualquer lógica de geração, o JavaScript/TypeScript Master Agent DEVE:
+1. Verificar a existência da variável de ambiente `TASK_ID` (injetada pelo orquestrador).
+2. Ler o arquivo `./goals/${TASK_ID}/context/trace.json` e carregar `trace_id` e `parent_span_id`.
+3. Gerar um `span_id` único (UUID v4) para este agente.
+4. Exportar `TRACE_ID`, `PARENT_SPAN_ID`, `SPAN_ID` para uso em logs e no `status.json`.
+
+**Exemplo canónico (TypeScript):**
+```typescript
+import { readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { randomUUID } from 'crypto';
+
+interface TraceContext {
+  trace_id: string;
+  parent_span_id: string | null;
+  current_agent: string;
+  task_id: string;
+}
+
+function initTraceContext(): { ctx: TraceContext; spanId: string } {
+  const taskId = process.env.TASK_ID;
+  if (!taskId) {
+    mantis_log('FATAL', 'missing_task_id', { constraint: 'C9' });
+    throw new Error('TASK_ID required');
+  }
+
+  const traceFile = `./goals/${taskId}/context/trace.json`;
+  const raw = readFileSync(traceFile, 'utf-8');
+  const ctx: TraceContext = JSON.parse(raw);
+  
+  if (!ctx.trace_id) {
+    mantis_log('FATAL', 'invalid_trace_context', { constraint: 'C9' });
+    throw new Error('trace_id missing in trace.json');
+  }
+
+  const spanId = randomUUID();
+  process.env.TRACE_ID = ctx.trace_id;
+  process.env.PARENT_SPAN_ID = ctx.parent_span_id ?? 'null';
+  process.env.SPAN_ID = spanId;
+  
+  return { ctx, spanId };
+}
+```
+
+### Geração de `status.json` (Handoff A2A)
+Ao finalizar (com sucesso ou falha), o agente DEVE gravar `./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json` com o seguinte schema:
+```json
+{
+  "agent_id": "javascript-typescript-master-agent",
+  "trace_id": "<trace_id>",
+  "span_id": "<span_id>",
+  "parent_span_id": "<parent_span_id>",
+  "status": "completed|failed",
+  "output_ref": "<caminho-relativo-do-artefato-principal>",
+  "next_agent_hint": "<sugestão-para-orquestador>",
+  "timestamp_completed": "<ISO8601>",
+  "a2a_contract_version": "1.0"
+}
+```
+
+**Exemplo de geração do status.json (TypeScript):**
+```typescript
+function writeStatusJSON(
+  taskId: string,
+  agentName: string,
+  traceId: string,
+  spanId: string,
+  parentSpanId: string,
+  status: 'completed' | 'failed',
+  outputRef: string,
+  nextHint: string
+): void {
+  const dir = `./goals/${taskId}/artifacts/${agentName}`;
+  mkdirSync(dir, { recursive: true });
+
+  const entry = {
+    agent_id: agentName,
+    trace_id: traceId,
+    span_id: spanId,
+    parent_span_id: parentSpanId,
+    status,
+    output_ref: outputRef,
+    next_agent_hint: nextHint,
+    timestamp_completed: new Date().toISOString(),
+    a2a_contract_version: '1.0'
+  };
+
+  writeFileSync(`${dir}/status.json`, JSON.stringify(entry, null, 2));
+}
+```
+
+### Validação C9
+Ao final, o agente pode auto-validar o contrato A2A com:
+```bash
+bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json
+```
+Se o script retornar código diferente de 0, o handoff é considerado bloqueado.
 
 ---
 
@@ -987,6 +1090,13 @@ function validarConstraintsJSTS(artifactPath: string): Error | null {
 }
 ```
 
+
+### Requisitos C9 no Handoff
+Todo handoff entre master agents deve incluir no payload:
+- `trace_id`: herdado do orquestrador.
+- `parent_span_id`: `span_id` do agente que está passando o controle.
+O agente receptor deve gerar um novo `span_id` e preservar o `trace_id`. O `status.json` deve ser escrito ao final de cada agente mestre participante do workflow.
+
 ---
 
 ## ⚙️ Toolchain de Validación Específica por Constraint
@@ -1104,6 +1214,43 @@ try {
 }
 
 console.log('🎉 Checklist concluído. Artefato pronto para commit.');
+
+// ✅ 6. Contexto A2A inicializado (C9)
+if (process.env.TASK_ID) {
+  const traceFile = `./goals/${process.env.TASK_ID}/context/trace.json`;
+  if (!existsSync(traceFile)) {
+    console.error('❌ C9: context/trace.json ausente');
+    process.exit(1);
+  }
+  console.log('✅ Contexto A2A carregado');
+} else {
+  console.log('ℹ️ TASK_ID não definida; ignorando validação C9 (execução isolada)');
+}
+
+// ✅ 7. status.json gerado (C9)
+if (process.env.TASK_ID) {
+  const agentName = process.env.AGENT_NAME || 'javascript-typescript-master-agent';
+  const statusFile = `./goals/${process.env.TASK_ID}/artifacts/${agentName}/status.json`;
+  if (!existsSync(statusFile)) {
+    console.error('❌ C9: status.json ausente');
+    process.exit(1);
+  }
+  console.log('✅ status.json presente');
+}
+
+// ✅ 8. Validação do contrato A2A (C9)
+if (process.env.TASK_ID) {
+  try {
+    execSync(
+      `bash ./goals/check-a2a-contract.sh --task-id "${process.env.TASK_ID}" --agent "${process.env.AGENT_NAME}" --json`,
+      { stdio: 'pipe' }
+    );
+    console.log('✅ Contrato A2A validado');
+  } catch {
+    console.error('❌ C9: contrato A2A inválido');
+    process.exit(1);
+  }
+}
 ```
 
 ---
@@ -1147,6 +1294,8 @@ Este Master Agent está diseñado para operar en contextos de:
 - [[/06-PROGRAMMING/template_artifacts.md]] ← Template para artefatos filhos
 - [[/01-RULES/harness-norms-v3.0.md]] ← Definição formal de constraints C1-C8
 - [[/01-RULES/language-lock-protocol.md]] ← Protocolo de bloqueo de operadores por domínio
+- [[/01-RULES/11-A2A-COMMUNICATION-RULES.md]] ← Regra canônica de comunicação A2A (C9)
+- [[./goals/check-a2a-contract.sh]] ← Validador de contrato A2A
 
 ---
 

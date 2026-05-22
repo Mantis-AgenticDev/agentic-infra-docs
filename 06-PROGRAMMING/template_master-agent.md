@@ -16,12 +16,12 @@
 
 Todos los 7 Master Agents deben cumplir este schema YAML. Cualquier desviación rechaza el artefacto en `C5`.
 
-```yaml
+````yaml
 ---
 artifact_id: "{domain}-master-agent-mantis"          # Ej: python-master-agent-mantis
 artifact_type: agentic_skill_definition
 version: "2.2.0"                                      # Sincronizado con framework-core
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8", "C9"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/{domain}/{domain}-master-agent.md"
 tier: 1                                               # Inmutable para Master Agents
@@ -41,7 +41,7 @@ status: ✅ Estável
 next_review: "{+30d_ISO_8601}"
 license: "CC-BY-NC-SA-4.0"
 ---
-```
+````
 
 ---
 
@@ -49,7 +49,7 @@ license: "CC-BY-NC-SA-4.0"
 
 > **Instrucción de uso**: Copiar este bloque exactamente. Reemplazar únicamente `{DOMAIN}` y `{LANGUAGE}` según el dominio objetivo. No modificar el orden, ni añadir secciones. La configuración de pensamiento es **inmutable** salvo el nombre del lenguaje.
 
-```markdown
+`````markdown
 ---
 artifact_id: {DOMAIN}-master-agent-mantis
 artifact_type: agentic_skill_definition
@@ -185,9 +185,55 @@ bash 05-CONFIGURATIONS/scripts/verify-raw-urls.sh \
   --fail-on-drift \
   --report-format jsonl
 ```
-
 ---
+
+## 🔗 Integração com o Sistema de Metas (Goal Stewardship + A2A – C9)
+
+### Inicialização do Contexto Distribuído
+Antes de executar qualquer lógica de geração, o Master Agent DEVE:
+1. Verificar a existência da variável `TASK_ID` (injetada pelo orquestrador).
+2. Ler o arquivo `./goals/${TASK_ID}/context/trace.json` e carregar `trace_id` e `parent_span_id`.
+3. Gerar um `span_id` único (UUID v4 ou equivalente) para este agente.
+4. Exportar `TRACE_ID`, `PARENT_SPAN_ID`, `SPAN_ID` para uso em logs e no `status.json`.
+
+**Exemplo canónico (bash):**
+```bash
+TASK_ID="${TASK_ID:?}"
+TRACE_CTX="./goals/${TASK_ID}/context/trace.json"
+TRACE_ID=$(jq -r '.trace_id' "$TRACE_CTX")
+PARENT_SPAN_ID=$(jq -r '.parent_span_id // "null"' "$TRACE_CTX")
+SPAN_ID=$(uuidgen)
+export TRACE_ID PARENT_SPAN_ID SPAN_ID
+```
+
+### Geração de `status.json` (Handoff A2A)
+Ao finalizar (com sucesso ou falha), o agente DEVE gravar `./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json` com o seguinte schema:
+```json
+{
+  "agent_id": "<nome-do-agente>",
+  "trace_id": "<trace_id>",
+  "span_id": "<span_id>",
+  "parent_span_id": "<parent_span_id>",
+  "status": "completed|failed",
+  "output_ref": "<caminho-relativo-do-artefato-principal>",
+  "next_agent_hint": "<sugestão-para-orquestador>",
+  "timestamp_completed": "<ISO8601>",
+  "a2a_contract_version": "1.0"
+}
+```
+
+### Validação C9
+Ao final, o agente pode auto-validar o contrato A2A com:
+```bash
+bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json
+```
+Se o script retornar código diferente de 0, o handoff é considerado bloqueado.
+```
+`````
+---
+
 ## 🧱 TEMPLATE INTERNO: Estrutura Contractual para Artefactos {LANGUAGE}
+
 
 > ⚠️ **ATENÇÃO CRÍTICA**: Todo artefacto gerado por este agente DEVE seguir EXATAMENTE esta estrutura. Copiar literalmente, não interpretar.
 
@@ -446,6 +492,13 @@ graph LR
 4. Zero hardcode de secrets (C3)
 5. Registrar handoff em log estruturado (C8)
 
+### Requisitos C9 no Handoff
+Todo handoff entre master agents deve incluir no payload (além dos campos já exigidos):
+- `trace_id`: herdado do orquestrador
+- `parent_span_id`: `span_id` do agente que está passando o controle
+- O agente que recebe deve gerar um novo `span_id` e preservar o `trace_id`.
+
+
 ## 📊 Métricas de Qualidade do Agente {LANGUAGE}
 | Métrica | Meta | Como Medir | Ferramenta |
 |---------|------|-----------|-----------|
@@ -464,6 +517,9 @@ graph LR
 4. ✅ `mantis_log()` implementada e validada (C8)
 5. ✅ Tests TDD passam (`--test` flag)
 6. ✅ `orchestrator-engine --json` retorna `passed: true`
+7. ✅ Contexto A2A inicializado: `trace_id` e `span_id` gerados e exportados (C9).
+8. ✅ `status.json` escrito com schema completo (C9).
+9. ✅ Validação C9 via `./goals/check-a2a-contract.sh` passou (exit 0).
 
 ## 🗓️ Integração com CHRONICLE.md (Auditoria Distribuída)
 ### Formato de Registro Padrão (JSONL)

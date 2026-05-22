@@ -2,7 +2,7 @@
 artifact_id: bash-master-agent-mantis
 artifact_type: agentic_skill_definition
 version: 2.3.0
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8"]
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/bash/bash-master-agent.md"
 tier: 1
@@ -179,6 +179,75 @@ bash 05-CONFIGURATIONS/scripts/verify-raw-urls.sh \
 # 3. Aguardar atualização manual ou auto-sync aprovado por governance
 # 4. Registrar incidente em CHRONICLE.md com hash divergente
 ```
+---
+
+## 🎯 Integração com o Sistema de Metas (Goal Stewardship + A2A – C9)
+
+### Inicialização do Contexto Distribuído
+Antes de executar qualquer lógica de geração, o Bash Master Agent DEVE:
+1. Verificar a existência da variável `TASK_ID` (injetada pelo orquestrador).
+2. Ler o arquivo `./goals/${TASK_ID}/context/trace.json` e carregar `trace_id` e `parent_span_id`.
+3. Gerar um `span_id` único (UUID v4) para este agente.
+4. Exportar `TRACE_ID`, `PARENT_SPAN_ID`, `SPAN_ID` para uso em logs e no `status.json`.
+
+**Exemplo canónico (bash):**
+```bash
+# Injeção de contexto distribuído (C9)
+TASK_ID="${TASK_ID:?TASK_ID requerido para contexto distribuído}"
+TRACE_CTX="./goals/${TASK_ID}/context/trace.json"
+[[ -f "$TRACE_CTX" ]] || { mantis_log "FATAL" "missing_trace_context" "trace.json não encontrado"; exit 1; }
+
+TRACE_ID=$(jq -r '.trace_id // empty' "$TRACE_CTX")
+PARENT_SPAN_ID=$(jq -r '.parent_span_id // "null"' "$TRACE_CTX")
+CURRENT_AGENT=$(jq -r '.current_agent // "unknown"' "$TRACE_CTX")
+[[ -z "$TRACE_ID" ]] && { mantis_log "FATAL" "invalid_trace_context" "trace_id ausente em trace.json"; exit 1; }
+
+SPAN_ID=$(uuidgen 2>/dev/null || echo "span-$$-$(date +%s%N)")
+AGENT_NAME="bash-master-agent"   # Identificador canônico para este agente
+export TRACE_ID PARENT_SPAN_ID SPAN_ID AGENT_NAME
+```
+
+### Geração de `status.json` (Handoff A2A)
+Ao finalizar (com sucesso ou falha), o agente DEVE gravar `./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json` com o seguinte schema:
+```json
+{
+  "agent_id": "bash-master-agent",
+  "trace_id": "<trace_id>",
+  "span_id": "<span_id>",
+  "parent_span_id": "<parent_span_id>",
+  "status": "completed|failed",
+  "output_ref": "<caminho-relativo-do-artefato-principal>",
+  "next_agent_hint": "<sugestão-para-orquestador>",
+  "timestamp_completed": "<ISO8601>",
+  "a2a_contract_version": "1.0"
+}
+```
+
+**Exemplo de geração do status.json (bash):**
+```bash
+# Escrever status de conclusão (C9)
+mkdir -p "./goals/${TASK_ID}/artifacts/${AGENT_NAME}"
+cat > "./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json" <<EOF
+{
+  "agent_id": "$AGENT_NAME",
+  "trace_id": "$TRACE_ID",
+  "span_id": "$SPAN_ID",
+  "parent_span_id": "$PARENT_SPAN_ID",
+  "status": "completed",
+  "output_ref": "06-PROGRAMMING/bash/${ARTIFACT_ID}.md",
+  "next_agent_hint": "orchestrator",
+  "timestamp_completed": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "a2a_contract_version": "1.0"
+}
+EOF
+```
+
+### Validação C9
+Ao final, o agente pode auto-validar o contrato A2A com:
+```bash
+bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json
+```
+Se o script retornar código diferente de 0, o handoff é considerado bloqueado.
 
 ---
 
@@ -349,7 +418,7 @@ mantis_log() {
   # - CONSTRAINT (C1-C8 aplicável)
   
   # V-LOG-02: Schema JSONL completo para Loki/Grafana + OTel mappable
-  printf '{"timestamp":"%s","level":"%s","resource":{"tenant_id":"%s","artifact":"%s"},"body":{"event":"%s","detail":"%s"},"attributes":{"mantis":{"tier":"%s","version":"%s","constraint":"%s","trace_id":"%s"},"code.filepath":"%s","code.lineno":"%s","telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}\n' \
+  printf '{"timestamp":"%s","level":"%s","resource":{"tenant_id":"%s","artifact":"%s"},"body":{"event":"%s","detail":"%s"},"attributes":{"mantis":{"tier":"%s","version":"%s","constraint":"%s","trace_id":"%s","span_id":"%s","parent_span_id":"%s"},"code.filepath":"%s","code.lineno":"%s","telemetry.sdk.name":"mantis-bash-adapter","telemetry.sdk.version":"1.0.0"}}\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     "$level" \
     "${TENANT_ID:-unknown}" \
@@ -360,6 +429,8 @@ mantis_log() {
     "${VERSION:-2.2.0}" \
     "${CONSTRAINT:-unknown}" \
     "${TRACE_ID:-}" \
+    "${SPAN_ID:-}" \
+    "${PARENT_SPAN_ID:-}" \
     "${BASH_SOURCE[1]:-unknown}" \
     "${BASH_LINENO[0]:-0}" \
     >&2
@@ -516,6 +587,8 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh \
 - [[01-RULES/10-SDD-CONSTRAINTS.md]] ← Definição das constraints C1-C8
 - [[01-RULES/language-lock-protocol.md]] ← Protocolo de handoff entre domínios
 - [[05-CONFIGURATIONS/validation/norms-matrix.json]] ← Fonte de verdade para constraints
+- [[01-RULES/11-A2A-COMMUNICATION-RULES.md]] ← Regra canônica de comunicação A2A (C9)
+- [[./goals/check-a2a-contract.sh]] ← Validador de contrato A2A
 
 ## 📝 Histórico de Revisões (Para CHRONICLE.md Integration)
 | Versão | Data | Autor | Mudança Principal | Constraints Afetadas |
@@ -937,6 +1010,26 @@ echo "## $(date -u +%Y-%m-%dT%H:%M:%SZ) - $(basename "${FILE_PATH}")
 - Validation: passed
 - Generated_by: ${SCRIPT_NAME}
 " >> CHRONICLE.md && echo "✅ Registro em CHRONICLE.md"
+
+# ✅ 7. Contexto A2A inicializado (C9)
+if [[ -n "${TASK_ID:-}" ]]; then
+  [[ -f "./goals/${TASK_ID}/context/trace.json" ]] || { echo "❌ C9: context/trace.json ausente" >&2; exit 1; }
+  echo "✅ Contexto A2A carregado"
+else
+  echo "ℹ️ TASK_ID não definida; ignorando validação C9 (execução isolada)"
+fi
+
+# ✅ 8. status.json gerado (C9)
+if [[ -n "${TASK_ID:-}" ]]; then
+  [[ -f "./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json" ]] || { echo "❌ C9: status.json ausente" >&2; exit 1; }
+  echo "✅ status.json presente"
+fi
+
+# ✅ 9. Validação do contrato A2A (C9)
+if [[ -n "${TASK_ID:-}" ]]; then
+  bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json >/dev/null || { echo "❌ C9: contrato A2A inválido" >&2; exit 1; }
+  echo "✅ Contrato A2A validado"
+fi
 
 echo "🎉 Checklist concluído com sucesso. Artefato pronto para commit."
 exit 0

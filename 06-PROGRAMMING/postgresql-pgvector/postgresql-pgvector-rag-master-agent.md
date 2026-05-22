@@ -2,7 +2,7 @@
 artifact_id: postgresql-pgvector-master-agent-mantis
 artifact_type: agentic_skill_definition
 version: "2.2.0"
-constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","V1","V2","V3"]
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9","V1","V2","V3"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --json"
 canonical_path: "06-PROGRAMMING/postgresql-pgvector/postgresql-pgvector-rag-master-agent.md"
 tier: 1
@@ -1013,6 +1013,67 @@ def emit_validation_result(file_path: str, passed: bool, issues_count: int):
 
 ---
 
+## 🎯 Integração com o Sistema de Metas (Goal Stewardship + A2A – C9)
+
+### Inicialização do Contexto Distribuído (SQL/PLpgSQL via Wrapper)
+O PostgreSQL Master Agent não escreve arquivos diretamente, mas **o script orquestrador que o invoca** DEVE:
+1. Definir a variável de ambiente `TASK_ID`.
+2. Ler `./goals/${TASK_ID}/context/trace.json` e injetar os valores como parâmetros de sessão.
+3. Gerar um `span_id` único (UUID) e injetá-lo.
+4. Após a execução, escrever `status.json` com os identificadores.
+
+**Configuração de sessão (exemplo bash do wrapper):**
+```bash
+TASK_ID="${TASK_ID:?}"
+TRACE_CTX="./goals/${TASK_ID}/context/trace.json"
+TRACE_ID=$(jq -r '.trace_id' "$TRACE_CTX")
+PARENT_SPAN_ID=$(jq -r '.parent_span_id // "null"' "$TRACE_CTX")
+SPAN_ID=$(uuidgen)
+AGENT_NAME="postgresql-pgvector-master-agent"
+
+psql -v task_id="$TASK_ID" \
+     -c "SET app.trace_id = '$TRACE_ID'" \
+     -c "SET app.parent_span_id = '$PARENT_SPAN_ID'" \
+     -c "SET app.span_id = '$SPAN_ID'" \
+     -c "SET app.agent_name = '$AGENT_NAME'" \
+     -f script.sql
+```
+
+### Geração de `status.json` (Handoff A2A)
+Após a execução bem-sucedida (ou falha), o wrapper deve escrever:
+```bash
+mkdir -p "./goals/${TASK_ID}/artifacts/${AGENT_NAME}"
+cat > "./goals/${TASK_ID}/artifacts/${AGENT_NAME}/status.json" <<EOF
+{
+  "agent_id": "$AGENT_NAME",
+  "trace_id": "$TRACE_ID",
+  "span_id": "$SPAN_ID",
+  "parent_span_id": "$PARENT_SPAN_ID",
+  "status": "completed",
+  "output_ref": "06-PROGRAMMING/postgresql-pgvector/artefato.sql",
+  "next_agent_hint": "orchestrator",
+  "timestamp_completed": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "a2a_contract_version": "1.0"
+}
+EOF
+```
+
+### Validação C9
+```bash
+bash ./goals/check-a2a-contract.sh --task-id "$TASK_ID" --agent "$AGENT_NAME" --json
+```
+---
+
+## Cambio 3 – Protocolo de Handoff (añadir regra C9)
+
+**Ubicación:** Sección `## 🔄 Protocolo de Handoff para Outros Domínios (LANGUAGE LOCK)`, subsección **Regras de Handoff (Validáveis)** (lista numerada de 1 a 5). Añadir un nuevo punto **6**:
+
+```markdown
+6. **Cumprir C9 no handoff**: incluir `trace_id` e `parent_span_id` no payload, e o agente receptor deve gerar um novo `span_id` preservando o `trace_id`. O `status.json` deve ser escrito ao final de cada agente mestre participante do workflow.
+```
+
+---
+
 ## 🧪 Ejemplos: Válido vs Inválido (Para Testing do Agente)
 
 ### ✅ Artifact Válido (`tenant-embeddings-schema.pgvector.md`)
@@ -1145,6 +1206,8 @@ Antes de emitir qualquer artifact SQL/pgvector, o agente deve verificar:
 | `01-RULES/06-MULTITENANCY-RULES.md` | Regras de multi-tenancy | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/06-MULTITENANCY-RULES.md) |
 | `01-RULES/harness-norms-v3.0.md` | Definição formal de C1-C8 | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/harness-norms-v3.0.md) |
 | `01-RULES/language-lock-protocol.md` | Protocolo de bloqueio de operadores | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/language-lock-protocol.md) |
+| `01-RULES/11-A2A-COMMUNICATION-RULES.md` | Regra canônica de comunicação A2A (C9) | [Raw](https://raw.githubusercontent.com/Mantis-AgenticDev/agentic-infra-docs/refs/heads/main/01-RULES/11-A2A-COMMUNICATION-RULES.md) |
+| `./goals/check-a2a-contract.sh` | Validador de contrato A2A | (script local no repositório) |
 
 ---
 
@@ -1614,10 +1677,12 @@ BEGIN
     ),
     'attributes', json_build_object(
       'mantis', json_build_object(
-        'tier', current_setting('app.tier', true),
-        'version', current_setting('app.version', true),
-        'constraint', current_setting('app.constraint', true),
-        'trace_id', COALESCE(v_trace_id, '')
+          'tier', current_setting('app.tier', true),
+          'version', current_setting('app.version', true),
+          'constraint', current_setting('app.constraint', true),
+          'trace_id', COALESCE(v_trace_id, ''),
+          'span_id', current_setting('app.span_id', true),
+          'parent_span_id', current_setting('app.parent_span_id', true)
       ),
       'code.filepath', current_setting('app.code.filepath', true),
       'code.lineno', current_setting('app.code.lineno', true),
@@ -1990,6 +2055,10 @@ graph LR
 6. ✅ `orchestrator-engine --json` retorna `passed: true`
 7. ✅ Constraints vetoriais V1/V2/V3 declaradas e justificadas
 8. ✅ LANGUAGE LOCK verificado: zero operadores vetoriais fora deste domínio
+9. ✅ Contexto A2A inicializado: `trace_id` e `span_id` definidos via parâmetros de sessão (C9).
+10. ✅ `status.json` escrito pelo script wrapper após a execução (C9).
+11. ✅ Validação C9 via `./goals/check-a2a-contract.sh` executada com sucesso (exit 0).
+
 
 ## 🗓️ Integração com CHRONICLE.md (Auditoria Distribuída)
 ### Formato de Registro Padrão (JSONL)

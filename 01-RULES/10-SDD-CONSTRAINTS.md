@@ -3,7 +3,7 @@ canonical_path: "/01-RULES/10-SDD-CONSTRAINTS.md"
 artifact_id: "sdd-constraints-canonical"
 artifact_type: "governance_constraints_reference"
 version: "3.0.0-SELECTIVE"
-constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "V1", "V2", "V3"]
+constraints_mapped: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "V1", "V2", "V3"]
 validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 01-RULES/10-SDD-CONSTRAINTS.md --mode headless --json"
 tier: 1
 immutable: true
@@ -88,6 +88,7 @@ graph LR
 | **C6** | Verifiable Execution & Auditability | Dry-run, exit codes, trace_id, prompt_hash para reproducibilidad | Scripts, APIs, CLI tools | ❌ No | `orchestrator-engine.sh --checks C6` | `X-Idempotency-Key` header |
 | **C7** | Operational Resilience | Retry con backoff, fallback degradado, graceful shutdown, healthchecks | Servicios, scripts críticos, deployments | ❌ No | `orchestrator-engine.sh --checks C7` | `retry.ExponentialBackoff()` |
 | **C8** | Structured Logging & Observability | Logs JSON, campos obligatorios, scrubbing de PII, OpenTelemetry | Go, Python, TS, Docker, logging config | ❌ No | `orchestrator-engine.sh --checks C8` | `slog.NewJSONHandler(os.Stderr)` |
+| **C9** | **A2A Contract Compliance** | Comunicação confiável entre master agents (trace_id, span_id, parent_span_id, status.json) | Master Agents (Tier ≥ 2) | ✅ Sim (handoff) | `check-a2a-contract.sh` | `./goals/check-a2a-contract.sh --task-id <id> --agent <nome>` |
 | **V1** | Vector Dimension Declaration | Declarar dimensiones del embedding y modelo generador | **SOLO** `postgresql-pgvector/` | ✅ Sí (si usa pgvector) | `verify-constraints.sh --check-vector-dims` | `-- embedding: 1536d, model: text-embedding-3-small` |
 | **V2** | Distance Metric Documentation | Documentar métrica de distancia: cosine (<=>), L2 (<->), inner product (<#>) | **SOLO** `postgresql-pgvector/` | ❌ No | `verify-constraints.sh --check-vector-metric` | `-- metric: cosine (<=>), embeddings normalized` |
 | **V3** | Vector Index Justification | Justificar elección de índice (hnsw vs ivfflat) con parámetros y evidencia | **SOLO** `postgresql-pgvector/` | ❌ No | `verify-constraints.sh --check-vector-index` | `-- Index: HNSW with m=16, ef_construction=100; Justification: pgvector docs...` |
@@ -96,7 +97,7 @@ graph LR
 
 ---
 
-## 【1】🔒 REFERENCIA DETALLADA DE CONSTRAINTS (C1-C8)
+## 【1】🔒 REFERENCIA DETALLADA DE CONSTRAINTS (C1-C9)
 
 <!-- 
 【EDUCATIVO】Cada constraint incluye: definición canónica, ejemplos ✅/❌/🔧 por stack, criterios de validación y referencias cruzadas.
@@ -458,6 +459,58 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --checks 
 • [[01-RULES/harness-norms-v3.0.md#C8]] → Definición canónica completa
 ```
 
+### C9 – A2A Contract Compliance (Comunicação entre Agentes Mestre)
+
+````markdown
+【DEFINIÇÃO CANÓNICA】(de [[harness-norms-v3.0.md#C9]])
+C9 exige que toda comunicação entre master agents (Tier ≥ 2) obedeça a um contrato de handoff rastreável:
+• `trace_id`: UUID raiz imutável durante toda a cadeia de agentes.
+• `parent_span_id`: `span_id` do agente imediatamente anterior (ou `null` se for o primeiro).
+• `span_id`: UUID único gerado pelo agente atual ao iniciar.
+• `status.json`: artefato obrigatório ao final do agente, contendo `trace_id`, `span_id`, `parent_span_id`, `status` e `output_ref`.
+• `context/trace.json`: arquivo de contexto injetado pelo orquestrador antes da execução do agente.
+
+✅ Cumprimento canónico:
+【ORQUESTRADOR PREPARA CONTEXTO ✅】
+```json
+// ./goals/{task_id}/context/trace.json
+{
+  "trace_id": "uuid-raiz",
+  "parent_span_id": "span-anterior-ou-null",
+  "current_agent": "nome-do-agente",
+  "task_id": "task-123"
+}
+```
+
+【AGENTE GERA status.json AO FINAL ✅】
+```json
+// ./goals/{task_id}/artifacts/{agent}/status.json
+{
+  "agent_id": "bash-master-agent",
+  "trace_id": "uuid-raiz",
+  "span_id": "uuid-gerado-pelo-agente",
+  "parent_span_id": "span-anterior",
+  "status": "completed",
+  "output_ref": "artifacts/output.json"
+}
+```
+
+❌ Violação crítica (bloqueante):
+• `status.json` ausente ou com campos obrigatórios faltando.
+• `trace_id` divergente entre `trace.json` e `status.json`.
+• `parent_span_id` faltando quando não é o primeiro agente da cadeia.
+• Handoff sem `context/trace.json`.
+
+🔧 Validação automática:
+bash ./goals/check-a2a-contract.sh --task-id <id> --agent <nome> --json
+# Esperado: exit code 0, output: {"status":"ok","message":"C9 compliant"}
+
+📖 Referências cruzadas:
+• [[01-RULES/11-A2A-COMMUNICATION-RULES.md]] – Regra canónica completa de comunicação A2A.
+• [[06-PROGRAMMING/template_master-agent.md]] – Implementação nos agentes mestres.
+• [[./goals/check-a2a-contract.sh]] – Script validador do contrato A2A.
+• [[01-RULES/harness-norms-v3.0.md#C9]] – Definição canónica de C9.
+````
 ---
 
 ## 【2】🔐 REFERENCIA DETALLADA DE CONSTRAINTS VECTORIALES (V1-V3)
@@ -645,6 +698,9 @@ bash 05-CONFIGURATIONS/validation/verify-constraints.sh --file <ruta> --check-la
 • [[05-CONFIGURATIONS/validation/norms-matrix.json]] → Matriz completa de aplicación
 • [[01-RULES/language-lock-protocol.md]] → Reglas detalladas de aislamiento
 • [[00-STACK-SELECTOR.md]] → Motor de decisión de stack por ruta
+
+> ℹ️ **C9** não está sujeita a LANGUAGE LOCK. Aplica-se exclusivamente a agentes mestres (Tier ≥ 2), independentemente da linguagem de implementação. Não utiliza operadores vetoriais nem requer exclusão por stack.
+
 ```
 
 ### 3.2 Prohibiciones Absolutas por Constraint
@@ -956,7 +1012,7 @@ Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterale
     "artifact_type": "governance_constraints_reference",
     "immutable": true,
     "requires_human_approval_for_changes": true,
-    "constraints_defined": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "V1", "V2", "V3"],
+    "constraints_defined": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "V1", "V2", "V3"],
     "llm_optimizations": {
       "oriental_models_friendly": true,
       "delimiters_used": ["【】", "┌─┐", "▼", "✅/❌/🔧"],
@@ -1078,6 +1134,19 @@ Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterale
         "metrics": "Prometheus metrics at /metrics"
       }
     },
+    "C9": {
+      "name": "A2A Contract Compliance",
+      "canonical_definition": "[[harness-norms-v3.0.md#C9]]",
+      "applicable_stacks": ["master-agents"],
+      "fail_fast": true,
+      "validator": "./goals/check-a2a-contract.sh",
+      "reference_implementation": "[[01-RULES/11-A2A-COMMUNICATION-RULES.md]]",
+      "examples": {
+        "context": "./goals/{task_id}/context/trace.json",
+        "status": "./goals/{task_id}/artifacts/{agent}/status.json",
+        "validation": "bash ./goals/check-a2a-contract.sh --task-id <id> --agent <nome> --json"
+      }
+    }
     "V1": {
       "name": "Vector Dimension Declaration",
       "canonical_definition": "[[harness-norms-v3.0.md#V1]]",
@@ -1165,6 +1234,7 @@ Dependencias: Cada nodo declara sus archivos requeridos y sus efectos colaterale
       {"file": "01-RULES/03-SECURITY-RULES.md", "purpose": "Implementación detallada de C3", "load_order": 2},
       {"file": "01-RULES/06-MULTITENANCY-RULES.md", "purpose": "Implementación detallada de C4", "load_order": 3},
       {"file": "06-PROGRAMMING/postgresql-pgvector/00-INDEX.md", "purpose": "Patrones vectoriales con V1-V3", "load_order": 4}
+      {"file": "01-RULES/11-A2A-COMMUNICATION-RULES.md", "purpose": "Regra canónica de comunicação A2A (C9)", "load_order": 5}
     ],
     "validation_toolchain": [
       {"file": "05-CONFIGURATIONS/validation/orchestrator-engine.sh", "purpose": "Motor principal de validación", "load_order": 1},

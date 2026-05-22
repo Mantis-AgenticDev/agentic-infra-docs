@@ -213,57 +213,62 @@ constraints_mapped: ["C3","C4","C5"]
 ✅ Cumplimiento: Ejecutar validación integral y verificar resultado
 ❌ Violación: Score < 30 o blocking_issues no vacío
 🔧 Validación: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <archivo> --json | jq '.score, .blocking_issues'`
+
+【VC-021】Contrato A2A cumprido para handoff entre master agents (C9)
+✅ Cumplimiento: `status.json` com schema completo, `trace_id` consistente, `parent_span_id` = `span_id` do agente anterior, `span_id` único gerado pelo agente atual.
+❌ Violación: `status.json` ausente, `trace_id` divergente entre `trace.json` e `status.json`, `parent_span_id` faltando quando não é o primeiro agente.
+🔧 Validación: `bash ./goals/check-a2a-contract.sh --task-id <id> --agent <nome> --json` (retorno 0).
 ```
 
-### ✅ TIER 3: Checklist de Paquete Desplegable (VC-021 a VC-030)
+### ✅ TIER 3: Checklist de Paquete Desplegable (VC-022 a VC-031)
 
 ```
-【VC-021】Todo lo de Tier 2 + frontmatter con tier: 3 y bundle_required: true
+【VC-022】Todo lo de Tier 2 + frontmatter con tier: 3 y bundle_required: true
 ✅ Cumplimiento: `tier: 3`, `bundle_required: true` en frontmatter
 ❌ Violación: tier: 3 pero bundle_required: false o campo faltante
 🔧 Validación: `yq eval '.bundle_required' <archivo> | grep -q "true"`
 
-【VC-022】bundle_contents lista todos los archivos requeridos en el ZIP
+【VC-023】bundle_contents lista todos los archivos requeridos en el ZIP
 ✅ Cumplimiento: `bundle_contents: ["manifest.json", "deploy.sh", "rollback.sh", "healthcheck.sh", "README-DEPLOY.md"]`
 ❌ Violación: Archivo crítico faltante en la lista o en el bundle real
 🔧 Validación: Comparar lista en frontmatter con archivos generados en bundle/
 
-【VC-023】manifest.json válido con metadatos canónicos del paquete
+【VC-024】manifest.json válido con metadatos canónicos del paquete
 ✅ Cumplimiento: JSON con artifact_id, version, tier, validation_result, checksum, deploy_command
 ❌ Violación: manifest.json con sintaxis inválida o campos obligatorios faltantes
 🔧 Validación: `jq empty manifest.json && jq '.artifact_id, .version, .tier' manifest.json`
 
-【VC-024】deploy.sh es idempotente y soporta --dry-run
+【VC-025】deploy.sh es idempotente y soporta --dry-run
 ✅ Cumplimiento: Script que verifica estado actual antes de modificar, con flag --dry-run
 ❌ Violación: Script que crea duplicados al ejecutarse dos veces o sin opción de simulación
 🔧 Validación: Ejecutar `./deploy.sh --dry-run` y luego `./deploy.sh` dos veces, verificar idempotencia
 
-【VC-025】rollback.sh revierte cambios de deploy.sh sin pérdida de datos
+【VC-026】rollback.sh revierte cambios de deploy.sh sin pérdida de datos
 ✅ Cumplimiento: Script que restaura estado previo usando backups o versionado
 ❌ Violación: rollback.sh que no funciona o que pierde datos al revertir
 🔧 Validación: Ejecutar deploy.sh → rollback.sh → verificar que sistema vuelve a estado inicial
 
-【VC-026】healthcheck.sh verifica salud del servicio desplegado
+【VC-027】healthcheck.sh verifica salud del servicio desplegado
 ✅ Cumplimiento: Script que retorna exit code 0 si servicio está sano, 1 si no
 ❌ Violación: healthcheck.sh que siempre retorna 0 o que no verifica dependencias críticas
 🔧 Validación: Ejecutar healthcheck.sh con servicio up/down y verificar exit codes
 
-【VC-027】README-DEPLOY.md con instrucciones claras para el cliente
+【VC-028】README-DEPLOY.md con instrucciones claras para el cliente
 ✅ Cumplimiento: Documento con: requisitos previos, pasos de deploy, comandos de rollback, troubleshooting
 ❌ Violación: README genérico o sin pasos ejecutables específicos para este paquete
 🔧 Validación: Revisión manual de claridad y completitud de instrucciones
 
-【VC-028】checksums.sha256 con hashes válidos para todos los archivos del bundle
+【VC-029】checksums.sha256 con hashes válidos para todos los archivos del bundle
 ✅ Cumplimiento: Archivo con `sha256sum <file>` para cada archivo en bundle_contents
 ❌ Violación: Checksum faltante para algún archivo o hash que no coincide
 🔧 Validación: `sha256sum -c checksums.sha256` en directorio del bundle
 
-【VC-029】Score de orchestrator-engine.sh ≥ 45 y blocking_issues == [] para Tier 3
+【VC-030】Score de orchestrator-engine.sh ≥ 45 y blocking_issues == [] para Tier 3
 ✅ Cumplimiento: Validación integral con flags --bundle --checksum retorna score alto
 ❌ Violación: Score < 45 o blocking_issues no vacío para artefacto Tier 3
 🔧 Validación: `bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <archivo> --bundle --checksum --json | jq '.score, .blocking_issues'`
 
-【VC-030】packager-assisted.sh genera bundle válido y reproducible
+【VC-031】packager-assisted.sh genera bundle válido y reproducible
 ✅ Cumplimiento: Script de empaquetado que crea ZIP con estructura canónica y checksums
 ❌ Violación: packager-assisted.sh que omite archivos críticos o genera checksums inconsistentes
 🔧 Validación: Ejecutar `bash 05-CONFIGURATIONS/scripts/packager-assisted.sh --source <archivo> --dry-run` y verificar estructura

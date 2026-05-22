@@ -420,6 +420,37 @@ bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --checks 
 
 ---
 
+### C9 – A2A Contract Compliance (Comunicação entre Agentes Mestre)
+
+〖DEFINIÇÃO CANÔNICA〗 C9 exige que toda comunicação entre agentes mestres (Tier ≥ 2) obedeça ao contrato A2A, preservando os seguintes identificadores de rastreabilidade:
+- `trace_id`: UUID raiz gerado pelo orquestrador e mantido imutável durante toda a cadeia de agentes.
+- `parent_span_id`: `span_id` do agente imediatamente anterior (ou `null` se for o primeiro).
+- `span_id`: UUID único gerado pelo agente atual no início de sua execução.
+- `status.json`: artefato obrigatório ao final de cada agente, contendo o status (`completed` ou `failed`), os três IDs e a referência ao artefato principal produzido.
+- `context/trace.json`: arquivo de contexto injetado pelo orquestrador antes do lançamento do agente, contendo `trace_id`, `parent_span_id`, `current_agent` e `task_id`.
+
+✅ Cumprimento:
+- [ ] `trace_id` presente e idêntico ao longo de todo o workflow.
+- [ ] `span_id` único por agente, gerado com UUID v4 (ou similar).
+- [ ] `status.json` escrito no caminho `./goals/{task_id}/artifacts/{agent}/status.json` com todos os campos obrigatórios.
+- [ ] `parent_span_id` no `status.json` corresponde ao `span_id` do agente anterior.
+- [ ] `context/trace.json` lido e validado no início de cada agente.
+- [ ] Contrato A2A validado pelo script `./goals/check-a2a-contract.sh` (retorno 0).
+
+❌ Violação crítica (bloqueante para handoff):
+- `status.json` ausente ou com campos obrigatórios faltando.
+- `trace_id` divergente entre `context/trace.json` e `status.json`.
+- `span_id` duplicado em dois agentes diferentes.
+- Ausência de `parent_span_id` quando o agente não é o primeiro da cadeia.
+
+**Aplica-se exclusivamente a master agents (Tier ≥ 2).**  
+**Não passa pelo orchestrator-engine.** A validação é feita diretamente pelo script `./goals/check-a2a-contract.sh`.  
+**Fail-fast:** sim, handoffs que não satisfazem C9 são bloqueados imediatamente.
+
+**Validação automática:** `bash ./goals/check-a2a-contract.sh --task-id <id> --agent <nome> --json` retorna `0` se conforme, `1` se violado.
+
+---
+
 ## 【2】🔐 DEFINICIONES CANÓNICAS DE CONSTRAINTS VECTORIALES (V1-V3)
 
 <!-- 
