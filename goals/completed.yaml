@@ -1,0 +1,74 @@
+---
+artifact_id: "goals-completed-v2"
+artifact_type: "agentic_data_contract"
+version: "2.0.0"
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
+validation_command: "python3 goals/scripts/validate-registry.py --file goals/completed.yaml"
+canonical_path: "goals/completed.yaml"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:goals-completed-v2.0.0"
+generated_at: "2026-05-21T17:15:00Z"
+tenant_context: "nao_aplicavel"
+language: "yaml"
+domain: "goals"
+subdomain: "completed"
+agent_role: "orchestrator-engine"
+agent_specialty: "goal-management"
+ai_navigation:
+  read_first: false
+  required_for: ["goal-history", "dashboard-metrics", "audit-trail"]
+  update_frequency: daily
+  compatible_models: ["qwen", "deepseek", "claude", "minimax", "mimo-xiaomi", "gpt-4", "gemini"]
+audience: ["master-agents", "orchestrator-engine", "human-architects", "observability-pipeline"]
+status: "✅ Estável"
+next_review: "2026-06-20"
+license: "CC-BY-NC-SA-4.0"
+---
+# Bitácora de Metas Completadas — MANTIS Agentic
+# Formato: YAML append-only. Las entradas se agregan al final, nunca se modifican ni eliminan.
+# Última modificación: 2026-05-21T17:15:00Z
+
+version: "2.0.0"
+last_modified: "2026-05-21T17:15:00Z"
+
+# Cada meta completada se registra aquí con todos sus datos de ejecución.
+# El formato de cada entrada es idéntico al de registry.yaml más los campos de cierre.
+# No se permite eliminar entradas; en caso de error, se añade una entrada de corrección.
+
+completed: []
+  # Ejemplo de una entrada completada (no activa):
+  # - goal_id: "uuid-v4-ejemplo"
+  #   objective: "Crear la estructura inicial de goals/"
+  #   assigned_agent: "deepseek-web"
+  #   status: "complete"
+  #   token_budget: 250000
+  #   tokens_used: 12750
+  #   time_used_seconds: 420
+  #   created_at: "2026-05-21T10:00:00Z"
+  #   updated_at: "2026-05-21T14:30:00Z"
+  #   completed_at: "2026-05-21T14:30:00Z"
+  #   lock_version: 3
+  #   completion_audit_hash: "sha256:abc123..."   # hash que liga la evidencia de completitud
+  #   metrics:
+  #     otel_goal_created: true
+  #     otel_goal_completed: true
+  #     otel_goal_budget_limited: false
+  #     otel_goal_token_count: 12750
+  #     otel_goal_duration_seconds: 420
+```
+
+**Atributos exclusivos de `completed.yaml`**:
+
+| Campo | Propósito |
+|-------|-----------|
+| `completed_at` | Timestamp exacto de cuándo se marcó `complete`. |
+| `completion_audit_hash` | Hash criptográfico que vincula la evidencia de que el objetivo se cumplió (archivos generados, resultados de tests, etc.). Esto permite auditorías forenses. |
+| `metrics` | Snapshot final de las métricas OTel para alimentar Loki/Grafana sin necesidad de recálculo. |
+
+**Reglas de inmutabilidad**:
+- Las entradas se agregan al final de `completed:`.
+- No se modifica ni se borra ninguna entrada existente.
+- Cualquier corrección se registra como una nueva entrada con `completion_audit_hash` distinto.
+
+---

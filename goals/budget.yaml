@@ -1,0 +1,128 @@
+---
+artifact_id: "goals-budget-v2"
+artifact_type: "agentic_data_contract"
+version: "2.0.0"
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
+validation_command: "python3 goals/scripts/validate-registry.py --file goals/budget.yaml"
+canonical_path: "goals/budget.yaml"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:goals-budget-v2.0.0"
+generated_at: "2026-05-21T17:30:00Z"
+tenant_context: "nao_aplicavel"
+language: "yaml"
+domain: "goals"
+subdomain: "budget"
+agent_role: "orchestrator-engine"
+agent_specialty: "goal-management"
+ai_navigation:
+  read_first: false
+  required_for: ["goal-assignment", "agent-execution", "budget-enforcement"]
+  update_frequency: daily
+  compatible_models: ["qwen", "deepseek", "claude", "minimax", "mimo-xiaomi", "gpt-4", "gemini"]
+audience: ["master-agents", "orchestrator-engine", "human-architects"]
+status: "✅ Estável"
+next_review: "2026-06-20"
+license: "CC-BY-NC-SA-4.0"
+---
+# Presupuestos Operativos por Agente — MANTIS Agentic
+# Formato: YAML inmutable durante la ejecución de metas activas.
+# Última modificación: 2026-05-21T17:30:00Z
+
+version: "2.0.0"
+last_modified: "2026-05-21T17:30:00Z"
+
+# Límite global opcional
+global:
+  max_concurrent_goals: 5
+  default_token_budget: 200000    # si una meta no especifica presupuesto
+  default_time_budget_seconds: 3600  # 1 hora
+
+# Presupuestos por agente (los agentes heredan del perfil "default" si no se especifica)
+agents:
+  # Plantilla por defecto (todos los agentes no listados usan esto)
+  default:
+    token_budget: 200000
+    time_budget_seconds: 3600
+    priority_default: 5
+    allow_overspend: false
+    overspend_max_tokens: 0
+    enforcement: "budget_limited"  # budget_limited | paused | ignore
+
+  # Agentes de programación
+  bash-master-agent:
+    token_budget: 150000
+    time_budget_seconds: 2700
+    priority_default: 5
+    allow_overspend: true
+    overspend_max_tokens: 30000
+    enforcement: "budget_limited"
+
+  go-master-agent:
+    token_budget: 200000
+    time_budget_seconds: 3600
+    priority_default: 5
+    enforcement: "budget_limited"
+
+  javascript-typescript-master-agent:
+    token_budget: 200000
+    time_budget_seconds: 3600
+    priority_default: 5
+    enforcement: "budget_limited"
+
+  python-master-agent:
+    token_budget: 200000
+    time_budget_seconds: 3600
+    priority_default: 5
+    enforcement: "budget_limited"
+
+  sql-master-agent:
+    token_budget: 150000
+    time_budget_seconds: 2700
+    priority_default: 5
+    enforcement: "budget_limited"
+
+  yaml-json-schema-master-agent:
+    token_budget: 100000
+    time_budget_seconds: 1800
+    priority_default: 5
+    enforcement: "budget_limited"
+
+  postgresql-pgvector-rag-master-agent:
+    token_budget: 250000
+    time_budget_seconds: 5400
+    priority_default: 4
+    enforcement: "budget_limited"
+
+  # Agentes documentales y de gobernanza
+  doc-agnostic-master-agent:
+    token_budget: 300000
+    time_budget_seconds: 7200
+    priority_default: 3
+    enforcement: "paused"  # pausar, no limitar, para no truncar documentación
+
+  deepseek-web:
+    token_budget: 500000
+    time_budget_seconds: 21600  # 6 horas
+    priority_default: 2
+    enforcement: "paused"
+
+# Políticas de enforcement
+policies:
+  budget_limited:
+    description: "La meta se marca como budget_limited y se instruye al agente a finalizar."
+    action: "mark_budget_limited"
+  paused:
+    description: "La meta se pausa y requiere intervención humana para continuar."
+    action: "pause_goal"
+  ignore:
+    description: "El presupuesto es informativo y no se aplica enforcement automático."
+    action: "log_warning"
+```
+
+**Aspectos clave**:
+- Cada agente puede tener su propio techo de tokens y tiempo, heredando del perfil `default` si no se especifica.
+- `enforcement` determina qué ocurre al llegar al límite: solo avisar (`log_warning`), limitar y pedir que termine (`budget_limited`), o pausar por completo (`paused`).
+- `allow_overspend` permite un margen extra controlado para que el agente pueda finalizar dignamente.
+- Preparado para que el dashboard de Grafana muestre barras de progreso por agente (tokens consumidos / presupuesto) y para que el orquestador pueda rechazar metas que excedan el límite global.
+

@@ -1,0 +1,77 @@
+---
+artifact_id: "goals-judge-config-v2"
+artifact_type: "agentic_data_contract"
+version: "2.0.0"
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
+validation_command: "python3 goals/scripts/validate-registry.py --file goals/judge/judge-config.yaml"
+canonical_path: "goals/judge/judge-config.yaml"
+tier: 2
+mode_selected: "B1"
+prompt_hash: "sha256:goals-judge-config-v2.0.0"
+generated_at: "2026-05-22T02:30:00Z"
+tenant_context: "nao_aplicavel"
+language: "yaml"
+domain: "goals"
+subdomain: "judge"
+agent_role: "orchestrator-engine"
+agent_specialty: "quality-gate"
+ai_navigation:
+  read_first: false
+  required_for: ["quality-evaluation", "ambiguous-requests", "completion-validation"]
+  update_frequency: rarely
+  compatible_models: ["claude", "deepseek", "gpt-4", "gemini"]
+audience: ["orchestrator-engine", "master-agents", "human-architects"]
+status: "✅ Estável"
+next_review: "2026-06-22"
+license: "CC-BY-NC-SA-4.0"
+---
+# Configuración del Juez de Calidad — MANTIS Agentic
+# Última modificación: 2026-05-22T02:30:00Z
+
+version: "2.0.0"
+last_modified: "2026-05-22T02:30:00Z"
+
+# Modelo preferido para el juez (debe ser un modelo de alta capacidad de razonamiento)
+judge_model: "claude"              # opciones: claude, deepseek, gpt-4, gemini
+fallback_model: "deepseek"         # si el primario no está disponible
+
+# Cuándo se activa el juez
+activation:
+  on_ambiguous_request: true        # cuando el stack selector no encuentra match determinista
+  on_completion_audit_fail: true    # cuando la auditoría de completitud del agente falla
+  on_quality_dispute: true          # cuando dos agentes discrepan sobre la calidad de un artefacto
+  on_destructive_operation: true    # antes de operaciones destructivas (borrado, overwrite masivo)
+  manual_trigger: true              # permite invocación manual por parte del arquitecto
+  cost_limit_per_evaluation_tokens: 8000  # máximo de tokens que el juez puede gastar por evaluación
+
+# Umbrales de calidad
+thresholds:
+  min_quality_score: 0.75           # 0.0 a 1.0, por debajo se rechaza el artefacto
+  min_completeness_score: 0.85      # qué tan completo está el entregable vs requisitos
+  min_consistency_score: 0.80       # consistencia interna del artefacto
+  min_compliance_score: 0.90        # cumplimiento de constraints C1-C9
+  require_all_thresholds: true      # si true, todos los umbrales deben superarse; si false, basta el promedio
+
+# Pesos para la evaluación de calidad
+weights:
+  completeness: 0.40                # qué tanto cubre los requisitos
+  consistency: 0.25                 # coherencia interna, estilo, formato
+  compliance: 0.25                  # adherencia a constraints y normas
+  elegance: 0.10                    # legibilidad, mantenibilidad, simplicidad
+
+# Comportamiento
+behavior:
+  store_evaluations: true           # guarda cada evaluación en judge/evaluations/
+  max_evaluations_per_goal: 5       # límite de re-evaluaciones por meta
+  escalate_on_repeated_failure: true  # si tras 3 fallos, escala al arquitecto humano
+  verbose_report: false             # si true, incluye desglose detallado en el reporte
+```
+
+**Detalles de diseño**:
+- `activation`: define exactamente cuándo se dispara el juez. No se activa para toda request, solo en condiciones de ambigüedad, disputa o fallo de auditoría.
+- `thresholds`: cada puntuación de 0.0 a 1.0. El juez emite `pass` o `fail` comparando contra estos umbrales. `require_all_thresholds: true` asegura que no se apruebe un artefacto legalmente impecable pero incompleto.
+- `weights`: permiten calcular un score global ponderado.
+- `cost_limit_per_evaluation_tokens`: evita que el juez consuma más tokens de la cuenta en evaluaciones complejas.
+- `escalate_on_repeated_failure`: si una meta falla 3 veces la evaluación, escala al humano en lugar de reintentar infinitamente.
+
+---
