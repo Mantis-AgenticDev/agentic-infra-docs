@@ -1,0 +1,31 @@
+---
+artifact_id: "goals-sync-config"
+artifact_type: "config"
+version: "2.0.0"
+canonical_path: "goals/sync-config.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:sync-config-v2.0.0"
+generated_at: "2026-05-22T14:30:00Z"
+domain: "goals"
+subdomain: "config"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+supabase:
+  enabled: false
+  url: "https://<project-id>.supabase.co"
+  anon_key: "TU_ANON_KEY"
+  table_prefix: "mantis_"
+  sync_interval_seconds: 300
+qdrant:
+  enabled: false
+  url: "http://localhost:6333"
+  collection_name: "mantis_goals"
+  vector_size: 1536
+  sync_interval_seconds: 300
+local:
+  backup_enabled: true
+  backup_dir: "goals/backups"
+  backup_interval_hours: 24

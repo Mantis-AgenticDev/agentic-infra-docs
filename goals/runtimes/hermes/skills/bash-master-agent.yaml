@@ -1,0 +1,22 @@
+---
+artifact_id: "hermes-skill-bash-master-agent"
+artifact_type: "hermes_skill"
+version: "1.0.0"
+canonical_path: "runtimes/hermes/skills/bash-master-agent.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:hermes-skill-bash-v1.0.0"
+generated_at: "2026-05-22T11:40:00Z"
+domain: "runtimes"
+subdomain: "hermes"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+skill:
+  name: "bash-master-agent"
+  description: "Agente maestro de scripting Bash para MANTIS"
+  trigger: "Tareas de automatización, scripting, CI/CD con Bash"
+  agent_db: "../../goals/agent-db/programming/bash-master-agent.db"
+  constraints: ["C1", "C2", "C5", "C9"]
+  model_preference: "deepseek"

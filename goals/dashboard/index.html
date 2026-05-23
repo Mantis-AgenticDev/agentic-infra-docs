@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANTIS Goals Dashboard</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 20px; }
+  h1 { color: #58a6ff; }
+  .kanban { display: flex; gap: 20px; flex-wrap: wrap; }
+  .column { background: #161b22; border-radius: 12px; padding: 15px; flex: 1; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .col-header { font-weight: bold; padding: 8px; border-radius: 8px; margin-bottom: 12px; text-align: center; }
+  .active .col-header { background: #238636; color: white; }
+  .paused .col-header { background: #9e6a03; color: white; }
+  .budget .col-header { background: #da3633; color: white; }
+  .complete .col-header { background: #1f6feb; color: white; }
+  .card { background: #21262d; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; }
+  .card strong { color: #e6edf3; }
+  .metric { font-size: 12px; color: #8b949e; }
+  .footer { margin-top: 20px; font-size: 13px; color: #484f58; text-align: center; }
+</style>
+</head>
+<body>
+<h1>🛠️ MANTIS GOALS Dashboard</h1>
+<div id="dashboard" class="kanban">
+  <div class="column active"><div class="col-header">🟢 Active</div><div id="active-cards"></div></div>
+  <div class="column paused"><div class="col-header">🟡 Paused</div><div id="paused-cards"></div></div>
+  <div class="column budget"><div class="col-header">🔴 Budget Limited</div><div id="budget-cards"></div></div>
+  <div class="column complete"><div class="col-header">🔵 Complete</div><div id="complete-cards"></div></div>
+</div>
+<div class="footer">Actualizado: <span id="update-time"></span> | Datos desde registry.db</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<script>
+async function loadDB() {
+  const res = await fetch('../registry.db');
+  const buf = await res.arrayBuffer();
+  const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+  return new SQL.Database(new Uint8Array(buf));
+}
+
+async function refresh() {
+  try {
+    const db = await loadDB();
+    const result = db.exec("SELECT * FROM goals ORDER BY priority ASC");
+    const columns = result[0]?.columns || [];
+    const rows = result[0]?.values || [];
+    
+    const goals = rows.map(row => Object.fromEntries(columns.map((col, i) => [col, row[i]])));
+    
+    ['active', 'paused', 'budget_limited', 'complete'].forEach(status => {
+      const container = document.getElementById(status + '-cards');
+      container.innerHTML = '';
+      goals.filter(g => g.status === status).forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>${g.objective.substring(0, 50)}</strong><br>
+          <span class="metric">Agente: ${g.assigned_agent || 'sin asignar'}</span><br>
+          <span class="metric">Tokens: ${g.tokens_used || 0} / ${g.token_budget || '∞'}</span><br>
+          <span class="metric">Próx: ${g.next_wakeup || '—'}</span>
+        `;
+        container.appendChild(card);
+      });
+    });
+    
+    document.getElementById('update-time').textContent = new Date().toISOString();
+  } catch(e) {
+    console.error('Error cargando dashboard:', e);
+  }
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>

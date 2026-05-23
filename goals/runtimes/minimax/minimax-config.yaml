@@ -1,0 +1,25 @@
+---
+artifact_id: "runtimes-minimax-config"
+artifact_type: "runtime_config"
+version: "2.0.0"
+canonical_path: "runtimes/minimax/minimax-config.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:minimax-config-v2.0.0"
+generated_at: "2026-05-22T08:35:00Z"
+domain: "runtimes"
+subdomain: "minimax"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+runtime: minimax
+version: "1.0"
+connector: "connector.py"
+goal_registry: "../../goals/registry.db"
+agent_db: "../../goals/agent-db/minimax-agent.db"
+provider: "minimax"
+rate_limit:
+  window: "fixed"
+  reset_time_utc: "16:00"
+  safety_margin_minutes: 30

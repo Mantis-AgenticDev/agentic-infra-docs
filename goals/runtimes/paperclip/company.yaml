@@ -1,0 +1,30 @@
+---
+artifact_id: "runtimes-paperclip-config"
+artifact_type: "runtime_config"
+version: "2.0.0"
+canonical_path: "runtimes/paperclip/company.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:paperclip-config-v2.0.0"
+generated_at: "2026-05-22T08:05:00Z"
+domain: "runtimes"
+subdomain: "paperclip"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+runtime: paperclip
+version: "1.0"
+goal_registry: "../../goals/registry.db"
+company:
+  name: "MANTIS Agentic"
+  roles:
+    - name: "architect"
+      agents: ["deepseek-web"]
+    - name: "developer"
+      agents: ["bash-master-agent", "go-master-agent", "javascript-typescript-master-agent", "python-master-agent"]
+    - name: "data-engineer"
+      agents: ["postgresql-pgvector-rag-master-agent", "sql-master-agent"]
+    - name: "doc-writer"
+      agents: ["doc-agnostic-master-agent"]
+workflow: "sequential"

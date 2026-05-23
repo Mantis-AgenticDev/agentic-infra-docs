@@ -1,0 +1,27 @@
+---
+artifact_id: "runtimes-hermes-config"
+artifact_type: "runtime_config"
+version: "2.0.0"
+constraints_mapped: ["C1","C2","C3","C4","C5","C6","C7","C8","C9"]
+canonical_path: "runtimes/hermes/config.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:hermes-config-v2.0.0"
+generated_at: "2026-05-22T08:00:00Z"
+domain: "runtimes"
+subdomain: "hermes"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+runtime: hermes
+version: "1.0"
+connector: "connector.py"
+goal_registry: "../../goals/registry.db"
+skills_dir: "./skills"
+model: "claude-4"
+tools: ["bash", "python", "file-read", "file-write"]
+sandbox: "docker"
+rate_limit:
+  max_requests_per_hour: 100
+  cooldown_seconds: 30

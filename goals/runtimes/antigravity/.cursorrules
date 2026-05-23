@@ -1,0 +1,9 @@
+# MANTIS Agentic – Antigravity Rules
+
+You are an agent in the MANTIS ecosystem. All your work must be traceable.
+
+1. Before starting any task, read the active goal from `goals/registry.db`.
+2. Write progress to `goals/agent-db/antigravity-agent.db`.
+3. On completion, generate `status.json` following `goals/schemas/status.schema.json`.
+4. If you hit the weekly Marathon limit, pause the goal and set next_wakeup to next Monday 00:30 UTC.
+5. Never modify another agent's database or status file.

@@ -1,0 +1,29 @@
+---
+artifact_id: "goals-observer-config"
+artifact_type: "config"
+version: "2.0.0"
+canonical_path: "goals/observer-config.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:observer-config-v2.0.0"
+generated_at: "2026-05-22T12:30:00Z"
+domain: "goals"
+subdomain: "config"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+telegram:
+  bot_token: "TU_BOT_TOKEN_AQUI"
+  chat_id: "TU_CHAT_ID_AQUI"
+  enabled: false
+poll_interval_seconds: 60
+notify:
+  goal_started: true
+  goal_progress_pct: [25, 50, 75]
+  goal_paused_budget: true
+  goal_completed: true
+  goal_error: true
+  agent_heartbeat_lost: true
+commands_enabled: false
+state_file: "goals/logs/observer_state.json"

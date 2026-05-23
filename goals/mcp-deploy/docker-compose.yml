@@ -1,0 +1,58 @@
+# ---
+# artifact_id: "goals-mcp-docker-compose"
+# artifact_type: "docker_compose"
+# version: "2.0.0"
+# canonical_path: "goals/mcp-deploy/docker-compose.yml"
+# tier: 2
+# immutable: false
+# language: "yaml"
+# prompt_hash: "sha256:docker-compose-v2.0.0"
+# generated_at: "2026-05-22T15:30:00Z"
+# domain: "goals"
+# subdomain: "mcp-deploy"
+# status: "✅ Estável"
+# license: "CC-BY-NC-SA-4.0"
+# ---
+# Despliegue local del MCP Server.
+# Uso: docker compose -f goals/mcp-deploy/docker-compose.yml up -d
+
+services:
+  mantis-goals:
+    image: mantisagenticdev/mantis-goals:latest
+    container_name: mantis-goals
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/registry.db:/app/data/registry.db
+      - ./data/agent-db:/app/data/agent-db
+      - ./data/logs:/app/data/logs
+      - ./data/backups:/app/data/backups
+    environment:
+      - MANTIS_DB_PATH=/app/data/registry.db
+      - MANTIS_AGENT_DB_DIR=/app/data/agent-db
+      - MANTIS_LOG_DIR=/app/data/logs
+      - MANTIS_BACKUP_DIR=/app/data/backups
+      - MANTIS_API_KEY=change-me-in-production
+      - MANTIS_PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  backup:
+    image: mantisagenticdev/mantis-goals:latest
+    container_name: mantis-backup
+    entrypoint: ["python3", "/app/goals/mcp-deploy/backup.py", "--keep-days", "30"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MANTIS_DATA_DIR=/app/data
+      - MANTIS_BACKUP_DIR=/app/data/backups
+      - MANTIS_LOG_DIR=/app/data/logs
+    restart: unless-stopped
+    # Ejecuta backup cada hora usando sleep (alternativa simple a cron dentro del contenedor)
+    command: >
+      sh -c "while true; do python3 /app/goals/mcp-deploy/backup.py --keep-days 30; sleep 3600; done"

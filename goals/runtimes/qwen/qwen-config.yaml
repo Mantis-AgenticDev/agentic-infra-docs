@@ -1,0 +1,25 @@
+---
+artifact_id: "runtimes-qwen-config"
+artifact_type: "runtime_config"
+version: "2.0.0"
+canonical_path: "runtimes/qwen/qwen-config.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:qwen-config-v2.0.0"
+generated_at: "2026-05-22T08:30:00Z"
+domain: "runtimes"
+subdomain: "qwen"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+runtime: qwen
+version: "1.0"
+connector: "connector.py"
+goal_registry: "../../goals/registry.db"
+agent_db: "../../goals/agent-db/qwen-agent.db"
+provider: "qwen"
+rate_limit:
+  window: "fixed"
+  reset_time_utc: "00:00"
+  safety_margin_minutes: 30

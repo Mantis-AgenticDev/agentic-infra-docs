@@ -1,0 +1,23 @@
+---
+artifact_id: "runtimes-codex-config"
+artifact_type: "runtime_config"
+version: "2.0.0"
+canonical_path: "runtimes/codex/codex.yaml"
+tier: 2
+immutable: false
+language: "yaml"
+prompt_hash: "sha256:codex-config-v2.0.0"
+generated_at: "2026-05-22T08:15:00Z"
+domain: "runtimes"
+subdomain: "codex"
+status: "✅ Estável"
+license: "CC-BY-NC-SA-4.0"
+---
+runtime: codex
+version: "1.0"
+goal_registry: "../../goals/registry.db"
+native_goals: true
+connector: "connector.py"
+sync:
+  enabled: true
+  interval_seconds: 60
