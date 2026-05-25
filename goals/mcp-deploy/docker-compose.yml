@@ -1,13 +1,13 @@
 # ---
 # artifact_id: "goals-mcp-docker-compose"
 # artifact_type: "docker_compose"
-# version: "2.0.0"
+# version: "2.0.1"
 # canonical_path: "goals/mcp-deploy/docker-compose.yml"
 # tier: 2
 # immutable: false
 # language: "yaml"
-# prompt_hash: "sha256:docker-compose-v2.0.0"
-# generated_at: "2026-05-22T15:30:00Z"
+# prompt_hash: "sha256:docker-compose-v2.0.1"
+# generated_at: "2026-05-23T14:05:00Z"
 # domain: "goals"
 # subdomain: "mcp-deploy"
 # status: "✅ Estável"
@@ -32,7 +32,7 @@ services:
       - MANTIS_AGENT_DB_DIR=/app/data/agent-db
       - MANTIS_LOG_DIR=/app/data/logs
       - MANTIS_BACKUP_DIR=/app/data/backups
-      - MANTIS_API_KEY=change-me-in-production
+      - MANTIS_API_KEY=${MANTIS_API_KEY:?Error: Debes definir MANTIS_API_KEY en .env}
       - MANTIS_PORT=8080
     restart: unless-stopped
     healthcheck:
@@ -53,6 +53,5 @@ services:
       - MANTIS_BACKUP_DIR=/app/data/backups
       - MANTIS_LOG_DIR=/app/data/logs
     restart: unless-stopped
-    # Ejecuta backup cada hora usando sleep (alternativa simple a cron dentro del contenedor)
     command: >
       sh -c "while true; do python3 /app/goals/mcp-deploy/backup.py --keep-days 30; sleep 3600; done"

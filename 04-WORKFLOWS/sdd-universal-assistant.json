@@ -10,14 +10,18 @@
     "canonical_path": "/04-WORKFLOWS/sdd-universal-assistant.json",
     "artifact_id": "sdd-universal-assistant-canonical",
     "artifact_type": "workflow_orchestration",
-    "version": "3.0.0-SELECTIVE",
+    "version": "4.0.0-WORKFLOWS",
     "constraints_mapped": ["C5", "C6"],
     "validation_command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file 04-WORKFLOWS/sdd-universal-assistant.json --mode headless --json",
     "tier": 1,
     "immutable": true,
     "requires_human_approval_for_changes": true,
     "related_files": [
-      "[[00-STACK-SELECTOR.md]]",
+      "[[04-WORKFLOWS/00-STACK-SELECTOR.md]]",
+      "[[04-WORKFLOWS/workflows-ceo.md]]",
+      "[[04-WORKFLOWS/n8n/n8n-master-agent.md]]",
+      "[[04-WORKFLOWS/langchain-langraph/langchain-langraph-master-agent.md]]",
+      "[[04-WORKFLOWS/lgpd-guard/lgpd-guard.md]]",
       "[[IA-QUICKSTART.md]]",
       "[[GOVERNANCE-ORCHESTRATOR.md]]",
       "[[SDD-COLLABORATIVE-GENERATION.md]]",
@@ -25,13 +29,39 @@
       "[[TOOLCHAIN-REFERENCE.md]]"
     ],
     "checksum_sha256": "PENDING_GENERATION",
-    "generated_at": "2026-04-19T12:00:00Z",
+    "generated_at": "2026-05-28T04:00:00Z",
     "prompt_hash": "sha256:PENDING"
   },
 
   "orchestration_core": {
-    "description": "Mapeo canónico de modos de interacción a niveles de entrega y perfiles de validación",
-    
+    "description": "Mapeo canónico de modos de interacción a niveles de entrega y perfiles de validación. Actualizado para el ecosistema 04-WORKFLOWS/ con motores duales (n8n + LangChain/LangGraph) y Stack Selector.",
+
+    "workflow_ecosystem_overview": {
+      "description": "El dominio 04-WORKFLOWS/ ahora contiene dos motores de ejecución principales y un guardián de privacidad, orquestados por el workflows-ceo.",
+      "engines": {
+        "n8n": {
+          "master_agent": "04-WORKFLOWS/n8n/n8n-master-agent.md",
+          "skills_path": "04-WORKFLOWS/n8n/libs/",
+          "skill_count": 39,
+          "paradigm": "visual_automation_api_orchestration",
+          "best_for": ["api_orchestration", "scheduled_automation", "form_processing", "simple_conditional_logic", "multi_step_integration", "webhook_driven_flows", "data_etl_pipelines"]
+        },
+        "langchain-langraph": {
+          "master_agent": "04-WORKFLOWS/langchain-langraph/langchain-langraph-master-agent.md",
+          "skills_path": "04-WORKFLOWS/langchain-langraph/libs/",
+          "skill_count": 156,
+          "skill_domains": 12,
+          "paradigm": "state_graph_functional",
+          "best_for": ["complex_llm_chains", "multi_agent_swarms", "rag_pipelines", "vector_search", "deep_agent_customization", "stateful_graph_execution"]
+        }
+      },
+      "governance": {
+        "ceo": "04-WORKFLOWS/workflows-ceo.md",
+        "stack_selector": "04-WORKFLOWS/00-STACK-SELECTOR.md",
+        "lgpd_guard": "04-WORKFLOWS/lgpd-guard/lgpd-guard.md"
+      }
+    },
+
     "mode_to_tier_mapping": {
       "description": "Determina el Tier de entrega según el modo confirmado en [[IA-QUICKSTART.md]]",
       "mapping": {
@@ -50,10 +80,19 @@
     },
 
     "validation_profiles": {
-      "description": "Perfiles de validación aplicables según carpeta destino (de [[norms-matrix.json]])",
+      "description": "Perfiles de validación aplicables según carpeta destino (de [[norms-matrix.json]]). Actualizado con los nuevos dominios de 04-WORKFLOWS/.",
       "profiles": {
         "tier1-doc": {
-          "applicable_to": ["00-CONTEXT/", "01-RULES/", "02-SKILLS/*/prompts/", "04-WORKFLOWS/"],
+          "applicable_to": [
+            "00-CONTEXT/",
+            "01-RULES/",
+            "02-SKILLS/*/prompts/",
+            "04-WORKFLOWS/",
+            "04-WORKFLOWS/n8n/",
+            "04-WORKFLOWS/langchain-langraph/",
+            "04-WORKFLOWS/lgpd-guard/",
+            "04-WORKFLOWS/diagrams/"
+          ],
           "constraints_required": ["C5"],
           "validators": ["validate-frontmatter.sh", "check-wikilinks.sh"],
           "min_score": 15,
@@ -66,7 +105,14 @@
           }
         },
         "tier2-code": {
-          "applicable_to": ["06-PROGRAMMING/go/", "06-PROGRAMMING/python/", "06-PROGRAMMING/bash/", "06-PROGRAMMING/javascript/", "06-PROGRAMMING/sql/", "06-PROGRAMMING/yaml-json-schema/"],
+          "applicable_to": [
+            "06-PROGRAMMING/go/",
+            "06-PROGRAMMING/python/",
+            "06-PROGRAMMING/bash/",
+            "06-PROGRAMMING/javascript/",
+            "06-PROGRAMMING/sql/",
+            "06-PROGRAMMING/yaml-json-schema/"
+          ],
           "constraints_required": ["C3", "C4", "C5", "C8"],
           "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "check-rls.sh", "verify-constraints.sh", "orchestrator-engine.sh"],
           "min_score": 30,
@@ -81,8 +127,47 @@
             "checksum_required": true
           }
         },
+        "tier2-workflow-skill": {
+          "applicable_to": [
+            "04-WORKFLOWS/n8n/libs/",
+            "04-WORKFLOWS/langchain-langraph/libs/00-fundacional/",
+            "04-WORKFLOWS/langchain-langraph/libs/01-langchain-tradicional/",
+            "04-WORKFLOWS/langchain-langraph/libs/02-rag/",
+            "04-WORKFLOWS/langchain-langraph/libs/03-mcp/",
+            "04-WORKFLOWS/langchain-langraph/libs/04-modelos/",
+            "04-WORKFLOWS/langchain-langraph/libs/05-bases-datos/",
+            "04-WORKFLOWS/langchain-langraph/libs/06-deep-agents/",
+            "04-WORKFLOWS/langchain-langraph/libs/07-a2a/",
+            "04-WORKFLOWS/langchain-langraph/libs/08-operaciones-langsmith/",
+            "04-WORKFLOWS/langchain-langraph/libs/09-seguridad/",
+            "04-WORKFLOWS/langchain-langraph/libs/10-observabilidad/",
+            "04-WORKFLOWS/langchain-langraph/libs/11-swarm-supervisor/",
+            "04-WORKFLOWS/langchain-langraph/libs/12-langgraph-api/",
+            "04-WORKFLOWS/lgpd-guard/skills/"
+          ],
+          "constraints_required": ["C1", "C3", "C4", "C5", "C7", "C8"],
+          "constraints_applicable": ["C2", "C6", "C9"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "orchestrator-engine.sh"],
+          "min_score": 30,
+          "blocking_issues_allowed": [],
+          "delivery_format": {
+            "type": "code_with_metadata",
+            "required_sections": ["Propósito", "Especificação (SDD)", "Bootstrap Resiliente + Lógica de Domínio", "Testes Unitários (TDD)", "Validação (VDD)", "Referências Cruzadas (Wikilinks)"],
+            "examples_required": true,
+            "min_examples_count": 3,
+            "examples_format": "AAA (Arrange-Act-Assert)",
+            "validation_command_required": true,
+            "checksum_required": true,
+            "min_code_lines": 500
+          }
+        },
         "tier3-deploy": {
-          "applicable_to": ["05-CONFIGURATIONS/docker-compose/", "05-CONFIGURATIONS/terraform/", "02-SKILLS/DEPLOYMENT/"],
+          "applicable_to": [
+            "05-CONFIGURATIONS/docker-compose/",
+            "05-CONFIGURATIONS/terraform/",
+            "02-SKILLS/DEPLOYMENT/",
+            "04-WORKFLOWS/langchain-langraph/libs/08-operaciones-langsmith/"
+          ],
           "constraints_required": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
           "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "check-rls.sh", "verify-constraints.sh", "orchestrator-engine.sh", "packager-assisted.sh"],
           "min_score": 45,
@@ -115,6 +200,24 @@
             "validation_command_required": true,
             "checksum_required": true
           }
+        },
+        "tier1-ceo-agent": {
+          "applicable_to": [
+            "04-WORKFLOWS/workflows-ceo.md",
+            "04-WORKFLOWS/n8n/n8n-master-agent.md",
+            "04-WORKFLOWS/langchain-langraph/langchain-langraph-master-agent.md"
+          ],
+          "constraints_required": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"],
+          "validators": ["validate-frontmatter.sh", "check-wikilinks.sh", "audit-secrets.sh", "orchestrator-engine.sh", "check-a2a-contract.sh"],
+          "min_score": 25,
+          "blocking_issues_allowed": [],
+          "delivery_format": {
+            "type": "agentic_skill_definition",
+            "required_sections": ["Missão do Agente", "Skills Disponíveis (Invocação Condicional)", "Hardening", "Observability Integration", "Testes Unitários (TDD)", "Validação (VDD)", "Grafo de Inter-relações", "Fluxo de Trabalho", "Protocolo de Handoff", "Checklist de Geração"],
+            "diagramas_mermaid_required": true,
+            "lista_completa_skills_required": true,
+            "a2a_contract_required": true
+          }
         }
       }
     },
@@ -145,6 +248,18 @@
           "description": "LANGUAGE LOCK: operadores prohibidos no pueden aparecer en contenido del artifact",
           "validation": "scan content for deny_operators from norms-matrix[carpeta]",
           "failure_action": "blocking_issue: LANGUAGE_LOCK_VIOLATION"
+        },
+        {
+          "rule_id": "CI-005",
+          "description": "STACK SELECTOR: el motor de workflow seleccionado debe estar registrado en 04-WORKFLOWS/00-STACK-SELECTOR.md",
+          "validation": "engine ∈ stack_selector.engine_registry.engines",
+          "failure_action": "blocking_issue: UNREGISTERED_WORKFLOW_ENGINE"
+        },
+        {
+          "rule_id": "CI-006",
+          "description": "CEO HANDOFF: todo artefacto generado por un master agent debe incluir status.json con trace_id y span_id (C9)",
+          "validation": "check-a2a-contract.sh passed",
+          "failure_action": "blocking_issue: A2A_CONTRACT_VIOLATION"
         }
       ]
     },
@@ -170,7 +285,7 @@
           "gate_id": "G-003",
           "name": "Constraint Applicability Gate",
           "description": "Validar constraints_mapped contra norms-matrix.json",
-          "check": "CI-001 AND CI-002 AND CI-003",
+          "check": "CI-001 AND CI-002 AND CI-003 AND CI-005",
           "on_failure": "blocking_issue: CONSTRAINT_MISMATCH"
         },
         {
@@ -200,12 +315,34 @@
           "description": "Validar score mínimo para Tier confirmado",
           "check": "score >= mode_to_tier_mapping[mode_selected].min_score",
           "on_failure": "blocking_issue: SCORE_BELOW_THRESHOLD"
+        },
+        {
+          "gate_id": "G-008",
+          "name": "Workflow Engine Selection Gate",
+          "description": "Si el artefacto está en 04-WORKFLOWS/, verificar que el motor de workflow está correctamente seleccionado vía Stack Selector",
+          "check": "if path starts with '04-WORKFLOWS/': execution_plan.selected_engine ∈ stack_selector.engine_registry.engines",
+          "on_failure": "blocking_issue: WORKFLOW_ENGINE_NOT_SELECTED"
+        },
+        {
+          "gate_id": "G-009",
+          "name": "LGPD Compliance Gate",
+          "description": "Si el artefacto procesa datos personales, verificar que lgpd-guard ha sido invocado",
+          "check": "if task.data_contains_pii: lgpd_guard_activated == true AND pre_validation_steps completed",
+          "on_failure": "blocking_issue: LGPD_GUARD_NOT_ACTIVATED"
+        },
+        {
+          "gate_id": "G-010",
+          "name": "A2A Contract Gate",
+          "description": "Verificar que el handoff entre agentes cumple C9",
+          "check": "check-a2a-contract.sh passed AND status.json contains trace_id, span_id",
+          "on_failure": "blocking_issue: A2A_CONTRACT_VIOLATION"
         }
       ],
       "fallback_chain": [
         {"condition": "any blocking_issue", "action": "reject_with_structured_error", "format": "❌ BLOCKING_ISSUE: {issue}\\n🔧 Sugerencia: {fix}\\n📖 Referencia: [[wikilink]]"},
         {"condition": "score < min_score but no blocking_issues", "action": "suggest_iteration", "format": "⚠️ Score {score} < {min_score}. Revisar warnings y corregir antes de entregar."},
-        {"condition": "mode_unclear", "action": "default_to_tier_1", "format": "Entregar como Tier 1 con nota de revisión humana requerida"}
+        {"condition": "mode_unclear", "action": "default_to_tier_1", "format": "Entregar como Tier 1 con nota de revisión humana requerida"},
+        {"condition": "workflow_engine_unclear", "action": "consult_stack_selector", "format": "⚠️ Motor de workflow no especificado. Consultar 04-WORKFLOWS/00-STACK-SELECTOR.md para selección determinista."}
       ]
     }
   },
@@ -248,6 +385,30 @@
         "additional_checks": ["audit-secrets.sh if C3", "check-rls.sh if C4+SQL", "verify-constraints.sh --check-language-lock"]
       }
     },
+    "tier_2_workflow_skill": {
+      "description": "Formato específico para skills de workflow en 04-WORKFLOWS/",
+      "structure": {
+        "frontmatter_required_fields": ["artifact_id", "artifact_type", "version", "constraints_mapped", "validation_command", "canonical_path", "tier", "mode_selected", "prompt_hash", "generated_at", "tenant_context", "language", "domain", "ai_navigation", "audience", "status", "next_review"],
+        "sections_required": [
+          "🎯 Propósito",
+          "📋 Especificação (SDD)",
+          "🛡️ Bootstrap Resiliente + Lógica de Domínio (C3+C8)",
+          "🧪 Testes Unitários (TDD)",
+          "🔍 Validação (VDD)",
+          "🔗 Referências Cruzadas (Wikilinks)"
+        ],
+        "min_code_lines": 500,
+        "bootstrap_required": true,
+        "mantis_log_fallback_required": true,
+        "wikilinks_format": "absolute_canonical_only"
+      },
+      "validation": {
+        "command": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file <ruta> --mode headless --json",
+        "expected_exit_code": 0,
+        "min_score": 30,
+        "blocking_issues_allowed": []
+      }
+    },
     "tier_3_zip_with_manifest": {
       "description": "Formato para paquete desplegable con manifest, deploy.sh, rollback.sh",
       "structure": {
@@ -284,9 +445,9 @@
         "error_type": "blocking_issue|warning|fallback_triggered",
         "artifact": {"canonical_path": "string", "tier": "number"},
         "violation": {
-          "type": "CONSTRAINT_NOT_ALLOWED|MANDATORY_CONSTRAINT_MISSING|VECTOR_CONSTRAINT_OUTSIDE_DOMAIN|LANGUAGE_LOCK_VIOLATION|STRUCTURAL_CONTRACT_VIOLATION|SECURITY_VIOLATION|SCORE_BELOW_THRESHOLD",
+          "type": "CONSTRAINT_NOT_ALLOWED|MANDATORY_CONSTRAINT_MISSING|VECTOR_CONSTRAINT_OUTSIDE_DOMAIN|LANGUAGE_LOCK_VIOLATION|STRUCTURAL_CONTRACT_VIOLATION|SECURITY_VIOLATION|SCORE_BELOW_THRESHOLD|UNREGISTERED_WORKFLOW_ENGINE|A2A_CONTRACT_VIOLATION|LGPD_GUARD_NOT_ACTIVATED",
           "details": "string",
-          "rule_violated": "string (ej: CI-001, G-004)",
+          "rule_violated": "string (ej: CI-001, G-004, G-008)",
           "suggested_fix": "string"
         },
         "validation": {
@@ -295,7 +456,7 @@
           "output_snippet": "string"
         },
         "remediation": {
-          "action_taken": "rejected|suggested_iteration|defaulted_to_tier_1",
+          "action_taken": "rejected|suggested_iteration|defaulted_to_tier_1|consult_stack_selector",
           "exception_requested": "boolean",
           "trace_id": "string (for distributed tracing)"
         },
@@ -304,7 +465,7 @@
     },
     "audit_log_requirements": {
       "description": "Campos obligatorios para logs de auditoría de orquestación",
-      "required_fields": ["timestamp", "level", "event", "tenant_id", "trace_id", "artifact_path", "mode_selected", "tier_validated", "score", "blocking_issues", "validation_command_executed"],
+      "required_fields": ["timestamp", "level", "event", "tenant_id", "trace_id", "artifact_path", "mode_selected", "tier_validated", "score", "blocking_issues", "validation_command_executed", "workflow_engine", "stack_selector_hash"],
       "pii_scrubbing": ["password", "secret", "token", "api_key", "credential", "user_email", "user_phone"],
       "scrub_method": "replace_with_***REDACTED***",
       "retention_policy": {"debug_logs": "90_days", "audit_logs": "7_years", "compliance_logs": "permanent_if_tier3"}
@@ -318,7 +479,7 @@
         "1. Extract mode_selected from artifact frontmatter or IA-QUICKSTART context",
         "2. Determine tier via mode_to_tier_mapping",
         "3. Load validation_profile from validation_profiles based on artifact folder",
-        "4. Execute gates G-001 to G-007 in order",
+        "4. Execute gates G-001 to G-010 in order",
         "5. If all gates pass: run orchestrator-engine.sh with profile-specific flags",
         "6. Parse JSON output: check score >= min_score, blocking_issues == []",
         "7. Format delivery per delivery_formats[tier_N]",
@@ -326,6 +487,19 @@
       ],
       "command_template": "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --file {canonical_path} --mode headless --json {profile_specific_flags}",
       "expected_output_fields": ["score", "passed", "tier_validated", "constraints_applied", "blocking_issues", "warnings", "language_lock_violations", "validation_timestamp", "artifact_checksum"]
+    },
+    "stack_selector_integration": {
+      "description": "Cómo este SDD se integra con el 04-WORKFLOWS/00-STACK-SELECTOR.md",
+      "flow": [
+        "1. workflows-ceo recibe task.json",
+        "2. CEO carga 00-STACK-SELECTOR.md y aplica task_classification_matrix",
+        "3. CEO selecciona motor (n8n o langchain-langraph) y skills requeridas",
+        "4. CEO genera execution_plan.json con el plan de ejecución",
+        "5. CEO invoca al master agent correspondiente con el plan",
+        "6. El master agent genera el artefacto según el perfil de validación de su carpeta",
+        "7. El artefacto se valida con el validation_profile correspondiente",
+        "8. CEO recibe el artefacto y ejecuta handoff si es necesario (C9)"
+      ]
     },
     "ci_cd_integration": {
       "description": "Cómo usar este workflow en pipelines de CI/CD",
@@ -352,7 +526,7 @@
     "for_developers": [
       "Siempre confirmar mode_selected en [[IA-QUICKSTART.md]] antes de generar",
       "Consultar [[PROJECT_TREE.md]] para canonical_path válido",
-      "Usar [[00-STACK-SELECTOR.md]] para determinar lenguaje permitido por ruta",
+      "Usar [[04-WORKFLOWS/00-STACK-SELECTOR.md]] para determinar el motor de workflow correcto (n8n vs LangChain/LangGraph)",
       "Validar con orchestrator-engine.sh antes de entregar",
       "Nunca omitir validation_command en frontmatter"
     ],
@@ -360,14 +534,16 @@
       "Verificar que constraints_mapped ⊆ norms-matrix[carpeta].allowed",
       "Confirmar que wikilinks son canónicos (absolutos desde raíz)",
       "Ejecutar validation_command para reproducir validación",
-      "Revisar structured error format si hay blocking_issues"
+      "Revisar structured error format si hay blocking_issues",
+      "Verificar que el motor de workflow seleccionado es el correcto según la tarea"
     ],
     "for_agents_remotes": [
-      "Cargar primero: IA-QUICKSTART.md, 00-STACK-SELECTOR.md, norms-matrix.json",
+      "Cargar primero: IA-QUICKSTART.md, 00-STACK-SELECTOR.md, sdd-universal-assistant.json, norms-matrix.json",
       "Determinar mode_selected → tier → validation_profile antes de generar",
-      "Ejecutar gates G-001 a G-007 en orden estricto",
+      "Ejecutar gates G-001 a G-010 en orden estricto",
       "Fallback a Tier 1 si hay ambigüedad, nunca asumir",
-      "Loguear cada paso con tenant_id y trace_id para auditoría"
+      "Loguear cada paso con tenant_id y trace_id para auditoría",
+      "Para artefactos en 04-WORKFLOWS/, usar el Stack Selector para decidir el motor"
     ]
   },
 
@@ -389,16 +565,35 @@
         "Human approval required: true"
       ],
       "backward_compatibility": "new profiles must not invalidate existing artifacts; must be opt-in via folder mapping"
+    },
+    "new_workflow_engine": {
+      "requires_files_update": [
+        "04-WORKFLOWS/00-STACK-SELECTOR.md: add engine to engine_registry with skills, best_for, not_suitable_for",
+        "04-WORKFLOWS/sdd-universal-assistant.json: add engine to workflow_ecosystem_overview and validation_profiles",
+        "04-WORKFLOWS/workflows-ceo.md: update skill_selection_rules",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new engines must not break existing n8n/LangChain mappings"
+    },
+    "new_gate_addition": {
+      "requires_files_update": [
+        "04-WORKFLOWS/sdd-universal-assistant.json: add gate to gates array with unique gate_id, check, on_failure",
+        "orchestrator-engine.sh: add support for new gate check",
+        "Human approval required: true"
+      ],
+      "backward_compatibility": "new gates must be additive and not break existing G-001 to G-010"
     }
   },
 
   "validation_metadata": {
     "orchestrator_compatibility": ">=3.0.0-SELECTIVE",
-    "schema_version": "sdd-universal-assistant.v3.json",
+    "schema_version": "sdd-universal-assistant.v4.json",
     "checksum_algorithm": "SHA256",
     "audit_log_format": "JSON Lines with RFC3339 timestamps",
     "pii_scrubbing": "enabled for all logs (C3 + C8 compliance)",
-    "reproducibility_guarantee": "Any orchestration decision can be reproduced identically using this workflow + mode_selected + canonical_path"
+    "reproducibility_guarantee": "Any orchestration decision can be reproduced identically using this workflow + mode_selected + canonical_path + stack_selector",
+    "workflow_engines_supported": ["n8n (39 skills)", "langchain-langraph (156 skills in 12 domains)"],
+    "total_governed_artifacts": 195
   }
 }
 

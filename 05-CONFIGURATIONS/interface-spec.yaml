@@ -1,77 +1,75 @@
 ---
-# FRONTMATTER CANÓNICO OBLIGATORIO
-artifact_id: "interface-spec-v2.0.0"
+# FRONTMATTER CANÔNICO OBRIGATÓRIO
+artifact_id: "interface-spec-v2.3.0"
 artifact_type: "contract"
-version: "2.0.0-COMPREHENSIVE"
+version: "2.3.0"
 constraints_mapped: ["C2","C4","C5","V1"]
 canonical_path: "05-CONFIGURATIONS/interface-spec.yaml"
 domain: "05-CONFIGURATIONS"
 subdomain: "coordination"
 agent_role: "interface-contract"
 language_lock: "yaml-json-schema"
-validation_command: "orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/interface-spec.yaml --strict"
+validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/interface-spec.yaml --strict"
 tier: 3
 immutable: true
 requires_human_approval_for_changes: true
 audience: ["agentic_assistants"]
 human_readable: false
-checksum_sha256: "c844f472fba9220a88930d8b8511eff6749831bbe3f9f3ca9d4d8370eb56d937"
-# FIN FRONTMATTER
+language: pt-BR
+checksum_sha256: "PENDING_GENERATION"
 ---
 
 # =============================================================================
-# INTERFACE SPECIFICATION — MANTIS AGENTIC ECOSYSTEM v2.0.0
-# Contrato explícito: Terraform ↔ Docker Compose ↔ Agents
+# ESPECIFICAÇÃO DE INTERFACE — ECOSSISTEMA MANTIS AGENTIC v2.3.0
+# Contrato explícito: Terraform ↔ Docker Compose ↔ Pipelines ↔ CEO
 # =============================================================================
-# Propósito: Fuente única de verdad para nombres de variables, outputs, 
-#            tipos de datos y validación cruzada entre dominios.
-# Versión: 2.0.0-COMPREHENSIVE | Estado: READY_FOR_DEPLOY
-# Constraints aplicables: C2 (IaC), C4 (Trazabilidad), C5 (Integridad), V1 (Tenant Isolation)
+# Propósito: Fonte única de verdade para nomes de variáveis, outputs, 
+#            tipos de dados e validação cruzada entre domínios.
+# Versão: 2.3.0 | Estado: READY_FOR_DEPLOY
+# Constraints aplicáveis: C2 (IaC), C4 (Rastreabilidade), C5 (Integridade), V1 (Isolamento de Tenant)
 # =============================================================================
 
-spec_version: "2.0.0"
-last_updated: "2026-05-01T00:00:00Z"
-owner: "configurations-master-agent"
+spec_version: "2.3.0"
+last_updated: "2026-05-24T10:00:00Z"
+owner: "configurations-ceo"
 language_lock: ["yaml", "json-schema", "hcl-reference"]
 
 # =============================================================================
-# SECCIÓN 1: VARIABLES GLOBALES (Cross-Domain)
+# SEÇÃO 1: VARIÁVEIS GLOBAIS (Cross-Domain)
 # =============================================================================
-# Estas variables deben estar definidas en mapping.yaml y disponibles en:
-# - Terraform: como variables de entrada (variables.tf)
-# - Docker Compose: como environment o secrets
-# - Agents: como contexto de ejecución resuelto por 00-STACK-SELECTOR.md
+# Estas variáveis devem estar definidas em mapping.yaml e disponíveis em:
+# - Terraform: como variáveis de entrada (variables.tf)
+# - Docker Compose: como environment ou secrets
+# - Agents: como contexto de execução resolvido por 00-STACK-SELECTOR.md
 # =============================================================================
 
 global_variables:
-  # Identificación de entorno y tenant
   environment:
     type: string
     enum: ["dev", "staging", "prod"]
     required: true
-    description: "Entorno de despliegue. Define comportamiento de secrets, métricas y gates de aprobación."
+    description: "Ambiente de despliegue. Define comportamento de secrets, métricas e gates de aprovação."
     constraints: ["C4"]
     terraform_var: "var.environment"
     docker_env: "ENVIRONMENT"
     agent_context: "{environment}"
-  
+
   tenant_id:
     type: string
     pattern: "^[a-z0-9-]{3,32}$"
     required: true
-    description: "Identificador único de tenant para aislamiento RLS y routing de agentes."
+    description: "Identificador único de tenant para isolamento RLS e roteamento de agentes."
     constraints: ["V1", "C4"]
     terraform_var: "var.tenant_id"
     docker_env: "TENANT_ID"
     agent_context: "{tenant_id}"
     validation_sql: "SELECT current_setting('app.tenant_id', true) = '{{tenant_id}}'"
-  
-  # Configuración de infraestructura base
+
   infra_profile:
     type: string
     enum: ["nano", "micro", "standard", "large"]
     default: "nano"
-    description: "Perfil de recursos para VPS. Afecta CPU/RAM/Storage en Terraform y limits en Docker."
+    description: "Perfil de recursos para VPS. Afeta CPU/RAM/Storage no Terraform e limits no Docker."
     constraints: ["C2", "C5"]
     terraform_var: "var.infra_profile"
     docker_env: "INFRA_PROFILE"
@@ -81,44 +79,41 @@ global_variables:
       micro: { cpus: "1.0", memory: "8G", storage: "100G" }
       standard: { cpus: "2.0", memory: "16G", storage: "200G" }
       large: { cpus: "4.0", memory: "32G", storage: "400G" }
-  
-  # Secrets management
+
   secrets_backend:
     type: string
     enum: ["vault", "aws-ssm", "dotenv-placeholder"]
     default: "dotenv-placeholder"
-    description: "Backend para gestión de secrets. En dev: placeholders; en prod: Vault/SSM."
+    description: "Backend para gestão de secrets. Em dev: placeholders; em prod: Vault/SSM."
     constraints: ["C3", "C6"]
     terraform_var: "var.secrets_backend"
     docker_env: "SECRETS_BACKEND"
     agent_context: "{secrets_backend}"
-  
-  # Observabilidad
+
   observability_enabled:
     type: boolean
     default: true
-    description: "Habilita scraping Prometheus, tracing OTel y dashboards Grafana."
+    description: "Habilita scraping Prometheus, tracing OTel e dashboards Grafana."
     constraints: ["C4", "C8"]
     terraform_var: "var.observability_enabled"
     docker_env: "OBSERVABILITY_ENABLED"
     agent_context: "{observability_enabled}"
 
 # =============================================================================
-# SECCIÓN 2: OUTPUTS DE TERRAFORM → INPUTS DE DOCKER COMPOSE
+# SEÇÃO 2: OUTPUTS DE TERRAFORM → INPUTS DE DOCKER COMPOSE
 # =============================================================================
-# Mapeo explícito: cada output de Terraform debe tener un consumidor definido
-# en Docker Compose. Validación cruzada con orchestrator-engine.sh.
+# Mapeamento explícito: cada output de Terraform deve ter um consumidor definido
+# em Docker Compose. Validação cruzada com orchestrator-engine.sh.
 # =============================================================================
 
 terraform_to_docker:
-  # Base de datos PostgreSQL con RLS (V1: Tenant Isolation)
   postgres:
     terraform_module: "modules/postgres-rls"
     outputs:
       db_host:
         type: string
         format: hostname
-        description: "Endpoint de conexión a PostgreSQL"
+        description: "Endpoint de conexão ao PostgreSQL"
         docker_inject_as: "POSTGRES_HOST"
         validation_regex: "^[a-z0-9.-]+\\.amazonaws\\.com$|^[0-9.]+$"
       
@@ -136,14 +131,14 @@ terraform_to_docker:
       db_user:
         type: string
         docker_inject_as: "POSTGRES_USER"
-        constraints: ["C3"]  # No hardcodear; inyectar via CI/CD
+        constraints: ["C3"]
       
       db_password:
         type: secret
         docker_inject_as: "POSTGRES_PASSWORD"
         source: "${secrets_backend}"
         constraints: ["C3", "C6"]
-        mount_as_file: true  # Montar como /run/secrets/db_password, no env var
+        mount_as_file: true
       
       rls_enabled:
         type: boolean
@@ -153,7 +148,7 @@ terraform_to_docker:
       
       tenant_schema:
         type: string
-        description: "Nombre del esquema RLS por tenant"
+        description: "Nome do esquema RLS por tenant"
         docker_inject_as: "TENANT_SCHEMA"
         constraints: ["V1"]
         validation_sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'tenant_{{tenant_id}}'"
@@ -164,8 +159,7 @@ terraform_to_docker:
       secrets_block: true
       healthcheck_dependency: true
       network: "backend"
-  
-  # Clúster vectorial Qdrant (V3: Performance de búsqueda)
+
   qdrant:
     terraform_module: "modules/qdrant-cluster"
     outputs:
@@ -188,7 +182,7 @@ terraform_to_docker:
       
       vector_dimension:
         type: integer
-        description: "Dimensión de embeddings (V1: debe declararse explícitamente)"
+        description: "Dimensão de embeddings (V1: deve ser declarada explicitamente)"
         default: 1536
         docker_inject_as: "VECTOR_DIMENSION"
         constraints: ["V1"]
@@ -200,7 +194,7 @@ terraform_to_docker:
         default: "hnsw"
         docker_inject_as: "VECTOR_INDEX_TYPE"
         constraints: ["V3"]
-        comment_required: "Justificar parámetros m, ef_construction en HCL"
+        comment_required: "Justificar parâmetros m, ef_construction no HCL"
       
       vector_distance_metric:
         type: string
@@ -224,8 +218,7 @@ terraform_to_docker:
         micro: { memory: "2G", cpus: "1.0" }
         standard: { memory: "4G", cpus: "2.0" }
         large: { memory: "8G", cpus: "4.0" }
-  
-  # Red y seguridad
+
   networking:
     terraform_module: "modules/vpc-base"
     outputs:
@@ -250,37 +243,35 @@ terraform_to_docker:
     
     docker_compose_mapping:
       network_driver: "bridge"
-      internal_network: true  # backend network sin acceso a Internet
-      external_network_ref: "${vpc_id}"  # Para integración con AWS VPC
+      internal_network: true
+      external_network_ref: "${vpc_id}"
 
 # =============================================================================
-# SECCIÓN 3: PROTOCOLO DE COMUNICACIÓN AGENT ↔ AGENT
+# SEÇÃO 3: PROTOCOLO DE COMUNICAÇÃO AGENT ↔ AGENT
 # =============================================================================
-# Definición de cómo los agentes maestros se comunican entre sí mediante
-# Task() con rutas canónicas, sin pasar contenidos de archivos.
+# Definição de como os agentes mestres se comunicam entre si mediante
+# Task() com rotas canônicas, sem passar conteúdos de arquivos.
 # =============================================================================
 
 agent_communication_protocol:
-  # Estructura estándar de delegación de tarea
   task_format:
     required_fields:
-      - subagent_type: "ID del agente maestro destino (ej: terraform-master-agent)"
-      - prompt: "Instrucción específica con referencias a archivos canónicos"
-      - context: "Array de rutas canónicas a insumos (nunca contenidos)"
-      - expected_output: "Array de rutas canónicas a outputs esperados"
-      - validation_command: "Comando de validación post-ejecución"
-      - timeout_minutes: "Timeout para evitar jobs colgados"
+      - subagent_type: "ID do agente mestre destino (ex: terraform-master-agent)"
+      - prompt: "Instrução específica com referências a arquivos canônicos"
+      - context: "Array de rotas canônicas a insumos (nunca conteúdos)"
+      - expected_output: "Array de rotas canônicas a outputs esperados"
+      - validation_command: "Comando de validação pós-execução"
+      - timeout_minutes: "Timeout para evitar jobs travados"
     
     optional_fields:
-      - depends_on: "Array de tareas previas que deben completarse"
-      - retry_policy: "Configuración de reintentos con backoff"
-      - audit_flags: "Flags de auditoría a registrar en chronique"
-  
-  # Ejemplo de delegación: Terraform → Docker Compose
-  example_terraform_to_compose:
+      - depends_on: "Array de tarefas prévias que devem ser concluídas"
+      - retry_policy: "Configuração de re-tentativas com backoff"
+      - audit_flags: "Flags de auditoria a registrar na chronique"
+
+  example_delegation_terraform_to_compose:
     task:
       subagent_type: "docker-compose-master-agent"
-      prompt: "Generar compose.yaml para entorno ${environment} usando outputs de Terraform"
+      prompt: "Gerar compose.yaml para ambiente ${environment} usando outputs de Terraform"
       context:
         - "05-CONFIGURATIONS/terraform/envs/${environment}/outputs.json"
         - "05-CONFIGURATIONS/interface-spec.yaml"
@@ -290,18 +281,16 @@ agent_communication_protocol:
         - "05-CONFIGURATIONS/docker-compose/.env.${environment}"
       validation_command: "docker compose -f compose.yaml -f compose.${environment}.yaml config --quiet"
       timeout_minutes: 15
-    
     constraints_enforced:
-      - "C2: Outputs de Terraform deben coincidir con inputs de Compose"
-      - "C4: Rutas canónicas, no contenidos, en contexto"
-      - "C5: validation_command obligatorio en frontmatter del output"
-      - "V1: tenant_id debe propagarse a través de toda la cadena"
-  
-  # Ejemplo de delegación: Agent → PostgreSQL/pgvector con LANGUAGE_LOCK
-  example_pgvector_query:
+      - "C2: Outputs do Terraform devem coincidir com inputs do Compose"
+      - "C4: Rotas canônicas, não conteúdos, no contexto"
+      - "C5: validation_command obrigatório no frontmatter do output"
+      - "V1: tenant_id deve ser propagado através de toda a cadeia"
+
+  example_delegation_pgvector_query:
     task:
       subagent_type: "postgresql-pgvector-rag-master-agent"
-      prompt: "Generar query de búsqueda vectorial para tenant ${tenant_id} con dimensión ${vector_dimension}"
+      prompt: "Gerar consulta de busca vetorial para tenant ${tenant_id} com dimensão ${vector_dimension}"
       context:
         - "05-CONFIGURATIONS/interface-spec.yaml"
         - "02-SKILLS/BASE DE DATOS-RAG/rag-master-agent.md"
@@ -310,87 +299,68 @@ agent_communication_protocol:
         - "02-SKILLS/BASE DE DATOS-RAG/queries/tenant_${tenant_id}_search.sql"
       validation_command: "bash 05-CONFIGURATIONS/validation/verify-constraints.sh --check-vector-dims --file {output}"
       timeout_minutes: 5
-    
     language_lock_enforcement:
       allowed_operators: ["<->", "<=>", "<#>", "vector(n)", "USING hnsw", "USING ivfflat"]
       denied_in_other_agents: true
       violation_action: "BLOCKING: LANGUAGE_LOCK_VIOLATION + suggest_pgvector_domain"
-    
     tenant_isolation_v1:
       required_clause: "WHERE tenant_id = current_setting('app.tenant_id')"
-      rls_policy_check: "EXPLAIN ANALYZE debe mostrar Filter: (tenant_id = ...)"
-      forbidden_cross_tenant: "Ninguna query puede acceder a datos de otro tenant_id"
+      rls_policy_check: "EXPLAIN ANALYZE deve mostrar Filter: (tenant_id = ...)"
+      forbidden_cross_tenant: "Nenhuma consulta pode acessar dados de outro tenant_id"
 
 # =============================================================================
-# SECCIÓN 4: VALIDACIÓN CRUZADA AUTOMATIZADA
+# SEÇÃO 4: VALIDAÇÃO CRUZADA AUTOMATIZADA
 # =============================================================================
-# Comandos y scripts para validar que las interfaces se cumplen en runtime.
-# Ejecutar como parte de integrity-check.yml en CI/CD.
+# Comandos e scripts para validar que as interfaces são cumpridas em runtime.
+# Executar como parte de integrity-check.yml no CI/CD.
 # =============================================================================
 
 cross_validation_commands:
-  # Validar que outputs de Terraform coinciden con inputs de Docker
   terraform_docker_consistency:
     command: |
-      # Extraer outputs de Terraform
       terraform output -json > /tmp/tf-outputs.json
-      
-      # Extraer variables esperadas de interface-spec.yaml
       yq '.terraform_to_docker | .. | select(has("docker_inject_as")) | .docker_inject_as' interface-spec.yaml | sort > /tmp/expected-vars.txt
-      
-      # Validar que todas las variables esperadas están en outputs o secrets
       for var in $(cat /tmp/expected-vars.txt); do
         if ! jq -e --arg v "$var" '.. | select(. == $v)' /tmp/tf-outputs.json >/dev/null 2>&1; then
-          echo "❌ Variable $var no encontrada en outputs de Terraform"
+          echo "❌ Variável $var não encontrada nos outputs de Terraform"
           exit 1
         fi
       done
-      echo "✅ Consistencia Terraform→Docker verificada"
-    
+      echo "✅ Consistência Terraform→Docker verificada"
     constraints: ["C2", "C5"]
-  
-  # Validar LANGUAGE_LOCK para operadores pgvector
+
   language_lock_validation:
     command: |
-      # Buscar operadores pgvector en archivos no-pgvector
       for file in $(find 02-SKILLS -name '*.md' ! -path '*/BASE DE DATOS-RAG/*'); do
         if grep -qE '<->|<=>|<#>|vector\(|USING (hnsw|ivfflat)' "$file"; then
-          echo "❌ LANGUAGE_LOCK VIOLATION: Operador pgvector en $file"
-          echo "   Los operadores vectoriales solo están permitidos en: 02-SKILLS/BASE DE DATOS-RAG/"
+          echo "❌ LANGUAGE_LOCK VIOLATION: Operador pgvector em $file"
+          echo "   Operadores vetoriais só são permitidos em: 02-SKILLS/BASE DE DATOS-RAG/"
           exit 1
         fi
       done
       echo "✅ LANGUAGE_LOCK para pgvector verificado"
-    
     constraints: ["V1", "V2", "V3"]
-  
-  # Validar aislamiento de tenant en queries generadas
+
   tenant_isolation_validation:
     command: |
-      # Verificar que todas las queries incluyen cláusula WHERE con tenant_id
       for query in $(find 02-SKILLS -name '*.sql'); do
         if ! grep -q "WHERE.*tenant_id" "$query" && ! grep -q "RLS policy" "$query"; then
-          echo "⚠️  Query $query no incluye aislamiento de tenant (V1)"
-          echo "   Agregar: WHERE tenant_id = current_setting('app.tenant_id')"
-          # No fallar, pero registrar para revisión humana
+          echo "⚠️  Consulta $query não inclui isolamento de tenant (V1)"
+          echo "   Adicionar: WHERE tenant_id = current_setting('app.tenant_id')"
         fi
       done
-      echo "✅ Revisión de aislamiento de tenant completada"
-    
+      echo "✅ Revisão de isolamento de tenant concluída"
     constraints: ["V1"]
 
 # =============================================================================
-# SECCIÓN 5: SCHEMA JSON PARA VALIDACIÓN AUTOMÁTICA
-# =============================================================================
-# Este schema puede usarse con jsonschema o yq para validar que los artefactos
-# generados cumplen con la especificación de interfaz.
+# SEÇÃO 5: SCHEMA JSON PARA VALIDAÇÃO AUTOMÁTICA
 # =============================================================================
 
 interface_schema:
   $schema: "https://json-schema.org/draft/2020-12/schema"
-  $id: "https://mantis-agentic.dev/schemas/interface-spec-v2.0.0.json"
+  $id: "https://mantis-agentic.dev/schemas/interface-spec-v2.3.0.json"
   title: "MANTIS Interface Specification"
-  description: "Contrato explícito entre Terraform, Docker Compose y Agents"
+  description: "Contrato explícito entre Terraform, Docker Compose e Agents"
   type: object
   required: ["spec_version", "global_variables", "terraform_to_docker", "agent_communication_protocol"]
   properties:
@@ -430,91 +400,81 @@ interface_schema:
                 validation_range: { type: object, properties: { min: { type: number }, max: { type: number } } }
     agent_communication_protocol:
       type: object
-      required: ["task_format", "example_terraform_to_compose"]
+      required: ["task_format", "example_delegation_terraform_to_compose"]
   additionalProperties: false
 
 # =============================================================================
-# SECCIÓN 6: ANTI-PATRIONES EXPLÍCITOS (DO NOT)
-# =============================================================================
-# Lista de prácticas prohibidas para prevenir deriva silenciosa.
+# SEÇÃO 6: ANTI-PADRÕES EXPLÍCITOS (NÃO FAÇA)
 # =============================================================================
 
 anti_patterns:
-  - violation: "Hardcodear valores de infra en Docker Compose"
-    example: 'memory: "2G"  # ← Valor fijo'
-    correction: 'memory: "${INFRA_PROFILE_MEMORY}"  # ← Variable resuelta por mapping.yaml'
+  - violation: "Hardcodear valores de infra no Docker Compose"
+    example: 'memory: "2G"  # ← Valor fixo'
+    correction: 'memory: "${INFRA_PROFILE_MEMORY}"  # ← Variável resolvida pelo mapping.yaml'
     constraints: ["C2", "C5"]
   
-  - violation: "Pasar contenidos de archivos en Task() en lugar de rutas"
+  - violation: "Passar conteúdos de arquivos em Task() em vez de rotas"
     example: 'context: ["<file_content>...</file_content>"]'
     correction: 'context: ["05-CONFIGURATIONS/terraform/envs/prod/outputs.json"]'
     constraints: ["C4", "C8"]
   
-  - violation: "Usar operadores pgvector en agentes no-pgvector"
-    example: 'SELECT * FROM docs ORDER BY embedding <=> $1  # ← En agente bash'
-    correction: 'Delegar a postgresql-pgvector-rag-master-agent con Task()'
+  - violation: "Usar operadores pgvector em agentes não-pgvector"
+    example: 'SELECT * FROM docs ORDER BY embedding <=> $1  # ← Em agente bash'
+    correction: 'Delegar a postgresql-pgvector-rag-master-agent com Task()'
     constraints: ["V1", "LANGUAGE_LOCK"]
   
-  - violation: "Omitir validation_command en frontmatter de outputs"
-    example: '# Sin validation_command'
-    correction: 'validation_command: "orchestrator-engine.sh --strict"'
+  - violation: "Omitir validation_command no frontmatter de outputs"
+    example: '# Sem validation_command'
+    correction: 'validation_command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --strict"'
     constraints: ["C5"]
   
-  - violation: "Secrets en variables de entorno en lugar de archivos montados"
+  - violation: "Secrets em variáveis de ambiente em vez de arquivos montados"
     example: 'environment: ["DB_PASSWORD=secret123"]'
     correction: 'secrets: ["db_password"] + environment: ["DB_PASSWORD_FILE=/run/secrets/db_password"]'
     constraints: ["C3", "C6"]
 
 # =============================================================================
-# SECCIÓN 7: METADATOS DE TRAZABILIDAD (C4)
-# =============================================================================
-# Información para auditoría, versionado y recuperación ante incidentes.
+# SEÇÃO 7: METADADOS DE RASTREABILIDADE (C4)
 # =============================================================================
 
 traceability:
-  # Versionado semántico del contrato
   versioning:
-    major: "Cambios incompatibles en nombres/tipos de variables"
-    minor: "Nuevas variables o outputs añadidos (backward-compatible)"
-    patch: "Correcciones de documentación o ejemplos (sin cambios de interfaz)"
-  
-  # Registro de cambios (generado automáticamente por semantic-release)
+    major: "Mudanças incompatíveis em nomes/tipos de variáveis"
+    minor: "Novas variáveis ou outputs adicionados (backward-compatible)"
+    patch: "Correções de documentação ou exemplos (sem mudanças de interface)"
+
   changelog_integration:
     commit_convention: "Conventional Commits"
     release_trigger: "git tag interface-spec/v{version}"
     changelog_path: "05-CONFIGURATIONS/docs/CHANGELOG.md"
-  
-  # Auditoría de uso del contrato
+
   audit_logging:
-    log_when: "Cada vez que un agente consume esta especificación"
+    log_when: "Toda vez que um agente consome esta especificação"
     log_fields: ["agent_id", "timestamp", "resolved_variables", "validation_result"]
     storage: "08-LOGS/interface-audit/{date}.jsonl"
-  
-  # Recuperación ante corrupción del contrato
+
   recovery:
-    backup_frequency: "Cada commit a main"
+    backup_frequency: "A cada commit para main"
     backup_location: "05-CONFIGURATIONS/.backups/interface-spec/"
     restore_command: "git restore 05-CONFIGURATIONS/interface-spec.yaml --source={commit_sha}"
 
 # =============================================================================
-# SECCIÓN 8: COMANDOS DE VALIDACIÓN DEL ARTEFACTO
-# =============================================================================
-# Ejecutar estos comandos para verificar la integridad de este archivo.
+# SEÇÃO 8: COMANDOS DE VALIDAÇÃO DO ARTEFATO
 # =============================================================================
 
 self_validation:
   commands:
-    - name: "Validar sintaxis YAML"
+    - name: "Validar sintaxe YAML"
       command: "yq eval '.' 05-CONFIGURATIONS/interface-spec.yaml > /dev/null && echo '✅ YAML válido'"
     
     - name: "Validar schema JSON"
-      command: "python3 -c \"import jsonschema, yaml; jsonschema.validate(yaml.safe_load(open('05-CONFIGURATIONS/interface-spec.yaml')), yaml.safe_load(open('05-CONFIGURATIONS/interface-spec.yaml'))['interface_schema'])\""
+      command: "python3 -c \"import jsonschema, yaml; spec=yaml.safe_load(open('05-CONFIGURATIONS/interface-spec.yaml')); jsonschema.validate(spec, spec['interface_schema'])\""
     
-    - name: "Validar constraints con orchestrator-engine"
+    - name: "Validar constraints com orchestrator-engine"
       command: "bash 05-CONFIGURATIONS/validation/orchestrator-engine.sh --domain configurations --file 05-CONFIGURATIONS/interface-spec.yaml --strict"
     
     - name: "Verificar checksum SHA256"
-      command: "EXPECTED=$(grep 'checksum_sha256:' 05-CONFIGURATIONS/interface-spec.yaml | cut -d'\"' -f2); ACTUAL=$(sha256sum 05-CONFIGURATIONS/interface-spec.yaml | awk '{print $1}'); [ \"$EXPECTED\" = \"PENDING_GENERATION\" ] || [ \"$EXPECTED\" = \"$ACTUAL\" ] && echo '✅ Checksum válido' || echo '❌ Checksum mismatch'"
+      command: "EXPECTED=$(grep 'checksum_sha256:' 05-CONFIGURATIONS/interface-spec.yaml | cut -d'\"' -f2); ACTUAL=$(sha256sum 05-CONFIGURATIONS/interface-spec.yaml | awk '{print $1}'); [ \"$EXPECTED\" = \"PENDING_GENERATION\" ] || [ \"$EXPECTED\" = \"$ACTUAL\" ] && echo '✅ Checksum válido' || echo '❌ Divergência de checksum'"
   
   acceptance_criteria:
     yaml_valid: true
@@ -523,15 +483,12 @@ self_validation:
     checksum_matches: true
 
 # =============================================================================
-# FIN DEL DOCUMENTO
+# FINAL DO DOCUMENTO
 # =============================================================================
-# Este artefacto es inmutable (immutable: true).
-# Cualquier cambio requiere:
-# 1. Approval humano (requires_human_approval_for_changes: true)
-# 2. Actualización de version en frontmatter
-# 3. Regeneración de checksum_sha256 con verify-and-commit.sh
-# 4. Commit atómico con mensaje trazable
+# Este artefato é imutável (immutable: true).
+# Qualquer alteração requer:
+# 1. Aprovação humana (requires_human_approval_for_changes: true)
+# 2. Atualização da versão no frontmatter
+# 3. Regeneração do checksum_sha256 com verify-and-commit.sh
+# 4. Commit atômico com mensagem rastreável
 # =============================================================================
-
-
----
